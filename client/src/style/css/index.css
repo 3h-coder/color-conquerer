@@ -1,3 +1,5 @@
+/* Global styles for the whole web app*/
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -5,7 +7,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background: linear-gradient(180deg, rgba(97,59,154,1) 0%, rgba(103,48,185,1) 50%, rgba(98,12,226,1) 100%);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -31,7 +33,22 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: max(32px, calc(0.5rem + 4vmin));
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: max(28px, calc(0.5rem + 3vmin));
+  line-height: 1.1;
+}
+
+h3 {
+  font-size: max(24px, calc(0.5rem + 2vmin));
+  line-height: 1.1;
+}
+
+h4 {
+  font-size: max(20px, calc(0.5rem + 1.5vmin));
   line-height: 1.1;
 }
 
@@ -47,22 +64,9 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: white;
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }
