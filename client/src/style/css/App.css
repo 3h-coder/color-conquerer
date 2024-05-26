@@ -4,3 +4,23 @@
   padding: 2rem;
   text-align: center;
 }
+
+.start-button {
+  width: max(80px, 10vw);
+}
+
+.start-button:hover {
+  
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

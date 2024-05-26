@@ -5,7 +5,9 @@ function App() {
   return (
     <>
       <h1>Welcome to Color Conquerer</h1>
-      <button>Start</button>
+      <button className="start-button" onClick={() => { }}>
+        Start
+      </button>
     </>
   )
 }
