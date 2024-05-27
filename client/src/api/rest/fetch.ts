@@ -1,6 +1,4 @@
-import { isDevelopment } from "../env";
-
-export const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL, isDevelopment } from "../../env";
 
 export const DEFAULT_HEADERS: Record<string, string> = {
     "Content-Type": "application/json",

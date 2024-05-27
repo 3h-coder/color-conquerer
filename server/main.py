@@ -1,9 +1,11 @@
 from Application import Application
+from SocketApp import SocketApp
 
 
 def main():
     app = Application(__name__)
-    app.run(debug=True)
+    socket_app = SocketApp(app)
+    socket_app.run()
 
 
 if __name__ == "__main__":
