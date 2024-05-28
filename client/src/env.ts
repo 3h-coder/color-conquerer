@@ -1,4 +1,9 @@
-export const isDevelopment =
-    !process.env.NODE_ENV || process.env.NODE_ENV === "development";
+import { io } from 'socket.io-client';
 
-export const API_URL = process.env.REACT_APP_API_URL || "https://api.color-conquerer.net";
+export const isDevelopment = import.meta.env.DEV;
+
+export const API_URL = import.meta.env.VITE_API_URL || "https://api.color-conquerer.net";
+
+export const socket = io(API_URL, {
+    autoConnect: false
+});

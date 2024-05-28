@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_cors import CORS
 
 
 class Application(Flask):
@@ -8,4 +7,4 @@ class Application(Flask):
         self.initialize()
 
     def initialize(self):
-        CORS(self, supports_credentials=True)
+        pass

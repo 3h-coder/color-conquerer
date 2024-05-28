@@ -1,12 +1,10 @@
 from Application import Application
 from SocketApp import SocketApp
 
+app = Application(__name__)
+app.config["SECRET_KEY"] = "your_secret_key_here"
 
-def main():
-    app = Application(__name__)
-    socket_app = SocketApp(app)
-    socket_app.run()
-
+socket_app = SocketApp(app)
 
 if __name__ == "__main__":
-    main()
+    socket_app.run()
