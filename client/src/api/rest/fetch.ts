@@ -16,13 +16,20 @@ export interface ErrorResponse {
     message: string;
 }
 
-export function callFetch<T>(
+/**
+ * Custom wrapper around the native fetch function to return a proper error response
+ * that fits this app's conventions
+ * @param url the api path (excluding the base url) should always start with a "/"
+ * @param params 
+ * @returns 
+ */
+export function callFetch(
     url: string,
     params: FetchParams,
-): Promise<T> {
-    const unexpectedError = "An unexpected error occured.";
+): Promise<Response | ErrorResponse> {
+    const unexpectedErrorMessage = "An unexpected error occured.";
 
-    return new Promise<T>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         fetch(`${API_URL}${url}`, {
             method: params.method,
             headers: params.headers,
@@ -31,7 +38,7 @@ export function callFetch<T>(
         })
             .then(async (response) => {
                 if (response.ok) {
-                    resolve(response.json() as T);
+                    resolve(response);
                 } else {
                     // The server's errors should always return a JSON in the form of {error: <error message>}
                     const responseJson: { error: string } = await response.json();
@@ -46,7 +53,7 @@ export function callFetch<T>(
                         code: responseStatus,
                         message:
                             responseStatus === 500
-                                ? unexpectedError
+                                ? unexpectedErrorMessage
                                 : errorMessage,
                     } as ErrorResponse);
                 }
@@ -60,8 +67,36 @@ export function callFetch<T>(
                 }
                 reject({
                     code: 500,
-                    message: unexpectedError,
+                    message: unexpectedErrorMessage,
                 } as ErrorResponse);
+            });
+    });
+}
+
+/**
+ * 
+ * @param url the api path (excluding the base url) should always start with a "/"
+ * @param params 
+ * @returns 
+ */
+export function fetchAs<T>(
+    url: string,
+    params: FetchParams,
+): Promise<T> {
+    return new Promise((resolve, reject) => {
+        callFetch(url, params)
+            .then(async (response) => {
+                if ('json' in response) {
+                    // response is of type Response
+                    const data = await response.json();
+                    resolve(data as T);
+                } else {
+                    // response is of type ErrorResponse
+                    reject(response);
+                }
+            })
+            .catch((error: ErrorResponse) => {
+                reject(error);
             });
     });
 }
