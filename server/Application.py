@@ -11,7 +11,7 @@ class Application(Flask):
         self.initialize()
 
     def initialize(self):
-        self.configure()
+        self.set_config()
 
-    def configure(self):
+    def set_config(self):
         self.config["SECRET_KEY"] = "your_secret_key_here"

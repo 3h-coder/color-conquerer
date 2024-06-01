@@ -74,10 +74,10 @@ export function callFetch(
 }
 
 /**
- * 
  * @param url the api path (excluding the base url) should always start with a "/"
  * @param params 
- * @returns 
+ * @returns The fetched data's json parsed into the given type
+ * @throws 
  */
 export function fetchAs<T>(
     url: string,

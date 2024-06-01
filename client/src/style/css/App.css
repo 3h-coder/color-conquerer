@@ -1,3 +1,5 @@
+/* Keyframes, layout & home page specific styles */
+
 #root {
   max-width: 80vw;
   margin: 0 auto;
@@ -5,12 +7,13 @@
   text-align: center;
 }
 
-.start-button {
+.play {
   width: max(80px, 10vw);
 }
 
-.start-button:hover {
-  
+.play:hover{
+  border: 1px solid white;
+  color: white;
 }
 
 @keyframes pulse {

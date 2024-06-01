@@ -1,8 +1,10 @@
 from Application import Application
 from SocketApp import SocketApp
 
-app = Application(__name__)
+# WARNING : always set the current working directory as this file's
+# one before running it
 
+app = Application(__name__)
 
 socket_app = SocketApp(app)
 
