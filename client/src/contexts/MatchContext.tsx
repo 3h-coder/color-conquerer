@@ -2,7 +2,7 @@ import { ReactNode, createContext, useContext, useState } from "react";
 import { MatchInfoDto } from "../dto/MatchInfoDto";
 
 const unstartedMatch: MatchInfoDto = {
-    boardInfo: [],
+    boardArray: [],
     player1: undefined,
     player2: undefined,
     currentTurn: 0,
@@ -28,5 +28,5 @@ export default function MatchContextProvider(props: MatchContextProviderProps) {
 }
 
 export function useMatch() {
-    useContext(MatchContext);
+    return useContext(MatchContext);
 };

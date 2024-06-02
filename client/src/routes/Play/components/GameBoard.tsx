@@ -1,20 +1,20 @@
+import { useEffect } from "react";
 import { CellInfoDto } from "../../../dto/CellInfoDto";
+import { BoardHelper } from "../Helpers/BoardHelper";() => {
+
+}
 import GameCell from "./GameCell";
 
-const defaultCellInfo: CellInfoDto = {}
-
 export default function GameBoard() {
-    const rows = 20;
-    const columns = rows;
-    const boardArray: CellInfoDto[][] = new Array(rows).fill(defaultCellInfo)
-        .map(() => new Array(columns).fill(defaultCellInfo));
+    const size = 15;
+    const boardArray: CellInfoDto[][] = BoardHelper.createBoardArray(size);
 
     return (
-        <div className="board-container">
+        <div className="board">
             {boardArray.map((row, rowIndex) => (
-                <div className="row" key={rowIndex}>
+                <div className="row" id={`r-${rowIndex}`} key={rowIndex}>
                     {row.map((_cell, colIndex) => (
-                        <GameCell key={colIndex}></GameCell>
+                        <GameCell key={colIndex} id={`cell-${rowIndex}-${colIndex}`} />
                     ))}
                 </div>
             ))}

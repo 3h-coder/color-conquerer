@@ -1,5 +1,11 @@
-export default function GameCell() {
+interface GameCellProps {
+    id: string;
+}
+
+export default function GameCell(props: GameCellProps) {
+    const {id} = props;
+
     return (
-        <div className="game-cell" />
+        <div className="cell" id={id}/>
     )
 }

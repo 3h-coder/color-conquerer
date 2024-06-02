@@ -6,8 +6,11 @@ export default function Home() {
         <>
             <h1>Welcome to Color Conquerer</h1>
             <Link to={`/${paths.play}`} className="play button">
-                Start
+                Solo
             </Link>
+            <button className="create-room">
+                Multiplayer
+            </button>
         </>
     );
 }

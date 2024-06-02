@@ -26,5 +26,5 @@ export default function UserContextProvider(props: UserContextProviderProps) {
 }
 
 export function useUser() {
-    useContext(UserContext);
+    return useContext(UserContext);
 }

@@ -9,6 +9,8 @@
 
 .play {
   width: max(80px, 10vw);
+  color: white;
+  margin-right: max(15px, 3vmin);
 }
 
 .play:hover{

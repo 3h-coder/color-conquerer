@@ -1,9 +1,35 @@
 /* Components in the play page */
 
-.game-board {
-    
+.page-container {
+    display: flex;
+    gap: max(30px, 5vmin);
 }
 
-.game-cell {
-    
+.game-menu {
+    padding: max(15px, 3vmin);
+    background-color: rgb(107, 89, 227);
+    border-radius: 5px;
+    height: fit-content;
+    width: fit-content;
+}
+
+.board {
+    display: grid;
+    flex-direction: column;
+    background-color: transparent;
+    width: fit-content;
+    height: fit-content;
+    grid-template-columns: repeat(15, 1fr);
+    flex: 1;
+}
+
+.row {
+    display: contents;
+}
+
+.cell {
+    background-color: white;
+    border: 1px solid rgb(100, 100, 100);
+    width: max(19px, 4vmin);
+    height: max(19px, 4vmin);
 }
