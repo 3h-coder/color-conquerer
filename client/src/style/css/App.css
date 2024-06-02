@@ -1,32 +1,22 @@
 /* Layout & home page specific styles */
 
 .home-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: max(20px, 4vmin);
 }
 
 .main-title {
-  margin: auto;
   width: fit-content;
-}
-
-.content-wrapper {
-  display: flex;
-  max-width: 40vw;
-  overflow: hidden;
-  border: 1px solid white;
-  margin: auto;
-}
-
-.content-container {
-  display: flex;
-  gap: max(400px, 40vw);
 }
 
 .home-buttons-container, .opponent-search-container {
   display: flex;
   align-items: center;
   gap: max(10px, 1vmin);
-  min-width: fit-content;
+  width: fit-content;
 }
 
 .play {
