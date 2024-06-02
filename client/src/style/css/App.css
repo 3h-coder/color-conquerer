@@ -1,31 +1,39 @@
-/* Keyframes, layout & home page specific styles */
+/* Layout & home page specific styles */
 
-#root {
-  max-width: 80vw;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.home-container {
+  padding: max(20px, 4vmin);
+}
+
+.main-title {
+  margin: auto;
+  width: fit-content;
+}
+
+.content-wrapper {
+  display: flex;
+  max-width: 40vw;
+  overflow: hidden;
+  border: 1px solid white;
+  margin: auto;
+}
+
+.content-container {
+  display: flex;
+  gap: max(400px, 40vw);
+}
+
+.home-buttons-container, .opponent-search-container {
+  display: flex;
+  align-items: center;
+  gap: max(10px, 1vmin);
+  min-width: fit-content;
 }
 
 .play {
-  width: max(80px, 10vw);
   color: white;
-  margin-right: max(15px, 3vmin);
 }
 
 .play:hover{
   border: 1px solid white;
   color: white;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
 }
