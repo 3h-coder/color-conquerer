@@ -4,7 +4,7 @@ from flask_socketio import SocketIO
 
 class SocketApp:
     """
-    Socket server to handle real time updates between with the client.
+    Socket server wrapper around a flask application to handle real time updates between with the client.
 
     Docs : https://flask-socketio.readthedocs.io/en/latest/
     Simple chat app example : https://github.com/miguelgrinberg/Flask-SocketIO-Chat

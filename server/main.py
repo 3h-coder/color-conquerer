@@ -1,5 +1,5 @@
-from Application import Application
-from SocketApp import SocketApp
+from application import Application
+from socket_app import SocketApp
 
 # WARNING : always set the current working directory as this file's
 # one before running it
