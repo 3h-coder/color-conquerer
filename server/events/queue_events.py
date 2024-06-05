@@ -1,6 +1,7 @@
-from main import server
+from handlers import queue_handler
 
 
-@server.socketio.on("queue-register")
 def handle_queue_registration(data):
-    print(f"Received {data}")
+    """
+    Handles the queue-register event.
+    """

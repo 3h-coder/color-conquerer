@@ -1,5 +1,8 @@
 from flask import Flask
 
+from config.config import global_config
+from config.variables import RequiredVariables
+
 
 class Application(Flask):
     """
@@ -14,4 +17,4 @@ class Application(Flask):
         self.set_config()
 
     def set_config(self):
-        self.config["SECRET_KEY"] = "your_secret_key_here"
+        self.config["SECRET_KEY"] = global_config[RequiredVariables.APP_SECRET_KEY.name]

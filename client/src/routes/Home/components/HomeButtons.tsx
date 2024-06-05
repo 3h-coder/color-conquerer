@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CancelModal from "../../../components/modals/CancelModal";
 import { QueueDataDto } from "../../../dto/QueueDataDto";
+import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
 import { paths } from "../../paths";
 import OpponentSearch from "./OpponentSearch";
@@ -15,8 +16,7 @@ export default function HomeButtons() {
     useEffect(() => {
 
         function registerInQueue() {
-            console.log("connected");
-            socket.emit("queue-register", { message: "lalala" });
+            socket.emit(Events.QUEUE_REGISTER, { message: "lalala" });
         }
 
         function onQueueRegistrationSuccess(data: QueueDataDto) {
@@ -33,15 +33,15 @@ export default function HomeButtons() {
 
 
         socket.on("connect", registerInQueue);
-        socket.on("queue-registered", onQueueRegistrationSuccess)
+        socket.on(Events.QUEUE_REGISTERED, onQueueRegistrationSuccess)
         // TODO: remove the cancel button while waiting to enter the play room
-        socket.on("match-opponentFound", waitToEnterPlayRoom);
-        socket.on("match-ready", goToPlayRoom)
+        socket.on(Events.MATCH_OPPONENT_FOUND, waitToEnterPlayRoom);
+        socket.on(Events.MATCH_READY, goToPlayRoom)
 
         return () => {
             socket.off("connect", registerInQueue);
-            socket.off("match-opponentFound", waitToEnterPlayRoom);
-            socket.off("match-ready", goToPlayRoom);
+            socket.off(Events.MATCH_OPPONENT_FOUND, waitToEnterPlayRoom);
+            socket.off(Events.MATCH_READY, goToPlayRoom);
         };
 
     }, []);
@@ -53,7 +53,7 @@ export default function HomeButtons() {
 
     function cancelMultiplayerMatchRequest() {
         setModalVisible(false);
-        socket.emit("queue-widthdrawal", idInQueue);
+        socket.emit(Events.QUEUE_WITHDRAWAL, idInQueue);
         socket.disconnect();
     }
 
