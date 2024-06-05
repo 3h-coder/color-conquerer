@@ -6,7 +6,9 @@ from socket_app import SocketApp
 
 app = Application(__name__)
 
-socket_app = SocketApp(app)
+server = SocketApp(app)
+
+from events.queue_events import *
 
 if __name__ == "__main__":
-    socket_app.run()
+    server.run()

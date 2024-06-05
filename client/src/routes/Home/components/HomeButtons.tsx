@@ -15,7 +15,8 @@ export default function HomeButtons() {
     useEffect(() => {
 
         function registerInQueue() {
-            socket.emit("queue-register");
+            console.log("connected");
+            socket.emit("queue-register", { message: "lalala" });
         }
 
         function onQueueRegistrationSuccess(data: QueueDataDto) {
@@ -29,7 +30,6 @@ export default function HomeButtons() {
         function goToPlayRoom() {
 
         }
-
 
 
         socket.on("connect", registerInQueue);
