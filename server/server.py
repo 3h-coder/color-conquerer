@@ -5,7 +5,7 @@ from events import *
 from events.events import Events
 
 
-class SocketApp:
+class Server:
     """
     Socket server wrapper around a flask application to handle real time updates between with the client.
 

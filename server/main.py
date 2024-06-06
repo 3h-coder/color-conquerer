@@ -1,12 +1,12 @@
 from application import Application
-from socket_app import SocketApp
+from server import Server
 
 # WARNING : always set the current working directory as this file's
 # one before running it
 
 app = Application(__name__)
 
-server = SocketApp(app)
+server = Server(app)
 
 if __name__ == "__main__":
     server.run()

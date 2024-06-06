@@ -5,7 +5,7 @@ import uuid
 from config import root_path
 from config.logger import logger
 from config.variable_types import VariableType
-from config.variables import OptionalVariables, RequiredVariables
+from config.variables import RequiredVariables
 
 # os.join is safer than pathlib.Path("directory", "subdirectory") as
 # it does not replace drive:// with drive:/
@@ -30,8 +30,10 @@ def _get_config():
 
     config = default_config
     try:
-        config = json.load(CONFIG_FILE_PATH)
-    except Exception:
+        with open(CONFIG_FILE_PATH, "r") as config_file:
+            config = json.load(config_file)
+    except Exception as ex:
+        logger.debug(f"An error occured during configuration loading : {ex}")
         logger.warning("Loading failed, resorting to default configuration")
         _write_config(config)
 

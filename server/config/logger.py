@@ -23,6 +23,9 @@ def _get_configured_logger():
     logger.addHandler(handler)
     logger.addHandler(logging.StreamHandler())
 
+    # TODO: handle the level dynamically
+    logger.setLevel(logging.DEBUG)
+
     return logger
 
 

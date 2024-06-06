@@ -2,6 +2,9 @@ import os
 
 
 def create_dir_if_not_exists(path: str):
+    """
+    Creates the directory for the specified path which may be a file path or directory path.
+    """
     if not os.path.isdir(path):
         path = os.path.dirname(path)
 
@@ -10,7 +13,10 @@ def create_dir_if_not_exists(path: str):
 
 
 def create_file_if_not_exists(file_path: str):
-    if not os.path.exists(file_path):
-        create_dir_if_not_exists(file_path)
-        with open(file_path, "a"):
-            pass
+
+    if os.path.exists(file_path):
+        return
+
+    create_dir_if_not_exists(file_path)
+    with open(file_path, "a"):
+        pass
