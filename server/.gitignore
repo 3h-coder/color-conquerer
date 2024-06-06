@@ -164,3 +164,4 @@ cython_debug/
 
 # Own stuff
 logs/
+config.json
