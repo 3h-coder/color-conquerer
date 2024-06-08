@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CancelModal from "../../../components/modals/CancelModal";
-import { QueueDataDto } from "../../../dto/QueueDataDto";
+import { QueueRegisterDto } from "../../../dto/QueueRegisterDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
+import { developmentLog } from "../../../utils/loggingUtils";
 import { paths } from "../../paths";
 import OpponentSearch from "./OpponentSearch";
 
@@ -11,16 +12,21 @@ import OpponentSearch from "./OpponentSearch";
 export default function HomeButtons() {
 
     const [modalVisible, setModalVisible] = useState(false);
-    const [idInQueue, setIdInQueue] = useState("");
+    const queueRegisterDto: QueueRegisterDto = {
+        idInQueue: crypto.randomUUID()
+    };
 
     useEffect(() => {
 
         function registerInQueue() {
-            socket.emit(Events.QUEUE_REGISTER, { message: "lalala" });
+
+            developmentLog("Registering in queue");
+
+            socket.emit(Events.QUEUE_REGISTER, queueRegisterDto);
         }
 
-        function onQueueRegistrationSuccess(data: QueueDataDto) {
-            setIdInQueue(data.idInQueue);
+        function onQueueRegistrationSuccess() {
+            developmentLog("Registered in the queue");
         }
 
         function waitToEnterPlayRoom() {
@@ -40,11 +46,12 @@ export default function HomeButtons() {
 
         return () => {
             socket.off("connect", registerInQueue);
+            socket.off(Events.QUEUE_REGISTERED, onQueueRegistrationSuccess);
             socket.off(Events.MATCH_OPPONENT_FOUND, waitToEnterPlayRoom);
             socket.off(Events.MATCH_READY, goToPlayRoom);
         };
 
-    }, []);
+    });
 
     function requestMultiplayerMatch() {
         setModalVisible(true);
@@ -53,7 +60,7 @@ export default function HomeButtons() {
 
     function cancelMultiplayerMatchRequest() {
         setModalVisible(false);
-        socket.emit(Events.QUEUE_WITHDRAWAL, idInQueue);
+        socket.emit(Events.QUEUE_WITHDRAWAL, queueRegisterDto);
         socket.disconnect();
     }
 

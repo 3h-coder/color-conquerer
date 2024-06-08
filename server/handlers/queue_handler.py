@@ -18,3 +18,13 @@ class QueueHandler:
         """
 
         self.queue.append(data.idInQueue)
+
+    def withdraw(self, data: QueueRegisterDto):
+        """
+        Withdraws the player from the queue.
+        """
+
+        try:
+            self.queue.remove(data.idInQueue)
+        except ValueError:
+            pass

@@ -20,6 +20,7 @@ class Server:
 
     def _add_listeners(self):
         self.socketio.on_event(Events.QUEUE_REGISTER.value, handle_queue_registration)
+        self.socketio.on_event(Events.QUEUE_WITHDRAWAL.value, handler_queue_withdrawal)
 
     def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):
         self.socketio.run(self.app, host=host, port=port, debug=debug, **kwargs)
