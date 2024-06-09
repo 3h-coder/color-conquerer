@@ -16,11 +16,12 @@ class QueueHandler:
         """
         Registers the incoming data into the queue for
         processing.
+
+        Returns True if the registration was successful, False otherwise.
         """
         try:
             self.queue.append(data.playerId)
             logger.debug(f"Queue : {self.queue}")
-
             return True
         except Exception:
             return False
@@ -28,11 +29,12 @@ class QueueHandler:
     def withdraw(self, data: QueueRegisterDto):
         """
         Withdraws the player from the queue.
+
+        Returns True if the withdrawal was successful, False otherwise.
         """
         try:
             self.queue.remove(data.playerId)
             logger.debug(f"Queue : {self.queue}")
-
-            # TODO: remove the room from room_handler.open_rooms
+            return True
         except ValueError:
-            pass
+            return False

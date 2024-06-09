@@ -30,6 +30,7 @@ export default function HomeButtons() {
         }
 
         function waitToEnterPlayRoom() {
+            developmentLog("Opponent found!");
 
         }
 

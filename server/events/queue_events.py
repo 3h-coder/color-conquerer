@@ -1,4 +1,5 @@
-from flask_socketio import emit
+from flask import session
+from flask_socketio import emit, join_room
 
 from config.logger import logger
 from dto.queue_register_dto import QueueRegisterDto
@@ -20,7 +21,15 @@ def handle_queue_registration(data: dict):
         registration_success = queue_handler.register(queue_register_dto)
         if registration_success:
             emit(Events.QUEUE_REGISTERED.value)
-            room_handler.make_enter_in_room(queue_register_dto.playerId)
+            (room_id, closed) = room_handler.make_enter_in_room(
+                queue_register_dto.playerId
+            )
+
+            session["room_id"] = room_id
+            join_room(room_id)
+
+            if closed:
+                emit(Events.QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
 
     except Exception as ex:
         logger.error(f"An error occured during queue registration : {ex}")
@@ -39,6 +48,7 @@ def handler_queue_withdrawal(data: dict):
         )
 
         queue_handler.withdraw(queue_register_dto)
+        # TODO: Update rooms
     except Exception as ex:
         logger.error(f"An error occured during queue withdrawal : {ex}")
         raise QueueError()
