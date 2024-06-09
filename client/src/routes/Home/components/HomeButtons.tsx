@@ -12,8 +12,9 @@ import OpponentSearch from "./OpponentSearch";
 export default function HomeButtons() {
 
     const [modalVisible, setModalVisible] = useState(false);
+    const [opponentFound, setOpponentFound] = useState(false);
     const queueRegisterDto: QueueRegisterDto = {
-        playerId: crypto.randomUUID()
+        playerId: `p-${crypto.randomUUID()}`
     };
 
     useEffect(() => {
@@ -30,7 +31,9 @@ export default function HomeButtons() {
         }
 
         function waitToEnterPlayRoom() {
+            setOpponentFound(true);
             developmentLog("Opponent found!");
+
 
         }
 
@@ -40,6 +43,7 @@ export default function HomeButtons() {
 
 
         socket.on("connect", registerInQueue);
+        socket.on("disconnect", getOutOfModal);
         socket.on(Events.QUEUE_REGISTERED, onQueueRegistrationSuccess)
         // TODO: remove the cancel button while waiting to enter the play room
         socket.on(Events.QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
@@ -47,6 +51,7 @@ export default function HomeButtons() {
 
         return () => {
             socket.off("connect", registerInQueue);
+            socket.off("disconnect", getOutOfModal);
             socket.off(Events.QUEUE_REGISTERED, onQueueRegistrationSuccess);
             socket.off(Events.QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
             socket.off(Events.MATCH_READY, goToPlayRoom);
@@ -60,9 +65,14 @@ export default function HomeButtons() {
     }
 
     function cancelMultiplayerMatchRequest() {
-        setModalVisible(false);
+        getOutOfModal();
         socket.emit(Events.QUEUE_WITHDRAWAL, queueRegisterDto);
         socket.disconnect();
+    }
+
+    function getOutOfModal() {
+        setModalVisible(false);
+        setOpponentFound(false);
     }
 
     return (
@@ -77,8 +87,8 @@ export default function HomeButtons() {
             </div>
             {
                 modalVisible && (
-                    <CancelModal onClose={cancelMultiplayerMatchRequest}>
-                        <OpponentSearch />
+                    <CancelModal onClose={cancelMultiplayerMatchRequest} enableClosing={!opponentFound}>
+                        <OpponentSearch opponentFound={opponentFound} />
                     </CancelModal>
                 )
             }

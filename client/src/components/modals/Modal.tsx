@@ -7,11 +7,12 @@ export interface ModalProps {
     style?: React.CSSProperties;
     title?: string;
     children?: React.ReactNode;
+    enableClosing?: boolean;
     onClose?: () => unknown;
 }
 
 export default function Modal(props: ModalProps) {
-    const { style, title, children, onClose } = props;
+    const { style, title, children, enableClosing, onClose } = props;
     const [isOpen, setIsOpen] = useState(true);
 
     function closeModal() {
@@ -27,7 +28,7 @@ export default function Modal(props: ModalProps) {
                 <div className="modal-container" style={style}>
                     <div className="modal-header">
                         <h4 style={{ margin: 0 }}>{title}</h4>
-                        <CloseButton onClick={closeModal} />
+                        {enableClosing !== false && <CloseButton onClick={closeModal} />}
                     </div>
                     {children}
                 </div>

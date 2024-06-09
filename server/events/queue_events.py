@@ -1,11 +1,11 @@
 from flask import session
-from flask_socketio import emit, join_room
+from flask_socketio import emit, join_room, leave_room
 
 from config.logger import logger
 from dto.queue_register_dto import QueueRegisterDto
 from events.events import Events
 from exceptions.queue_exception import QueueError
-from handlers import queue_handler, room_handler
+from handlers import room_handler
 
 
 def handle_queue_registration(data: dict):
@@ -18,25 +18,22 @@ def handle_queue_registration(data: dict):
             f"{Events.QUEUE_REGISTERED.name} event : {queue_register_dto.playerId}"
         )
 
-        registration_success = queue_handler.register(queue_register_dto)
-        if registration_success:
-            emit(Events.QUEUE_REGISTERED.value)
-            (room_id, closed) = room_handler.make_enter_in_room(
-                queue_register_dto.playerId
-            )
+        (room_id, closed) = room_handler.make_enter_in_room(queue_register_dto.playerId)
 
-            session["room_id"] = room_id
-            join_room(room_id)
+        emit(Events.QUEUE_REGISTERED.value)
 
-            if closed:
-                emit(Events.QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
+        session["room_id"] = room_id
+        join_room(room_id)
+
+        if closed:
+            emit(Events.QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
 
     except Exception as ex:
         logger.error(f"An error occured during queue registration : {ex}")
         raise QueueError()
 
 
-def handler_queue_withdrawal(data: dict):
+def handle_queue_withdrawal(data: dict):
     """
     Handles the queue-withdrawal event.
     """
@@ -47,8 +44,11 @@ def handler_queue_withdrawal(data: dict):
             f"{Events.QUEUE_WITHDRAWAL.name} event : {queue_register_dto.playerId}"
         )
 
-        queue_handler.withdraw(queue_register_dto)
-        # TODO: Update rooms
+        room_id = session["room_id"]
+        leave_room(room_id)
+
+        room_handler.remove_room(room_id)
+
     except Exception as ex:
         logger.error(f"An error occured during queue withdrawal : {ex}")
         raise QueueError()
