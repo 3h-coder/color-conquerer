@@ -13,7 +13,7 @@ export default function HomeButtons() {
 
     const [modalVisible, setModalVisible] = useState(false);
     const queueRegisterDto: QueueRegisterDto = {
-        idInQueue: crypto.randomUUID()
+        playerId: crypto.randomUUID()
     };
 
     useEffect(() => {
@@ -41,13 +41,13 @@ export default function HomeButtons() {
         socket.on("connect", registerInQueue);
         socket.on(Events.QUEUE_REGISTERED, onQueueRegistrationSuccess)
         // TODO: remove the cancel button while waiting to enter the play room
-        socket.on(Events.MATCH_OPPONENT_FOUND, waitToEnterPlayRoom);
+        socket.on(Events.QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
         socket.on(Events.MATCH_READY, goToPlayRoom)
 
         return () => {
             socket.off("connect", registerInQueue);
             socket.off(Events.QUEUE_REGISTERED, onQueueRegistrationSuccess);
-            socket.off(Events.MATCH_OPPONENT_FOUND, waitToEnterPlayRoom);
+            socket.off(Events.QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
             socket.off(Events.MATCH_READY, goToPlayRoom);
         };
 

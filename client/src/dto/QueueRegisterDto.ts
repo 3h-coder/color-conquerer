@@ -1,3 +1,3 @@
 export interface QueueRegisterDto {
-    idInQueue: string
+    playerId: string
 }

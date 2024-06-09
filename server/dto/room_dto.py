@@ -4,5 +4,7 @@ from dto.base_dto import BaseDto
 
 
 @dataclass
-class QueueRegisterDto(BaseDto):
-    playerId: str
+class RoomDto(BaseDto):
+    id: str
+    player1id: str
+    player2id: str
