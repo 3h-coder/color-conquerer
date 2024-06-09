@@ -33,8 +33,6 @@ export default function HomeButtons() {
         function waitToEnterPlayRoom() {
             setOpponentFound(true);
             developmentLog("Opponent found!");
-
-
         }
 
         function goToPlayRoom() {
@@ -47,6 +45,7 @@ export default function HomeButtons() {
         socket.on(Events.QUEUE_REGISTERED, onQueueRegistrationSuccess)
         // TODO: remove the cancel button while waiting to enter the play room
         socket.on(Events.QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
+        socket.on(Events.MATCH_OPPONENT_LEFT, getOutOfModal)
         socket.on(Events.MATCH_READY, goToPlayRoom)
 
         return () => {
@@ -54,6 +53,7 @@ export default function HomeButtons() {
             socket.off("disconnect", getOutOfModal);
             socket.off(Events.QUEUE_REGISTERED, onQueueRegistrationSuccess);
             socket.off(Events.QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
+            socket.off(Events.MATCH_OPPONENT_LEFT, getOutOfModal);
             socket.off(Events.MATCH_READY, goToPlayRoom);
         };
 

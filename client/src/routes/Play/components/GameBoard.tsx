@@ -1,9 +1,7 @@
-import { useEffect } from "react";
 import { CellInfoDto } from "../../../dto/CellInfoDto";
-import { BoardHelper } from "../Helpers/BoardHelper";() => {
-
-}
+import { BoardHelper } from "../Helpers/BoardHelper";
 import GameCell from "./GameCell";
+
 
 export default function GameBoard() {
     const size = 15;

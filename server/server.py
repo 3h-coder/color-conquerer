@@ -19,6 +19,7 @@ class Server:
         self._add_listeners()
 
     def _add_listeners(self):
+        self.socketio.on_event("disconnect", handle_disconnection)
         self.socketio.on_event(Events.QUEUE_REGISTER.value, handle_queue_registration)
         self.socketio.on_event(Events.QUEUE_WITHDRAWAL.value, handle_queue_withdrawal)
 

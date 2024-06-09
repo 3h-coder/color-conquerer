@@ -2,6 +2,7 @@ import { CellInfoDto } from "./CellInfoDto";
 import { PlayerInfoDto } from "./PlayerInfoDto";
 
 export interface MatchInfoDto {
+    id: string;
     boardArray: CellInfoDto[][];
     player1?: PlayerInfoDto;
     player2?: PlayerInfoDto;
