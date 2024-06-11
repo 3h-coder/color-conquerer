@@ -8,6 +8,7 @@ from dto.player_info_dto import PlayerInfoDto
 @dataclass
 class MatchInfoDto(BaseDto):
     id: str
+    roomId: str
     boardArray: list[list[CellInfoDto]]
     player1: PlayerInfoDto
     player2: PlayerInfoDto

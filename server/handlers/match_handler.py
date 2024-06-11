@@ -1,3 +1,7 @@
+import uuid
+
+from config.config import logger
+from dto.room_dto import RoomDto
 from handlers.match_handler_unit import MatchHandlerUnit
 
 
@@ -14,4 +18,8 @@ class MatchHandler:
         try:
             return self.units[unit_id]
         except KeyError:
-            return None
+            logger.error(f"The following match handler unit does not exist : {unit_id}")
+
+    def initiate_match(self, room_dto: RoomDto):
+        match_handler_unit = MatchHandlerUnit(room_dto)
+        self.units[match_handler_unit.id] = match_handler_unit

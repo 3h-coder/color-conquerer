@@ -1,3 +1,6 @@
+import UserDto from "./UserDto";
+
 export interface QueueRegisterDto {
-    playerId: string
+    user: UserDto;
+    playerId: string;
 }

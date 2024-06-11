@@ -3,6 +3,7 @@ from enum import Enum
 
 class Events(Enum):
 
+    QUEUE_FULL = "queue-full"
     QUEUE_REGISTER = "queue-register"
     QUEUE_REGISTERED = "queue-registered"
     QUEUE_WITHDRAWAL = "queue-withdrawal"

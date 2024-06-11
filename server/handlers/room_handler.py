@@ -1,6 +1,7 @@
 import uuid
 
 from config.logger import logger
+from dto.queue_register_dto import QueueRegisterDto
 from dto.room_dto import RoomDto
 
 
@@ -10,14 +11,23 @@ class RoomHandler:
     during a match.
     """
 
+    # TODO: Make this variable configurable
+    MAX_CLOSED_ROOMS = 50
+
     def __init__(self):
         self.open_rooms: dict[str, RoomDto] = {}
         self.closed_rooms: dict[str, RoomDto] = {}
 
-    def make_enter_in_room(self, player_id: str):
+    def at_capacity(self):
+        """
+        Indicates whether or not the room handler has reached its closed rooms limit
+        """
+        return len(self.closed_rooms) == self.MAX_CLOSED_ROOMS
+
+    def make_enter_in_room(self, player_register_dto: QueueRegisterDto):
         if not self.open_rooms:
             new_room = RoomDto(
-                id=f"room-{uuid.uuid4()}", player1id=player_id, player2id=None
+                id=f"room-{uuid.uuid4()}", player1=player_register_dto, player2=None
             )
             self.open_rooms[new_room.id] = new_room
             self._log_rooms()
@@ -25,7 +35,7 @@ class RoomHandler:
 
         # Place the player in the first open room
         room = self.open_rooms[next(iter(self.open_rooms))]
-        room.player2id = player_id
+        room.player2 = player_register_dto
         # Move the room to the closed rooms
         self.closed_rooms[room.id] = room
         del self.open_rooms[room.id]
