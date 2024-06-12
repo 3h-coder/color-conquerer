@@ -1,6 +1,13 @@
 from dataclasses import dataclass
+from enum import Enum
 
 from dto.base_dto import BaseDto
+
+
+class CellState(Enum):
+    IDLE = 0
+    CAPTURED = 1
+    FROZEN = 2
 
 
 @dataclass
@@ -8,4 +15,4 @@ class CellInfoDto(BaseDto):
     owner: int
     rowIndex: int
     columnIndex: int
-    state: str
+    state: CellState

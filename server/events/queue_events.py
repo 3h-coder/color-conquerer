@@ -37,6 +37,7 @@ def handle_queue_registration(data: dict):
         if closed:
             emit(Events.QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
             match_handler.initiate_match(room_handler.closed_rooms[room_id])
+            session["in_match"] = True
 
     except Exception as ex:
         logger.error(f"An error occured during queue registration : {ex}")
