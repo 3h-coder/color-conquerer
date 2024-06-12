@@ -22,4 +22,4 @@ class MatchHandler:
 
     def initiate_match(self, room_dto: RoomDto):
         match_handler_unit = MatchHandlerUnit(room_dto)
-        self.units[match_handler_unit.id] = match_handler_unit
+        self.units[match_handler_unit.match_info.id] = match_handler_unit

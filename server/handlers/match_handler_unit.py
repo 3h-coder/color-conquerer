@@ -4,6 +4,7 @@ from dto.cell_info_dto import CellInfoDto
 from dto.match_info_dto import MatchInfoDto
 from dto.player_info_dto import PlayerInfoDto
 from dto.room_dto import RoomDto
+from helpers.id_generation_helper import generate_id
 
 
 class MatchHandlerUnit:
@@ -12,9 +13,8 @@ class MatchHandlerUnit:
     """
 
     def __init__(self, room_dto: RoomDto):
-        self.id = f"mhu-{uuid.uuid4()}"
         self.match_info = MatchInfoDto(
-            id=f"match-{uuid.uuid4()}",
+            id=generate_id(MatchInfoDto),
             roomId=room_dto.id,
             boardArray=self._initialize_starting_board_array(),
             player1=PlayerInfoDto(
@@ -31,7 +31,7 @@ class MatchHandlerUnit:
             started=False,
         )
 
-    def _initialize_starting_board_array():
+    def _initialize_starting_board_array(self):
         board_size = 15
 
         return [

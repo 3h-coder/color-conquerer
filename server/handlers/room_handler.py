@@ -3,6 +3,7 @@ import uuid
 from config.logger import logger
 from dto.queue_register_dto import QueueRegisterDto
 from dto.room_dto import RoomDto
+from helpers.id_generation_helper import generate_id
 
 
 class RoomHandler:
@@ -27,7 +28,7 @@ class RoomHandler:
     def make_enter_in_room(self, player_register_dto: QueueRegisterDto):
         if not self.open_rooms:
             new_room = RoomDto(
-                id=f"room-{uuid.uuid4()}", player1=player_register_dto, player2=None
+                id=generate_id(RoomDto), player1=player_register_dto, player2=None
             )
             self.open_rooms[new_room.id] = new_room
             self._log_rooms()

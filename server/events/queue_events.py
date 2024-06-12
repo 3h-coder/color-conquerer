@@ -36,7 +36,7 @@ def handle_queue_registration(data: dict):
         # notify both clients that an opponent was found
         if closed:
             emit(Events.QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
-            match_handler.initiate_match()
+            match_handler.initiate_match(room_handler.closed_rooms[room_id])
 
     except Exception as ex:
         logger.error(f"An error occured during queue registration : {ex}")
