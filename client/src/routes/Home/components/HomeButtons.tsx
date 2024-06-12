@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CancelModal from "../../../components/modals/CancelModal";
 import { useUser } from "../../../contexts/UserContext";
-import { QueueRegisterDto } from "../../../dto/QueueRegisterDto";
+import { QueuePlayerDto } from "../../../dto/QueuePlayerDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
 import { developmentLog } from "../../../utils/loggingUtils";
@@ -16,7 +16,7 @@ export default function HomeButtons() {
     const [opponentFound, setOpponentFound] = useState(false);
     const { user } = useUser();
 
-    const queueRegisterDto: QueueRegisterDto = {
+    const queueRegisterDto: QueuePlayerDto = {
         user: user,
         playerId: `p-${crypto.randomUUID()}`
     };

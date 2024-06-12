@@ -2,7 +2,7 @@ from flask import session
 from flask_socketio import emit, join_room, leave_room
 
 from config.logger import logger
-from dto.queue_register_dto import QueueRegisterDto
+from dto.queue_player_dto import QueuePlayerDto
 from events.events import Events
 from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
@@ -17,7 +17,7 @@ def handle_queue_registration(data: dict):
             logger.info("Room handler at maximum capacity, denying queue registration")
             emit(Events.QUEUE_FULL)
 
-        queue_register_dto = QueueRegisterDto.from_dict(data)
+        queue_register_dto = QueuePlayerDto.from_dict(data)
         logger.info(
             f"{Events.QUEUE_REGISTERED.name} event : {queue_register_dto.playerId}"
         )
@@ -49,7 +49,7 @@ def handle_queue_withdrawal(data: dict):
     """
 
     try:
-        queue_register_dto = QueueRegisterDto.from_dict(data)
+        queue_register_dto = QueuePlayerDto.from_dict(data)
         logger.info(
             f"{Events.QUEUE_WITHDRAWAL.name} event : {queue_register_dto.playerId}"
         )

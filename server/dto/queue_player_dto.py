@@ -5,6 +5,6 @@ from dto.user_dto import UserDto
 
 
 @dataclass
-class QueueRegisterDto(BaseDto):
+class QueuePlayerDto(BaseDto):
     user: UserDto
     playerId: str

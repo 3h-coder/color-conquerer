@@ -1,7 +1,7 @@
 import uuid
 
 from config.logger import logger
-from dto.queue_register_dto import QueueRegisterDto
+from dto.queue_player_dto import QueuePlayerDto
 from dto.room_dto import RoomDto
 from helpers.id_generation_helper import generate_id
 
@@ -25,7 +25,7 @@ class RoomHandler:
         """
         return len(self.closed_rooms) == self.MAX_CLOSED_ROOMS
 
-    def make_enter_in_room(self, player_register_dto: QueueRegisterDto):
+    def make_enter_in_room(self, player_register_dto: QueuePlayerDto):
         if not self.open_rooms:
             new_room = RoomDto(
                 id=generate_id(RoomDto), player1=player_register_dto, player2=None
