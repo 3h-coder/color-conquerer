@@ -4,6 +4,7 @@ from dto.cell_info_dto import CellInfoDto, CellState
 from dto.match_info_dto import MatchInfoDto
 from dto.player_info_dto import PlayerInfoDto
 from dto.room_dto import RoomDto
+from helpers.board_helper import display_board_owners
 from helpers.id_generation_helper import generate_id
 
 
@@ -39,11 +40,16 @@ class MatchHandlerUnit:
         # TODO: create unit tests to ensure that
         board_size = 15
 
-        # TODO: initialize the cell[2][7] as owned by player1 and the cell[12][7] by player2
-        return [
+        board = [
             [
                 CellInfoDto(owner=0, rowIndex=i, columnIndex=j, state=CellState.IDLE)
                 for j in range(board_size)
             ]
             for i in range(board_size)
         ]
+
+        # initialize the cell[2][7] as owned by player1 and the cell[12][7] by player2
+        board[2][7].owner = 1
+        board[12][7].owner = 2
+
+        return board

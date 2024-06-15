@@ -27,7 +27,7 @@ export default function HomeButtons() {
 
             developmentLog("Registering in queue");
 
-            socket.emit(Events.QUEUE_REGISTER, queueRegisterDto);
+            socket.emit(Events.CLIENT_QUEUE_REGISTER, queueRegisterDto);
         }
 
         function onQueueRegistrationSuccess() {
@@ -40,25 +40,25 @@ export default function HomeButtons() {
         }
 
         function goToPlayRoom() {
-
+            window.location.href = `/${paths.play}`;
         }
 
 
         socket.on("connect", registerInQueue);
         socket.on("disconnect", getOutOfModal);
-        socket.on(Events.QUEUE_REGISTERED, onQueueRegistrationSuccess)
+        socket.on(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess)
         // TODO: remove the cancel button while waiting to enter the play room
-        socket.on(Events.QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
-        socket.on(Events.MATCH_OPPONENT_LEFT, getOutOfModal)
-        socket.on(Events.MATCH_READY, goToPlayRoom)
+        socket.on(Events.SERVER_QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
+        socket.on(Events.SERVER_MATCH_OPPONENT_LEFT, getOutOfModal)
+        socket.on(Events.SERVER_MATCH_READY, goToPlayRoom)
 
         return () => {
             socket.off("connect", registerInQueue);
             socket.off("disconnect", getOutOfModal);
-            socket.off(Events.QUEUE_REGISTERED, onQueueRegistrationSuccess);
-            socket.off(Events.QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
-            socket.off(Events.MATCH_OPPONENT_LEFT, getOutOfModal);
-            socket.off(Events.MATCH_READY, goToPlayRoom);
+            socket.off(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess);
+            socket.off(Events.SERVER_QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
+            socket.off(Events.SERVER_MATCH_OPPONENT_LEFT, getOutOfModal);
+            socket.off(Events.SERVER_MATCH_READY, goToPlayRoom);
         };
 
     });
@@ -70,7 +70,7 @@ export default function HomeButtons() {
 
     function cancelMultiplayerMatchRequest() {
         getOutOfModal();
-        socket.emit(Events.QUEUE_WITHDRAWAL, queueRegisterDto);
+        socket.emit(Events.CLIENT_QUEUE_WITHDRAWAL, queueRegisterDto);
         socket.disconnect();
     }
 
