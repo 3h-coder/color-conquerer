@@ -2,11 +2,12 @@ import { ReactNode, createContext, useContext, useState } from "react";
 import { MatchInfoDto } from "../dto/MatchInfoDto";
 
 const unstartedMatch: MatchInfoDto = {
+    id: "",
+    roomId: "",
     boardArray: [],
     player1: undefined,
     player2: undefined,
     currentTurn: 0,
-    started: false
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -27,6 +28,7 @@ export default function MatchContextProvider(props: MatchContextProviderProps) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useMatch() {
     return useContext(MatchContext);
-};
+}

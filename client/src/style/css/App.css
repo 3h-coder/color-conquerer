@@ -19,6 +19,17 @@
   width: fit-content;
 }
 
+.home-error-container {
+  display: flex;
+  gap: max(1vmin, 10px);
+  background-color: rgb(107, 89, 227);
+  border-radius: 5px;
+  padding: max(1vmin, 10px);
+  margin-top: max(2vh, 10px);
+  color: orange;
+  align-items: center;
+}
+
 .play {
   color: white;
 }

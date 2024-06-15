@@ -32,7 +32,6 @@ class MatchHandlerUnit:
                 controlledCells=[],
             ),
             currentTurn=0,
-            started=False,
         )
 
     def _get_starting_board_array(self):

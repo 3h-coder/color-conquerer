@@ -15,9 +15,9 @@ def handle_match_request(data: dict):
     Is in charge of creating the room up to creating the match.
     """
     try:
-        if room_handler.at_capacity():
+        if not room_handler.at_capacity():
             logger.info("Room handler at maximum capacity, denying queue registration")
-            emit(Events.SERVER_QUEUE_FULL)
+            emit(Events.SERVER_QUEUE_FULL.value)
             return
 
         queue_player_dto = QueuePlayerDto.from_dict(data)
@@ -27,10 +27,11 @@ def handle_match_request(data: dict):
 
         (room_id, closed) = make_enter_in_room(queue_player_dto)
 
-        # The room in which the player entered already had a player waiting,
-        # notify both clients that an opponent was found and create the match.
+        # The room in which the player entered already had a player waiting.
+        # In that case, initiate the match, and notify both clients that an opponent was found.
         if closed:
-            initiate_match(room_id)
+            match_handler.initiate_match(room_handler.closed_rooms[room_id])
+            emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
 
     except Exception as ex:
         logger.error(f"An error occured match request : {ex}")
@@ -73,20 +74,3 @@ def make_enter_in_room(queue_player_dto: QueuePlayerDto):
     )  # Notify the client that registration succeeded
 
     return room_id, closed
-
-
-def initiate_match(room_id: str):
-    """
-    Notifies the client that an opponent was found, initiates the match and notifies the client again.
-    """
-    emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
-
-    match_handler_unit = match_handler.initiate_match(
-        room_handler.closed_rooms[room_id]
-    )
-    emit(
-        Events.SERVER_MATCH_READY.value,
-        match_handler_unit.match_info.to_json(),
-        to=room_id,
-        broadcast=True,
-    )

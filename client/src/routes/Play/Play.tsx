@@ -1,10 +1,16 @@
+import { ReactNode, useEffect } from "react";
 import MatchContextProvider from "../../contexts/MatchContext";
-import GameBoard from "./components/GameBoard";
+import { Events } from "../../enums/events";
+import { socket } from "../../env";
 import '../../style/css/Play.css';
+import GameBoard from "./components/GameBoard";
 import GameMenu from "./components/GameMenu";
-import { ReactNode } from "react";
 
 export default function Play() {
+
+    useEffect(() => {
+        socket.emit(Events.CLIENT_MATCH_INFO);
+    }, []);
 
     return (
         <MatchContextProvider>
@@ -17,11 +23,11 @@ export default function Play() {
 }
 
 interface PageContainerProps {
-    children : ReactNode;
+    children: ReactNode;
 }
 
 function PageContainer(props: PageContainerProps) {
-    const {children} = props;
+    const { children } = props;
 
     return (
         <div className="page-container">

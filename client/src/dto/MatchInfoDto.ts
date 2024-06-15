@@ -8,5 +8,4 @@ export interface MatchInfoDto {
     player1?: PlayerInfoDto;
     player2?: PlayerInfoDto;
     currentTurn: number;
-    started: boolean;
 }

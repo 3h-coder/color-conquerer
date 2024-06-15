@@ -13,4 +13,6 @@ class MatchInfoDto(BaseDto):
     player1: PlayerInfoDto
     player2: PlayerInfoDto
     currentTurn: int
-    started: bool
+
+    def started(self):
+        return self.currentTurn > 0
