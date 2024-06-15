@@ -24,9 +24,7 @@ export default function HomeButtons() {
     useEffect(() => {
 
         function registerInQueue() {
-
             developmentLog("Registering in queue");
-
             socket.emit(Events.CLIENT_QUEUE_REGISTER, queueRegisterDto);
         }
 
