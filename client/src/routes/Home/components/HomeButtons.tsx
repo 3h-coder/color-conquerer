@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CancelModal from "../../../components/modals/CancelModal";
+import { useHomeError } from "../../../contexts/HomeErrorContext";
 import { useUser } from "../../../contexts/UserContext";
 import { QueuePlayerDto } from "../../../dto/QueuePlayerDto";
 import { Events } from "../../../enums/events";
@@ -13,7 +14,8 @@ import OpponentSearch from "./OpponentSearch";
 export default function HomeButtons() {
 
     const [modalVisible, setModalVisible] = useState(false);
-    const [opponentFound, setOpponentFound] = useState(false);
+    const [intendedDisconnection, setIntendedDisconnection] = useState(false);
+    const { setHomeError } = useHomeError();
     const { user } = useUser();
 
     const queueRegisterDto: QueuePlayerDto = {
@@ -28,53 +30,58 @@ export default function HomeButtons() {
             socket.emit(Events.CLIENT_QUEUE_REGISTER, queueRegisterDto);
         }
 
+        function onQueueFull() {
+            setModalVisible(false);
+            socket.disconnect();
+            setHomeError("The server has reached its maximum capacity, please try again later");
+        }
+
         function onQueueRegistrationSuccess() {
             developmentLog("Registered in the queue");
         }
 
-        function waitToEnterPlayRoom() {
-            setOpponentFound(true);
-            developmentLog("Opponent found!");
-        }
-
         function goToPlayRoom() {
-            window.location.href = `/${paths.play}`;
+            developmentLog("Opponent found!");
+            location.href = `/${paths.play}`;
         }
 
 
         socket.on("connect", registerInQueue);
-        socket.on("disconnect", getOutOfModal);
+        socket.on("disconnect", onDisconnect);
+        socket.on(Events.SERVER_QUEUE_FULL, onQueueFull);
         socket.on(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess)
-        // TODO: remove the cancel button while waiting to enter the play room
-        socket.on(Events.SERVER_QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
-        socket.on(Events.SERVER_MATCH_OPPONENT_LEFT, getOutOfModal)
-        socket.on(Events.SERVER_MATCH_READY, goToPlayRoom)
+        socket.on(Events.SERVER_QUEUE_OPPONENT_FOUND, goToPlayRoom);
+        socket.on(Events.SERVER_MATCH_OPPONENT_LEFT, onDisconnect)
 
         return () => {
             socket.off("connect", registerInQueue);
-            socket.off("disconnect", getOutOfModal);
+            socket.off("disconnect", onDisconnect);
+            socket.off(Events.SERVER_QUEUE_FULL, onQueueFull);
             socket.off(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess);
-            socket.off(Events.SERVER_QUEUE_OPPONENT_FOUND, waitToEnterPlayRoom);
-            socket.off(Events.SERVER_MATCH_OPPONENT_LEFT, getOutOfModal);
-            socket.off(Events.SERVER_MATCH_READY, goToPlayRoom);
+            socket.off(Events.SERVER_QUEUE_OPPONENT_FOUND, goToPlayRoom);
+            socket.off(Events.SERVER_MATCH_OPPONENT_LEFT, onDisconnect);
         };
 
     });
 
     function requestMultiplayerMatch() {
         setModalVisible(true);
+        setIntendedDisconnection(false);
         socket.connect();
     }
 
     function cancelMultiplayerMatchRequest() {
-        getOutOfModal();
+        setModalVisible(false);
+        setIntendedDisconnection(true);
         socket.emit(Events.CLIENT_QUEUE_WITHDRAWAL, queueRegisterDto);
         socket.disconnect();
     }
 
-    function getOutOfModal() {
+    function onDisconnect() {
         setModalVisible(false);
-        setOpponentFound(false);
+        if (!intendedDisconnection) {
+            setHomeError("The connexion with the server has been lost");
+        }
     }
 
     return (
@@ -89,13 +96,12 @@ export default function HomeButtons() {
             </div>
             {
                 modalVisible && (
-                    <CancelModal onClose={cancelMultiplayerMatchRequest} enableClosing={!opponentFound}>
-                        <OpponentSearch opponentFound={opponentFound} />
+                    <CancelModal onClose={cancelMultiplayerMatchRequest}>
+                        <OpponentSearch />
                     </CancelModal>
                 )
             }
 
         </>
-
     );
 }
