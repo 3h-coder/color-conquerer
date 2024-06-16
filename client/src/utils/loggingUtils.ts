@@ -13,3 +13,13 @@ export function developmentLog(message?: string, ...optionalParams: unknown[]) {
     }
 
 }
+
+export function developmentErrorLog(message?: string, ...optionalParams: unknown[]) {
+    if (!isDevelopment) return;
+
+    if (optionalParams.length > 0) {
+        console.error(message, ...optionalParams);
+    } else {
+        console.error(message);
+    }
+}

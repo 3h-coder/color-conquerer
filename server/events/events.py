@@ -8,6 +8,7 @@ class Events(Enum):
     The prefix (i.e. CLIENT or SERVER) indicates who sends the event (and therefore the other one listens to it)
     """
 
+    SERVER_ERROR = "server-error"
     SERVER_QUEUE_FULL = "queue-full"
     CLIENT_QUEUE_REGISTER = "queue-register"
     SERVER_QUEUE_REGISTERED = "queue-registered"

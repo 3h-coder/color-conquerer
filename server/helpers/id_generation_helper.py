@@ -16,10 +16,10 @@ class IdPrefixes(Enum):
 
 def generate_id(type):
     if type is UserDto:
-        return f"{IdPrefixes.USER}-{uuid.uuid4()}"
+        return f"{IdPrefixes.USER.value}-{uuid.uuid4()}"
     elif type is QueuePlayerDto:
-        return f"{IdPrefixes.PLAYER}-{uuid.uuid4()}"
+        return f"{IdPrefixes.PLAYER.value}-{uuid.uuid4()}"
     elif type is RoomDto:
-        return f"{IdPrefixes.ROOM}-{uuid.uuid4()}"
+        return f"{IdPrefixes.ROOM.value}-{uuid.uuid4()}"
     elif type is MatchInfoDto:
-        return f"{IdPrefixes.MATCH}-{uuid.uuid4()}"
+        return f"{IdPrefixes.MATCH.value}-{uuid.uuid4()}"

@@ -1,3 +1,4 @@
+import { ErrorDto } from "../../dto/ErrorDto";
 import { API_URL, isDevelopment } from "../../env";
 
 export const DEFAULT_HEADERS: Record<string, string> = {
@@ -11,11 +12,6 @@ interface FetchParams {
     body?: string | FormData;
 }
 
-export interface ErrorResponse {
-    code: number;
-    message: string;
-}
-
 /**
  * Custom wrapper around the native fetch function to return a proper error response
  * that fits this app's conventions
@@ -26,7 +22,7 @@ export interface ErrorResponse {
 export function callFetch(
     url: string,
     params: FetchParams,
-): Promise<Response | ErrorResponse> {
+): Promise<Response | ErrorDto> {
     const unexpectedErrorMessage = "An unexpected error occured.";
 
     return new Promise((resolve, reject) => {
@@ -41,7 +37,7 @@ export function callFetch(
                     resolve(response);
                 } else {
                     // The server's errors should always return a JSON in the form of {error: <error message>}
-                    const responseJson: { error: string } = await response.json();
+                    const responseJson: ErrorDto = await response.json();
                     const responseStatus = response.status;
                     const errorMessage = responseJson.error || response.statusText;
 
@@ -50,25 +46,22 @@ export function callFetch(
                     }
 
                     reject({
-                        code: responseStatus,
-                        message:
+                        error:
                             responseStatus === 500
                                 ? unexpectedErrorMessage
                                 : errorMessage,
-                    } as ErrorResponse);
+                    } as ErrorDto);
                 }
             })
             .catch(() => {
                 if (isDevelopment) {
                     reject({
-                        code: 500,
-                        message: `Failed to fetch the URL ${API_URL}${url}`,
-                    } as ErrorResponse);
+                        error: `Failed to fetch the URL ${API_URL}${url}`,
+                    } as ErrorDto);
                 }
                 reject({
-                    code: 500,
-                    message: unexpectedErrorMessage,
-                } as ErrorResponse);
+                    error: unexpectedErrorMessage,
+                } as ErrorDto);
             });
     });
 }
@@ -91,11 +84,11 @@ export function fetchAs<T>(
                     const data = await response.json();
                     resolve(data as T);
                 } else {
-                    // response is of type ErrorResponse
+                    // response is of type ErrorDto
                     reject(response);
                 }
             })
-            .catch((error: ErrorResponse) => {
+            .catch((error: ErrorDto) => {
                 reject(error);
             });
     });

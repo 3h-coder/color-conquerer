@@ -26,9 +26,10 @@
   border-radius: 5px;
   padding: max(1vmin, 10px);
   margin-top: max(2vh, 10px);
-  color: orange;
-  align-items: center;
+  color: white;
+  align-items: flex-end;
 }
+
 
 .play {
   color: white;

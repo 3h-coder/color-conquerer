@@ -1,4 +1,5 @@
 export enum Events {
+    SERVER_ERROR = "server-error",
     SERVER_QUEUE_FULL = "queue-full",
     CLIENT_QUEUE_REGISTER = "queue-register",
     SERVER_QUEUE_REGISTERED = "queue-registered",

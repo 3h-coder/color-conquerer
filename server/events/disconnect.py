@@ -12,5 +12,4 @@ def handle_disconnection():
     if not room_id:
         return
 
-    if room_id:
-        emit(Events.SERVER_MATCH_OPPONENT_LEFT.value, to=room_id, broadcast=True)
+    emit(Events.SERVER_MATCH_OPPONENT_LEFT.value, to=room_id, broadcast=True)

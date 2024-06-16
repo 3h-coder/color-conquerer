@@ -8,5 +8,5 @@ class ErrorDto(BaseDto):
     error: str
 
     @classmethod
-    def from_exception(ex: Exception):
-        return ErrorDto(error=str(ex))
+    def from_exception(cls, ex: Exception):
+        return cls(error=str(ex))

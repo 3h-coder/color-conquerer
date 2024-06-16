@@ -8,14 +8,14 @@ from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
 
 
-def handle_match_request(data: dict):
+def handle_queue_registration(data: dict):
     """
     Handles match making requests, starting with the queue-register event.
 
     Is in charge of creating the room up to creating the match.
     """
     try:
-        if not room_handler.at_capacity():
+        if room_handler.at_capacity():
             logger.info("Room handler at maximum capacity, denying queue registration")
             emit(Events.SERVER_QUEUE_FULL.value)
             return
@@ -34,8 +34,8 @@ def handle_match_request(data: dict):
             emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
 
     except Exception as ex:
-        logger.error(f"An error occured match request : {ex}")
-        raise QueueError(f"An error occured during match request : {ex}")
+        logger.error(f"An error occured during a match finding request : {ex}")
+        raise QueueError(ex)
 
 
 def handle_queue_withdrawal(data: dict):

@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_socketio import SocketIO
 
+from dto.error_dto import ErrorDto
 from events import *
 from events.events import Events
 
@@ -20,10 +21,19 @@ class Server:
 
     def _add_listeners(self):
         self.socketio.on_event("disconnect", handle_disconnection)
-        self.socketio.on_event(Events.CLIENT_QUEUE_REGISTER.value, handle_match_request)
+        self.socketio.on_event(
+            Events.CLIENT_QUEUE_REGISTER.value, handle_queue_registration
+        )
         self.socketio.on_event(
             Events.CLIENT_QUEUE_WITHDRAWAL.value, handle_queue_withdrawal
         )
+        self.socketio.on_event(
+            Events.CLIENT_MATCH_INFO.value, handle_match_info_request
+        )
+
+        @self.socketio.on_error()
+        def _(ex):
+            emit(Events.SERVER_ERROR.value, ErrorDto.from_exception(ex).to_json())
 
     def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):
         self.socketio.run(self.app, host=host, port=port, debug=debug, **kwargs)

@@ -18,11 +18,11 @@ export default function HomeError() {
         setHomeError("");
     }
 
-    const crossButtonDimensions = "max(15px, 2vmin)";
+    const crossButtonDimensions = "max(15px, 2.4vmin)";
 
     return (
         <div className="home-error-container" style={{ opacity: display ? 1 : 0, userSelect: display ? "text" : "none" }}>
-            {error}
+            <span>{error}</span>
             <button className="transparent no-border fit-content" onClick={onClose}>
                 <SvgContainer style={{ width: "fit-content", height: "fit-content" }}>
                     <XMarkIcon style={{
