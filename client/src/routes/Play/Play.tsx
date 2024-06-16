@@ -1,5 +1,6 @@
 import { ReactNode, useEffect } from "react";
 import MatchContextProvider from "../../contexts/MatchContext";
+import PlayerContextProvider from "../../contexts/PlayerContext";
 import { Events } from "../../enums/events";
 import { socket } from "../../env";
 import '../../style/css/Play.css';
@@ -14,12 +15,14 @@ export default function Play() {
 
     return (
         <MatchContextProvider>
-            <PageContainer>
-                <GameMenu />
-                <GameBoard />
-            </PageContainer>
+            <PlayerContextProvider>
+                <PageContainer>
+                    <GameMenu />
+                    <GameBoard />
+                </PageContainer>
+            </PlayerContextProvider>
         </MatchContextProvider>
-    )
+    );
 }
 
 interface PageContainerProps {

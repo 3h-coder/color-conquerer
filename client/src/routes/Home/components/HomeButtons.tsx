@@ -20,8 +20,7 @@ export default function HomeButtons() {
 
     const queuePlayerDto: QueuePlayerDto = {
         user: user,
-        // TODO: change this, the server should be authoritative on Ids
-        playerId: `p-${crypto.randomUUID()}`
+        playerId: ""
     };
 
     useEffect(() => {
@@ -32,7 +31,6 @@ export default function HomeButtons() {
 
         function onDisconnect() {
             setModalVisible(false);
-            console.log("DISCONNECT intended disconnection ?", intendedDisconnection);
             if (!intendedDisconnection) {
                 setHomeError("The connexion with the server has been lost");
             }
@@ -88,7 +86,6 @@ export default function HomeButtons() {
     function cancelMultiplayerMatchRequest() {
         setModalVisible(false);
         intendedDisconnection.current = true;
-        console.log("CANCEL intended disconnection ?", intendedDisconnection);
         socket.emit(Events.CLIENT_QUEUE_WITHDRAWAL, queuePlayerDto);
         socket.disconnect();
     }

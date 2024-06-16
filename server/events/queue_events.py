@@ -2,10 +2,12 @@ from flask import session
 from flask_socketio import emit, join_room, leave_room
 
 from config.logger import logger
+from dto.match_info_dto import MatchInfoDto
 from dto.queue_player_dto import QueuePlayerDto
 from events.events import Events
 from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
+from helpers.id_generation_helper import generate_id
 
 
 def handle_queue_registration(data: dict):
@@ -21,6 +23,8 @@ def handle_queue_registration(data: dict):
             return
 
         queue_player_dto = QueuePlayerDto.from_dict(data)
+        player_id = set_player_id(queue_player_dto)
+
         logger.info(
             f"{Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
         )
@@ -30,7 +34,11 @@ def handle_queue_registration(data: dict):
         # The room in which the player entered already had a player waiting.
         # In that case, initiate the match, and notify both clients that an opponent was found.
         if closed:
-            match_handler.initiate_match(room_handler.closed_rooms[room_id])
+            match_info = match_handler.initiate_match(
+                room_handler.closed_rooms[room_id]
+            ).match_info
+            # save the player info in the session
+            set_player_info(player_id, match_info)
             emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
 
     except Exception as ex:
@@ -60,6 +68,16 @@ def handle_queue_withdrawal(data: dict):
         raise QueueError()
 
 
+def set_player_id(queue_player_dto: QueuePlayerDto):
+    """
+    Sets the player id and saves it into the session.
+    """
+    player_id = generate_id(QueuePlayerDto)
+    queue_player_dto.playerId = player_id
+
+    return player_id
+
+
 def make_enter_in_room(queue_player_dto: QueuePlayerDto):
     """
     Set the session's room id and notifies the client that the player is registered in a room.
@@ -74,3 +92,15 @@ def make_enter_in_room(queue_player_dto: QueuePlayerDto):
     )  # Notify the client that registration succeeded
 
     return room_id, closed
+
+
+def set_player_info(player_id: str, match_info: MatchInfoDto):
+    """
+    Saves the player information into the session.
+    """
+    player_info = (
+        match_info.player1
+        if match_info.player1.playerId == player_id
+        else match_info.player2
+    )
+    session["player_info"] = player_info

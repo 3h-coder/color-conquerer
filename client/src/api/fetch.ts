@@ -1,5 +1,5 @@
-import { ErrorDto } from "../../dto/ErrorDto";
-import { API_URL, isDevelopment } from "../../env";
+import { ErrorDto } from "../dto/ErrorDto";
+import { API_URL, isDevelopment } from "../env";
 
 export const DEFAULT_HEADERS: Record<string, string> = {
     "Content-Type": "application/json",

@@ -27,9 +27,6 @@ class Server:
         self.socketio.on_event(
             Events.CLIENT_QUEUE_WITHDRAWAL.value, handle_queue_withdrawal
         )
-        self.socketio.on_event(
-            Events.CLIENT_MATCH_INFO.value, handle_match_info_request
-        )
 
         @self.socketio.on_error()
         def _(ex):

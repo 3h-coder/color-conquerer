@@ -1,16 +1,11 @@
 from exceptions.custom_exception import CustomException
 
 
-class MatchInfoError(CustomException):
-    """
-    Any exception that occurs when retrieving match info
-    """
-
+class UnauthorizedError(CustomException):
     def __init__(self, message: str | None = None):
         if not message:
-            self.message = "An error occured during match info retrieval"
+            self.message = "The requester is not allowed to perform the operation"
         else:
             self.message = message
-
-        self.code = 500
+        self.code = 401
         super().__init__(self.message, self.code)

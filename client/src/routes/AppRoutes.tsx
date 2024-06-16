@@ -1,5 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { socket } from "../env";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import NotFound from "./ErrorRoutes/NotFound";
 import Home from "./Home/Home";
 import Play from "./Play/Play";
@@ -10,7 +9,7 @@ export default function AppRoutes() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path={paths.play} element={socket.connected ? <Play /> : <Navigate to="/" />} />
+                <Route path={paths.play} element={<Play />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>

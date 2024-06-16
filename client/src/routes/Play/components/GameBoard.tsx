@@ -1,11 +1,11 @@
 import { CellInfoDto } from "../../../dto/CellInfoDto";
-import { BoardHelper } from "../Helpers/BoardHelper";
+import { createBoardArray } from "../Helpers/BoardHelper";
 import GameCell from "./GameCell";
 
 
 export default function GameBoard() {
     const size = 15;
-    const boardArray: CellInfoDto[][] = BoardHelper.createBoardArray(size);
+    const boardArray: CellInfoDto[][] = createBoardArray(size);
 
     return (
         <div className="board">

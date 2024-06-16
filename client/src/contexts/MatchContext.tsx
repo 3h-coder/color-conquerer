@@ -1,7 +1,10 @@
-import { ReactNode, createContext, useContext, useState } from "react";
+import { ReactNode, createContext, useContext, useEffect, useState } from "react";
+import { fetchMatchInfo } from "../api/game";
+import { ParseErrorDto } from "../dto/ErrorDto";
 import { MatchInfoDto } from "../dto/MatchInfoDto";
+import { developmentErrorLog } from "../utils/loggingUtils";
 
-const unstartedMatch: MatchInfoDto = {
+const undefinedMatch: MatchInfoDto = {
     id: "",
     roomId: "",
     boardArray: [],
@@ -11,7 +14,7 @@ const unstartedMatch: MatchInfoDto = {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const MatchContext = createContext({ matchInfo: unstartedMatch, setMatchInfo: (_matchInfo: MatchInfoDto) => { } });
+const MatchContext = createContext({ matchInfo: undefinedMatch, setMatchInfo: (_matchInfo: MatchInfoDto) => { } });
 
 interface MatchContextProviderProps {
     children?: ReactNode;
@@ -19,7 +22,31 @@ interface MatchContextProviderProps {
 
 export default function MatchContextProvider(props: MatchContextProviderProps) {
     const { children } = props;
-    const [matchInfo, setMatchInfo] = useState<MatchInfoDto>(unstartedMatch);
+    const [matchInfo, setMatchInfo] = useState<MatchInfoDto>(undefinedMatch);
+
+    useEffect(() => {
+        getMatchInfo();
+    }, []);
+
+    async function getMatchInfo() {
+        try {
+            const fetchedMatchInfo = await fetchMatchInfo();
+
+            const matchInfo: MatchInfoDto = {
+                id: fetchedMatchInfo.id,
+                roomId: fetchedMatchInfo.roomId,
+                boardArray: fetchedMatchInfo.boardArray,
+                player1: fetchedMatchInfo.player1,
+                player2: fetchedMatchInfo.player2,
+                currentTurn: fetchedMatchInfo.currentTurn
+            };
+
+            setMatchInfo(matchInfo);
+        } catch (error: unknown) {
+            developmentErrorLog("Could not fetch the match info", ParseErrorDto(error));
+            setMatchInfo(undefinedMatch);
+        }
+    }
 
     return (
         <MatchContext.Provider value={{ matchInfo, setMatchInfo }}>

@@ -24,12 +24,12 @@ class MatchHandlerUnit:
             player1=PlayerInfoDto(
                 user=room_dto.player1.user,
                 playerId=room_dto.player1.playerId,
-                controlledCells=[],
+                isPlayer1=True,
             ),
             player2=PlayerInfoDto(
                 user=room_dto.player2.user,
                 playerId=room_dto.player2.playerId,
-                controlledCells=[],
+                isPlayer1=False,
             ),
             currentTurn=0,
         )
