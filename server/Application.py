@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 
 from blueprints.play import play_bp
 from config.config import global_config
@@ -21,6 +22,7 @@ class Application(Flask):
         self.set_config()
         self.register_middlewares()
         self.register_blueprints()
+        CORS(self)  # TODO: add the proper origins
 
     def set_config(self):
         self.config["SECRET_KEY"] = global_config[RequiredVariables.APP_SECRET_KEY.name]

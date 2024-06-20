@@ -16,6 +16,7 @@ class Server:
 
     def __init__(self, app: Flask):
         self.app = app
+        # TODO: add the proper origins
         self.socketio = SocketIO(app, cors_allowed_origins="*")
         self._add_listeners()
 
