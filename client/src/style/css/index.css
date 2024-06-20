@@ -6,6 +6,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background: linear-gradient(180deg, rgba(97,59,154,1) 0%, rgba(103,48,185,1) 50%, rgba(98,12,226,1) 100%)
 }
 
 :root {
@@ -16,8 +17,7 @@ body {
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background: linear-gradient(180deg, rgba(97,59,154,1) 0%, rgba(103,48,185,1) 50%, rgba(98,12,226,1) 100%);
-
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: subpixel-antialiased;

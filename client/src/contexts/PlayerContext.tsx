@@ -5,6 +5,12 @@ import { ParseErrorDto } from "../dto/ErrorDto";
 import { PlayerInfoDto } from "../dto/PlayerInfoDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
 
+interface PlayerContextObject {
+    playerInfo: PlayerInfoDto;
+    setPlayerInfo: (p: PlayerInfoDto) => void;
+    loading: Boolean
+}
+
 export const undefinedPlayer: PlayerInfoDto = {
     user: null,
     playerId: "",
@@ -12,7 +18,7 @@ export const undefinedPlayer: PlayerInfoDto = {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const PlayerContext = createContext({ playerInfo: undefinedPlayer, setPlayerInfo: (_playerInfo: PlayerInfoDto) => { } });
+const PlayerContext = createContext<PlayerContextObject>({ playerInfo: undefinedPlayer, setPlayerInfo: (_playerInfo: PlayerInfoDto) => { }, loading: false });
 
 interface PlayerontextProviderProps {
     children?: ReactNode;
@@ -21,6 +27,7 @@ interface PlayerontextProviderProps {
 export default function PlayerContextProvider(props: PlayerontextProviderProps) {
     const { children } = props;
     const [playerInfo, setPlayerInfo] = useState(undefinedPlayer);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         getPlayerInfo();
@@ -40,11 +47,13 @@ export default function PlayerContextProvider(props: PlayerontextProviderProps) 
         } catch (error: unknown) {
             developmentErrorLog("Could not fetch the player info", ParseErrorDto(error));
             setPlayerInfo(undefinedPlayer);
+        } finally {
+            setLoading(false);
         }
     }
 
     return (
-        <PlayerContext.Provider value={{ playerInfo, setPlayerInfo }}>
+        <PlayerContext.Provider value={{ playerInfo, setPlayerInfo, loading }}>
             {children}
         </PlayerContext.Provider>
     )
