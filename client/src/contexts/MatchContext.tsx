@@ -4,7 +4,7 @@ import { ParseErrorDto } from "../dto/ErrorDto";
 import { MatchInfoDto } from "../dto/MatchInfoDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
 
-const undefinedMatch: MatchInfoDto = {
+export const undefinedMatch: MatchInfoDto = {
     id: "",
     roomId: "",
     boardArray: [],
@@ -56,6 +56,6 @@ export default function MatchContextProvider(props: MatchContextProviderProps) {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export function useMatch() {
+export function useMatchInfo() {
     return useContext(MatchContext);
 }
