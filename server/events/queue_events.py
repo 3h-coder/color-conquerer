@@ -17,6 +17,10 @@ def handle_queue_registration(data: dict):
     Is in charge of creating the room up to creating the match.
     """
     try:
+        if session.get("room_id") is not None:
+            logger.debug("Already in a room, cannot register")
+            return
+
         if room_handler.at_capacity():
             logger.info("Room handler at maximum capacity, denying queue registration")
             emit(Events.SERVER_QUEUE_FULL.value)
@@ -57,6 +61,7 @@ def handle_queue_withdrawal(data: dict):
         )
 
         room_id = session["room_id"]
+        del session["room_id"]
         leave_room(room_id)
 
         # Technically, only open rooms allow queue-withdrawal,
@@ -64,7 +69,9 @@ def handle_queue_withdrawal(data: dict):
         room_handler.remove_room(room_id)
 
     except Exception as ex:
-        logger.error(f"An error occured during queue withdrawal : {ex}")
+        logger.error(
+            f"An error occured during queue withdrawal : {ex.with_traceback()}"
+        )
         raise QueueError()
 
 
@@ -88,8 +95,8 @@ def make_enter_in_room(queue_player_dto: QueuePlayerDto):
     join_room(room_id)
 
     emit(
-        Events.SERVER_QUEUE_REGISTERED.value
-    )  # Notify the client that registration succeeded
+        Events.SERVER_QUEUE_REGISTERED.value, queue_player_dto.playerId
+    )  # Notify the client that registration succeeded, sending them their player id
 
     return room_id, closed
 
@@ -104,3 +111,4 @@ def set_player_info(player_id: str, match_info: MatchInfoDto):
         else match_info.player2
     )
     session["player_info"] = player_info
+    session.modified = True

@@ -6,6 +6,7 @@ export async function fetchPlayerInfo() {
     return await fetchAs<PlayerInfoDto>("/play/player-info", {
         method: "GET",
         headers: DEFAULT_HEADERS,
+        credentials: "include"
     });
 }
 
@@ -13,5 +14,6 @@ export async function fetchMatchInfo() {
     return await fetchAs<MatchInfoDto>("/play/match-info", {
         method: "GET",
         headers: DEFAULT_HEADERS,
+        credentials: "include"
     });
 }

@@ -47,8 +47,10 @@ export default function HomeButtons() {
             setHomeError("The server has reached its maximum capacity, please try again later");
         }
 
-        function onQueueRegistrationSuccess() {
+        function onQueueRegistrationSuccess(playerId: string) {
             developmentLog("Registered in the queue");
+            queuePlayerDto.playerId = playerId;
+            console.log("Queue player dto", queuePlayerDto);
         }
 
         function goToPlayRoom() {
@@ -86,6 +88,7 @@ export default function HomeButtons() {
     function cancelMultiplayerMatchRequest() {
         setModalVisible(false);
         intendedDisconnection.current = true;
+        console.log("Queue player dto in cancellation", queuePlayerDto);
         socket.emit(Events.CLIENT_QUEUE_WITHDRAWAL, queuePlayerDto);
         socket.disconnect();
     }

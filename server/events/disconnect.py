@@ -1,6 +1,7 @@
 from flask import session
 from flask_socketio import emit
 
+from config.config import logger
 from events.events import Events
 
 
@@ -12,4 +13,6 @@ def handle_disconnection():
     if not room_id:
         return
 
+    session["connected"] = False
+    logger.debug("Session disconnection")
     emit(Events.SERVER_MATCH_OPPONENT_LEFT.value, to=room_id, broadcast=True)

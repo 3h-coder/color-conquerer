@@ -3,6 +3,7 @@ from flask_socketio import SocketIO
 
 from dto.error_dto import ErrorDto
 from events import *
+from events.connect import handle_connection
 from events.events import Events
 
 
@@ -17,10 +18,11 @@ class Server:
     def __init__(self, app: Flask):
         self.app = app
         # TODO: add the proper origins
-        self.socketio = SocketIO(app, cors_allowed_origins="*")
+        self.socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
         self._add_listeners()
 
     def _add_listeners(self):
+        self.socketio.on_event("connect", handle_connection)
         self.socketio.on_event("disconnect", handle_disconnection)
         self.socketio.on_event(
             Events.CLIENT_QUEUE_REGISTER.value, handle_queue_registration

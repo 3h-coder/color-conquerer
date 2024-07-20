@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
-import { ReactNode, createContext, useContext, useState } from "react";
+import { ReactNode, createContext, useContext, useEffect, useState } from "react";
+import { initSession } from "../api/session";
 import UserDto from "../dto/UserDto";
 
 
@@ -18,6 +19,14 @@ interface UserContextProviderProps {
 export default function UserContextProvider(props: UserContextProviderProps) {
     const { children } = props;
     const [user, setUser] = useState<UserDto>(guestUser);
+
+    useEffect(() => {
+        initiateSession();
+    }, []);
+
+    async function initiateSession() {
+        await initSession();
+    }
 
     return (
         <UserContext.Provider value={{ user, setUser }}>
