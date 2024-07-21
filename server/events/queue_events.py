@@ -16,63 +16,50 @@ def handle_queue_registration(data: dict):
 
     Is in charge of creating the room up to creating the match.
     """
-    try:
-        if session.get("room_id") is not None:
-            logger.debug("Already in a room, cannot register")
-            return
+    if session.get("room_id") is not None:
+        logger.debug("Already in a room, ignoring registration request")
+        raise QueueError("You are already registered in the queue")
 
-        if room_handler.at_capacity():
-            logger.info("Room handler at maximum capacity, denying queue registration")
-            emit(Events.SERVER_QUEUE_FULL.value)
-            return
+    if room_handler.at_capacity():
+        logger.info("Room handler at maximum capacity, denying queue registration")
+        raise QueueError("The server has reached its maximum capacity, please try again later")
 
-        queue_player_dto = QueuePlayerDto.from_dict(data)
-        player_id = set_player_id(queue_player_dto)
+    queue_player_dto = QueuePlayerDto.from_dict(data)
+    player_id = set_player_id(queue_player_dto)
 
-        logger.info(
-            f"{Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
-        )
+    logger.info(
+        f"{Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
+    )
 
-        (room_id, closed) = make_enter_in_room(queue_player_dto)
+    (room_id, closed) = make_enter_in_room(queue_player_dto)
 
-        # The room in which the player entered already had a player waiting.
-        # In that case, initiate the match, and notify both clients that an opponent was found.
-        if closed:
-            match_info = match_handler.initiate_match(
-                room_handler.closed_rooms[room_id]
-            ).match_info
-            # save the player info in the session
-            set_player_info(player_id, match_info)
-            emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
-
-    except Exception as ex:
-        logger.error(f"An error occured during a match finding request : {ex}")
-        raise QueueError(ex)
+    # The room in which the player entered already had a player waiting.
+    # In that case, initiate the match, and notify both clients that an opponent was found.
+    if closed:
+        match_info = match_handler.initiate_match(
+            room_handler.closed_rooms[room_id]
+        ).match_info
+        # save the player info in the session
+        set_player_info(player_id, match_info)
+        emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
 
 
 def handle_queue_withdrawal(data: dict):
     """
     Handles the queue-withdrawal event.
     """
-    try:
-        queue_register_dto = QueuePlayerDto.from_dict(data)
-        logger.info(
-            f"{Events.CLIENT_QUEUE_WITHDRAWAL.name} event : {queue_register_dto.playerId}"
-        )
+    queue_register_dto = QueuePlayerDto.from_dict(data)
+    logger.info(
+        f"{Events.CLIENT_QUEUE_WITHDRAWAL.name} event : {queue_register_dto.playerId}"
+    )
 
-        room_id = session["room_id"]
-        del session["room_id"]
-        leave_room(room_id)
+    room_id = session["room_id"]
+    leave_room(room_id)
 
-        # Technically, only open rooms allow queue-withdrawal,
-        # leaving a closed room automatically leads to match ending
-        room_handler.remove_room(room_id)
-
-    except Exception as ex:
-        logger.error(
-            f"An error occured during queue withdrawal : {ex.with_traceback()}"
-        )
-        raise QueueError()
+    # Technically, only open rooms allow queue-withdrawal,
+    # leaving a closed room automatically leads to match ending
+    room_handler.remove_room(room_id)
+    del session["room_id"]
 
 
 def set_player_id(queue_player_dto: QueuePlayerDto):

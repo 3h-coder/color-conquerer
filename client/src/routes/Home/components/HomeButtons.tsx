@@ -9,6 +9,7 @@ import { socket } from "../../../env";
 import { developmentErrorLog, developmentLog } from "../../../utils/loggingUtils";
 import { paths } from "../../paths";
 import OpponentSearch from "./OpponentSearch";
+import { ErrorDto } from "../../../dto/ErrorDto";
 
 
 export default function HomeButtons() {
@@ -25,8 +26,14 @@ export default function HomeButtons() {
 
     useEffect(() => {
 
-        function onError(data: unknown) {
-            developmentErrorLog("An error occured", data);
+        function onError(errorDto: ErrorDto) {
+            developmentErrorLog("An error occured", errorDto);
+            setModalVisible(false);
+            socket.disconnect();
+            if (errorDto.displayToUser)
+                setHomeError(errorDto.error)
+            else 
+                setHomeError("An unexpected error occured")
         }
 
         function onDisconnect() {
@@ -37,8 +44,13 @@ export default function HomeButtons() {
         }
 
         function registerInQueue() {
-            developmentLog("Registering in queue");
+            developmentLog("Attempting to register in the queue");
             socket.emit(Events.CLIENT_QUEUE_REGISTER, queuePlayerDto);
+        }
+
+        function onAlreadyRegistered() {
+            setModalVisible(false);
+            setHomeError("You are already registered in the queue");
         }
 
         function onQueueFull() {
@@ -48,16 +60,14 @@ export default function HomeButtons() {
         }
 
         function onQueueRegistrationSuccess(playerId: string) {
-            developmentLog("Registered in the queue");
             queuePlayerDto.playerId = playerId;
-            console.log("Queue player dto", queuePlayerDto);
+            developmentLog(`Registered in the queue ${queuePlayerDto.playerId}`);
         }
 
         function goToPlayRoom() {
             developmentLog("Opponent found!");
             location.href = `/${paths.play}`;
         }
-
 
         socket.on("connect", registerInQueue);
         socket.on("disconnect", onDisconnect);
@@ -82,13 +92,14 @@ export default function HomeButtons() {
     function requestMultiplayerMatch() {
         setModalVisible(true);
         intendedDisconnection.current = false;
-        socket.connect();
+        if (!socket.connected)
+            socket.connect();
     }
 
     function cancelMultiplayerMatchRequest() {
         setModalVisible(false);
         intendedDisconnection.current = true;
-        console.log("Queue player dto in cancellation", queuePlayerDto);
+        developmentLog("Queue player dto in cancellation", queuePlayerDto);
         socket.emit(Events.CLIENT_QUEUE_WITHDRAWAL, queuePlayerDto);
         socket.disconnect();
     }

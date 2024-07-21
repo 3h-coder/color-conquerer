@@ -13,6 +13,6 @@ def handle_disconnection():
     if not room_id:
         return
 
-    session["connected"] = False
-    logger.debug("Session disconnection")
+    session["socket-connected"] = False
+    logger.debug("Socket connection closed")
     emit(Events.SERVER_MATCH_OPPONENT_LEFT.value, to=room_id, broadcast=True)

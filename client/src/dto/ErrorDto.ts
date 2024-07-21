@@ -1,5 +1,6 @@
 export interface ErrorDto {
     error: string;
+    displayToUser: boolean;
 }
 
 export function ParseErrorDto(data: unknown) {

@@ -5,7 +5,6 @@ from server import Server
 # one before running it
 
 app = Application(__name__)
-
 server = Server(app)
 
 if __name__ == "__main__":

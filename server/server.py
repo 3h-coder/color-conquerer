@@ -33,7 +33,7 @@ class Server:
 
         @self.socketio.on_error()
         def _(ex):
-            emit(Events.SERVER_ERROR.value, ErrorDto.from_exception(ex).to_json())
+            emit(Events.SERVER_ERROR.value, ErrorDto.from_exception(ex))
 
     def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):
         self.socketio.run(self.app, host=host, port=port, debug=debug, **kwargs)

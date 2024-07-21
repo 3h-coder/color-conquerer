@@ -4,5 +4,5 @@ from config.config import logger
 
 
 def handle_connection():
-    session["connected"] = True
-    logger.debug("Session connection")
+    session["socket-connected"] = True
+    logger.debug("Socket connection opened")
