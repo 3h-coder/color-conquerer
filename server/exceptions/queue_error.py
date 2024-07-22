@@ -6,11 +6,10 @@ class QueueError(CustomException):
     Any exception that occurs during the queueing process
     """
 
-    def __init__(self, message: str | None = None):
+    def __init__(
+        self, message: str | None = None, socket_connection_killer: bool = False
+    ):
         if not message:
-            self.message = "An error occured during queueing"
-        else:
-            self.message = message
+            message = "An error occured during queueing"
 
-        self.code = 500
-        super().__init__(self.message, self.code)
+        super().__init__(message, 500, socket_connection_killer)

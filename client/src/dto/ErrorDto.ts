@@ -1,18 +1,22 @@
 export interface ErrorDto {
     error: string;
     displayToUser: boolean;
+    socketConnectionKiller: boolean;
 }
 
 export function ParseErrorDto(data: unknown) {
     if (isErrorDto(data)) {
         return {
-            error: data.error
+            error: data.error,
+            displayToUser: data.displayToUser,
+            socketConnectionKiller: data.socketConnectionKiller,
         } as ErrorDto;
     } else {
-        return { error: data } as ErrorDto;
+        return { error: data, displayToUser: false, socketConnectionKiller: false } as ErrorDto;
     }
 }
 
-function isErrorDto(data: unknown): data is { error: string } {
-    return typeof data === "object" && data !== null && "error" in data;
+function isErrorDto(data: unknown): data is ErrorDto {
+    return typeof data === "object" && data !== null && data !== undefined &&
+        "error" in data && "displayToUser" in data && "socketConnectionKiller" in data;
 }

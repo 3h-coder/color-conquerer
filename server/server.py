@@ -1,3 +1,5 @@
+import sys
+
 from flask import Flask
 from flask_socketio import SocketIO
 
@@ -5,6 +7,7 @@ from dto.error_dto import ErrorDto
 from events import *
 from events.connect import handle_connection
 from events.events import Events
+from exceptions.custom_exception import CustomException
 
 
 class Server:
@@ -27,12 +30,13 @@ class Server:
         self.socketio.on_event(
             Events.CLIENT_QUEUE_REGISTER.value, handle_queue_registration
         )
-        self.socketio.on_event(
-            Events.CLIENT_QUEUE_WITHDRAWAL.value, handle_queue_withdrawal
-        )
 
         @self.socketio.on_error()
-        def _(ex):
+        def _(ex: Exception):
+            if not isinstance(ex, CustomException):
+                logger.error(
+                    f"A socket error occured : {ex.with_traceback(sys.exception().__traceback__)}"
+                )
             emit(Events.SERVER_ERROR.value, ErrorDto.from_exception(ex))
 
     def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):

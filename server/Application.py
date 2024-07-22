@@ -41,9 +41,7 @@ class Application(Flask):
         # self.config["PERMANENT_SESSION_LIFETIME"] = global_config[
         #     RequiredVariables.APP_SESSION_LIFETIME.name
         # ]
-        # self.config["SESSION_COOKIE_SAMESITE"] = "None"
         self.config["SESSION_TYPE"] = "cachelib"
-        # self.config["SESSION_SERIALIZATION_FORMAT"] = "json"
 
         app_session_file_dir = OptionalVariables.APP_SESSION_FILE_DIR.name
         self.config["SESSION_CACHELIB"] = FileSystemCache(

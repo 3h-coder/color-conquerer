@@ -22,7 +22,10 @@ def handle_queue_registration(data: dict):
 
     if room_handler.at_capacity():
         logger.info("Room handler at maximum capacity, denying queue registration")
-        raise QueueError("The server has reached its maximum capacity, please try again later")
+        raise QueueError(
+            "The server has reached its maximum capacity, please try again later",
+            socket_connection_killer=True,
+        )
 
     queue_player_dto = QueuePlayerDto.from_dict(data)
     player_id = set_player_id(queue_player_dto)
@@ -42,24 +45,6 @@ def handle_queue_registration(data: dict):
         # save the player info in the session
         set_player_info(player_id, match_info)
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
-
-
-def handle_queue_withdrawal(data: dict):
-    """
-    Handles the queue-withdrawal event.
-    """
-    queue_register_dto = QueuePlayerDto.from_dict(data)
-    logger.info(
-        f"{Events.CLIENT_QUEUE_WITHDRAWAL.name} event : {queue_register_dto.playerId}"
-    )
-
-    room_id = session["room_id"]
-    leave_room(room_id)
-
-    # Technically, only open rooms allow queue-withdrawal,
-    # leaving a closed room automatically leads to match ending
-    room_handler.remove_room(room_id)
-    del session["room_id"]
 
 
 def set_player_id(queue_player_dto: QueuePlayerDto):
