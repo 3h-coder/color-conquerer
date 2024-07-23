@@ -8,6 +8,7 @@ from events.events import Events
 from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
 from helpers.id_generation_helper import generate_id
+from session_variables import PLAYER_INFO, ROOM_ID
 
 
 def handle_queue_registration(data: dict):
@@ -16,7 +17,7 @@ def handle_queue_registration(data: dict):
 
     Is in charge of creating the room up to creating the match.
     """
-    if session.get("room_id") is not None:
+    if session.get(ROOM_ID) is not None:
         logger.debug("Already in a room, ignoring registration request")
         raise QueueError("You are already registered in the queue")
 
@@ -63,7 +64,7 @@ def make_enter_in_room(queue_player_dto: QueuePlayerDto):
     """
     (room_id, closed) = room_handler.make_enter_in_room(queue_player_dto)
 
-    session["room_id"] = room_id
+    session[ROOM_ID] = room_id
     join_room(room_id)
 
     emit(
@@ -82,5 +83,5 @@ def set_player_info(player_id: str, match_info: MatchInfoDto):
         if match_info.player1.playerId == player_id
         else match_info.player2
     )
-    session["player_info"] = player_info
+    session[PLAYER_INFO] = player_info
     session.modified = True
