@@ -3,6 +3,7 @@ from flask_socketio import emit, join_room, leave_room
 
 from config.logger import logger
 from dto.match_info_dto import MatchInfoDto
+from dto.player_info_dto import PlayerInfoDto
 from dto.queue_player_dto import QueuePlayerDto
 from events.events import Events
 from exceptions.queue_error import QueueError
@@ -44,8 +45,12 @@ def handle_queue_registration(data: dict):
             room_handler.closed_rooms[room_id]
         ).match_info
         # save the player info in the session
-        set_player_info(player_id, match_info)
+        save_player_info(match_info.player2)
+        # Notify the room that the match can start
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
+    else:
+        player_info = PlayerInfoDto(queue_player_dto.user, player_id, True)
+        save_player_info(player_info)
 
 
 def set_player_id(queue_player_dto: QueuePlayerDto):
@@ -74,14 +79,9 @@ def make_enter_in_room(queue_player_dto: QueuePlayerDto):
     return room_id, closed
 
 
-def set_player_info(player_id: str, match_info: MatchInfoDto):
+def save_player_info(player_info: PlayerInfoDto):
     """
     Saves the player information into the session.
     """
-    player_info = (
-        match_info.player1
-        if match_info.player1.playerId == player_id
-        else match_info.player2
-    )
     session[PLAYER_INFO] = player_info
     session.modified = True

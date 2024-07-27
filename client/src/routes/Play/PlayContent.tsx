@@ -14,8 +14,8 @@ export default function PlayContent() {
             return;
 
         if (matchInfo === undefinedMatch || playerInfo === undefinedPlayer) {
-            console.log("Undefined!!");
-            // location.href = "/";
+            // TODO: display some error to the user
+            console.log("Either the match or player info could not be resolved");
         } else {
             setCanRenderContent(true);
         }
