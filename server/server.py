@@ -37,7 +37,7 @@ class Server:
                 logger.error(
                     f"A socket error occured : {ex.with_traceback(sys.exception().__traceback__)}"
                 )
-            emit(Events.SERVER_ERROR.value, ErrorDto.from_exception(ex))
+            emit(Events.SERVER_ERROR.value, ErrorDto.from_exception(ex).to_dict())
 
     def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):
         self.socketio.run(self.app, host=host, port=port, debug=debug, **kwargs)

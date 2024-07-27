@@ -12,13 +12,12 @@ class ErrorDto(BaseDto):
 
     @classmethod
     def from_exception(cls, ex: Exception):
-        dict_repr = {"error": str(ex)}
+        error = str(ex)
+        display_to_user = False
+        socket_connection_killer = False
 
         if isinstance(ex, CustomException):
-            dict_repr["displayToUser"] = True
-            dict_repr["socketConnectionKiller"] = ex.socket_connection_killer
-        else:
-            dict_repr["displayToUser"] = False
-            dict_repr["socketConnectionKiller"] = False
+            display_to_user = True
+            socket_connection_killer = ex.socket_connection_killer
 
-        return dict_repr
+        return ErrorDto(error, display_to_user, socket_connection_killer)

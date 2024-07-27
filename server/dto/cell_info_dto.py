@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import IntEnum
 
 from dto.base_dto import BaseDto
 
 
-class CellState(Enum):
+class CellState(IntEnum):
     IDLE = 0
     CAPTURED = 1
     FROZEN = 2

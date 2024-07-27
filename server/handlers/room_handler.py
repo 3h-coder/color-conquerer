@@ -25,6 +25,9 @@ class RoomHandler:
         """
         return len(self.closed_rooms) == self.MAX_CLOSED_ROOMS
 
+    # Note : Currently there can only be one open room that gets freed immediately once
+    # a second player enters it. In the future we may have multiple open rooms at once
+    # to implement match making algorithms.
     def make_enter_in_room(self, player_register_dto: QueuePlayerDto):
         """
         Makes the player enter an either open or closed room.
