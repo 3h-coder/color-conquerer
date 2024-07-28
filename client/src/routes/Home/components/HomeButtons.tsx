@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import CancelModal from "../../../components/modals/CancelModal";
+import SingleButtonModal from "../../../components/modals/SingleButtonModal";
 import { useHomeError } from "../../../contexts/HomeErrorContext";
 import { useUser } from "../../../contexts/UserContext";
 import { ErrorDto } from "../../../dto/ErrorDto";
@@ -104,9 +104,9 @@ export default function HomeButtons() {
             </div>
             {
                 modalVisible && (
-                    <CancelModal onClose={cancelMultiplayerMatchRequest}>
+                    <SingleButtonModal onClose={cancelMultiplayerMatchRequest} buttonText="Cancel">
                         <OpponentSearch />
-                    </CancelModal>
+                    </SingleButtonModal>
                 )
             }
 

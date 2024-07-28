@@ -49,7 +49,7 @@ export default function PlayerContextProvider(props: PlayerontextProviderProps) 
 
             setPlayerInfo(playerInfo);
         } catch (error: unknown) {
-            developmentErrorLog("Could not fetch the player info", ParseErrorDto(error));
+            developmentErrorLog("Could resolve the player info", ParseErrorDto(error));
             setPlayerInfo(undefinedPlayer);
         } finally {
             setLoading(false);

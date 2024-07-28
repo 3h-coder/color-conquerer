@@ -9,7 +9,7 @@ from events.events import Events
 from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
 from helpers.id_generation_helper import generate_id
-from session_variables import PLAYER_INFO, ROOM_ID, SESSION_INITIATED
+from session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_INITIATED
 
 
 def handle_queue_registration(data: dict):
@@ -20,7 +20,10 @@ def handle_queue_registration(data: dict):
     """
     if session.get(SESSION_INITIATED) is None:
         logger.debug("Attempting to register with no initiated session, denying")
-        raise QueueError("Something went wrong, please refresh the page and try again")
+        raise QueueError(
+            "Something went wrong, please refresh the page and try again",
+            socket_connection_killer=True,
+        )
 
     if session.get(ROOM_ID) is not None:
         logger.debug("Already in a room, ignoring registration request")

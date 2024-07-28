@@ -7,3 +7,4 @@ from session_variables import SOCKET_CONNECTED
 def handle_connection():
     session[SOCKET_CONNECTED] = True
     logger.debug("----- Socket connection -----")
+    # If in match, cancel the match ending timer

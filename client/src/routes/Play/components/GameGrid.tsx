@@ -4,10 +4,14 @@ import { usePlayerInfo } from "../../../contexts/PlayerContext";
 import { colors } from "../../../style/constants";
 import GameCell from "./GameCell";
 
-export default function GameBoard() {
+export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
     const { playerInfo } = usePlayerInfo();
     const boardArray = matchInfo.boardArray;
+    const gridStyle: React.CSSProperties = {
+        transform: `${playerInfo.isPlayer1 ? "rotate(180deg)" : ""}`,
+        gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`
+    };
 
     useEffect(() => {
 
@@ -31,7 +35,7 @@ export default function GameBoard() {
     });
 
     return (
-        <div className="board" style={{ transform: `${playerInfo.isPlayer1 ? "rotate(180deg)" : ""}` }}>
+        <div className="grid" style={gridStyle}>
             {boardArray.map((row, rowIndex) => (
                 <div className="row" id={`r-${rowIndex}`} key={rowIndex}>
                     {row.map((_cell, colIndex) => (

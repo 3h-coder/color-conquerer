@@ -5,6 +5,7 @@ from dto.player_info_dto import PlayerInfoDto
 from exceptions.unauthorized import UnauthorizedError
 from handlers import match_handler
 from middlewares.error_handler import handle_error
+from session_variables import IN_MATCH
 
 play_bp = Blueprint("play", __name__)
 play_bp.register_error_handler(Exception, handle_error)
@@ -13,8 +14,6 @@ play_bp.register_error_handler(Exception, handle_error)
 @play_bp.route("/play/match-info", methods=["GET"])
 def get_match_info():
     room_id = session.get("room_id")
-    logger.info(f"session is {session}")
-    logger.info(f"room_id is {room_id}")
 
     if not room_id:
         raise UnauthorizedError("Could not resolve the room")
@@ -30,4 +29,5 @@ def get_player_info():
     if not player_info:
         raise UnauthorizedError("Could not resolve player information")
 
+    session[IN_MATCH] = True
     return jsonify(player_info.to_dict()), 200

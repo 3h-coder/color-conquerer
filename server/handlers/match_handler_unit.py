@@ -1,20 +1,40 @@
-import uuid
+import asyncio
+from enum import Enum
 
+from config.logger import logger
 from dto.cell_info_dto import CellInfoDto, CellState
 from dto.match_info_dto import MatchInfoDto
 from dto.player_info_dto import PlayerInfoDto
 from dto.room_dto import RoomDto
-from helpers.board_helper import display_board_owners
 from helpers.id_generation_helper import generate_id
 
 
 class MatchHandlerUnit:
     """
-    Handles a single on going match.
+    Handles a single ongoing match.
     """
 
     def __init__(self, room_dto: RoomDto):
         self.match_info = self._get_starting_match_info(room_dto)
+        self.status = MatchStatus.WAITING_TO_START
+        self.exit_watcher = None
+
+    def start_exit_watcher(self, player_info_dto: PlayerInfoDto):
+        logger.debug("Started exit watcher")
+        self.exit_watcher = asyncio.create_task(
+            self._confirm_player_exit(player_info_dto)
+        )
+
+    async def _confirm_player_exit(self, player_info_dto: PlayerInfoDto):
+        if player_info_dto is None:
+            return None
+
+        delay_seconds = 30
+        # Wait 30 seconds for it to get eventually cancelled
+        await asyncio.sleep(delay_seconds)
+        logger.debug(f"{delay_seconds} seconds passed confirming player exit")
+        # TODO: set the winner as the other player instead of returning that
+        return player_info_dto
 
     def _get_starting_match_info(self, room_dto: RoomDto):
         return MatchInfoDto(
@@ -54,3 +74,9 @@ class MatchHandlerUnit:
         board[12][7].state = CellState.CAPTURED
 
         return board
+
+
+class MatchStatus(Enum):
+    WAITING_TO_START = 0
+    ONGOING = 1
+    ENDED = 2
