@@ -4,11 +4,12 @@ import { fetchPlayerInfo } from "../api/game";
 import { ParseErrorDto } from "../dto/ErrorDto";
 import { PlayerInfoDto } from "../dto/PlayerInfoDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
+import { useUser } from "./UserContext";
 
 interface PlayerContextObject {
     playerInfo: PlayerInfoDto;
     setPlayerInfo: (p: PlayerInfoDto) => void;
-    loading: Boolean
+    loading: boolean;
 }
 
 export const undefinedPlayer: PlayerInfoDto = {
@@ -26,12 +27,15 @@ interface PlayerontextProviderProps {
 
 export default function PlayerContextProvider(props: PlayerontextProviderProps) {
     const { children } = props;
+    const { user } = useUser();
     const [playerInfo, setPlayerInfo] = useState(undefinedPlayer);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (user.isAuthenticating)
+            return;
         getPlayerInfo();
-    }, []);
+    }, [user.isAuthenticating]);
 
     async function getPlayerInfo() {
         try {

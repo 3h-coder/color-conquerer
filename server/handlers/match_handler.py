@@ -7,8 +7,7 @@ from handlers.match_handler_unit import MatchHandlerUnit
 
 class MatchHandler:
     """
-    Class responsible for monitoring a match between
-    2 players.
+    Class responsible for monitoring all the ongoing matches between 2 players.
     """
 
     def __init__(self):

@@ -5,7 +5,9 @@ import UserDto from "../dto/UserDto";
 
 
 export const guestUser: UserDto = {
-    username: "guest"
+    username: "guest",
+    isAuthenticating: true,
+    isAuthenticated: false
 };
 
 
@@ -22,6 +24,13 @@ export default function UserContextProvider(props: UserContextProviderProps) {
 
     useEffect(() => {
         initiateSession();
+
+        // TODO: Change that when implementing user accounts
+        setUser({
+            username: "guest",
+            isAuthenticating: false,
+            isAuthenticated: false
+        });
     }, []);
 
     async function initiateSession() {

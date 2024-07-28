@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { undefinedMatch, useMatchInfo } from "../../contexts/MatchContext";
 import { undefinedPlayer, usePlayerInfo } from "../../contexts/PlayerContext";
 import GameBoard from "./components/GameBoard";
+import GameInfo from "./components/GameInfo";
 import GameMenu from "./components/GameMenu";
 
 export default function PlayContent() {
@@ -26,6 +27,7 @@ export default function PlayContent() {
         <PageContainer>
             <GameMenu />
             <GameBoard />
+            <GameInfo />
         </PageContainer>
     );
 }

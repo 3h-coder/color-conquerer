@@ -9,7 +9,7 @@ from events.events import Events
 from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
 from helpers.id_generation_helper import generate_id
-from session_variables import PLAYER_INFO, ROOM_ID
+from session_variables import PLAYER_INFO, ROOM_ID, SESSION_INITIATED
 
 
 def handle_queue_registration(data: dict):
@@ -18,6 +18,10 @@ def handle_queue_registration(data: dict):
 
     Is in charge of creating the room up to creating the match.
     """
+    if session.get(SESSION_INITIATED) is None:
+        logger.debug("Attempting to register with no initiated session, denying")
+        raise QueueError("Something went wrong, please refresh the page and try again")
+
     if session.get(ROOM_ID) is not None:
         logger.debug("Already in a room, ignoring registration request")
         raise QueueError("You are already registered in the queue")

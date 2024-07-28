@@ -28,7 +28,7 @@ export default function GameBoard() {
                 });
             });
         }
-    }, []);
+    });
 
     return (
         <div className="board" style={{ transform: `${playerInfo.isPlayer1 ? "rotate(180deg)" : ""}` }}>

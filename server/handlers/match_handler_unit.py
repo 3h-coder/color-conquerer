@@ -10,7 +10,7 @@ from helpers.id_generation_helper import generate_id
 
 class MatchHandlerUnit:
     """
-    Handles a single match on a separate thread.
+    Handles a single on going match.
     """
 
     def __init__(self, room_dto: RoomDto):
@@ -49,6 +49,8 @@ class MatchHandlerUnit:
 
         # initialize the cell[2][7] as owned by player1 and the cell[12][7] by player2
         board[2][7].owner = 1
+        board[2][7].state = CellState.CAPTURED
         board[12][7].owner = 2
+        board[12][7].state = CellState.CAPTURED
 
         return board

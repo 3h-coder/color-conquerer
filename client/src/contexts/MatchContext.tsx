@@ -1,13 +1,15 @@
+/* eslint-disable react-refresh/only-export-components */
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { fetchMatchInfo } from "../api/game";
 import { ParseErrorDto } from "../dto/ErrorDto";
 import { MatchInfoDto } from "../dto/MatchInfoDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
+import { useUser } from "./UserContext";
 
 interface MatchContextObject {
     matchInfo: MatchInfoDto;
     setMatchInfo: (m: MatchInfoDto) => void;
-    loading: Boolean
+    loading: boolean;
 }
 
 export const undefinedMatch: MatchInfoDto = {
@@ -28,12 +30,15 @@ interface MatchContextProviderProps {
 
 export default function MatchContextProvider(props: MatchContextProviderProps) {
     const { children } = props;
+    const { user } = useUser();
     const [matchInfo, setMatchInfo] = useState<MatchInfoDto>(undefinedMatch);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (user.isAuthenticating)
+            return;
         getMatchInfo();
-    }, []);
+    }, [user.isAuthenticating]);
 
     async function getMatchInfo() {
         try {
@@ -64,7 +69,7 @@ export default function MatchContextProvider(props: MatchContextProviderProps) {
     );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
+
 export function useMatchInfo() {
     return useContext(MatchContext);
 }

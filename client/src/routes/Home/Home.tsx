@@ -1,4 +1,5 @@
 import HomeErrorContextProvider from "../../contexts/HomeErrorContext";
+import '../../style/css/Home.css';
 import HomeButtons from "./components/HomeButtons";
 import HomeError from "./components/HomeError";
 

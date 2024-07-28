@@ -3,14 +3,24 @@
 .page-container {
     display: flex;
     gap: max(30px, 5vmin);
+    width: fit-content;
+    margin: auto;
 }
 
 .game-menu {
     padding: max(15px, 3vmin);
     background-color: rgb(107, 89, 227);
     border-radius: 5px;
-    height: fit-content;
-    width: fit-content;
+    flex-grow: 1;
+    width: 20vmin;
+}
+
+.game-info {
+    padding: max(15px, 3vmin);
+    background-color: rgb(188, 89, 227);
+    border-radius: 5px;
+    flex-grow: 1;
+    width: 20vmin;
 }
 
 .board {
