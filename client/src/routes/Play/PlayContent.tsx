@@ -23,6 +23,8 @@ export default function PlayContent() {
             location.href = "/";
         } else {
             setCanRenderContent(true);
+            if (!socket.connected)
+                socket.connect();
         }
     }, [matchInfo, matchInfoLoading, playerInfo, playerInfoLoading]);
 

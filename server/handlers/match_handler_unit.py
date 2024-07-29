@@ -20,21 +20,29 @@ class MatchHandlerUnit:
         self.exit_watcher = None
 
     def start_exit_watcher(self, player_info_dto: PlayerInfoDto):
-        logger.debug("Started exit watcher")
+        logger.debug(f"Started exit watcher for the player : {player_info_dto}")
+        if asyncio.get_event_loop() is None:
+            asyncio.set_event_loop(asyncio.new_event_loop())
+            asyncio.get_event_loop().run_forever()
         self.exit_watcher = asyncio.create_task(
             self._confirm_player_exit(player_info_dto)
         )
 
-    async def _confirm_player_exit(self, player_info_dto: PlayerInfoDto):
-        if player_info_dto is None:
-            return None
+    def stop_exit_watch(self, player_info_dto: PlayerInfoDto):
+        logger.debug(f"Stopping the exit watcher for the player : {player_info_dto}")
+        self.exit_watcher.cancel()
+
+
+    async def _confirm_player_exit(self, player_info_dto: PlayerInfoDto | None):
+        if not player_info_dto:
+            return False
 
         delay_seconds = 30
         # Wait 30 seconds for it to get eventually cancelled
         await asyncio.sleep(delay_seconds)
         logger.debug(f"{delay_seconds} seconds passed confirming player exit")
-        # TODO: set the winner as the other player instead of returning that
-        return player_info_dto
+        # TODO: set the winner as the other player
+        return True
 
     def _get_starting_match_info(self, room_dto: RoomDto):
         return MatchInfoDto(

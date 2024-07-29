@@ -35,7 +35,7 @@ class MatchHandler:
         try:
             return self.units[room_id]
         except KeyError:
-            logger.error(f"No unit currently working for the room : {room_id}")
+            logger.error(f"No unit instanciated for the room : {room_id}")
 
     def get_match_info(self, room_id):
         """

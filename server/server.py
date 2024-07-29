@@ -1,11 +1,11 @@
 import sys
 
 from flask import Flask
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
+from config.logger import logger
 
 from dto.error_dto import ErrorDto
-from events import *
-from events.connect import handle_connection
+from events import handle_disconnection, handle_connection, handle_queue_registration
 from events.events import Events
 from exceptions.custom_exception import CustomException
 

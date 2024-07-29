@@ -14,4 +14,4 @@ def index():
         session[SESSION_INITIATED] = True
         return jsonify({"message": "Session initiated"}), 204
 
-    return "", 200
+    return "", 204
