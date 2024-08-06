@@ -56,6 +56,7 @@ export default function HomeButtons() {
 
         function goToPlayRoom() {
             developmentLog("Opponent found!");
+            socket.disconnect();
             location.href = `/${paths.play}`;
         }
 

@@ -21,7 +21,7 @@ class MatchHandler:
         """
         room_id = room_dto.id
         if room_id in self.units:
-            raise Exception("")
+            raise ValueError(f"The room {room_id} already has an attributed unit")
 
         match_handler_unit = MatchHandlerUnit(room_dto)
 

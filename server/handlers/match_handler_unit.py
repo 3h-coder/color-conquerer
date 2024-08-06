@@ -15,15 +15,32 @@ class MatchHandlerUnit:
     """
 
     def __init__(self, room_dto: RoomDto):
-        self.match_info = self._get_starting_match_info(room_dto)
+        self.match_info = self._get_initial_match_info(room_dto)
         self.status = MatchStatus.WAITING_TO_START
+        # TODO: Add a timer to wait a maximum of x seconds for both players to be ready
+        self.players_ready = {
+            room_dto.player1.playerId: False,
+            room_dto.player2.playerId: False,
+        }
         self.exit_watcher = None
+
+    def start_match(self):
+        self.status = MatchStatus.ONGOING
+        # TODO: current turn info, timer etc.
+
+    def is_waiting_to_start(self):
+        return self.status == MatchStatus.WAITING_TO_START
+
+    def is_ongoing(self):
+        return self.status == MatchStatus.ONGOING
+
+    def is_ended(self):
+        return self.status == MatchStatus.ENDED
 
     def start_exit_watcher(self, player_info_dto: PlayerInfoDto):
         logger.debug(f"Started exit watcher for the player : {player_info_dto}")
-        if asyncio.get_event_loop() is None:
-            asyncio.set_event_loop(asyncio.new_event_loop())
-            asyncio.get_event_loop().run_forever()
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        asyncio.get_event_loop().run_forever()
         self.exit_watcher = asyncio.create_task(
             self._confirm_player_exit(player_info_dto)
         )
@@ -32,19 +49,18 @@ class MatchHandlerUnit:
         logger.debug(f"Stopping the exit watcher for the player : {player_info_dto}")
         self.exit_watcher.cancel()
 
-
     async def _confirm_player_exit(self, player_info_dto: PlayerInfoDto | None):
         if not player_info_dto:
             return False
 
-        delay_seconds = 30
+        delay_seconds = 5
         # Wait 30 seconds for it to get eventually cancelled
         await asyncio.sleep(delay_seconds)
         logger.debug(f"{delay_seconds} seconds passed confirming player exit")
         # TODO: set the winner as the other player
         return True
 
-    def _get_starting_match_info(self, room_dto: RoomDto):
+    def _get_initial_match_info(self, room_dto: RoomDto):
         return MatchInfoDto(
             id=generate_id(MatchInfoDto),
             roomId=room_dto.id,

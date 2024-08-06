@@ -2,10 +2,15 @@ import sys
 
 from flask import Flask
 from flask_socketio import SocketIO, emit
-from config.logger import logger
 
+from config.logger import logger
 from dto.error_dto import ErrorDto
-from events import handle_disconnection, handle_connection, handle_queue_registration
+from events import (
+    handle_client_ready,
+    handle_connection,
+    handle_disconnection,
+    handle_queue_registration,
+)
 from events.events import Events
 from exceptions.custom_exception import CustomException
 
@@ -30,6 +35,7 @@ class Server:
         self.socketio.on_event(
             Events.CLIENT_QUEUE_REGISTER.value, handle_queue_registration
         )
+        self.socketio.on_event(Events.CLIENT_READY.value, handle_client_ready)
 
         @self.socketio.on_error()
         def _(ex: Exception):

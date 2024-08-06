@@ -9,7 +9,7 @@ from events.events import Events
 from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
 from helpers.id_generation_helper import generate_id
-from session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_INITIATED
+from session_variables import PLAYER_INFO, ROOM_ID, SESSION_INITIATED
 
 
 def handle_queue_registration(data: dict):
