@@ -2,14 +2,14 @@ from flask import session
 from flask_socketio import emit, join_room, leave_room
 
 from config.logger import logger
+from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_INITIATED
 from dto.match_info_dto import MatchInfoDto
 from dto.player_info_dto import PlayerInfoDto
 from dto.queue_player_dto import QueuePlayerDto
 from events.events import Events
 from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
-from helpers.id_generation_helper import generate_id
-from session_variables import PLAYER_INFO, ROOM_ID, SESSION_INITIATED
+from utils.id_generation_utils import generate_id
 
 
 def handle_queue_registration(data: dict):

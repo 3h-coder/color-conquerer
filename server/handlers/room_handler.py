@@ -3,7 +3,7 @@ import uuid
 from config.logger import logger
 from dto.queue_player_dto import QueuePlayerDto
 from dto.room_dto import RoomDto
-from helpers.id_generation_helper import generate_id
+from utils.id_generation_utils import generate_id
 
 
 class RoomHandler:

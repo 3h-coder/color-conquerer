@@ -1,9 +1,9 @@
 from flask import session
 
 from config.config import logger
+from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from handlers import match_handler
 from handlers.match_handler_unit import MatchStatus
-from session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 
 
 def handle_connection():

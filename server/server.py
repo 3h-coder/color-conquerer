@@ -21,6 +21,7 @@ class Server:
 
     Docs : https://flask-socketio.readthedocs.io/en/latest/
     Simple chat app example : https://github.com/miguelgrinberg/Flask-SocketIO-Chat
+    Threading + Namespace example : https://github.com/miguelgrinberg/Flask-SocketIO/blob/main/example/app.py
     """
 
     def __init__(self, app: Flask):

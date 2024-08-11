@@ -1,11 +1,11 @@
 from flask import Blueprint, jsonify, session
 
 from config.config import logger
+from constants.session_variables import PLAYER_INFO, ROOM_ID
 from dto.player_info_dto import PlayerInfoDto
 from exceptions.unauthorized import UnauthorizedError
 from handlers import match_handler
 from middlewares.error_handler import handle_error
-from session_variables import PLAYER_INFO, ROOM_ID
 
 play_bp = Blueprint("play", __name__)
 play_bp.register_error_handler(Exception, handle_error)

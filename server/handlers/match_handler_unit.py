@@ -1,12 +1,13 @@
-import asyncio
 from enum import Enum
 
 from config.logger import logger
+from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_EXCLUSION
 from dto.cell_info_dto import CellInfoDto, CellState
 from dto.match_info_dto import MatchInfoDto
 from dto.player_info_dto import PlayerInfoDto
 from dto.room_dto import RoomDto
-from helpers.id_generation_helper import generate_id
+from utils.id_generation_utils import generate_id
+from utils.models.sptimer import SPTimer
 
 
 class MatchHandlerUnit:
@@ -22,7 +23,11 @@ class MatchHandlerUnit:
             room_dto.player1.playerId: False,
             room_dto.player2.playerId: False,
         }
-        self.exit_watcher = None
+        self.exit_watcher = SPTimer(
+            tick_interval=DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
+            on_tick=self._confirm_player_exit,
+            max_ticks=1,
+        )
 
     def start_match(self):
         self.status = MatchStatus.ONGOING
@@ -39,24 +44,22 @@ class MatchHandlerUnit:
 
     def start_exit_watcher(self, player_info_dto: PlayerInfoDto):
         logger.debug(f"Started exit watcher for the player : {player_info_dto}")
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        asyncio.get_event_loop().run_forever()
-        self.exit_watcher = asyncio.create_task(
-            self._confirm_player_exit(player_info_dto)
-        )
+        self.exit_watcher.start()
 
     def stop_exit_watch(self, player_info_dto: PlayerInfoDto):
         logger.debug(f"Stopping the exit watcher for the player : {player_info_dto}")
-        self.exit_watcher.cancel()
+        self.exit_watcher.stop()
 
-    async def _confirm_player_exit(self, player_info_dto: PlayerInfoDto | None):
+    def _confirm_player_exit(self, player_info_dto: PlayerInfoDto | None):
         if not player_info_dto:
+            logger.warning(
+                "Cannot confirm a player exit when the player info is not set"
+            )
             return False
 
-        delay_seconds = 5
-        # Wait 30 seconds for it to get eventually cancelled
-        await asyncio.sleep(delay_seconds)
-        logger.debug(f"{delay_seconds} seconds passed confirming player exit")
+        logger.debug(
+            f"{DELAY_IN_S_BEFORE_MATCH_EXCLUSION} seconds passed, confirming player exit"
+        )
         # TODO: set the winner as the other player
         return True
 

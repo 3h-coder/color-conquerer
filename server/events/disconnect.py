@@ -4,9 +4,9 @@ from flask import session
 from flask_socketio import emit, leave_room
 
 from config.config import logger
+from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from events.events import Events
 from handlers import match_handler, room_handler
-from session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 
 
 def handle_disconnection():

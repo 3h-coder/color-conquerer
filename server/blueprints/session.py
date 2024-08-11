@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, session
 
+from constants.session_variables import SESSION_INITIATED
 from exceptions.custom_exception import CustomException
 from middlewares.error_handler import handle_error
-from session_variables import SESSION_INITIATED
 
 session_bp = Blueprint("session", __name__)
 session_bp.register_error_handler(Exception, handle_error)
