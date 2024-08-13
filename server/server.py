@@ -1,4 +1,5 @@
 import sys
+import traceback
 
 from flask import Flask
 from flask_socketio import SocketIO, emit
@@ -41,9 +42,7 @@ class Server:
         @self.socketio.on_error()
         def _(ex: Exception):
             if not isinstance(ex, CustomException):
-                logger.error(
-                    f"A socket error occured : {ex.with_traceback(sys.exception().__traceback__)}"
-                )
+                logger.error(f"A socket error occured : {traceback.format_exc()}")
             emit(Events.SERVER_ERROR.value, ErrorDto.from_exception(ex).to_dict())
 
     def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):

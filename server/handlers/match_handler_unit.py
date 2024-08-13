@@ -27,6 +27,7 @@ class MatchHandlerUnit:
             tick_interval=DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
             on_tick=self._confirm_player_exit,
             max_ticks=1,
+            last_tick_callback=None,
         )
 
     def start_match(self):
@@ -42,26 +43,37 @@ class MatchHandlerUnit:
     def is_ended(self):
         return self.status == MatchStatus.ENDED
 
-    def start_exit_watcher(self, player_info_dto: PlayerInfoDto):
+    def start_exit_watcher(self, player_info_dto: PlayerInfoDto, last_tick_callback):
         logger.debug(f"Started exit watcher for the player : {player_info_dto}")
-        self.exit_watcher.start()
+        if self.exit_watcher is None:
+            logger.warning(
+                "The exit watcher is not set and therefore cannot be started"
+            )
+        else:
+            self.exit_watcher.last_tick_callback = last_tick_callback
+            self.exit_watcher.start()
 
     def stop_exit_watch(self, player_info_dto: PlayerInfoDto):
         logger.debug(f"Stopping the exit watcher for the player : {player_info_dto}")
-        self.exit_watcher.stop()
+        if self.exit_watcher is not None:
+            self.exit_watcher.stop()
+        else:
+            logger.warning(
+                "The exit watcher was not defined and therefore could not be stopped"
+            )
 
     def _confirm_player_exit(self, player_info_dto: PlayerInfoDto | None):
         if not player_info_dto:
             logger.warning(
                 "Cannot confirm a player exit when the player info is not set"
             )
-            return False
+            return
 
         logger.debug(
             f"{DELAY_IN_S_BEFORE_MATCH_EXCLUSION} seconds passed, confirming player exit"
         )
         # TODO: set the winner as the other player
-        return True
+        self.status = MatchStatus.ENDED
 
     def _get_initial_match_info(self, room_dto: RoomDto):
         return MatchInfoDto(
