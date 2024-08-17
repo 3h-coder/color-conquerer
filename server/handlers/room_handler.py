@@ -41,6 +41,7 @@ class RoomHandler:
             )
             self.open_rooms[new_room.id] = new_room
             self._log_rooms_count()
+            # self._log_rooms()
             return new_room.id, False
 
         # Place the player in the first open room
@@ -49,14 +50,15 @@ class RoomHandler:
 
         # Move the room to the closed rooms
         self.closed_rooms[room.id] = room
-        self.remove_room(room.id)
+        self.remove_open_room(room.id)
 
         return room.id, True
 
-    def remove_room(self, room_id: str):
+    def remove_open_room(self, room_id: str):
         logger.debug(f"Removing the room {room_id}")
         del self.open_rooms[room_id]
         self._log_rooms_count()
+        # self._log_rooms()
 
     def _log_rooms(self):
         logger.debug(f"Open rooms {self.open_rooms}")

@@ -24,17 +24,17 @@ def handle_disconnection():
 
     # equivalent to in match being false or none
     if room_handler.open_rooms.get(room_id):
-        room_handler.remove_room(room_id)
+        logger.debug("Disconnected while being in queue")
+        room_handler.remove_open_room(room_id)
         leave_room(room_id)
         clear_session()
         return
 
     mhu = match_handler.get_unit(room_id)
 
-    # if match started aka the room is closed, wait a bit then notify the room that the opponent left and close the match
-    # wait a bit asynchronously (30 seconds ?)
-    # emit to room opponent left/match ending, etc.
+    # If the match is on going, wait a period of time before considering the player gone
     if mhu.is_ongoing():
+        logger.debug("Disconnected while being in a match")
         match_handler_unit = match_handler.get_unit(room_id)
         match_handler_unit.start_exit_watcher(
             session.get(PLAYER_INFO), propagate_player_exit

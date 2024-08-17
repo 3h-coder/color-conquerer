@@ -23,6 +23,7 @@ class MatchHandlerUnit:
             room_dto.player1.playerId: False,
             room_dto.player2.playerId: False,
         }
+        # TODO : [BUG] Remove this from here as it makes the second player unable to enter the match
         self.exit_watcher = SPTimer(
             tick_interval=DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
             on_tick=self._confirm_player_exit,

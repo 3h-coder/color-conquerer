@@ -25,7 +25,7 @@ def get_match_info():
 
 @play_bp.route("/play/player-info", methods=["GET"])
 def get_player_info():
-    player_info: PlayerInfoDto | None = session.get(PLAYER_INFO)
+    player_info = session.get(PLAYER_INFO)
 
     if player_info is None:
         raise UnauthorizedError("Could not resolve player information")

@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, session
 
+from config.logger import logger
 from constants.session_variables import SESSION_INITIATED
 from exceptions.custom_exception import CustomException
 from middlewares.error_handler import handle_error

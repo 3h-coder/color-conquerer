@@ -77,13 +77,13 @@ class SPTimer:
 
     def _sleep_with_check(self, duration):
         """Sleep for `duration` seconds, checking periodically if stopped."""
-        chunk_size = 0.1  # Check every 100ms
+        time_period_in_s = 0.1  # Check every 100ms
         elapsed = 0
         while elapsed < duration:
             if self.stopped.is_set():
                 return
-            time.sleep(chunk_size)
-            elapsed += chunk_size
+            time.sleep(time_period_in_s)
+            elapsed += time_period_in_s
 
     def start(self):
         """Start the timer."""
