@@ -1,13 +1,11 @@
 from enum import Enum
 
 from config.logger import logger
-from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_EXCLUSION
 from dto.cell_info_dto import CellInfoDto, CellState
 from dto.match_info_dto import MatchInfoDto
 from dto.player_info_dto import PlayerInfoDto
 from dto.room_dto import RoomDto
 from utils.id_generation_utils import generate_id
-from utils.models.sptimer import SPTimer
 
 
 class MatchHandlerUnit:
@@ -23,13 +21,6 @@ class MatchHandlerUnit:
             room_dto.player1.playerId: False,
             room_dto.player2.playerId: False,
         }
-        # TODO : [BUG] Remove this from here as it makes the second player unable to enter the match
-        self.exit_watcher = SPTimer(
-            tick_interval=DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
-            on_tick=self._confirm_player_exit,
-            max_ticks=1,
-            last_tick_callback=None,
-        )
 
     def start_match(self):
         self.status = MatchStatus.ONGOING
@@ -44,37 +35,10 @@ class MatchHandlerUnit:
     def is_ended(self):
         return self.status == MatchStatus.ENDED
 
-    def start_exit_watcher(self, player_info_dto: PlayerInfoDto, last_tick_callback):
-        logger.debug(f"Started exit watcher for the player : {player_info_dto}")
-        if self.exit_watcher is None:
-            logger.warning(
-                "The exit watcher is not set and therefore cannot be started"
-            )
-        else:
-            self.exit_watcher.last_tick_callback = last_tick_callback
-            self.exit_watcher.start()
-
-    def stop_exit_watch(self, player_info_dto: PlayerInfoDto):
-        logger.debug(f"Stopping the exit watcher for the player : {player_info_dto}")
-        if self.exit_watcher is not None:
-            self.exit_watcher.stop()
-        else:
-            logger.warning(
-                "The exit watcher was not defined and therefore could not be stopped"
-            )
-
-    def _confirm_player_exit(self, player_info_dto: PlayerInfoDto | None):
-        if not player_info_dto:
-            logger.warning(
-                "Cannot confirm a player exit when the player info is not set"
-            )
-            return
-
-        logger.debug(
-            f"{DELAY_IN_S_BEFORE_MATCH_EXCLUSION} seconds passed, confirming player exit"
-        )
+    def end_match(self, reason: str):
         # TODO: set the winner as the other player
         self.status = MatchStatus.ENDED
+        logger.debug(f"Ended the match because : {reason}")
 
     def _get_initial_match_info(self, room_dto: RoomDto):
         return MatchInfoDto(

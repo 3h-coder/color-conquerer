@@ -1,4 +1,3 @@
-import sys
 import traceback
 
 from flask import Flask
@@ -14,6 +13,7 @@ from events import (
 )
 from events.events import Events
 from exceptions.custom_exception import CustomException
+from handlers import match_handler
 
 
 class Server:
@@ -46,4 +46,13 @@ class Server:
             emit(Events.SERVER_ERROR.value, ErrorDto.from_exception(ex).to_dict())
 
     def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):
-        self.socketio.run(self.app, host=host, port=port, debug=debug, **kwargs)
+        self.socketio.run(
+            self.app, host=host, port=port, debug=debug, use_reloader=False, **kwargs
+        )
+
+    def start_polling_workers(self):
+        """
+        Calls the start_polling_workers method on all of the handlers.
+        """
+        logger.debug("Starting polling workers")
+        match_handler.start_polling_workers()

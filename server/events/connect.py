@@ -6,7 +6,9 @@ from handlers import match_handler
 from handlers.match_handler_unit import MatchStatus
 
 
-def handle_connection():
+def handle_connection(data):
+    logger.debug(f"Connection data is {data}")
+
     session[SOCKET_CONNECTED] = True
     logger.debug("----- Socket connection -----")
 
@@ -17,4 +19,6 @@ def handle_connection():
     mhu = match_handler.get_unit(room_id)
 
     if mhu.is_ongoing():
-        mhu.stop_exit_watch(session.get(PLAYER_INFO))
+        logger.debug("Player rejoinded the match, stopping exit watcher")
+        player_id = session.get(PLAYER_INFO).playerId
+        match_handler.stop_exit_watcher(player_id)

@@ -23,3 +23,4 @@ def handle_client_ready():
     ):
         logger.info(f"All players ready in the room {room_id}")
         mhu.start_match()
+        # emit match started

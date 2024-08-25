@@ -38,6 +38,7 @@ def handle_queue_registration(data: dict):
 
     queue_player_dto = QueuePlayerDto.from_dict(data)
     player_id = set_player_id(queue_player_dto)
+    match_handler.create_exit_watcher(player_id)
 
     logger.info(
         f"{Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"

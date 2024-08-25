@@ -1,8 +1,11 @@
-import uuid
+import multiprocessing
 
 from config.config import logger
+from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_EXCLUSION
 from dto.room_dto import RoomDto
 from handlers.match_handler_unit import MatchHandlerUnit
+from utils.models.polling_worker import PollingWorker
+from utils.models.sptimer import SPTimer
 
 
 class MatchHandler:
@@ -12,12 +15,30 @@ class MatchHandler:
 
     def __init__(self):
         self.units: dict[str, MatchHandlerUnit] = {}
+        self.exit_watchers: dict[str, SPTimer] = {}
+        self.exit_watcher_manager = None
+        self.exit_watcher_generation_queue = multiprocessing.Queue()
+        self.exit_watcher_generator = PollingWorker(
+            queue=self.exit_watcher_generation_queue,
+            consumer_method=_initiate_exit_watcher,
+        )
+
+    def create_exit_watcher(self, player_id: str):
+        """
+        Registers a player id into the exit watcher generation queue for the generator
+        to automatically create an exit watcher.
+        """
+        if self.exit_watcher_manager is None:
+            self.exit_watcher_manager = multiprocessing.Manager()
+            self.exit_watcher_generator.args = (
+                self.exit_watcher_manager,
+                self.exit_watchers,
+            )
+        self.exit_watcher_generation_queue.put(player_id)
 
     def initiate_match(self, room_dto: RoomDto):
         """
         Instanciates a match handler unit and its corresponding match for a specific room.
-
-        ⚠️ This function should always be inside of a try except clause, at it may raise an error if a match is already running for a given room ⚠️
         """
         room_id = room_dto.id
         if room_id in self.units:
@@ -47,3 +68,37 @@ class MatchHandler:
             return
 
         return unit.match_info
+
+    def start_polling_workers(self):
+        """
+        Starts any polling worker, i.e. the exit watcher generator at the moment.
+        """
+        logger.debug("[Match Handler] Starting exit watcher generator")
+        self.exit_watcher_generator.start()
+
+    def start_exit_watcher(self, player_id: str, exit_function, exit_function_args):
+        # TODO : [BUG] The exit watcher must already exist at this point. Creating it takes a bit of time,
+        # more time than a page refresh actually which triggers a key error when trying to stop it.
+
+        exit_watcher = self.exit_watchers[player_id]
+        exit_watcher.on_tick = exit_function
+        exit_watcher.on_tick_args = exit_function_args
+        exit_watcher.start()
+
+    def stop_exit_watcher(self, player_id: str):
+        exit_watcher = self.exit_watchers[player_id]
+        exit_watcher.stop()
+
+
+def _initiate_exit_watcher(player_id, manager, exit_watchers):
+    """
+    Creates the exit watcher for a given player (from its id)
+    """
+    exit_watcher = SPTimer(
+        manager,
+        tick_interval=DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
+        on_tick=None,
+        max_ticks=1,
+    )
+    exit_watchers[player_id] = exit_watcher
+    logger.debug(f"Exit watcher initiated for the player {player_id}")

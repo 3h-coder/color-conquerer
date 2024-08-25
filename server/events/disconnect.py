@@ -7,6 +7,7 @@ from config.config import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from events.events import Events
 from handlers import match_handler, room_handler
+from handlers.match_handler_unit import MatchHandlerUnit
 
 
 def handle_disconnection():
@@ -27,32 +28,36 @@ def handle_disconnection():
         logger.debug("Disconnected while being in queue")
         room_handler.remove_open_room(room_id)
         leave_room(room_id)
-        clear_session()
+        _clear_session()
         return
 
     mhu = match_handler.get_unit(room_id)
 
     # If the match is on going, wait a period of time before considering the player gone
     if mhu.is_ongoing():
-        logger.debug("Disconnected while being in a match")
-        match_handler_unit = match_handler.get_unit(room_id)
-        match_handler_unit.start_exit_watcher(
-            session.get(PLAYER_INFO), propagate_player_exit
+        logger.debug("Disconnected while being in a match, starting exit watcher")
+        player_id = session.get(PLAYER_INFO).playerId
+        match_handler.start_exit_watcher(
+            player_id, exit_function=_leave_match, exit_function_args=(mhu, room_id)
         )
 
 
-def propagate_player_exit():
+def _leave_match(mhu: MatchHandlerUnit, room_id):
+    mhu.end_match("Player left")
+    _propagate_player_exit(room_id)
+
+
+def _propagate_player_exit(room_id: str):
     """
     Notifies the other player that their opponent has left, while clearing
     session data for the leaving user.
     """
     logger.debug("Propagating player exit")
-    room_id = session.get(ROOM_ID)
     leave_room(room_id)
-    clear_session()
+    _clear_session()
     emit(Events.SERVER_MATCH_OPPONENT_LEFT.value, to=room_id)
 
 
-def clear_session():
+def _clear_session():
     del session[ROOM_ID]
     del session[PLAYER_INFO]
