@@ -49,10 +49,3 @@ class Server:
         self.socketio.run(
             self.app, host=host, port=port, debug=debug, use_reloader=False, **kwargs
         )
-
-    def start_polling_workers(self):
-        """
-        Calls the start_polling_workers method on all of the handlers.
-        """
-        logger.debug("Starting polling workers")
-        match_handler.start_polling_workers()

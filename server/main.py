@@ -1,4 +1,5 @@
 from application import Application
+from manager import MultiProcessingManager
 from server import Server
 
 # WARNING : always set the current working directory as this file's
@@ -8,5 +9,5 @@ app = Application(__name__)
 server = Server(app)
 
 if __name__ == "__main__":
-    server.start_polling_workers()
+    MultiProcessingManager.get_instance()
     server.run()
