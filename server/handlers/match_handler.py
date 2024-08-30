@@ -17,27 +17,35 @@ class MatchHandler:
     def __init__(self):
         self.units: dict[str, MatchHandlerUnit] = {}
         self.exit_watchers: dict[str, SPTimer] = {}
-        self.exit_watcher_generation_queue = multiprocessing.Queue()
+        self.exit_watcher_generation_queue = None
         self.exit_watcher_generator = PollingWorker(
             queue=self.exit_watcher_generation_queue,
             consumer_method=_initiate_exit_watcher,
         )
-
-    def _init_exit_watchers(self):
-        shared_dict, shared_lock = MultiProcessingManager.get_shared_dict_and_lock()
-        with shared_lock:
-            shared_dict["exit_watchers"] = {}
-            return shared_dict["exit_watchers"]
 
     def create_exit_watcher(self, player_id: str):
         """
         Registers a player id into the exit watcher generation queue for the generator
         to automatically create an exit watcher.
         """
+        manager = MultiProcessingManager.get_instance()
+        paused_event = manager.Event()
+        stopped_event = manager.Event()
+
+        if self.exit_watcher_generation_queue is None:
+            self.exit_watcher_generation_queue = manager.Queue()
+
         if not self.exit_watcher_generator.started:
             self.exit_watchers = self._init_exit_watchers()
+            self.exit_watcher_generator.queue = self.exit_watcher_generation_queue
             self.exit_watcher_generator.start()
-        self.exit_watcher_generation_queue.put(((player_id, self.exit_watchers), {}))
+
+        self.exit_watcher_generation_queue.put(
+            ((paused_event, stopped_event, player_id, self.exit_watchers), {})
+        )
+
+    def _init_exit_watchers(self):
+        return MultiProcessingManager.get_instance().dict()
 
     def initiate_match(self, room_dto: RoomDto):
         """
@@ -73,25 +81,26 @@ class MatchHandler:
         return unit.match_info
 
     def start_exit_watcher(self, player_id: str, exit_function, exit_function_args):
-        # TODO : [BUG] The exit watcher must already exist at this point. Creating it takes a bit of time,
-        # more time than a page refresh actually which triggers a key error when trying to stop it.
-
-        exit_watcher = self.exit_watchers[player_id]
-        exit_watcher.on_tick = exit_function
-        exit_watcher.on_tick_args = exit_function_args
-        exit_watcher.start()
+        with MultiProcessingManager.get_lock():
+            logger.debug(f"exit_watchers is {self.exit_watchers}")
+            exit_watcher = self.exit_watchers[player_id]
+            exit_watcher.on_tick = exit_function
+            exit_watcher.on_tick_args = exit_function_args
+            exit_watcher.start()
 
     def stop_exit_watcher(self, player_id: str):
-        exit_watcher = self.exit_watchers[player_id]
-        exit_watcher.stop()
+        with MultiProcessingManager.get_lock():
+            exit_watcher = self.exit_watchers[player_id]
+            exit_watcher.stop()
 
 
-def _initiate_exit_watcher(player_id, exit_watchers):
+def _initiate_exit_watcher(paused_event, stopped_event, player_id, exit_watchers):
     """
     Creates the exit watcher for a given player (from its id)
     """
     exit_watcher = SPTimer(
-        MultiProcessingManager.get_instance(),
+        paused_event=paused_event,
+        stopped_event=stopped_event,
         tick_interval=DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
         on_tick=None,
         max_ticks=1,

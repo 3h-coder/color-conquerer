@@ -11,7 +11,8 @@ class SPTimer:
 
     def __init__(
         self,
-        manager,
+        paused_event,
+        stopped_event,
         tick_interval,
         on_tick,
         on_tick_args=None,
@@ -40,9 +41,9 @@ class SPTimer:
         self.max_ticks = max_ticks
         self.current_ticks = 0
         # Use a multiprocessing.Manager to create shared events -> https://stackoverflow.com/questions/9908781/sharing-a-result-queue-among-several-processes
-        self.paused = manager.Event()
-        self.stopped = manager.Event()
-        self._initialize_process()
+        self.paused = paused_event
+        self.stopped = stopped_event
+        self.process = None  # We do not initialize the process now as it prevents the instance from being pickled and thefore passed in multiprocessing queues
 
     def _initialize_process(self):
         # Using self.run triggers a type error as a DillProcess cannot be pickled,
@@ -60,10 +61,12 @@ class SPTimer:
                     )  # Wait for the first interval if not ticking instantly
                 self._trigger_tick()
             self._polling_sleep(self.tick_interval)
+        logger.debug("The timer was stopped")
 
     def _trigger_tick(self):
         if self.stopped.is_set():
             return
+
         self.current_ticks += 1
 
         if self.on_tick_args:
@@ -86,7 +89,11 @@ class SPTimer:
 
     def start(self):
         """Start the timer."""
-        if self.process.pid is None or not self.process.is_alive():
+        if (
+            self.process is None
+            or self.process.pid is None
+            or not self.process.is_alive()
+        ):
             self._initialize_process()
         self.stopped.clear()
         self.process.start()
@@ -102,6 +109,9 @@ class SPTimer:
     def stop(self):
         """Stop the timer."""
         self.stopped.set()
+        if self.process is None:
+            return
+
         if self.process.is_alive():
             self.process.join()
         self.process.close()

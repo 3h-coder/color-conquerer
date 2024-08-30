@@ -18,9 +18,9 @@ class PollingWorker:
     async def poll(self):
         while True:
             if not self.queue.empty():
-                logger.debug("Exit watcher generation queue not empty")
+                # logger.debug("Exit watcher generation queue not empty")
                 args, kwargs = self.queue.get()
-                logger.debug(f"The args are {args} | kwargs are {kwargs}")
+                # logger.debug(f"The args are {args} | kwargs are {kwargs}")
                 self.consumer_method(*args, **kwargs)
             else:
                 await asyncio.sleep(self.POLLING_DELAY_IN_S)
