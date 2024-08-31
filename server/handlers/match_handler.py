@@ -1,6 +1,4 @@
-import multiprocessing
-
-from config.config import logger
+from config.logger import logger
 from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_EXCLUSION
 from dto.room_dto import RoomDto
 from handlers.match_handler_unit import MatchHandlerUnit
@@ -11,16 +9,17 @@ from utils.models.sptimer import SPTimer
 
 class MatchHandler:
     """
-    Class responsible for monitoring all the ongoing matches between 2 players.
+    Class responsible for monitoring all the pending and ongoing matches between 2 players.
     """
 
     def __init__(self):
         self.units: dict[str, MatchHandlerUnit] = {}
         self.exit_watchers: dict[str, SPTimer] = {}
+        self.lock = MultiProcessingManager.get_lock()
         self.exit_watcher_generation_queue = None
         self.exit_watcher_generator = PollingWorker(
-            queue=self.exit_watcher_generation_queue,
             consumer_method=_initiate_exit_watcher,
+            queue=self.exit_watcher_generation_queue,
         )
 
     def create_exit_watcher(self, player_id: str):
@@ -36,16 +35,15 @@ class MatchHandler:
             self.exit_watcher_generation_queue = manager.Queue()
 
         if not self.exit_watcher_generator.started:
-            self.exit_watchers = self._init_exit_watchers()
-            self.exit_watcher_generator.queue = self.exit_watcher_generation_queue
+            self.exit_watchers = manager.dict()
+            self.exit_watcher_generator.arguments_queue = (
+                self.exit_watcher_generation_queue
+            )
             self.exit_watcher_generator.start()
 
         self.exit_watcher_generation_queue.put(
             ((paused_event, stopped_event, player_id, self.exit_watchers), {})
         )
-
-    def _init_exit_watchers(self):
-        return MultiProcessingManager.get_instance().dict()
 
     def initiate_match(self, room_dto: RoomDto):
         """
@@ -81,17 +79,25 @@ class MatchHandler:
         return unit.match_info
 
     def start_exit_watcher(self, player_id: str, exit_function, exit_function_args):
-        with MultiProcessingManager.get_lock():
-            logger.debug(f"exit_watchers is {self.exit_watchers}")
+        with self.lock:
+            # logger.debug(f"exit_watchers is {self.exit_watchers}")
             exit_watcher = self.exit_watchers[player_id]
             exit_watcher.on_tick = exit_function
             exit_watcher.on_tick_args = exit_function_args
             exit_watcher.start()
 
     def stop_exit_watcher(self, player_id: str):
-        with MultiProcessingManager.get_lock():
-            exit_watcher = self.exit_watchers[player_id]
-            exit_watcher.stop()
+        with self.lock:
+            exit_watcher = self.exit_watchers.get(player_id)
+            if exit_watcher is not None:
+                exit_watcher.stop()
+
+    def remove_exit_watcher(self, player_id: str):
+        self.stop_exit_watcher(player_id)
+        with self.lock:
+            if player_id in self.exit_watchers:
+                logger.debug(f"Deleting the exit watcher for the player {player_id}")
+                del self.exit_watchers[player_id]
 
 
 def _initiate_exit_watcher(paused_event, stopped_event, player_id, exit_watchers):

@@ -6,7 +6,7 @@ from utils.models.dillprocess import DillProcess
 
 class SPTimer:
     """
-    Wrapper class around a `multiprocessing.Process` object to periodically execute a function.
+    Wrapper class around a daemon process to behave as a timer and periodically execute a function.
     """
 
     def __init__(
@@ -22,7 +22,9 @@ class SPTimer:
         """
         Initializes the Timer.
 
-        :param tick_interval: Time interval between each tick (in seconds).
+        :param paused_event: Event object used to set the timer as paused.
+        :param stopped_event: Event object used to set the timer as stopped.
+        :param tick_interval: Time interval between each tick (in seconds). Its value must be `>= 0.3`.
         :param on_tick: The function to execute on each tick.
         :param max_ticks: Maximum number of ticks (optional). If None, it will tick indefinitely.
         """
@@ -46,21 +48,25 @@ class SPTimer:
         self.process = None  # We do not initialize the process now as it prevents the instance from being pickled and thefore passed in multiprocessing queues
 
     def _initialize_process(self):
-        # Using self.run triggers a type error as a DillProcess cannot be pickled,
-        # we therefore resort to this
+        # Using self.run triggers a type error as a DillProcess cannot be pickled, we therefore resort to this
         self.process = DillProcess(target=run_timer, args=(self,))
         self.process.daemon = True
 
     def run(self):
-        logger.debug("Called SPTimer.run")
+        logger.debug("Called SPTimer.run()")
+
         while not self.stopped.is_set():
-            if not self.paused.is_set():
-                if self.current_ticks == 0 and not self.tick_instantly:
-                    self._polling_sleep(
-                        self.tick_interval
-                    )  # Wait for the first interval if not ticking instantly
-                self._trigger_tick()
+            if self.paused.is_set():
+                self._polling_sleep(self.tick_interval)
+                continue
+
+            if self.current_ticks == 0 and not self.tick_instantly:
+                # Wait for the first interval if not ticking instantly
+                self._polling_sleep(self.tick_interval)
+
+            self._trigger_tick()
             self._polling_sleep(self.tick_interval)
+
         logger.debug("The timer was stopped")
 
     def _trigger_tick(self):
@@ -109,6 +115,7 @@ class SPTimer:
     def stop(self):
         """Stop the timer."""
         self.stopped.set()
+        # Sometimes the process is stopped before it could even be started
         if self.process is None:
             return
 

@@ -1,9 +1,7 @@
-import asyncio
-
 from flask import session
 from flask_socketio import emit, leave_room
 
-from config.config import logger
+from config.logger import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from events.events import Events
 from handlers import match_handler, room_handler
@@ -23,23 +21,30 @@ def handle_disconnection():
     if not room_id:
         return
 
-    # equivalent to in match being false or none
+    player_id = session.get(PLAYER_INFO).playerId
+
     if room_handler.open_rooms.get(room_id):
-        logger.debug("Disconnected while being in queue")
-        room_handler.remove_open_room(room_id)
-        leave_room(room_id)
-        _clear_session()
-        return
+        _handle_disconnection_in_queue(room_id, player_id)
 
     mhu = match_handler.get_unit(room_id)
 
     # If the match is on going, wait a period of time before considering the player gone
     if mhu.is_ongoing():
         logger.debug("Disconnected while being in a match, starting exit watcher")
-        player_id = session.get(PLAYER_INFO).playerId
         match_handler.start_exit_watcher(
-            player_id, exit_function=_leave_match, exit_function_args=(mhu, room_id)
+            player_id,
+            exit_function=_leave_match,
+            exit_function_args=(mhu, room_id),
         )
+
+
+def _handle_disconnection_in_queue(room_id, player_id):
+    logger.debug("Disconnected while being in queue")
+    room_handler.remove_open_room(room_id)
+    match_handler.remove_exit_watcher(player_id)
+    leave_room(room_id)
+    _clear_session()
+    return
 
 
 def _leave_match(mhu: MatchHandlerUnit, room_id):

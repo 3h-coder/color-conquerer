@@ -1,25 +1,29 @@
 import asyncio
-import multiprocessing
 
 from config.logger import logger
 from utils.models.dillprocess import DillProcess
 
 
 class PollingWorker:
+    """
+    Wrapper class around a daemon process that will continuously poll a multiprocessing queue
+    to execute a function from the provided arguments.
+    """
+
     POLLING_DELAY_IN_S = 0.05  # 50ms
 
-    def __init__(self, queue: multiprocessing.Queue, consumer_method):
-        self.queue = queue
+    def __init__(self, consumer_method, queue):
         self.consumer_method = consumer_method
+        self.arguments_queue = queue
         self.process = DillProcess(target=start_polling, args=(self,))
         self.process.daemon = True
         self.started = False
 
     async def poll(self):
         while True:
-            if not self.queue.empty():
+            if not self.arguments_queue.empty():
                 # logger.debug("Exit watcher generation queue not empty")
-                args, kwargs = self.queue.get()
+                args, kwargs = self.arguments_queue.get()
                 # logger.debug(f"The args are {args} | kwargs are {kwargs}")
                 self.consumer_method(*args, **kwargs)
             else:

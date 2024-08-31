@@ -7,7 +7,7 @@ from handlers.match_handler_unit import MatchStatus
 
 
 def handle_connection(data):
-    logger.debug(f"Connection data is {data}")
+    # logger.debug(f"Connection data is {data}")
 
     session[SOCKET_CONNECTED] = True
     logger.debug("----- Socket connection -----")
