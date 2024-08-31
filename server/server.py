@@ -29,6 +29,7 @@ class Server:
         self.app = app
         # TODO: add the proper origins
         self.socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
+        self.request_context_snapshots = {}
         self._add_listeners()
 
     def _add_listeners(self):
@@ -49,3 +50,11 @@ class Server:
         self.socketio.run(
             self.app, host=host, port=port, debug=debug, use_reloader=False, **kwargs
         )
+
+    def save_request_context(self, key, request_context):
+        self.request_context_snapshots[key] = request_context
+
+    def consume_request_context(self, key):
+        request_context = self.request_context_snapshots[key]
+        del self.request_context_snapshots[key]
+        return request_context
