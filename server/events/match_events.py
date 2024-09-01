@@ -1,5 +1,5 @@
 from flask import session
-from flask_socketio import emit
+from flask_socketio import emit, join_room
 
 from config.config import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID
@@ -14,6 +14,8 @@ def handle_client_ready():
     """
     player_id = session.get(PLAYER_INFO).playerId
     room_id = session.get(ROOM_ID)
+
+    join_room(room_id)
 
     mhu = match_handler.get_unit(room_id)
     mhu.players_ready[player_id] = True

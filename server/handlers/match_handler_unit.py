@@ -1,7 +1,10 @@
 from enum import Enum
 
+from flask_socketio import emit
+
 from config.logger import logger
 from dto.cell_info_dto import CellInfoDto, CellState
+from dto.match_closure_dto import MatchClosureDto
 from dto.match_info_dto import MatchInfoDto
 from dto.player_info_dto import PlayerInfoDto
 from dto.room_dto import RoomDto
@@ -15,6 +18,7 @@ class MatchHandlerUnit:
 
     def __init__(self, room_dto: RoomDto):
         self.match_info = self._get_initial_match_info(room_dto)
+        self.match_closure_info = None
         self.status = MatchStatus.WAITING_TO_START
         # TODO: Add a timer to wait a maximum of x seconds for both players to be ready
         self.players_ready = {
@@ -35,10 +39,37 @@ class MatchHandlerUnit:
     def is_ended(self):
         return self.status == MatchStatus.ENDED
 
-    def end_match(self, reason: str):
-        # TODO: set the winner as the other player
+    def end_match(
+        self, reason: str, winner_id: str | None = None, loser_id: str | None = None
+    ):
+        player1 = self.match_info.player1
+        player2 = self.match_info.player2
+        player_ids = [player1.playerId, player2.playerId]
+
+        # Validate provided IDs
+        if winner_id is None and loser_id is None:
+            raise ValueError("No winner id nor loser id provided")
+
+        if winner_id is not None and winner_id not in player_ids:
+            raise ValueError("The winner id does not correspond to any player id")
+
+        if loser_id is not None and loser_id not in player_ids:
+            raise ValueError("The loser id does not correspond to any player id")
+
+        # Determine winner and loser
+        if winner_id:
+            winner = player1 if winner_id == player1.playerId else player2
+            loser = player2 if winner_id == player1.playerId else player1
+        else:
+            loser = player1 if loser_id == player1.playerId else player2
+            winner = player2 if loser_id == player1.playerId else player1
+
+        # Update match status
         self.status = MatchStatus.ENDED
-        logger.debug(f"Ended the match because : {reason}")
+        self.match_closure_info = MatchClosureDto(reason, winner, loser)
+
+        # TODO: save the match result into a database
+        logger.debug(f"Match ended -> {self.match_closure_info}")
 
     def _get_initial_match_info(self, room_dto: RoomDto):
         return MatchInfoDto(

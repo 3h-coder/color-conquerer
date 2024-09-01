@@ -22,3 +22,5 @@ def handle_connection(data):
         logger.debug("Player rejoinded the match, stopping exit watcher")
         player_id = session.get(PLAYER_INFO).playerId
         match_handler.stop_exit_watcher(player_id)
+    elif mhu.is_ended():
+        logger.debug("Player rejoined, but the match ended")

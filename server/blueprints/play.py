@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, session
+from flask_socketio import join_room
 
-from config.config import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID
 from dto.player_info_dto import PlayerInfoDto
 from exceptions.unauthorized import UnauthorizedError

@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { undefinedMatch, useMatchInfo } from "../../contexts/MatchContext";
 import { undefinedPlayer, usePlayerInfo } from "../../contexts/PlayerContext";
+import { MatchClosureDto } from "../../dto/MatchClosureDto";
 import { Events } from "../../enums/events";
 import { socket } from "../../env";
 import GameGrid from "./components/GameGrid";
@@ -24,23 +25,24 @@ export default function PlayContent() {
         } else {
             setCanRenderContent(true);
 
-            if (!socket.connected) {
+            if (!socket.connected)
                 socket.connect();
-                socket.emit(Events.CLIENT_READY);
-            }
+
+            socket.emit(Events.CLIENT_READY);
         }
     }, [matchInfo, matchInfoLoading, playerInfo, playerInfoLoading]);
 
     useEffect(() => {
-        function onOpponentLeft() {
+        function onMatchEnded(matchClosureDto: MatchClosureDto) {
+            console.log("Received match ending ", matchClosureDto);
             setModalVisible(true);
-            setModalText("Your opponnent left");
+            setModalText(`The match ended because ${matchClosureDto.endingReason}`);
         }
 
-        socket.on(Events.SERVER_MATCH_OPPONENT_LEFT, onOpponentLeft);
+        socket.on(Events.SERVER_MATCH_END, onMatchEnded);
 
         return () => {
-            socket.off(Events.SERVER_MATCH_OPPONENT_LEFT, onOpponentLeft);
+            socket.off(Events.SERVER_MATCH_END, onMatchEnded);
         };
     });
 

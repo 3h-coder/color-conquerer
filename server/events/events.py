@@ -16,4 +16,4 @@ class Events(Enum):
     SERVER_MATCH_INFO = "server-match-info"
     CLIENT_READY = "client-ready"  # ready to start or resume a game
     SERVER_READY = "server-ready"
-    SERVER_MATCH_OPPONENT_LEFT = "match-opponentLeft"
+    SERVER_MATCH_END = "server-matchEnd"

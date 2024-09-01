@@ -119,10 +119,6 @@ class SPTimer:
         if self.process is None:
             return
 
-        if self.process.is_alive():
-            self.process.join()
-        self.process.close()
-
 
 def run_timer(sp_timer: SPTimer):
     sp_timer.run()

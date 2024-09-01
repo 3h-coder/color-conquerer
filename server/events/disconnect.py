@@ -1,10 +1,9 @@
-import uuid
-
-from flask import copy_current_request_context, session
+from flask import session
 from flask_socketio import emit, leave_room
 
 from config.logger import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
+from dto.match_closure_dto import EndingReason
 from events.events import Events
 from handlers import match_handler, room_handler
 from handlers.match_handler_unit import MatchHandlerUnit
@@ -32,7 +31,7 @@ def handle_disconnection():
 
     # If the match is on going, wait a period of time before considering the player gone
     if mhu.is_ongoing():
-        _handle_disconnection_in_match(mhu, room_id, player_id)
+        _handle_disconnection_in_match(mhu, player_id)
 
 
 def _handle_disconnection_in_queue(room_id, player_id):
@@ -44,39 +43,24 @@ def _handle_disconnection_in_queue(room_id, player_id):
     return
 
 
-def _handle_disconnection_in_match(mhu: MatchHandlerUnit, room_id, player_id):
-    from main import server
-
+def _handle_disconnection_in_match(mhu: MatchHandlerUnit, player_id):
     logger.debug("Disconnected while being in a match, starting exit watcher")
-    request_context = server.app.test_request_context()
-    req_context_key = str(uuid.uuid4())
-    server.save_request_context(req_context_key, request_context)
-
     match_handler.start_exit_watcher(
         player_id,
         exit_function=_leave_match,
-        exit_function_args=(req_context_key, mhu, room_id),
+        exit_function_args=(mhu, player_id),
     )
 
 
-def _leave_match(req_context_key: str, mhu: MatchHandlerUnit, room_id):
+def _leave_match(mhu: MatchHandlerUnit, player_id):
     from main import server
 
-    with server.app.app_context():
-        with server.consume_request_context(req_context_key):
-            mhu.end_match("Player left")
-            _propagate_player_exit(room_id)
-
-
-def _propagate_player_exit(room_id: str):
-    """
-    Notifies the other player that their opponent has left, while clearing
-    session data for the leaving user.
-    """
-    logger.debug("Propagating player exit")
-    leave_room(room_id)
-    _clear_session()
-    emit(Events.SERVER_MATCH_OPPONENT_LEFT.value, to=room_id)
+    mhu.end_match(EndingReason.PLAYER_LEFT.value, loser_id=player_id)
+    server.socketio.emit(
+        Events.SERVER_MATCH_END.value,
+        mhu.match_closure_info.to_dict(),
+        to=mhu.match_info.roomId,
+    )
 
 
 def _clear_session():
