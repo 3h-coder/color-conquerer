@@ -1,10 +1,12 @@
 from enum import Enum
+from threading import Event
 
-from flask_socketio import emit
+from flask_socketio import SocketIO
 
 from config.logger import logger
+from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_EXCLUSION
 from dto.cell_info_dto import CellInfoDto, CellState
-from dto.match_closure_dto import MatchClosureDto
+from dto.match_closure_dto import EndingReason, MatchClosureDto
 from dto.match_info_dto import MatchInfoDto
 from dto.player_info_dto import PlayerInfoDto
 from dto.room_dto import RoomDto
@@ -25,6 +27,10 @@ class MatchHandlerUnit:
             room_dto.player1.playerId: False,
             room_dto.player2.playerId: False,
         }
+        self.player_exit_watch_stop_events = {
+            room_dto.player1.playerId: Event(),
+            room_dto.player2.playerId: Event(),
+        }
 
     def start_match(self):
         self.status = MatchStatus.ONGOING
@@ -44,25 +50,19 @@ class MatchHandlerUnit:
     ):
         player1 = self.match_info.player1
         player2 = self.match_info.player2
-        player_ids = [player1.playerId, player2.playerId]
+        winner = None
+        loser = None
 
         # Validate provided IDs
         if winner_id is None and loser_id is None:
             raise ValueError("No winner id nor loser id provided")
 
-        if winner_id is not None and winner_id not in player_ids:
-            raise ValueError("The winner id does not correspond to any player id")
-
-        if loser_id is not None and loser_id not in player_ids:
-            raise ValueError("The loser id does not correspond to any player id")
-
-        # Determine winner and loser
-        if winner_id:
-            winner = player1 if winner_id == player1.playerId else player2
-            loser = player2 if winner_id == player1.playerId else player1
+        if winner_id is not None:
+            winner = self._get_player(winner_id)
+            loser = player1 if winner == player2 else player2
         else:
-            loser = player1 if loser_id == player1.playerId else player2
-            winner = player2 if loser_id == player1.playerId else player1
+            loser = self._get_player(loser_id)
+            winner = player1 if loser == player2 else player2
 
         # Update match status
         self.status = MatchStatus.ENDED
@@ -70,6 +70,53 @@ class MatchHandlerUnit:
 
         # TODO: save the match result into a database
         logger.debug(f"Match ended -> {self.match_closure_info}")
+
+    def stop_watching_player_exit(self, player_id: str):
+        self.player_exit_watch_stop_events[player_id].set()
+
+    def watch_player_exit(self, player_id: str, call_back_func, callback_func_args):
+        stop_event = self.player_exit_watch_stop_events[player_id]
+        stop_event.clear()
+
+        from main import server
+
+        def exit_timer():
+            logger.debug("Starting the exit watch")
+            self._polling_sleep(
+                server.socketio, DELAY_IN_S_BEFORE_MATCH_EXCLUSION, stop_event
+            )
+            if stop_event.is_set():
+                logger.debug("The exit watch was stopped")
+                return
+            self.end_match(EndingReason.PLAYER_LEFT.value, loser_id=player_id)
+            call_back_func(*callback_func_args)
+
+        server.socketio.start_background_task(target=exit_timer)
+
+    def _polling_sleep(
+        self, socketio: SocketIO, sleep_duration_in_s, stop_event: Event
+    ):
+        check_interval_in_s = 0.05  # 50 ms
+        elapsed = 0
+
+        while elapsed < sleep_duration_in_s:
+            if stop_event.is_set():
+                return
+            socketio.sleep(check_interval_in_s)
+            elapsed += check_interval_in_s
+
+    def _get_player(self, player_id: str):
+        player1 = self.match_info.player1
+        player2 = self.match_info.player2
+        player_ids = [player1.playerId, player2.playerId]
+
+        if player_id not in player_ids:
+            raise ValueError("Could not get the player from the player id")
+
+        if player_id == player_ids[0]:
+            return player1
+
+        return player2
 
     def _get_initial_match_info(self, room_dto: RoomDto):
         return MatchInfoDto(
