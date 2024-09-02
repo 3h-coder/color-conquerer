@@ -8,3 +8,4 @@ class RequiredVariables(Enum):
 
 class OptionalVariables(Enum):
     APP_SESSION_FILE_DIR = 1
+    RESET_SESSION_FILE_ON_STARTUP = 2

@@ -2,9 +2,10 @@ import { ReactNode, useEffect, useState } from "react";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { undefinedMatch, useMatchInfo } from "../../contexts/MatchContext";
 import { undefinedPlayer, usePlayerInfo } from "../../contexts/PlayerContext";
-import { MatchClosureDto } from "../../dto/MatchClosureDto";
+import { EndingReason, MatchClosureDto } from "../../dto/MatchClosureDto";
 import { Events } from "../../enums/events";
 import { socket } from "../../env";
+import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameInfo from "./components/GameInfo";
 import GameMenu from "./components/GameMenu";
@@ -34,9 +35,18 @@ export default function PlayContent() {
 
     useEffect(() => {
         function onMatchEnded(matchClosureDto: MatchClosureDto) {
-            console.log("Received match ending ", matchClosureDto);
+            developmentLog("Received match ending ", matchClosureDto);
+            const isWinner = matchClosureDto.winner.playerId === playerInfo.playerId;
+
             setModalVisible(true);
-            setModalText(`The match ended because ${matchClosureDto.endingReason}`);
+            if (matchClosureDto.endingReason === EndingReason.PLAYER_LEFT && isWinner) {
+                setModalText("Your opponent left");
+            }
+            else if (isWinner) {
+                setModalText("You won!");
+            } else {
+                setModalText("You lost");
+            }
         }
 
         socket.on(Events.SERVER_MATCH_END, onMatchEnded);
