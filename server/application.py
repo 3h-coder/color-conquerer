@@ -1,5 +1,5 @@
 from cachelib import FileSystemCache
-from flask import Flask, session
+from flask import Flask
 from flask_cors import CORS
 from flask_session import Session
 
@@ -9,6 +9,7 @@ from config.config import default_config, global_config
 from config.logger import logger
 from config.variables import OptionalVariables, RequiredVariables
 from middlewares.error_handler import handle_error
+from utils.os_utils import delete_file_or_folder
 
 
 class Application(Flask):
@@ -22,13 +23,31 @@ class Application(Flask):
         self.initialize()
 
     def initialize(self):
-        self.set_config()
-        self.register_middlewares()
-        self.register_blueprints()
+        self._clean_up()
+        self._set_config()
+        self._register_middlewares()
+        self._register_blueprints()
         Session(self)
         CORS(self, supports_credentials=True)  # TODO: add the proper origins
 
-    def set_config(self):
+    def _clean_up(self):
+        """
+        Code to be executed before initializing the app.
+        Includes various clean ups.
+        """
+        # folder cleanup
+        delete_session = self.get_from_config_or_default_config(
+            OptionalVariables.RESET_SESSION_FILE_ON_STARTUP.name
+        )
+        if delete_session:
+            logger.debug("Deleting session directory")
+            delete_file_or_folder(
+                self.get_from_config_or_default_config(
+                    OptionalVariables.APP_SESSION_FILE_DIR.name
+                )
+            )
+
+    def _set_config(self):
         """
         Sets the configuration of the flask application.
 
@@ -49,13 +68,13 @@ class Application(Flask):
             threshold=500,
         )
 
-    def register_middlewares(self):
+    def _register_middlewares(self):
         """
         Registers all the middlewares present in the middlewares package.
         """
         self.register_error_handler(Exception, handle_error)
 
-    def register_blueprints(self):
+    def _register_blueprints(self):
         """
         Registers all the blueprints present in the blueprints package
         """

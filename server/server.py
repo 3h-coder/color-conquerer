@@ -3,6 +3,7 @@ import traceback
 from flask import Flask
 from flask_socketio import SocketIO, emit
 
+from config.config import global_config
 from config.logger import logger
 from dto.error_dto import ErrorDto
 from events import (

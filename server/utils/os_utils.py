@@ -1,4 +1,5 @@
 import os
+import shutil
 
 
 def create_dir_if_not_exists(path: str):
@@ -20,3 +21,13 @@ def create_file_if_not_exists(file_path: str):
     create_dir_if_not_exists(file_path)
     with open(file_path, "a"):
         pass
+
+
+def delete_file_or_folder(path: str):
+    if not os.path.exists(path):
+        return
+
+    if os.path.isfile(path):
+        os.remove(path)
+    elif os.path.isdir(path):
+        shutil.rmtree(path)
