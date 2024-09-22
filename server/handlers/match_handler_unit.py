@@ -4,7 +4,10 @@ from threading import Event
 from flask_socketio import SocketIO
 
 from config.logger import logger
-from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_EXCLUSION
+from constants.match_constants import (
+    DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
+    TURN_DURATION_IN_S,
+)
 from dto.cell_info_dto import CellInfoDto, CellState
 from dto.match_closure_dto import EndingReason, MatchClosureDto
 from dto.match_info_dto import MatchInfoDto
@@ -22,19 +25,26 @@ class MatchHandlerUnit:
         self.match_info = self._get_initial_match_info(room_dto)
         self.match_closure_info = None
         self.status = MatchStatus.WAITING_TO_START
+        self.turn_watcher_thread = None
+        self.current_player = room_dto.player1  # Player 1 is always the starting one
         # TODO: Add a timer to wait a maximum of x seconds for both players to be ready
         self.players_ready = {
             room_dto.player1.playerId: False,
             room_dto.player2.playerId: False,
         }
+        # Events used to cancel an exit watcher task for a specific player, i.e. not kick the player out when they reconnect
         self.player_exit_watch_stop_events = {
             room_dto.player1.playerId: Event(),
             room_dto.player2.playerId: Event(),
         }
 
-    def start_match(self):
+    def start_match(self, turn_swap_event_name):
+        """
+        Starts the match, setting up the turn watcher.
+        """
+        self._trigger_turn_watcher(turn_swap_event_name)
         self.status = MatchStatus.ONGOING
-        # TODO: current turn info, timer etc.
+        self.match_info.currentTurn = 1
 
     def is_waiting_to_start(self):
         return self.status == MatchStatus.WAITING_TO_START
@@ -72,13 +82,20 @@ class MatchHandlerUnit:
         logger.debug(f"Match ended -> {self.match_closure_info}")
 
     def stop_watching_player_exit(self, player_id: str):
+        """
+        Sets the exit watcher stop event for the given player.
+        """
         self.player_exit_watch_stop_events[player_id].set()
 
     def watch_player_exit(self, player_id: str, call_back_func, callback_func_args):
+        """
+        Watches a player exit, ending the match after a given delay unless the
+        exit watcher stop event for the player is set.
+        """
         stop_event = self.player_exit_watch_stop_events[player_id]
         stop_event.clear()
 
-        from main import server
+        from server_gate import server
 
         def exit_timer():
             logger.debug("Starting the exit watch")
@@ -92,6 +109,26 @@ class MatchHandlerUnit:
             call_back_func(*callback_func_args)
 
         server.socketio.start_background_task(target=exit_timer)
+
+    def _trigger_turn_watcher(self, turn_swap_event_name):
+        from server_gate import server
+
+        def watch_turns():
+            while not self.is_ended():
+                logger.debug(f"watching for turn {self.match_info.currentTurn + 1}")
+                server.socketio.sleep(TURN_DURATION_IN_S)
+
+                self.match_info.currentTurn += 1
+                self.current_player = (
+                    self.match_info.player1
+                    if self.current_player == self.match_info.player2
+                    else self.match_info.player2
+                )
+                server.socketio.emit(turn_swap_event_name, to=self.match_info.roomId)
+
+        self.turn_watcher_thread = server.socketio.start_background_task(
+            target=watch_turns
+        )
 
     def _polling_sleep(
         self, socketio: SocketIO, sleep_duration_in_s, stop_event: Event

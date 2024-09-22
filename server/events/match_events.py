@@ -24,5 +24,5 @@ def handle_client_ready():
         value is True for value in mhu.players_ready.values()
     ):
         logger.info(f"All players ready in the room {room_id}")
-        mhu.start_match()
-        # emit match started
+        mhu.start_match(Events.SERVER_TURN_SWAP.value)
+        emit(Events.SERVER_START_MATCH.value, to=room_id, broadcast=True)

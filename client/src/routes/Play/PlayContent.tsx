@@ -10,6 +10,7 @@ import GameGrid from "./components/GameGrid";
 import GameInfo from "./components/GameInfo";
 import GameMenu from "./components/GameMenu";
 
+
 export default function PlayContent() {
     const { matchInfo, loading: matchInfoLoading } = useMatchInfo();
     const { playerInfo, loading: playerInfoLoading } = usePlayerInfo();
@@ -34,6 +35,14 @@ export default function PlayContent() {
     }, [matchInfo, matchInfoLoading, playerInfo, playerInfoLoading]);
 
     useEffect(() => {
+        function onMatchStarted() {
+            developmentLog("Match started!");
+        }
+
+        function onTurnSwap() {
+            developmentLog("Turn swap!");
+        }
+
         function onMatchEnded(matchClosureDto: MatchClosureDto) {
             developmentLog("Received match ending ", matchClosureDto);
             const isWinner = matchClosureDto.winner.playerId === playerInfo.playerId;
@@ -49,9 +58,13 @@ export default function PlayContent() {
             }
         }
 
+        socket.on(Events.SERVER_START_MATCH, onMatchStarted);
+        socket.on(Events.SERVER_TURN_SWAP, onTurnSwap);
         socket.on(Events.SERVER_MATCH_END, onMatchEnded);
 
         return () => {
+            socket.off(Events.SERVER_START_MATCH, onMatchStarted);
+            socket.off(Events.SERVER_TURN_SWAP, onTurnSwap);
             socket.off(Events.SERVER_MATCH_END, onMatchEnded);
         };
     });

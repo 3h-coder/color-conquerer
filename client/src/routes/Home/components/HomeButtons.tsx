@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import SingleButtonModal from "../../../components/modals/SingleButtonModal";
 import { useHomeError } from "../../../contexts/HomeErrorContext";
 import { useUser } from "../../../contexts/UserContext";
@@ -96,11 +95,8 @@ export default function HomeButtons() {
     return (
         <>
             <div className="home-buttons-container">
-                <Link to={paths.play} className="play button">
-                    Play vs AI
-                </Link>
                 <button onClick={requestMultiplayerMatch}>
-                    Play vs Player
+                    Play
                 </button>
             </div>
             {
