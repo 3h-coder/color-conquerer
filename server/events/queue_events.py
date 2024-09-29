@@ -3,6 +3,7 @@ from flask_socketio import emit, join_room, leave_room
 
 from config.logger import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_INITIATED
+from dto.client_stored_match_info_dto import ClientStoredMatchInfoDto
 from dto.match_info_dto import MatchInfoDto
 from dto.player_info_dto import PlayerInfoDto
 from dto.queue_player_dto import QueuePlayerDto
@@ -80,8 +81,9 @@ def make_enter_in_room(queue_player_dto: QueuePlayerDto):
     join_room(room_id)
 
     emit(
-        Events.SERVER_QUEUE_REGISTERED.value, queue_player_dto.playerId
-    )  # Notify the client that registration succeeded, sending them their player id
+        Events.SERVER_QUEUE_REGISTERED.value,
+        ClientStoredMatchInfoDto(queue_player_dto.playerId, room_id).to_dict(),
+    )  # Notify the client that registration succeeded, sending them their player id and room id
 
     return room_id, closed
 

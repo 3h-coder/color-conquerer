@@ -14,6 +14,7 @@ class Events(Enum):
     SERVER_QUEUE_OPPONENT_FOUND = "queue-opponentFound"
     CLIENT_MATCH_INFO = "client-match-info"
     SERVER_MATCH_INFO = "server-match-info"
+    CLIENT_MATCH_FAILURE = "client-match-failure"  # occurs when the client fails to join the match due to session issues
     CLIENT_READY = "client-ready"  # ready to start or resume a game
     SERVER_START_MATCH = "server-start-match"
     SERVER_TURN_SWAP = "server-turn-swap"

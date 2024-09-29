@@ -9,3 +9,8 @@ export const socket = io(API_URL, {
     autoConnect: false,
     withCredentials: true
 });
+
+export const constants = {
+    localStoragePlayerId: "saved_player_id",
+    localStorageRoomId: "saved_room_id",
+}

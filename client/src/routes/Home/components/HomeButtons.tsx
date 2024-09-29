@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import SingleButtonModal from "../../../components/modals/SingleButtonModal";
 import { useHomeError } from "../../../contexts/HomeErrorContext";
 import { useUser } from "../../../contexts/UserContext";
+import { ClientStoredMatchInfoDto } from "../../../dto/ClientStoredMatchInfoDto";
 import { ErrorDto } from "../../../dto/ErrorDto";
 import { QueuePlayerDto } from "../../../dto/QueuePlayerDto";
 import { Events } from "../../../enums/events";
-import { socket } from "../../../env";
+import { constants, socket } from "../../../env";
 import { developmentErrorLog, developmentLog } from "../../../utils/loggingUtils";
 import { paths } from "../../paths";
 import OpponentSearch from "./OpponentSearch";
@@ -48,9 +49,10 @@ export default function HomeButtons() {
             socket.disconnect();
         }
 
-        function onQueueRegistrationSuccess(playerId: string) {
-            queuePlayerDto.playerId = playerId;
-            developmentLog(`Registered in the queue -> player Id : ${queuePlayerDto.playerId}`);
+        function onQueueRegistrationSuccess(clientStoredMatchInfoDto: ClientStoredMatchInfoDto) {
+            developmentLog(`Registered in the queue, saving into local storage`, clientStoredMatchInfoDto);
+            localStorage.setItem(constants.localStoragePlayerId, clientStoredMatchInfoDto.playerId);
+            localStorage.setItem(constants.localStorageRoomId, clientStoredMatchInfoDto.roomId);
         }
 
         function goToPlayRoom() {

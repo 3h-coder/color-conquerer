@@ -24,7 +24,7 @@ def handle_disconnection():
     player_id = session.get(PLAYER_INFO).playerId
 
     if room_handler.open_rooms.get(room_id):
-        _handle_disconnection_in_queue(room_id, player_id)
+        _handle_disconnection_in_queue(room_id)
 
     mhu = match_handler.get_unit(room_id)
 
@@ -42,16 +42,7 @@ def _handle_disconnection_in_queue(room_id):
 
 
 def _handle_disconnection_in_match(mhu: MatchHandlerUnit, player_id):
-    @copy_current_request_context
-    def emit_player_exit(mhu: MatchHandlerUnit):
-
-        emit(
-            Events.SERVER_MATCH_END.value,
-            mhu.match_closure_info.to_dict(),
-            to=mhu.match_info.roomId,
-        )
-
-    mhu.watch_player_exit(player_id, emit_player_exit, (mhu,))
+    mhu.watch_player_exit(player_id, Events.SERVER_MATCH_END.value)
 
 
 def _clear_session():

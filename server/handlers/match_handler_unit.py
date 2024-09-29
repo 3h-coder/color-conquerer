@@ -42,9 +42,9 @@ class MatchHandlerUnit:
         """
         Starts the match, setting up the turn watcher.
         """
-        self._trigger_turn_watcher(turn_swap_event_name)
         self.status = MatchStatus.ONGOING
         self.match_info.currentTurn = 1
+        self._trigger_turn_watcher(turn_swap_event_name)
 
     def is_waiting_to_start(self):
         return self.status == MatchStatus.WAITING_TO_START
@@ -87,7 +87,7 @@ class MatchHandlerUnit:
         """
         self.player_exit_watch_stop_events[player_id].set()
 
-    def watch_player_exit(self, player_id: str, call_back_func, callback_func_args):
+    def watch_player_exit(self, player_id: str, match_ending_event_name):
         """
         Watches a player exit, ending the match after a given delay unless the
         exit watcher stop event for the player is set.
@@ -102,11 +102,17 @@ class MatchHandlerUnit:
             self._polling_sleep(
                 server.socketio, DELAY_IN_S_BEFORE_MATCH_EXCLUSION, stop_event
             )
+
             if stop_event.is_set():
                 logger.debug("The exit watch was stopped")
                 return
+
             self.end_match(EndingReason.PLAYER_LEFT.value, loser_id=player_id)
-            call_back_func(*callback_func_args)
+            server.socketio.emit(
+                match_ending_event_name,
+                self.match_closure_info.to_dict(),
+                to=self.match_info.roomId,
+            )
 
         server.socketio.start_background_task(target=exit_timer)
 
@@ -115,7 +121,6 @@ class MatchHandlerUnit:
 
         def watch_turns():
             while not self.is_ended():
-                logger.debug(f"watching for turn {self.match_info.currentTurn + 1}")
                 server.socketio.sleep(TURN_DURATION_IN_S)
 
                 self.match_info.currentTurn += 1

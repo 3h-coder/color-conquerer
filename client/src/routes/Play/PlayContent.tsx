@@ -23,7 +23,9 @@ export default function PlayContent() {
             return;
 
         if (matchInfo === undefinedMatch || playerInfo === undefinedPlayer) {
-            location.href = "/";
+            socket.emit(Events.CLIENT_MATCH_FAILURE);
+            setModalText("Could not get into the match");
+            setModalVisible(true);
         } else {
             setCanRenderContent(true);
 
