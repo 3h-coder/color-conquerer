@@ -36,13 +36,13 @@ class Application(Flask):
         Includes various clean ups.
         """
         # folder cleanup
-        delete_session = self.get_from_config_or_default_config(
+        delete_session = self._get_from_config_or_default_config(
             OptionalVariables.RESET_SESSION_FILE_ON_STARTUP.name
         )
         if delete_session:
             logger.debug("Deleting session directory")
             delete_file_or_folder(
-                self.get_from_config_or_default_config(
+                self._get_from_config_or_default_config(
                     OptionalVariables.APP_SESSION_FILE_DIR.name
                 )
             )
@@ -64,7 +64,7 @@ class Application(Flask):
 
         app_session_file_dir = OptionalVariables.APP_SESSION_FILE_DIR.name
         self.config["SESSION_CACHELIB"] = FileSystemCache(
-            cache_dir=self.get_from_config_or_default_config(app_session_file_dir),
+            cache_dir=self._get_from_config_or_default_config(app_session_file_dir),
             threshold=500,
         )
 
@@ -81,5 +81,5 @@ class Application(Flask):
         self.register_blueprint(session_bp)
         self.register_blueprint(play_bp)
 
-    def get_from_config_or_default_config(self, variable: str):
+    def _get_from_config_or_default_config(self, variable: str):
         return global_config.get(variable, default_config[variable])

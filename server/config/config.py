@@ -119,7 +119,6 @@ def _get_incorrect_var_types_err(incorrect_var_types: dict[str, VariableType]):
 
 def _is_valid_int(var):
     try:
-        logger.debug(f"Trying with {var}")
         var = int(var)
         return True
     except ValueError:

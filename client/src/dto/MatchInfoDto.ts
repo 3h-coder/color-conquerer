@@ -1,6 +1,7 @@
 import { CellInfoDto } from "./CellInfoDto";
 import { PlayerInfoDto } from "./PlayerInfoDto";
 
+// TODO : remove the player info dtos client side
 export interface MatchInfoDto {
     id: string;
     roomId: string;

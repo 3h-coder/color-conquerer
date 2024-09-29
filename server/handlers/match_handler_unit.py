@@ -68,10 +68,10 @@ class MatchHandlerUnit:
             raise ValueError("No winner id nor loser id provided")
 
         if winner_id is not None:
-            winner = self._get_player(winner_id)
+            winner = self.get_player(winner_id)
             loser = player1 if winner == player2 else player2
         else:
-            loser = self._get_player(loser_id)
+            loser = self.get_player(loser_id)
             winner = player1 if loser == player2 else player2
 
         # Update match status
@@ -147,7 +147,7 @@ class MatchHandlerUnit:
             socketio.sleep(check_interval_in_s)
             elapsed += check_interval_in_s
 
-    def _get_player(self, player_id: str):
+    def get_player(self, player_id: str):
         player1 = self.match_info.player1
         player2 = self.match_info.player2
         player_ids = [player1.playerId, player2.playerId]
