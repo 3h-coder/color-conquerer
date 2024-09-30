@@ -29,7 +29,7 @@ def handle_disconnection():
     mhu = match_handler.get_unit(room_id)
 
     # If the match is on going, wait a period of time before considering the player gone
-    if mhu.is_ongoing():
+    if mhu is not None and mhu.is_ongoing():
         _handle_disconnection_in_match(mhu, player_id)
 
 

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, session, request
+from flask import Blueprint, jsonify, request, session
 from flask_socketio import join_room
 
 from config.logger import logger
@@ -36,6 +36,7 @@ def get_player_info():
 
     return jsonify(player_info.to_dict()), 200
 
+
 @play_bp.route("/play/game-context", methods=["POST"])
 def confirm_ids():
     """
@@ -45,25 +46,28 @@ def confirm_ids():
     logger.info("Resorting to saved data context retrieval")
 
     errorMessage = "An error occured while trying to connect to your match"
-    player_id = request.form.get("playerId")
+
+    json_data: dict = request.get_json()
+
+    player_id = json_data.get("playerId")
     if player_id is None:
         logger.error("No player id provided")
         raise WrongDataError(errorMessage, socket_connection_killer=True)
-    
-    room_id = request.form.get("roomId")
+
+    room_id = json_data.get("roomId")
     if room_id is None:
         logger.error("No room id provided")
         raise WrongDataError(errorMessage, socket_connection_killer=True)
-    
+
     mhu = match_handler.get_unit(room_id)
     if mhu is None:
         raise WrongDataError(errorMessage, socket_connection_killer=True, code=404)
-    
+
     player_ids = [mhu.match_info.player1.playerId, mhu.match_info.player2.playerId]
     if player_id not in player_ids:
         logger.error(f"The player id {player_id} does not exist in the room {room_id}")
         raise WrongDataError(errorMessage, socket_connection_killer=True, code=404)
-    
+
     player_info = mhu.get_player(player_id)
 
     return jsonify(GameContextDto(mhu.match_info, player_info).to_dict()), 200
