@@ -125,7 +125,9 @@ svg {
   background-color: rgb(107, 89, 227);
   padding: 1em;
   border-radius: 0.5em;
+  min-width: 20vmin;
   max-width: 50vw;
+  text-align: center;
 
   @media (max-width: 768px) {
     min-width: 80vw;

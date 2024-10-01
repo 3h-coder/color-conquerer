@@ -44,6 +44,7 @@ def confirm_ids():
     and player id from the routes above
     """
     logger.info("Resorting to saved data context retrieval")
+    raise WrongDataError("lala hey", socket_connection_killer=True)
 
     errorMessage = "An error occured while trying to connect to your match"
 

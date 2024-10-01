@@ -45,17 +45,21 @@ export function callFetch(
                         console.error(errorMessage);
                     }
 
+                    // Create the error dto object to propagate
                     reject({
                         error:
                             responseStatus === 500
                                 ? unexpectedErrorMessage
                                 : errorMessage,
+                        displayToUser: responseJson.displayToUser,
+                        socketConnectionKiller: responseJson.socketConnectionKiller
                     } as ErrorDto);
                 }
             })
             .catch(() => {
                 if (isDevelopment) {
                     reject({
+                        // Other fields are false by default
                         error: `Failed to fetch the URL ${API_URL}${url}`,
                     } as ErrorDto);
                 }

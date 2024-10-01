@@ -1,17 +1,17 @@
 import { ReactNode, useEffect, useState } from "react";
+import { fetchGameContextInfoFromLocalStorage } from "../../api/game";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { undefinedMatch, useMatchInfo } from "../../contexts/MatchContext";
 import { undefinedPlayer, usePlayerInfo } from "../../contexts/PlayerContext";
+import { ErrorDto, ParseErrorDto } from "../../dto/ErrorDto";
+import { GameContextDto } from "../../dto/GameContextDto";
 import { EndingReason, MatchClosureDto } from "../../dto/MatchClosureDto";
 import { Events } from "../../enums/events";
-import { constants, socket } from "../../env";
+import { socket } from "../../env";
 import { developmentErrorLog, developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameInfo from "./components/GameInfo";
 import GameMenu from "./components/GameMenu";
-import { ErrorDto, ParseErrorDto } from "../../dto/ErrorDto";
-import { fetchGameContextInfoFromLocalStorage } from "../../api/game";
-import { GameContextDto } from "../../dto/GameContextDto";
 
 export default function PlayContent() {
   const { matchInfo, loading: matchInfoLoading, setMatchInfo } = useMatchInfo();
@@ -23,7 +23,7 @@ export default function PlayContent() {
   const [canRenderContent, setCanRenderContent] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalText, setModalText] = useState("");
-  const [modalExit, setModalExit] = useState<() => unknown>(() => {setModalVisible(false)});
+  const [modalExit, setModalExit] = useState<() => unknown>(() => { setModalVisible(false) });
 
   useEffect(() => {
     if (matchInfoLoading || playerInfoLoading) return;
@@ -44,7 +44,7 @@ export default function PlayContent() {
 
       socket.emit(Events.CLIENT_READY);
     }
-  }, [matchInfo, matchInfoLoading, playerInfo, playerInfoLoading]);
+  }, [matchInfo, matchInfoLoading, playerInfo, playerInfoLoading, setMatchInfo, setPlayerInfo]);
 
   useEffect(() => {
     function onMatchStarted() {
@@ -94,9 +94,9 @@ export default function PlayContent() {
     }
 
     if (errorDto.socketConnectionKiller) {
-        socket.emit(Events.CLIENT_MATCH_FAILURE);
-        socket.disconnect();
-        setModalExit(() => {location.href = "/"});
+      socket.emit(Events.CLIENT_MATCH_FAILURE);
+      socket.disconnect();
+      setModalExit(() => { });
     }
   }
 
