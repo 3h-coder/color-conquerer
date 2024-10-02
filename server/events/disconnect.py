@@ -1,21 +1,26 @@
-from flask import copy_current_request_context, session
-from flask_socketio import emit, leave_room
+from flask import request, session
+from flask_socketio import leave_room
 
 from config.logger import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from events.events import Events
-from handlers import match_handler, room_handler
+from handlers import connection_handler, match_handler, room_handler
 from handlers.match_handler_unit import MatchHandlerUnit
 
 
 def handle_disconnection():
     """
-    Performs all the necessary actions when a disconnection occurs.
+    Performs all the necessary actions when a socket disconnection occurs.
 
     For example, if the user is waiting for a match, then cancel the match request and destroy the room.
+
+    Does nothing if there still is at least one socket connection.
     """
+    connection_handler.register_disconnection(request.remote_addr)
+    if not connection_handler.no_connection():
+        return
+
     session[SOCKET_CONNECTED] = False
-    logger.debug("----- Socket disconnection -----")
 
     room_id = session.get(ROOM_ID)
     if not room_id:

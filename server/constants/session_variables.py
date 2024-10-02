@@ -1,4 +1,4 @@
-SESSION_INITIATED = "initiated"
+SESSION_ID = "session_id"
 
 # Socket
 SOCKET_CONNECTED = "socket_connected"

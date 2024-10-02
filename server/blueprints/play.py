@@ -16,7 +16,6 @@ play_bp.register_error_handler(Exception, handle_error)
 
 @play_bp.route("/play/match-info", methods=["GET"])
 def get_match_info():
-    raise UnauthorizedError("Lalala")
     room_id = session.get(ROOM_ID)
 
     if not room_id:
@@ -44,7 +43,7 @@ def confirm_ids():
     and player id from the routes above
     """
     logger.info("Resorting to saved data context retrieval")
-    raise WrongDataError("lala hey", socket_connection_killer=True)
+    # raise WrongDataError("lala hey", socket_connection_killer=True)
 
     errorMessage = "An error occured while trying to connect to your match"
 
