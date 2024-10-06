@@ -11,6 +11,7 @@ from events import (
     handle_connection,
     handle_disconnection,
     handle_queue_registration,
+    handle_session_clearing,
 )
 from events.events import Events
 from exceptions.custom_exception import CustomException
@@ -39,6 +40,9 @@ class Server:
         )
         self.socketio.on_event(Events.CLIENT_MATCH_FAILURE.value, handle_client_failure)
         self.socketio.on_event(Events.CLIENT_READY.value, handle_client_ready)
+        self.socketio.on_event(
+            Events.CLIENT_CLEAR_SESSION.value, handle_session_clearing
+        )
 
         @self.socketio.on_error()
         def _(ex: Exception):

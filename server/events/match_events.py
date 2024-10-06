@@ -5,6 +5,7 @@ from config.config import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID
 from events.events import Events
 from handlers import match_handler
+from utils import session_utils
 
 
 def handle_client_failure():
@@ -33,3 +34,11 @@ def handle_client_ready():
         logger.info(f"All players ready in the room {room_id}")
         mhu.start_match(Events.SERVER_TURN_SWAP.value)
         emit(Events.SERVER_START_MATCH.value, to=room_id, broadcast=True)
+
+
+def handle_session_clearing():
+    """
+    Sent by the client when after acknowledging the end of a match.
+    Clears all the match related session variables so they may queue for a new match.
+    """
+    session_utils.clear_match_info()

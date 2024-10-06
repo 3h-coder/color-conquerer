@@ -23,7 +23,7 @@ export default function PlayContent() {
   const [canRenderContent, setCanRenderContent] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalText, setModalText] = useState("");
-  const [modalExit, setModalExit] = useState<() => unknown>(() => { setModalVisible(false) });
+  const [modalExit, setModalExit] = useState<() => unknown>(() => { return () => setModalVisible(false) });
 
   useEffect(() => {
     if (matchInfoLoading || playerInfoLoading) return;
@@ -70,6 +70,11 @@ export default function PlayContent() {
       } else {
         setModalText("You lost");
       }
+
+      setModalExit(() => {
+        return () => { location.href = "/" };
+      });
+      socket.emit(Events.CLIENT_CLEAR_SESSION);
     }
 
     socket.on(Events.SERVER_START_MATCH, onMatchStarted);

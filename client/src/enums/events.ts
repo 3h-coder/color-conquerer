@@ -6,7 +6,8 @@ export enum Events {
     CLIENT_MATCH_INFO = "client-match-info",
     SERVER_MATCH_INFO = "server-match-info",
     CLIENT_MATCH_FAILURE = "client-match-failure", // occurs when the client fails to join the match due to session issues
-    CLIENT_READY = "client-ready", // ready to start or resume a game
+    CLIENT_READY = "client-ready", // ready to start or resume a game,
+    CLIENT_CLEAR_SESSION = "client-clear-session",
     SERVER_START_MATCH = "server-start-match",
     SERVER_TURN_SWAP = "server-turn-swap",
     SERVER_MATCH_END = "server-matchEnd",

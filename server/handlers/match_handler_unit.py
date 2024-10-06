@@ -1,6 +1,7 @@
 from enum import Enum
 from threading import Event
 
+from flask import copy_current_request_context
 from flask_socketio import SocketIO
 
 from config.logger import logger
@@ -13,6 +14,7 @@ from dto.match_closure_dto import EndingReason, MatchClosureDto
 from dto.match_info_dto import MatchInfoDto
 from dto.player_info_dto import PlayerInfoDto
 from dto.room_dto import RoomDto
+from utils import session_utils
 from utils.id_generation_utils import generate_id
 
 
@@ -97,8 +99,9 @@ class MatchHandlerUnit:
 
         from server_gate import server
 
+        @copy_current_request_context
         def exit_timer():
-            logger.debug("Starting the exit watch")
+            logger.debug(f"Starting the exit watch for the player {player_id}")
             self._polling_sleep(
                 server.socketio, DELAY_IN_S_BEFORE_MATCH_EXCLUSION, stop_event
             )
@@ -113,6 +116,7 @@ class MatchHandlerUnit:
                 self.match_closure_info.to_dict(),
                 to=self.match_info.roomId,
             )
+            session_utils.clear_match_info()
 
         server.socketio.start_background_task(target=exit_timer)
 
