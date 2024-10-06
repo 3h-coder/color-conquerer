@@ -8,13 +8,6 @@ from handlers import match_handler
 from utils import session_utils
 
 
-def handle_client_failure():
-    """
-    Handles the case where a player failed to retrieve the room id and player
-    info session variables.
-    """
-
-
 def handle_client_ready():
     """
     Marks the given player (i.e. the client sending emitting the event)

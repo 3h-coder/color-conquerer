@@ -51,13 +51,13 @@ def handle_queue_registration(data: dict):
     # The room in which the player entered already had a player waiting.
     # In that case, initiate the match, and notify both clients that an opponent was found.
     if closed:
-        match_info = match_handler.initiate_match(
-            room_handler.closed_rooms[room_id]
-        ).match_info
+        mhu = match_handler.initiate_match(room_handler.closed_rooms[room_id])
+        match_info = mhu.match_info
         # save the player info in the session
         save_player_info(match_info.player2)
         # Notify the room that the match can start
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
+        mhu.watch_player_entry()
     else:
         player_info = PlayerInfoDto(queue_player_dto.user, player_id, True)
         save_player_info(player_info)
@@ -77,7 +77,13 @@ def make_enter_in_room(queue_player_dto: QueuePlayerDto):
     """
     Set the session's room id and notifies the client that the player is registered in a room.
     """
-    (room_id, closed) = room_handler.make_enter_in_room(queue_player_dto)
+    (room, closed) = room_handler.make_enter_in_room(queue_player_dto)
+    if not room.sessionIds:
+        room.sessionIds = {queue_player_dto.playerId: session[SESSION_ID]}
+    else:
+        room.sessionIds[queue_player_dto.playerId] = session[SESSION_ID]
+
+    room_id = room.id
 
     session[ROOM_ID] = room_id
     join_room(room_id)

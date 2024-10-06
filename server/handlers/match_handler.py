@@ -1,5 +1,4 @@
 from config.logger import logger
-from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_EXCLUSION
 from dto.room_dto import RoomDto
 from handlers.match_handler_unit import MatchHandlerUnit
 
@@ -25,7 +24,7 @@ class MatchHandler:
         self.units[room_dto.id] = match_handler_unit
         return match_handler_unit
 
-    def get_unit(self, room_id):
+    def get_unit(self, room_id: str):
         """
         Gets a unit from the corresponding room id
         """
@@ -33,6 +32,19 @@ class MatchHandler:
             return self.units[room_id]
         except KeyError:
             logger.error(f"No unit instanciated for the room : {room_id}")
+
+    def get_unit_from_session_id(self, session_id: str):
+        """
+        Gets a unit from a given session id
+        """
+        return next(
+            (
+                mhu
+                for mhu in self.units.values()
+                if session_id in mhu.session_ids.values()
+            ),
+            None,
+        )
 
     def get_match_info(self, room_id):
         """

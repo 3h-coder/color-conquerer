@@ -29,6 +29,6 @@ export async function fetchGameContextInfoFromLocalStorage() {
         method: "POST",
         headers: DEFAULT_HEADERS,
         credentials: "include",
-        body: JSON.stringify({playerId, roomId} as ClientStoredMatchInfoDto)
+        body: JSON.stringify({ playerId, roomId } as ClientStoredMatchInfoDto)
     });
 }

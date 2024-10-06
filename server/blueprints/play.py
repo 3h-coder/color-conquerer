@@ -2,16 +2,20 @@ from flask import Blueprint, jsonify, request, session
 from flask_socketio import join_room
 
 from config.logger import logger
-from constants.session_variables import PLAYER_INFO, ROOM_ID
+from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.game_context_dto import GameContextDto
-from dto.player_info_dto import PlayerInfoDto
-from exceptions.unauthorized import UnauthorizedError
+from dto.match_closure_dto import EndingReason
+from exceptions.custom_exception import CustomException
+from exceptions.server_error import ServerError
+from exceptions.unauthorized_error import UnauthorizedError
 from exceptions.wrong_data_error import WrongDataError
 from handlers import match_handler
 from middlewares.error_handler import handle_error
 
 play_bp = Blueprint("play", __name__)
 play_bp.register_error_handler(Exception, handle_error)
+
+count = 0
 
 
 @play_bp.route("/play/match-info", methods=["GET"])
@@ -31,7 +35,7 @@ def get_player_info():
     player_info = session.get(PLAYER_INFO)
 
     if player_info is None:
-        raise UnauthorizedError("Could not resolve player information")
+        raise ValueError("Could not resolve player information")
 
     return jsonify(player_info.to_dict()), 200
 
@@ -40,34 +44,67 @@ def get_player_info():
 def confirm_ids():
     """
     This route is called when the client failed to retrieve the room id
-    and player id from the routes above
+    and player id from the usual routes.
     """
-    logger.info("Resorting to saved data context retrieval")
-    # raise WrongDataError("lala hey", socket_connection_killer=True)
-
+    global count
+    count += 1
     errorMessage = "An error occured while trying to connect to your match"
 
     json_data: dict = request.get_json()
 
+    mhu = None
     player_id = json_data.get("playerId")
-    if player_id is None:
-        logger.error("No player id provided")
-        raise WrongDataError(errorMessage, socket_connection_killer=True)
-
     room_id = json_data.get("roomId")
-    if room_id is None:
-        logger.error("No room id provided")
-        raise WrongDataError(errorMessage, socket_connection_killer=True)
 
-    mhu = match_handler.get_unit(room_id)
-    if mhu is None:
-        raise WrongDataError(errorMessage, socket_connection_killer=True, code=404)
+    try:
+        if (
+            player_id is None
+            or room_id is None
+            or match_handler.get_unit(room_id) is None
+        ):
+            (mhu, player_id) = _get_from_session()
+        else:
+            (mhu, player_id) = _get_from_given_info(player_id, room_id)
 
-    player_ids = [mhu.match_info.player1.playerId, mhu.match_info.player2.playerId]
-    if player_id not in player_ids:
-        logger.error(f"The player id {player_id} does not exist in the room {room_id}")
-        raise WrongDataError(errorMessage, socket_connection_killer=True, code=404)
+        player_info = mhu.get_player(player_id)
+        return jsonify(GameContextDto(mhu.match_info, player_info).to_dict()), 200
 
-    player_info = mhu.get_player(player_id)
+    except Exception as ex:
+        if isinstance(ex, CustomException):
+            raise ex
 
-    return jsonify(GameContextDto(mhu.match_info, player_info).to_dict()), 200
+        logger.error(f"An error occured while trying to fetch the game context : {ex}")
+        raise ServerError(errorMessage, socket_connection_killer=True)
+
+
+def _get_from_given_info(player_id: str, room_id: str):
+    try:
+        mhu = match_handler.get_unit(room_id)
+
+        player_ids = [
+            mhu.match_info.player1.playerId,
+            mhu.match_info.player2.playerId,
+        ]
+        if player_id not in player_ids:
+            error_msg = (
+                f"The player id {player_id} does not exist in the room {room_id}"
+            )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+    except Exception:
+        (mhu, player_id) = _get_from_session()
+
+    return mhu, player_id
+
+
+def _get_from_session():
+    mhu = match_handler.get_unit_from_session_id(session[SESSION_ID])
+    player_id = next(
+        (
+            player_ID
+            for player_ID, sid in mhu.session_ids.items()
+            if sid == session[SESSION_ID]
+        ),
+        None,
+    )
+    return (mhu, player_id)

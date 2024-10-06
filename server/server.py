@@ -6,7 +6,6 @@ from flask_socketio import SocketIO, emit
 from config.logger import logger
 from dto.error_dto import ErrorDto
 from events import (
-    handle_client_failure,
     handle_client_ready,
     handle_connection,
     handle_disconnection,
@@ -38,7 +37,6 @@ class Server:
         self.socketio.on_event(
             Events.CLIENT_QUEUE_REGISTER.value, handle_queue_registration
         )
-        self.socketio.on_event(Events.CLIENT_MATCH_FAILURE.value, handle_client_failure)
         self.socketio.on_event(Events.CLIENT_READY.value, handle_client_ready)
         self.socketio.on_event(
             Events.CLIENT_CLEAR_SESSION.value, handle_session_clearing

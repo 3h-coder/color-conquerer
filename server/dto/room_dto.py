@@ -9,3 +9,4 @@ class RoomDto(BaseDto):
     id: str
     player1: QueuePlayerDto
     player2: QueuePlayerDto
+    sessionIds: dict[str, str]

@@ -52,4 +52,4 @@ def _handle_disconnection_in_queue(room_id):
 
 
 def _handle_disconnection_in_match(mhu: MatchHandlerUnit, player_id):
-    mhu.watch_player_exit(player_id, Events.SERVER_MATCH_END.value)
+    mhu.watch_player_exit(player_id)

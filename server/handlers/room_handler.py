@@ -1,5 +1,3 @@
-import uuid
-
 from config.logger import logger
 from dto.queue_player_dto import QueuePlayerDto
 from dto.room_dto import RoomDto
@@ -37,12 +35,15 @@ class RoomHandler:
         """
         if not self.open_rooms:
             new_room = RoomDto(
-                id=generate_id(RoomDto), player1=player_register_dto, player2=None
+                id=generate_id(RoomDto),
+                player1=player_register_dto,
+                player2=None,
+                sessionIds={},
             )
             self.open_rooms[new_room.id] = new_room
             self._log_rooms_count()
             # self._log_rooms()
-            return new_room.id, False
+            return new_room, False
 
         # Place the player in the first open room
         room = self.open_rooms[next(iter(self.open_rooms))]
@@ -52,11 +53,17 @@ class RoomHandler:
         self.closed_rooms[room.id] = room
         self.remove_open_room(room.id)
 
-        return room.id, True
+        return room, True
 
     def remove_open_room(self, room_id: str):
         logger.debug(f"Removing the room {room_id}")
         del self.open_rooms[room_id]
+        self._log_rooms_count()
+        # self._log_rooms()
+
+    def remove_closed_room(self, room_id: str):
+        logger.debug(f"Removing the room {room_id}")
+        del self.closed_rooms[room_id]
         self._log_rooms_count()
         # self._log_rooms()
 

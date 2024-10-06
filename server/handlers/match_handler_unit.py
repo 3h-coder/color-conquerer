@@ -7,6 +7,8 @@ from flask_socketio import SocketIO
 from config.logger import logger
 from constants.match_constants import (
     DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
+    DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION,
+    DELAY_IN_S_TO_WAIT_FOR_EVERYONE,
     TURN_DURATION_IN_S,
 )
 from dto.cell_info_dto import CellInfoDto, CellState
@@ -25,6 +27,7 @@ class MatchHandlerUnit:
 
     def __init__(self, room_dto: RoomDto):
         self.match_info = self._get_initial_match_info(room_dto)
+        self.session_ids = room_dto.sessionIds
         self.match_closure_info = None
         self.status = MatchStatus.WAITING_TO_START
         self.turn_watcher_thread = None
@@ -39,6 +42,25 @@ class MatchHandlerUnit:
             room_dto.player1.playerId: Event(),
             room_dto.player2.playerId: Event(),
         }
+
+    def watch_player_entry(self):
+        """
+        Waits a specific delay before ending the match if one player could not manage to be ready.
+        """
+        from server_gate import server
+
+        def end_match_after_delay():
+            server.socketio.sleep(DELAY_IN_S_TO_WAIT_FOR_EVERYONE)
+
+            if all(value is False for value in self.players_ready.values()):
+                self.end_match(EndingReason.DRAW, server_ref=server)
+                return
+
+            for player_id in self.players_ready:
+                if not self.players_ready[player_id]:
+                    self.end_match(EndingReason.NEVER_JOINED, loser_id=player_id)
+
+        server.socketio.start_background_task(target=end_match_after_delay)
 
     def start_match(self, turn_swap_event_name):
         """
@@ -58,16 +80,38 @@ class MatchHandlerUnit:
         return self.status == MatchStatus.ENDED
 
     def end_match(
-        self, reason: str, winner_id: str | None = None, loser_id: str | None = None
+        self,
+        reason: EndingReason,
+        server_ref=None,
+        winner_id: str | None = None,
+        loser_id: str | None = None,
     ):
+        """
+        Declares the match as ended, registering the information in a
+        dedicated database and removing the room from the room handler.
+
+        Additionally, notifies all players and schedules this match handler unit's garbage collection.
+        """
+        if self.is_ended():
+            logger.debug("Match already ended.")
+            return
+
+        if (
+            winner_id is None
+            and loser_id is None
+            and reason not in [EndingReason.DRAW, EndingReason.CONTEXT_FETCHING_FAILURE]
+        ):
+            raise ValueError("No winner id nor loser id provided")
+
+        if server_ref is None:
+            from server_gate import server
+
+            server_ref = server
+
         player1 = self.match_info.player1
         player2 = self.match_info.player2
         winner = None
         loser = None
-
-        # Validate provided IDs
-        if winner_id is None and loser_id is None:
-            raise ValueError("No winner id nor loser id provided")
 
         if winner_id is not None:
             winner = self.get_player(winner_id)
@@ -78,10 +122,26 @@ class MatchHandlerUnit:
 
         # Update match status
         self.status = MatchStatus.ENDED
-        self.match_closure_info = MatchClosureDto(reason, winner, loser)
+        self.match_closure_info = MatchClosureDto(reason.value, winner, loser)
 
         # TODO: save the match result into a database
         logger.debug(f"Match ended -> {self.match_closure_info}")
+
+        # Notify the users and close the room
+        from events.events import Events
+
+        server_ref.socketio.emit(
+            Events.SERVER_MATCH_END.value,
+            self.match_closure_info.to_dict(),
+            to=self.match_info.roomId,
+        )
+        server_ref.socketio.close_room(self.match_info.roomId)
+
+        from handlers import room_handler
+
+        room_handler.remove_closed_room(self.match_info.roomId)
+        # Schedule the deletion of this object
+        self._schedule_garbage_collection(server_ref)
 
     def stop_watching_player_exit(self, player_id: str):
         """
@@ -89,7 +149,7 @@ class MatchHandlerUnit:
         """
         self.player_exit_watch_stop_events[player_id].set()
 
-    def watch_player_exit(self, player_id: str, match_ending_event_name):
+    def watch_player_exit(self, player_id: str):
         """
         Watches a player exit, ending the match after a given delay unless the
         exit watcher stop event for the player is set.
@@ -110,15 +170,33 @@ class MatchHandlerUnit:
                 logger.debug("The exit watch was stopped")
                 return
 
-            self.end_match(EndingReason.PLAYER_LEFT.value, loser_id=player_id)
-            server.socketio.emit(
-                match_ending_event_name,
-                self.match_closure_info.to_dict(),
-                to=self.match_info.roomId,
+            self.end_match(
+                EndingReason.PLAYER_LEFT, server_ref=server, loser_id=player_id
             )
             session_utils.clear_match_info()
 
         server.socketio.start_background_task(target=exit_timer)
+
+    def _schedule_garbage_collection(self, server_ref):
+        """
+        Schedules the deletion of this match handler unit.
+        """
+        if server_ref is None:
+            from server_gate import server
+
+            server_ref = server
+
+        def delete_self():
+            server_ref.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
+
+            room_id = self.match_info.roomId
+            logger.debug(f"Deleting the match handler unit for the room {room_id}")
+
+            from handlers import match_handler
+
+            del match_handler.units[self.match_info.roomId]
+
+        server_ref.socketio.start_background_task(target=delete_self)
 
     def _trigger_turn_watcher(self, turn_swap_event_name):
         from server_gate import server
@@ -126,6 +204,8 @@ class MatchHandlerUnit:
         def watch_turns():
             while not self.is_ended():
                 server.socketio.sleep(TURN_DURATION_IN_S)
+                if self.is_ended():
+                    return
 
                 self.match_info.currentTurn += 1
                 self.current_player = (

@@ -8,7 +8,7 @@ import { GameContextDto } from "../../dto/GameContextDto";
 import { EndingReason, MatchClosureDto } from "../../dto/MatchClosureDto";
 import { Events } from "../../enums/events";
 import { socket } from "../../env";
-import { developmentErrorLog, developmentLog } from "../../utils/loggingUtils";
+import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameInfo from "./components/GameInfo";
 import GameMenu from "./components/GameMenu";
@@ -35,7 +35,7 @@ export default function PlayContent() {
           setPlayerInfo(gameContext.playerInfo);
         })
         .catch((error: unknown) => {
-          onError(ParseErrorDto(error));
+          onMatchContextError(ParseErrorDto(error));
         });
     } else {
       setCanRenderContent(true);
@@ -57,24 +57,25 @@ export default function PlayContent() {
 
     function onMatchEnded(matchClosureDto: MatchClosureDto) {
       developmentLog("Received match ending ", matchClosureDto);
-      const isWinner = matchClosureDto.winner.playerId === playerInfo.playerId;
-
+      setModalText(getMatchEndingText(matchClosureDto));
       setModalVisible(true);
-      if (
-        matchClosureDto.endingReason === EndingReason.PLAYER_LEFT &&
-        isWinner
-      ) {
-        setModalText("Your opponent left");
-      } else if (isWinner) {
-        setModalText("You won!");
-      } else {
-        setModalText("You lost");
-      }
 
       setModalExit(() => {
         return () => { location.href = "/" };
       });
       socket.emit(Events.CLIENT_CLEAR_SESSION);
+    }
+
+    function onError(errorDto: ErrorDto) {
+      if (!errorDto.displayToUser)
+        return;
+
+      setModalVisible(true);
+      setModalText(errorDto.error);
+      setModalExit(() => { return () => setModalVisible(false) });
+
+      // An error here should never cause the match to end,
+      // hence why we're not handling the socketConnectionKiller field.
     }
 
     socket.on(Events.SERVER_START_MATCH, onMatchStarted);
@@ -90,19 +91,29 @@ export default function PlayContent() {
     };
   });
 
-  function onError(errorDto: ErrorDto) {
-    developmentErrorLog("An error occured", errorDto);
+  function onMatchContextError(error: ErrorDto) {
+    setModalText(error.error);
+    setModalVisible(true);
+    setModalExit(() => {
+      return () => { location.href = "/" };
+    });
+  }
 
-    if (errorDto.displayToUser) {
-      setModalVisible(true);
-      setModalText(errorDto.error);
-    }
+  function getMatchEndingText(matchClosureDto: MatchClosureDto) {
+    if (!matchClosureDto.winner)
+      return "Draw";
 
-    if (errorDto.socketConnectionKiller) {
-      socket.emit(Events.CLIENT_MATCH_FAILURE);
-      socket.disconnect();
-      setModalExit(() => { });
-    }
+    const isWinner = matchClosureDto.winner.playerId === playerInfo.playerId;
+    if (
+      (matchClosureDto.endingReason === EndingReason.PLAYER_LEFT && isWinner) ||
+      (matchClosureDto.endingReason === EndingReason.NEVER_JOINED && isWinner))
+      return "Your opponent left";
+
+    else if (isWinner)
+      return "You won!";
+
+    else
+      return "You lost";
   }
 
   return (
