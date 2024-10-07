@@ -7,6 +7,12 @@
     margin: auto;
 }
 
+.initial-loading {
+    width: max(30px, 4vmin);
+    height: max(30px, 4vmin);
+    margin: auto;
+}
+
 .game-side-panel {
     padding: max(15px, 3vmin);
     border-radius: 5px;

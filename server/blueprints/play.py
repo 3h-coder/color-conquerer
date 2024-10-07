@@ -20,6 +20,7 @@ count = 0
 
 @play_bp.route("/play/match-info", methods=["GET"])
 def get_match_info():
+    raise ValueError("Hello!")
     room_id = session.get(ROOM_ID)
 
     if not room_id:
@@ -57,6 +58,8 @@ def confirm_ids():
     room_id = json_data.get("roomId")
 
     try:
+        if count == 2:
+            raise ValueError("What the heck!")
         if (
             player_id is None
             or room_id is None

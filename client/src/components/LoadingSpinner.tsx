@@ -4,13 +4,14 @@ import { SvgContainer } from "./containers";
 
 interface LoadingSpinnerProps {
     style?: React.CSSProperties;
+    className?: string;
 }
 
 export default function LoadingSpinner(props: LoadingSpinnerProps) {
-    const { style } = props;
+    const { style, className } = props;
 
     return (
-        <SvgContainer style={{ animation: "rotate 2s infinite", ...style }}>
+        <SvgContainer style={{ animation: "rotate 2s infinite", ...style }} className={className}>
             <SpinnerIcon />
         </SvgContainer>
     )

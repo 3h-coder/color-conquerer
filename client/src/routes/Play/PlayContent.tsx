@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { fetchGameContextInfoFromLocalStorage } from "../../api/game";
+import LoadingSpinner from "../../components/LoadingSpinner";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { undefinedMatch, useMatchInfo } from "../../contexts/MatchContext";
 import { undefinedPlayer, usePlayerInfo } from "../../contexts/PlayerContext";
@@ -20,10 +21,13 @@ export default function PlayContent() {
     loading: playerInfoLoading,
     setPlayerInfo,
   } = usePlayerInfo();
+  const [waitingText, setWaitingText] = useState("Connecting to your match...");
   const [canRenderContent, setCanRenderContent] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalText, setModalText] = useState("");
-  const [modalExit, setModalExit] = useState<() => unknown>(() => { return () => setModalVisible(false) });
+  const [modalExit, setModalExit] = useState<() => unknown>(() => {
+    return () => setModalVisible(false);
+  });
 
   useEffect(() => {
     if (matchInfoLoading || playerInfoLoading) return;
@@ -38,17 +42,23 @@ export default function PlayContent() {
           onMatchContextError(ParseErrorDto(error));
         });
     } else {
-      setCanRenderContent(true);
-
       if (!socket.connected) socket.connect();
 
       socket.emit(Events.CLIENT_READY);
+      setWaitingText("Waiting for your opponent...");
     }
-  }, [matchInfo, matchInfoLoading, playerInfo, playerInfoLoading, setMatchInfo, setPlayerInfo]);
+  }, [
+    matchInfo,
+    matchInfoLoading,
+    playerInfo,
+    playerInfoLoading,
+    setMatchInfo,
+    setPlayerInfo,
+  ]);
 
   useEffect(() => {
     function onMatchStarted() {
-      developmentLog("Match started!");
+      setCanRenderContent(true);
     }
 
     function onTurnSwap() {
@@ -61,18 +71,21 @@ export default function PlayContent() {
       setModalVisible(true);
 
       setModalExit(() => {
-        return () => { location.href = "/" };
+        return () => {
+          location.href = "/";
+        };
       });
       socket.emit(Events.CLIENT_CLEAR_SESSION);
     }
 
     function onError(errorDto: ErrorDto) {
-      if (!errorDto.displayToUser)
-        return;
+      if (!errorDto.displayToUser) return;
 
       setModalVisible(true);
       setModalText(errorDto.error);
-      setModalExit(() => { return () => setModalVisible(false) });
+      setModalExit(() => {
+        return () => setModalVisible(false);
+      });
 
       // An error here should never cause the match to end,
       // hence why we're not handling the socketConnectionKiller field.
@@ -95,35 +108,38 @@ export default function PlayContent() {
     setModalText(error.error);
     setModalVisible(true);
     setModalExit(() => {
-      return () => { location.href = "/" };
+      return () => {
+        location.href = "/";
+      };
     });
+    // TODO : Clear session here
   }
 
   function getMatchEndingText(matchClosureDto: MatchClosureDto) {
-    if (!matchClosureDto.winner)
-      return "Draw";
+    if (!matchClosureDto.winner) return "Draw";
 
     const isWinner = matchClosureDto.winner.playerId === playerInfo.playerId;
-    if (
-      (matchClosureDto.endingReason === EndingReason.PLAYER_LEFT && isWinner) ||
-      (matchClosureDto.endingReason === EndingReason.NEVER_JOINED && isWinner))
+    if (matchClosureDto.endingReason === EndingReason.PLAYER_LEFT && isWinner)
       return "Your opponent left";
-
-    else if (isWinner)
-      return "You won!";
-
-    else
-      return "You lost";
+    else if (matchClosureDto.endingReason === EndingReason.NEVER_JOINED && isWinner)
+      return "Your opponent did not join the match";
+    else if (isWinner) return "You won!";
+    else return "You lost";
   }
 
   return (
     <PageContainer>
-      {canRenderContent && (
+      {canRenderContent ? (
         <>
           <GameMenu />
           <GameGrid />
           <GameInfo />
         </>
+      ) : (
+        <div>
+          <LoadingSpinner className="initial-loading" />
+          <h3>{waitingText}</h3>
+        </div>
       )}
       {modalVisible && (
         <SingleButtonModal buttonText="OK" onClose={modalExit}>
