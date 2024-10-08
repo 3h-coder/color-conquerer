@@ -1,6 +1,6 @@
 from config.logger import logger
 from dto.queue_player_dto import QueuePlayerDto
-from dto.room_dto import RoomDto
+from dto.server_only.room_dto import RoomDto
 from utils.id_generation_utils import generate_id
 
 

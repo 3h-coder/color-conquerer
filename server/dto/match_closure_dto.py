@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from dto.base_dto import BaseDto
-from dto.player_info_dto import PlayerInfoDto
+from dto.server_only.player_info_dto import PlayerInfoDto
 
 
 class EndingReason(StrEnum):

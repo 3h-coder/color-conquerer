@@ -3,7 +3,7 @@ from enum import Enum
 
 from dto.match_info_dto import MatchInfoDto
 from dto.queue_player_dto import QueuePlayerDto
-from dto.room_dto import RoomDto
+from dto.server_only.room_dto import RoomDto
 from dto.user_dto import UserDto
 
 

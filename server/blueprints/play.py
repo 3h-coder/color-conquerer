@@ -5,6 +5,7 @@ from config.logger import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.game_context_dto import GameContextDto
 from dto.match_closure_dto import EndingReason
+from dto.partial_player_info_dto import PartialPlayerInfoDto
 from exceptions.custom_exception import CustomException
 from exceptions.server_error import ServerError
 from exceptions.unauthorized_error import UnauthorizedError
@@ -31,11 +32,14 @@ def get_match_info():
 @play_bp.route("/play/player-info", methods=["GET"])
 def get_player_info():
     player_info = session.get(PLAYER_INFO)
+    partial_player_info = PartialPlayerInfoDto(
+        player_info.playerId, player_info.isPlayer1
+    )
 
     if player_info is None:
         raise ValueError("Could not resolve player information")
 
-    return jsonify(player_info.to_dict()), 200
+    return jsonify(partial_player_info.to_dict()), 200
 
 
 @play_bp.route("/play/game-context", methods=["POST"])
@@ -53,10 +57,9 @@ def confirm_ids():
     room_id = json_data.get("roomId")
 
     try:
-        if (
-            player_id is None
-            or room_id is None
-            or match_handler.get_unit(room_id) is None
+        if any(
+            value is None
+            for value in [player_id, room_id, match_handler.get_unit(room_id)]
         ):
             (mhu, player_id) = _get_from_session()
         else:

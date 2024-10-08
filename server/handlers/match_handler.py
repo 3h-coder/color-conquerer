@@ -1,5 +1,5 @@
 from config.logger import logger
-from dto.room_dto import RoomDto
+from dto.server_only.room_dto import RoomDto
 from handlers.match_handler_unit import MatchHandlerUnit
 
 

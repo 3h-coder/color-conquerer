@@ -2,7 +2,8 @@ from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
 from dto.match_info_dto import MatchInfoDto
-from dto.player_info_dto import PlayerInfoDto
+from dto.server_only.player_info_dto import PlayerInfoDto
+
 
 @dataclass
 class GameContextDto(BaseDto):

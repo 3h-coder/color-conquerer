@@ -2,7 +2,8 @@ from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
 from dto.cell_info_dto import CellInfoDto
-from dto.player_info_dto import PlayerInfoDto
+from dto.server_only.player_info_dto import PlayerInfoDto
+
 
 # TODO: split between client and server match info
 @dataclass

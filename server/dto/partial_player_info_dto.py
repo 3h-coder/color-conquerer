@@ -5,7 +5,6 @@ from dto.user_dto import UserDto
 
 
 @dataclass
-class PlayerInfoDto(BaseDto):
-    user: UserDto
+class PartialPlayerInfoDto(BaseDto):
     playerId: str
     isPlayer1: bool

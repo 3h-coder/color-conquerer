@@ -15,6 +15,8 @@ def handle_client_ready():
     """
     player_id = session.get(PLAYER_INFO).playerId
     room_id = session.get(ROOM_ID)
+    print(f"player_info is is {session.get(PLAYER_INFO)}")
+    print(f"player_id is {player_id}")
 
     join_room(room_id)
 

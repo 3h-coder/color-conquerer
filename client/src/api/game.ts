@@ -1,12 +1,12 @@
 import { ClientStoredMatchInfoDto } from "../dto/ClientStoredMatchInfoDto";
 import { GameContextDto } from "../dto/GameContextDto";
 import { MatchInfoDto } from "../dto/MatchInfoDto";
-import { PlayerInfoDto } from "../dto/PlayerInfoDto";
+import { PartialPlayerInfoDto } from "../dto/PlayerInfoDto";
 import { constants } from "../env";
 import { DEFAULT_HEADERS, fetchAs } from "./fetch";
 
 export async function fetchPlayerInfo() {
-    return await fetchAs<PlayerInfoDto>("/play/player-info", {
+    return await fetchAs<PartialPlayerInfoDto>("/play/player-info", {
         method: "GET",
         headers: DEFAULT_HEADERS,
         credentials: "include"

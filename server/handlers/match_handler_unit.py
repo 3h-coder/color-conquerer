@@ -14,8 +14,8 @@ from constants.match_constants import (
 from dto.cell_info_dto import CellInfoDto, CellState
 from dto.match_closure_dto import EndingReason, MatchClosureDto
 from dto.match_info_dto import MatchInfoDto
-from dto.player_info_dto import PlayerInfoDto
-from dto.room_dto import RoomDto
+from dto.server_only.player_info_dto import PlayerInfoDto
+from dto.server_only.room_dto import RoomDto
 from utils import session_utils
 from utils.id_generation_utils import generate_id
 

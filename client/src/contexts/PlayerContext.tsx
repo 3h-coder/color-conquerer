@@ -2,24 +2,23 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { fetchPlayerInfo } from "../api/game";
 import { ParseErrorDto } from "../dto/ErrorDto";
-import { PlayerInfoDto } from "../dto/PlayerInfoDto";
+import { PartialPlayerInfoDto } from "../dto/PlayerInfoDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
 import { useUser } from "./UserContext";
 
 interface PlayerContextObject {
-    playerInfo: PlayerInfoDto;
-    setPlayerInfo: (p: PlayerInfoDto) => void;
+    playerInfo: PartialPlayerInfoDto;
+    setPlayerInfo: (p: PartialPlayerInfoDto) => void;
     loading: boolean;
 }
 
-export const undefinedPlayer: PlayerInfoDto = {
-    user: null,
-    playerId: "",
+export const undefinedPlayer: PartialPlayerInfoDto = {
+    playerId: "undefined",
     isPlayer1: false
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const PlayerContext = createContext<PlayerContextObject>({ playerInfo: undefinedPlayer, setPlayerInfo: (_playerInfo: PlayerInfoDto) => { }, loading: false });
+const PlayerContext = createContext<PlayerContextObject>({ playerInfo: undefinedPlayer, setPlayerInfo: (_playerInfo: PartialPlayerInfoDto) => { }, loading: false });
 
 interface PlayerontextProviderProps {
     children?: ReactNode;
@@ -41,8 +40,7 @@ export default function PlayerContextProvider(props: PlayerontextProviderProps) 
         try {
             const fetchedPlayerInfo = await fetchPlayerInfo();
 
-            const playerInfo: PlayerInfoDto = {
-                user: fetchedPlayerInfo.user,
+            const playerInfo: PartialPlayerInfoDto = {
                 playerId: fetchedPlayerInfo.playerId,
                 isPlayer1: fetchedPlayerInfo.isPlayer1
             };

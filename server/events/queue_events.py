@@ -5,8 +5,8 @@ from config.logger import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.client_stored_match_info_dto import ClientStoredMatchInfoDto
 from dto.match_info_dto import MatchInfoDto
-from dto.player_info_dto import PlayerInfoDto
 from dto.queue_player_dto import QueuePlayerDto
+from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
@@ -59,7 +59,7 @@ def handle_queue_registration(data: dict):
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
         mhu.watch_player_entry()
     else:
-        player_info = PlayerInfoDto(queue_player_dto.user, player_id, True)
+        player_info = PlayerInfoDto(player_id, True, queue_player_dto.user)
         save_player_info(player_info)
 
 
