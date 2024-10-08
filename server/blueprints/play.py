@@ -15,12 +15,9 @@ from middlewares.error_handler import handle_error
 play_bp = Blueprint("play", __name__)
 play_bp.register_error_handler(Exception, handle_error)
 
-count = 0
-
 
 @play_bp.route("/play/match-info", methods=["GET"])
 def get_match_info():
-    raise ValueError("Hello!")
     room_id = session.get(ROOM_ID)
 
     if not room_id:
@@ -47,8 +44,6 @@ def confirm_ids():
     This route is called when the client failed to retrieve the room id
     and player id from the usual routes.
     """
-    global count
-    count += 1
     errorMessage = "An error occured while trying to connect to your match"
 
     json_data: dict = request.get_json()
@@ -58,8 +53,6 @@ def confirm_ids():
     room_id = json_data.get("roomId")
 
     try:
-        if count == 2:
-            raise ValueError("What the heck!")
         if (
             player_id is None
             or room_id is None

@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { fetchGameContextInfoFromLocalStorage } from "../../api/game";
+import { clearMatchInfoFromSession } from "../../api/session";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { undefinedMatch, useMatchInfo } from "../../contexts/MatchContext";
@@ -105,6 +106,7 @@ export default function PlayContent() {
   });
 
   function onMatchContextError(error: ErrorDto) {
+    clearMatchInfoFromSession();
     setModalText(error.error);
     setModalVisible(true);
     setModalExit(() => {
@@ -112,7 +114,6 @@ export default function PlayContent() {
         location.href = "/";
       };
     });
-    // TODO : Clear session here
   }
 
   function getMatchEndingText(matchClosureDto: MatchClosureDto) {
