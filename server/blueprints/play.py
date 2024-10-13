@@ -4,7 +4,7 @@ from flask_socketio import join_room
 from config.logger import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.game_context_dto import GameContextDto
-from dto.match_closure_dto import EndingReason
+from dto.server_only.match_closure_dto import EndingReason
 from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.partial_player_info_dto import PartialPlayerInfoDto
 from exceptions.custom_exception import CustomException

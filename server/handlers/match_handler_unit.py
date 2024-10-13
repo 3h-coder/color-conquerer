@@ -12,7 +12,8 @@ from constants.match_constants import (
     TURN_DURATION_IN_S,
 )
 from dto.cell_info_dto import CellInfoDto, CellState
-from dto.match_closure_dto import EndingReason, MatchClosureDto
+from dto.partial_match_closure_dto import PartialMatchClosureDto
+from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from dto.server_only.room_dto import RoomDto
@@ -128,7 +129,9 @@ class MatchHandlerUnit:
 
         server_ref.socketio.emit(
             Events.SERVER_MATCH_END.value,
-            self.match_closure_info.to_dict(),
+            PartialMatchClosureDto.from_match_closure_dto(
+                self.match_closure_info
+            ).to_dict(),
             to=self.match_info.roomId,
         )
         server_ref.socketio.close_room(self.match_info.roomId)

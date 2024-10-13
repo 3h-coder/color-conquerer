@@ -33,7 +33,7 @@ def handle_client_ready():
         else:
             emit(
                 Events.SERVER_SET_WAITING_TEXT.value,
-                MessageDto.from_string("Waiting for your opponent..."),
+                MessageDto.from_string("Waiting for your opponent...").to_dict(),
             )
 
 
