@@ -14,6 +14,7 @@ import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameInfo from "./components/GameInfo";
 import GameMenu from "./components/GameMenu";
+import { MessageDto } from "../../dto/MessageDto";
 
 export default function PlayContent() {
   const { matchInfo, loading: matchInfoLoading, setMatchInfo } = useMatchInfo();
@@ -46,7 +47,6 @@ export default function PlayContent() {
       if (!socket.connected) socket.connect();
 
       socket.emit(Events.CLIENT_READY);
-      setWaitingText("Waiting for your opponent...");
     }
   }, [
     matchInfo,
@@ -58,6 +58,10 @@ export default function PlayContent() {
   ]);
 
   useEffect(() => {
+    function onSetWaitingText(messageDto: MessageDto) {
+      setWaitingText(messageDto.message);
+    }
+
     function onMatchStarted() {
       setCanRenderContent(true);
     }
@@ -92,13 +96,15 @@ export default function PlayContent() {
       // hence why we're not handling the socketConnectionKiller field.
     }
 
-    socket.on(Events.SERVER_START_MATCH, onMatchStarted);
+    socket.on(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
+    socket.on(Events.SERVER_MATCH_STARTED, onMatchStarted);
     socket.on(Events.SERVER_TURN_SWAP, onTurnSwap);
     socket.on(Events.SERVER_MATCH_END, onMatchEnded);
     socket.on(Events.SERVER_ERROR, onError);
 
     return () => {
-      socket.off(Events.SERVER_START_MATCH, onMatchStarted);
+      socket.off(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
+      socket.off(Events.SERVER_MATCH_STARTED, onMatchStarted);
       socket.off(Events.SERVER_TURN_SWAP, onTurnSwap);
       socket.off(Events.SERVER_MATCH_END, onMatchEnded);
       socket.off(Events.SERVER_ERROR, onError);

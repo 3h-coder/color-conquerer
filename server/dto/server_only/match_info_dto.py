@@ -1,16 +1,11 @@
 from dataclasses import dataclass
 
-from dto.base_dto import BaseDto
-from dto.cell_info_dto import CellInfoDto
+from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 
 
 # TODO: split between client and server match info
 @dataclass
-class MatchInfoDto(BaseDto):
-    id: str
-    roomId: str
-    boardArray: list[list[CellInfoDto]]
+class MatchInfoDto(PartialMatchInfoDto):
     player1: PlayerInfoDto
     player2: PlayerInfoDto
-    currentTurn: int

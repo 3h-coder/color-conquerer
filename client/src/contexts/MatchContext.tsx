@@ -2,17 +2,17 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { fetchMatchInfo } from "../api/game";
 import { ParseErrorDto } from "../dto/ErrorDto";
-import { MatchInfoDto } from "../dto/MatchInfoDto";
+import { PartialMatchInfoDto } from "../dto/PartialMatchInfoDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
 import { useUser } from "./UserContext";
 
 interface MatchContextObject {
-    matchInfo: MatchInfoDto;
-    setMatchInfo: (m: MatchInfoDto) => void;
+    matchInfo: PartialMatchInfoDto;
+    setMatchInfo: (m: PartialMatchInfoDto) => void;
     loading: boolean;
 }
 
-export const undefinedMatch: MatchInfoDto = {
+export const undefinedMatch: PartialMatchInfoDto = {
     id: "",
     roomId: "",
     boardArray: [],
@@ -22,7 +22,7 @@ export const undefinedMatch: MatchInfoDto = {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const MatchContext = createContext<MatchContextObject>({ matchInfo: undefinedMatch, setMatchInfo: (_matchInfo: MatchInfoDto) => { }, loading: false });
+const MatchContext = createContext<MatchContextObject>({ matchInfo: undefinedMatch, setMatchInfo: (_matchInfo: PartialMatchInfoDto) => { }, loading: false });
 
 interface MatchContextProviderProps {
     children?: ReactNode;
@@ -31,7 +31,7 @@ interface MatchContextProviderProps {
 export default function MatchContextProvider(props: MatchContextProviderProps) {
     const { children } = props;
     const { user } = useUser();
-    const [matchInfo, setMatchInfo] = useState<MatchInfoDto>(undefinedMatch);
+    const [matchInfo, setMatchInfo] = useState<PartialMatchInfoDto>(undefinedMatch);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -44,7 +44,7 @@ export default function MatchContextProvider(props: MatchContextProviderProps) {
         try {
             const fetchedMatchInfo = await fetchMatchInfo();
 
-            const matchInfo: MatchInfoDto = {
+            const matchInfo: PartialMatchInfoDto = {
                 id: fetchedMatchInfo.id,
                 roomId: fetchedMatchInfo.roomId,
                 boardArray: fetchedMatchInfo.boardArray,

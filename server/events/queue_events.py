@@ -4,7 +4,6 @@ from flask_socketio import emit, join_room, leave_room
 from config.logger import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.client_stored_match_info_dto import ClientStoredMatchInfoDto
-from dto.match_info_dto import MatchInfoDto
 from dto.queue_player_dto import QueuePlayerDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events

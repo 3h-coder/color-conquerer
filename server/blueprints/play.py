@@ -5,6 +5,7 @@ from config.logger import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.game_context_dto import GameContextDto
 from dto.match_closure_dto import EndingReason
+from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.partial_player_info_dto import PartialPlayerInfoDto
 from exceptions.custom_exception import CustomException
 from exceptions.server_error import ServerError
@@ -24,17 +25,14 @@ def get_match_info():
     if not room_id:
         raise UnauthorizedError("Could not resolve the room")
 
-    # TODO: send a partial DTO instead
-    match_info = match_handler.get_match_info(room_id)
+    match_info = match_handler.get_match_info(room_id, partial=True)
     return jsonify(match_info.to_dict()), 200
 
 
 @play_bp.route("/play/player-info", methods=["GET"])
 def get_player_info():
     player_info = session.get(PLAYER_INFO)
-    partial_player_info = PartialPlayerInfoDto(
-        player_info.playerId, player_info.isPlayer1
-    )
+    partial_player_info = PartialPlayerInfoDto.from_player_info_dto(player_info)
 
     if player_info is None:
         raise ValueError("Could not resolve player information")
@@ -66,7 +64,15 @@ def confirm_ids():
             (mhu, player_id) = _get_from_given_info(player_id, room_id)
 
         player_info = mhu.get_player(player_id)
-        return jsonify(GameContextDto(mhu.match_info, player_info).to_dict()), 200
+        return (
+            jsonify(
+                GameContextDto(
+                    PartialMatchInfoDto.from_match_info_dto(mhu.match_info),
+                    PartialPlayerInfoDto.from_player_info_dto(player_info),
+                ).to_dict()
+            ),
+            200,
+        )
 
     except Exception as ex:
         if isinstance(ex, CustomException):

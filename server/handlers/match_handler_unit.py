@@ -13,7 +13,7 @@ from constants.match_constants import (
 )
 from dto.cell_info_dto import CellInfoDto, CellState
 from dto.match_closure_dto import EndingReason, MatchClosureDto
-from dto.match_info_dto import MatchInfoDto
+from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from dto.server_only.room_dto import RoomDto
 from utils import session_utils
@@ -96,11 +96,7 @@ class MatchHandlerUnit:
             logger.debug("Match already ended.")
             return
 
-        if (
-            winner_id is None
-            and loser_id is None
-            and reason not in [EndingReason.DRAW, EndingReason.CONTEXT_FETCHING_FAILURE]
-        ):
+        if winner_id is None and loser_id is None and reason != EndingReason.DRAW:
             raise ValueError("No winner id nor loser id provided")
 
         if server_ref is None:

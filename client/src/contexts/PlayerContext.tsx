@@ -2,7 +2,7 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { fetchPlayerInfo } from "../api/game";
 import { ParseErrorDto } from "../dto/ErrorDto";
-import { PartialPlayerInfoDto } from "../dto/PlayerInfoDto";
+import { PartialPlayerInfoDto } from "../dto/PartialPlayerInfoDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
 import { useUser } from "./UserContext";
 

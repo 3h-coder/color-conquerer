@@ -1,4 +1,4 @@
-import { PartialPlayerInfoDto } from "./PlayerInfoDto";
+import { PartialPlayerInfoDto } from "./PartialPlayerInfoDto";
 
 export enum EndingReason {
     PLAYER_LEFT = "player left",

@@ -1,7 +1,7 @@
-import { MatchInfoDto } from "./MatchInfoDto";
-import { PartialPlayerInfoDto } from "./PlayerInfoDto";
+import { PartialMatchInfoDto } from "./PartialMatchInfoDto";
+import { PartialPlayerInfoDto } from "./PartialPlayerInfoDto";
 
 export interface GameContextDto {
-    matchInfo: MatchInfoDto;
+    matchInfo: PartialMatchInfoDto;
     playerInfo: PartialPlayerInfoDto;
 }

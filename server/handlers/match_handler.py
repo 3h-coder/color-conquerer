@@ -1,4 +1,5 @@
 from config.logger import logger
+from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.server_only.room_dto import RoomDto
 from handlers.match_handler_unit import MatchHandlerUnit
 
@@ -46,7 +47,7 @@ class MatchHandler:
             None,
         )
 
-    def get_match_info(self, room_id):
+    def get_match_info(self, room_id, partial=False):
         """
         Gets the match info for the corresponding room id
         """
@@ -55,4 +56,9 @@ class MatchHandler:
         if not unit:
             return
 
-        return unit.match_info
+        match_info = unit.match_info
+        return (
+            match_info
+            if not partial
+            else PartialMatchInfoDto.from_match_info_dto(match_info)
+        )

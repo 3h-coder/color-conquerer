@@ -16,6 +16,7 @@ class Events(Enum):
     SERVER_MATCH_INFO = "server-match-info"
     CLIENT_READY = "client-ready"  # ready to start or resume a game
     CLIENT_CLEAR_SESSION = "client-clear-session"
-    SERVER_START_MATCH = "server-start-match"
+    SERVER_SET_WAITING_TEXT = "server-set-waitingText"  # sends to the client the text to display while the user is waiting
+    SERVER_MATCH_STARTED = "server-match-started"  # used client side to allow rendering the game on the screen
     SERVER_TURN_SWAP = "server-turn-swap"
     SERVER_MATCH_END = "server-matchEnd"
