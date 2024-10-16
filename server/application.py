@@ -6,7 +6,7 @@ from flask_session import Session
 from blueprints.play import play_bp
 from blueprints.session import session_bp
 from config.config import default_config, global_config
-from config.logging import logger
+from config.logging import root_logger
 from config.variables import OptionalVariables, RequiredVariables
 from middlewares.error_handler import handle_error
 from utils.os_utils import delete_file_or_folder
@@ -18,7 +18,7 @@ class Application(Flask):
     """
 
     def __init__(self, import_name, **kwargs):
-        logger.debug("Initializing application")
+        root_logger.debug("Initializing application")
         super().__init__(import_name, **kwargs)
         self.initialize()
 
@@ -40,7 +40,7 @@ class Application(Flask):
             OptionalVariables.RESET_SESSION_FILE_ON_STARTUP.name
         )
         if delete_session:
-            logger.debug("Deleting session directory")
+            root_logger.debug("Deleting session directory")
             delete_file_or_folder(
                 self._get_from_config_or_default_config(
                     OptionalVariables.APP_SESSION_FILE_DIR.name

@@ -1,7 +1,7 @@
 from flask import session
 from flask_socketio import emit, join_room, leave_room
 
-from config.logging import logger
+from config.logging import root_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.client_stored_match_info_dto import ClientStoredMatchInfoDto
 from dto.queue_player_dto import QueuePlayerDto
@@ -19,20 +19,20 @@ def handle_queue_registration(data: dict):
     Is in charge of creating the room up to creating the match.
     """
     if session.get(SESSION_ID) is None:
-        logger.debug("Attempting to register with no initiated session, denying")
+        root_logger.debug("Attempting to register with no initiated session, denying")
         raise QueueError(
             "Something went wrong, please refresh the page and try again",
             socket_connection_killer=True,
         )
 
     if session.get(ROOM_ID) is not None:
-        logger.debug("Already in a room, ignoring registration request")
+        root_logger.debug("Already in a room, ignoring registration request")
         raise QueueError(
             "You are already registered in the queue", socket_connection_killer=True
         )
 
     if room_handler.at_capacity():
-        logger.info("Room handler at maximum capacity, denying queue registration")
+        root_logger.info("Room handler at maximum capacity, denying queue registration")
         raise QueueError(
             "The server has reached its maximum capacity, please try again later",
             socket_connection_killer=True,
@@ -41,7 +41,7 @@ def handle_queue_registration(data: dict):
     queue_player_dto = QueuePlayerDto.from_dict(data)
     player_id = set_player_id(queue_player_dto)
 
-    logger.info(
+    root_logger.info(
         f"{Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
     )
 

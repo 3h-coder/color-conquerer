@@ -1,4 +1,4 @@
-from config.logging import logger
+from config.logging import root_logger
 from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.server_only.room_dto import RoomDto
 from handlers.match_handler_unit import MatchHandlerUnit
@@ -32,7 +32,7 @@ class MatchHandler:
         try:
             return self.units[room_id]
         except KeyError:
-            logger.error(f"No unit instanciated for the room : {room_id}")
+            root_logger.error(f"No unit instanciated for the room : {room_id}")
 
     def get_unit_from_session_id(self, session_id: str):
         """

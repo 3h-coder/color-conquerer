@@ -1,7 +1,7 @@
 from flask import request, session
 from flask_socketio import leave_room
 
-from config.logging import logger
+from config.logging import root_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
@@ -45,7 +45,7 @@ def handle_disconnection():
 
 
 def _handle_disconnection_in_queue(room_id):
-    logger.debug("Disconnected while being in queue")
+    root_logger.debug("Disconnected while being in queue")
     room_handler.remove_open_room(room_id)
     leave_room(room_id)
     session_utils.clear_match_info()

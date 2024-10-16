@@ -1,7 +1,7 @@
 from flask import session
 from flask_socketio import emit, join_room
 
-from config.config import logger
+from config.config import root_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID
 from dto.message_dto import MessageDto
 from events.events import Events
@@ -27,7 +27,7 @@ def handle_client_ready():
         emit(Events.SERVER_MATCH_STARTED.value)
     elif mhu.is_waiting_to_start():
         if all(value is True for value in mhu.players_ready.values()):
-            logger.info(f"All players ready in the room {room_id}")
+            root_logger.info(f"All players ready in the room {room_id}")
             mhu.start_match(Events.SERVER_TURN_SWAP.value)
             emit(Events.SERVER_MATCH_STARTED.value, to=room_id, broadcast=True)
         else:

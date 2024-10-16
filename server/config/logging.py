@@ -2,13 +2,20 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
-from config import root_path
+from config import logs_root_path
 from utils import os_utils
 
-LOG_FILE_PATH = os.path.join(root_path, "logs", "global.log")
 
+def get_configured_logger(file_name: str):
+    LOG_EXTENSION = ".log"
 
-def _get_configured_logger():
+    if not file_name.endswith(LOG_EXTENSION):
+        file_name = f"{file_name}{LOG_EXTENSION}"
+
+    LOG_FILE_PATH = os.path.join(logs_root_path, file_name)
+
+    os_utils.create_dir_if_not_exists(LOG_FILE_PATH)
+
     logger = logging.getLogger()
 
     handler = TimedRotatingFileHandler(
@@ -29,5 +36,4 @@ def _get_configured_logger():
     return logger
 
 
-os_utils.create_dir_if_not_exists(LOG_FILE_PATH)
-logger = _get_configured_logger()
+root_logger = get_configured_logger("global")

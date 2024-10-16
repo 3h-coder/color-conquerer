@@ -1,6 +1,6 @@
 from flask import session
 
-from config.logging import logger
+from config.logging import root_logger
 from constants.session_variables import SESSION_ID
 
 
@@ -18,7 +18,7 @@ class ConnectionHandler:
         else:
             self.connections[session[SESSION_ID]] += 1
 
-        logger.debug(
+        root_logger.debug(
             f"({remote_addr}) | Socket Connection | Active connections -> {self.connections[session[SESSION_ID]]}"
         )
 
@@ -28,7 +28,7 @@ class ConnectionHandler:
 
         self.connections[session[SESSION_ID]] -= 1
 
-        logger.debug(
+        root_logger.debug(
             f"({remote_addr}) | Socket Disconnection | Active connections -> {self.connections[session[SESSION_ID]]}"
         )
         if self.connections[session[SESSION_ID]] == 0:

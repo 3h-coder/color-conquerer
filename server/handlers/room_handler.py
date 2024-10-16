@@ -1,4 +1,4 @@
-from config.logging import logger
+from config.logging import root_logger
 from dto.queue_player_dto import QueuePlayerDto
 from dto.server_only.room_dto import RoomDto
 from utils.id_generation_utils import generate_id
@@ -56,21 +56,21 @@ class RoomHandler:
         return room, True
 
     def remove_open_room(self, room_id: str):
-        logger.debug(f"Removing the room {room_id}")
+        root_logger.debug(f"Removing the room {room_id}")
         del self.open_rooms[room_id]
         self._log_rooms_count()
         # self._log_rooms()
 
     def remove_closed_room(self, room_id: str):
-        logger.debug(f"Removing the room {room_id}")
+        root_logger.debug(f"Removing the room {room_id}")
         del self.closed_rooms[room_id]
         self._log_rooms_count()
         # self._log_rooms()
 
     def _log_rooms(self):
-        logger.debug(f"Open rooms {self.open_rooms}")
-        logger.debug(f"Closed rooms {self.closed_rooms}")
+        root_logger.debug(f"Open rooms {self.open_rooms}")
+        root_logger.debug(f"Closed rooms {self.closed_rooms}")
 
     def _log_rooms_count(self):
-        logger.debug(f"Open rooms count : {len(self.open_rooms)}")
-        logger.debug(f"Closed rooms count : {len(self.closed_rooms)}")
+        root_logger.debug(f"Open rooms count : {len(self.open_rooms)}")
+        root_logger.debug(f"Closed rooms count : {len(self.closed_rooms)}")

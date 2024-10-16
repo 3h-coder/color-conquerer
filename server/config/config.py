@@ -4,7 +4,7 @@ import pathlib
 import uuid
 
 from config import root_path
-from config.logging import logger
+from config.logging import root_logger
 from config.variable_types import VariableType
 from config.variables import OptionalVariables, RequiredVariables
 
@@ -37,15 +37,15 @@ def _get_config():
     If the config.json file is not found or corrupted,
     """
 
-    logger.info("Loading the configuration")
+    root_logger.info("Loading the configuration")
 
     config = default_config
     try:
         with open(CONFIG_FILE_PATH, "r") as config_file:
             config = json.load(config_file)
     except Exception as ex:
-        logger.debug(f"An error occured during configuration loading : {ex}")
-        logger.warning("Loading failed, resorting to default configuration")
+        root_logger.debug(f"An error occured during configuration loading : {ex}")
+        root_logger.warning("Loading failed, resorting to default configuration")
         _write_config(config)
 
     # Check for missing variables
@@ -69,7 +69,7 @@ def _write_config(config):
     Writes the config.json file, overriting any existing one.
     """
 
-    logger.debug(f"Writing down the config file at {CONFIG_FILE_PATH}")
+    root_logger.debug(f"Writing down the config file at {CONFIG_FILE_PATH}")
     with open(CONFIG_FILE_PATH, "w") as file:
         file.write(json.dumps(config, indent=2))
 

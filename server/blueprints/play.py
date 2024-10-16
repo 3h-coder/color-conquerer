@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, session
 from flask_socketio import join_room
 
-from config.logging import logger
+from config.logging import root_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.game_context_dto import GameContextDto
 from dto.partial_match_info_dto import PartialMatchInfoDto
@@ -78,7 +78,9 @@ def confirm_ids():
         if isinstance(ex, CustomException):
             raise ex
 
-        logger.error(f"An error occured while trying to fetch the game context : {ex}")
+        root_logger.error(
+            f"An error occured while trying to fetch the game context : {ex}"
+        )
         raise ServerError(errorMessage, socket_connection_killer=True)
 
 
@@ -94,7 +96,7 @@ def _get_from_given_info(player_id: str, room_id: str):
             error_msg = (
                 f"The player id {player_id} does not exist in the room {room_id}"
             )
-            logger.error(error_msg)
+            root_logger.error(error_msg)
             raise ValueError(error_msg)
     except Exception:
         (mhu, player_id) = _get_from_session()
