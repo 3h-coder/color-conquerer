@@ -1,12 +1,12 @@
 from flask import Blueprint, jsonify, request, session
 from flask_socketio import join_room
 
-from config.logger import logger
+from config.logging import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.game_context_dto import GameContextDto
-from dto.server_only.match_closure_dto import EndingReason
 from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.partial_player_info_dto import PartialPlayerInfoDto
+from dto.server_only.match_closure_dto import EndingReason
 from exceptions.custom_exception import CustomException
 from exceptions.server_error import ServerError
 from exceptions.unauthorized_error import UnauthorizedError

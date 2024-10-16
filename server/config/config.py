@@ -4,7 +4,7 @@ import pathlib
 import uuid
 
 from config import root_path
-from config.logger import logger
+from config.logging import logger
 from config.variable_types import VariableType
 from config.variables import OptionalVariables, RequiredVariables
 

@@ -1,4 +1,4 @@
-from config.logger import logger
+from config.logging import logger
 from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.server_only.room_dto import RoomDto
 from handlers.match_handler_unit import MatchHandlerUnit

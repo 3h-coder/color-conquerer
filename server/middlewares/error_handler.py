@@ -4,7 +4,7 @@ import traceback
 import werkzeug.exceptions
 from flask import jsonify
 
-from config.logger import logger
+from config.logging import logger
 from dto.server_only.error_dto import ErrorDto
 from exceptions.custom_exception import CustomException
 

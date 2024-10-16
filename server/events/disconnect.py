@@ -1,7 +1,7 @@
 from flask import request, session
 from flask_socketio import leave_room
 
-from config.logger import logger
+from config.logging import logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events

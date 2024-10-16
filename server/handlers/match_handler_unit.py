@@ -4,7 +4,7 @@ from threading import Event
 from flask import copy_current_request_context
 from flask_socketio import SocketIO
 
-from config.logger import logger
+from config.logging import logger
 from constants.match_constants import (
     DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
     DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION,

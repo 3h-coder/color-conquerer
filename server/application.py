@@ -6,7 +6,7 @@ from flask_session import Session
 from blueprints.play import play_bp
 from blueprints.session import session_bp
 from config.config import default_config, global_config
-from config.logger import logger
+from config.logging import logger
 from config.variables import OptionalVariables, RequiredVariables
 from middlewares.error_handler import handle_error
 from utils.os_utils import delete_file_or_folder

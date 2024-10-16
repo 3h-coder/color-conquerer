@@ -1,6 +1,6 @@
 from flask import session
 
-from config.logger import logger
+from config.logging import logger
 from constants.session_variables import SESSION_ID
 
 
