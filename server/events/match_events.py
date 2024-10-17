@@ -1,19 +1,16 @@
-import logging
-
 from flask import session
 from flask_socketio import emit, join_room
 
-from config.logging import with_logger_configuration
+from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID
 from dto.message_dto import MessageDto
 from events.events import Events
 from handlers import match_handler
 from utils import session_utils
 
-_logger: logging.Logger = None
+_logger = get_configured_logger(__name__)
 
 
-@with_logger_configuration(_logger, __name__)
 def handle_client_ready():
     """
     Marks the given player (i.e. the client sending emitting the event)
@@ -42,7 +39,6 @@ def handle_client_ready():
             )
 
 
-@with_logger_configuration(_logger, __name__)
 def handle_session_clearing():
     """
     Sent by the client when after acknowledging the end of a match.

@@ -1,9 +1,7 @@
-import logging
-
 from flask import session
 from flask_socketio import emit, join_room
 
-from config.logging import with_logger_configuration
+from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.client_stored_match_info_dto import ClientStoredMatchInfoDto
 from dto.queue_player_dto import QueuePlayerDto
@@ -13,10 +11,9 @@ from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
 from utils.id_generation_utils import generate_id
 
-_logger: logging.Logger = None
+_logger = get_configured_logger(__name__)
 
 
-@with_logger_configuration(_logger, __name__)
 def handle_queue_registration(data: dict):
     """
     Handles match making requests, starting with the queue-register event.

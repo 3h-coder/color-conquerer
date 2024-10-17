@@ -1,15 +1,12 @@
-import logging
-
 from flask import request, session
 
-from config.logging import with_logger_configuration
+from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from handlers import connection_handler, match_handler
 
-_logger: logging.Logger = None
+_logger = get_configured_logger(__name__)
 
 
-@with_logger_configuration(_logger, __name__)
 def handle_connection(_):
     """
     Handles all of the possible action when a socket (re)connection occurs.

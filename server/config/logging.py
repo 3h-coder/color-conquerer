@@ -1,31 +1,9 @@
 import logging
 import os
-from functools import wraps
 from logging.handlers import TimedRotatingFileHandler
 
 from config import logs_root_path
 from utils import os_utils
-
-
-def with_logger_configuration(logger, name: str, file_name: str = None):
-    """
-    Configures the given logger before calling the function if it is not initialized.
-
-    :param name: The name of the logger (usually class or module).
-    :param file_name: Optional log file name. If not provided, defaults to the logger name.
-    """
-
-    def decorator(function):
-        @wraps(function)
-        def wrapper(*args, **kwargs):
-            nonlocal logger
-            if logger is None:
-                logger = get_configured_logger(name, file_name)
-            function(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
 
 
 def get_configured_logger(name: str, file_name: str = None):
