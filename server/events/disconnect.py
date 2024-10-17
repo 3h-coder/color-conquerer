@@ -1,7 +1,9 @@
+import logging
+
 from flask import request, session
 from flask_socketio import leave_room
 
-from config.logging import root_logger
+from config.logging import with_logger_configuration
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
@@ -9,7 +11,10 @@ from handlers import connection_handler, match_handler, room_handler
 from handlers.match_handler_unit import MatchHandlerUnit
 from utils import session_utils
 
+_logger: logging.Logger = None
 
+
+@with_logger_configuration(_logger, __name__)
 def handle_disconnection():
     """
     Performs all the necessary actions when a socket disconnection occurs.
@@ -45,7 +50,7 @@ def handle_disconnection():
 
 
 def _handle_disconnection_in_queue(room_id):
-    root_logger.debug("Disconnected while being in queue")
+    _logger.debug("Disconnected while being in queue")
     room_handler.remove_open_room(room_id)
     leave_room(room_id)
     session_utils.clear_match_info()

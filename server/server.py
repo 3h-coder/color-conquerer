@@ -3,7 +3,7 @@ import traceback
 from flask import Flask
 from flask_socketio import SocketIO, emit
 
-from config.logging import root_logger
+from config.logging import get_configured_logger
 from dto.server_only.error_dto import ErrorDto
 from events import (
     handle_client_ready,
@@ -26,6 +26,7 @@ class Server:
     """
 
     def __init__(self, app: Flask):
+        self.logger = get_configured_logger(__name__)
         self.app = app
         # TODO: add the proper origins
         self.socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
@@ -45,7 +46,7 @@ class Server:
         @self.socketio.on_error()
         def _(ex: Exception):
             if not isinstance(ex, CustomException):
-                root_logger.error(f"A socket error occured : {traceback.format_exc()}")
+                self.logger.error(f"A socket error occured : {traceback.format_exc()}")
             emit(Events.SERVER_ERROR.value, ErrorDto.from_exception(ex).to_dict())
 
     def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):

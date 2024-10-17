@@ -4,7 +4,7 @@ from threading import Event
 from flask import copy_current_request_context
 from flask_socketio import SocketIO
 
-from config.logging import root_logger
+from config.logging import get_configured_logger
 from constants.match_constants import (
     DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
     DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION,
@@ -27,6 +27,7 @@ class MatchHandlerUnit:
     """
 
     def __init__(self, room_dto: RoomDto):
+        self.logger = get_configured_logger(__name__)
         self.match_info = self._get_initial_match_info(room_dto)
         self.session_ids = room_dto.sessionIds
         self.match_closure_info = None
@@ -94,7 +95,7 @@ class MatchHandlerUnit:
         Additionally, notifies all players and schedules this match handler unit's garbage collection.
         """
         if self.is_ended():
-            root_logger.debug("Match already ended.")
+            self.logger.debug("Match already ended.")
             return
 
         if winner_id is None and loser_id is None and reason != EndingReason.DRAW:
@@ -122,7 +123,7 @@ class MatchHandlerUnit:
         self.match_closure_info = MatchClosureDto(reason.value, winner, loser)
 
         # TODO: save the match result into a database
-        root_logger.debug(f"Match ended -> {self.match_closure_info}")
+        self.logger.debug(f"Match ended -> {self.match_closure_info}")
 
         # Notify the users and close the room
         from events.events import Events
@@ -160,13 +161,13 @@ class MatchHandlerUnit:
 
         @copy_current_request_context
         def exit_timer():
-            root_logger.debug(f"Starting the exit watch for the player {player_id}")
+            self.logger.debug(f"Starting the exit watch for the player {player_id}")
             self._polling_sleep(
                 server.socketio, DELAY_IN_S_BEFORE_MATCH_EXCLUSION, stop_event
             )
 
             if stop_event.is_set():
-                root_logger.debug("The exit watch was stopped")
+                self.logger.debug("The exit watch was stopped")
                 return
 
             self.end_match(
@@ -189,7 +190,7 @@ class MatchHandlerUnit:
             server_ref.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
 
             room_id = self.match_info.roomId
-            root_logger.debug(f"Deleting the match handler unit for the room {room_id}")
+            self.logger.debug(f"Deleting the match handler unit for the room {room_id}")
 
             from handlers import match_handler
 

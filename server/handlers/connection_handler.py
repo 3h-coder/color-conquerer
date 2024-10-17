@@ -1,6 +1,6 @@
 from flask import session
 
-from config.logging import root_logger
+from config.logging import get_configured_logger
 from constants.session_variables import SESSION_ID
 
 
@@ -10,6 +10,7 @@ class ConnectionHandler:
     """
 
     def __init__(self):
+        self.logger = get_configured_logger(__name__)
         self.connections: dict[str, int] = {}
 
     def register_connection(self, remote_addr):
@@ -18,7 +19,7 @@ class ConnectionHandler:
         else:
             self.connections[session[SESSION_ID]] += 1
 
-        root_logger.debug(
+        self.logger.debug(
             f"({remote_addr}) | Socket Connection | Active connections -> {self.connections[session[SESSION_ID]]}"
         )
 
@@ -28,7 +29,7 @@ class ConnectionHandler:
 
         self.connections[session[SESSION_ID]] -= 1
 
-        root_logger.debug(
+        self.logger.debug(
             f"({remote_addr}) | Socket Disconnection | Active connections -> {self.connections[session[SESSION_ID]]}"
         )
         if self.connections[session[SESSION_ID]] == 0:

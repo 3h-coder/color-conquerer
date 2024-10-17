@@ -1,7 +1,9 @@
-from flask import session
-from flask_socketio import emit, join_room, leave_room
+import logging
 
-from config.logging import root_logger
+from flask import session
+from flask_socketio import emit, join_room
+
+from config.logging import with_logger_configuration
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.client_stored_match_info_dto import ClientStoredMatchInfoDto
 from dto.queue_player_dto import QueuePlayerDto
@@ -11,7 +13,10 @@ from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
 from utils.id_generation_utils import generate_id
 
+_logger: logging.Logger = None
 
+
+@with_logger_configuration(_logger, __name__)
 def handle_queue_registration(data: dict):
     """
     Handles match making requests, starting with the queue-register event.
@@ -19,33 +24,33 @@ def handle_queue_registration(data: dict):
     Is in charge of creating the room up to creating the match.
     """
     if session.get(SESSION_ID) is None:
-        root_logger.debug("Attempting to register with no initiated session, denying")
+        _logger.debug("Attempting to register with no initiated session, denying")
         raise QueueError(
             "Something went wrong, please refresh the page and try again",
             socket_connection_killer=True,
         )
 
     if session.get(ROOM_ID) is not None:
-        root_logger.debug("Already in a room, ignoring registration request")
+        _logger.debug("Already in a room, ignoring registration request")
         raise QueueError(
             "You are already registered in the queue", socket_connection_killer=True
         )
 
     if room_handler.at_capacity():
-        root_logger.info("Room handler at maximum capacity, denying queue registration")
+        _logger.info("Room handler at maximum capacity, denying queue registration")
         raise QueueError(
             "The server has reached its maximum capacity, please try again later",
             socket_connection_killer=True,
         )
 
     queue_player_dto = QueuePlayerDto.from_dict(data)
-    player_id = set_player_id(queue_player_dto)
+    player_id = _set_player_id(queue_player_dto)
 
-    root_logger.info(
+    _logger.info(
         f"{Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
     )
 
-    (room_id, closed) = make_enter_in_room(queue_player_dto)
+    (room_id, closed) = _make_enter_in_room(queue_player_dto)
 
     # The room in which the player entered already had a player waiting.
     # In that case, initiate the match, and notify both clients that an opponent was found.
@@ -53,16 +58,16 @@ def handle_queue_registration(data: dict):
         mhu = match_handler.initiate_match(room_handler.closed_rooms[room_id])
         match_info = mhu.match_info
         # save the player info in the session
-        save_player_info(match_info.player2)
+        _save_player_info(match_info.player2)
         # Notify the room that the match can start
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
         mhu.watch_player_entry()
     else:
         player_info = PlayerInfoDto(player_id, True, queue_player_dto.user)
-        save_player_info(player_info)
+        _save_player_info(player_info)
 
 
-def set_player_id(queue_player_dto: QueuePlayerDto):
+def _set_player_id(queue_player_dto: QueuePlayerDto):
     """
     Sets the player id and saves it into the session.
     """
@@ -72,7 +77,7 @@ def set_player_id(queue_player_dto: QueuePlayerDto):
     return player_id
 
 
-def make_enter_in_room(queue_player_dto: QueuePlayerDto):
+def _make_enter_in_room(queue_player_dto: QueuePlayerDto):
     """
     Set the session's room id and notifies the client that the player is registered in a room.
     """
@@ -95,7 +100,7 @@ def make_enter_in_room(queue_player_dto: QueuePlayerDto):
     return room_id, closed
 
 
-def save_player_info(player_info: PlayerInfoDto):
+def _save_player_info(player_info: PlayerInfoDto):
     """
     Saves the player information into the session.
     """

@@ -1,10 +1,15 @@
+import logging
+
 from flask import request, session
 
-from config.config import root_logger
+from config.logging import with_logger_configuration
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from handlers import connection_handler, match_handler
 
+_logger: logging.Logger = None
 
+
+@with_logger_configuration(_logger, __name__)
 def handle_connection(_):
     """
     Handles all of the possible action when a socket (re)connection occurs.
@@ -26,8 +31,8 @@ def handle_connection(_):
         return
 
     if mhu.is_ongoing():
-        root_logger.debug("Player rejoinded the match, stopping exit watcher")
+        _logger.debug("Player rejoinded the match, stopping exit watcher")
         player_id = session.get(PLAYER_INFO).playerId
         mhu.stop_watching_player_exit(player_id)
     elif mhu.is_ended():
-        root_logger.debug("Player rejoined, but the match already ended")
+        _logger.debug("Player rejoined, but the match already ended")
