@@ -1,7 +1,7 @@
 from enum import Enum
 from threading import Event
 
-from flask import copy_current_request_context
+from flask import copy_current_request_context, request
 from flask_socketio import SocketIO
 
 from config.logging import get_configured_logger
@@ -161,13 +161,17 @@ class MatchHandlerUnit:
 
         @copy_current_request_context
         def exit_timer():
-            self.logger.debug(f"Starting the exit watch for the player {player_id}")
+            self.logger.debug(
+                f"({request.remote_addr}) | Starting the exit watch for the player {player_id}"
+            )
             self._polling_sleep(
                 server.socketio, DELAY_IN_S_BEFORE_MATCH_EXCLUSION, stop_event
             )
 
             if stop_event.is_set():
-                self.logger.debug("The exit watch was stopped")
+                self.logger.debug(
+                    f"({request.remote_addr}) | The exit watch was stopped"
+                )
                 return
 
             self.end_match(

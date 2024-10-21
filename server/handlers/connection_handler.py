@@ -2,6 +2,7 @@ from flask import session
 
 from config.logging import get_configured_logger
 from constants.session_variables import SESSION_ID
+from utils import session_utils
 
 
 class ConnectionHandler:
@@ -14,6 +15,12 @@ class ConnectionHandler:
         self.connections: dict[str, int] = {}
 
     def register_connection(self, remote_addr):
+        if not session_utils.session_initialized():
+            self.logger.warning(
+                f"({remote_addr}) | Cannot register a connection in a non initialized session."
+            )
+            return
+
         if self.no_connection():
             self.connections[session[SESSION_ID]] = 1
         else:
@@ -36,7 +43,10 @@ class ConnectionHandler:
             del self.connections[session[SESSION_ID]]
 
     def no_connection(self):
-        return session[SESSION_ID] not in self.connections
+        return (
+            not session_utils.session_initialized()
+            or session[SESSION_ID] not in self.connections
+        )
 
     def single_connection(self):
         return not self.no_connection() and self.connections[session[SESSION_ID]] == 1

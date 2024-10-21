@@ -1,4 +1,4 @@
-from flask import session
+from flask import session, request
 from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
@@ -21,20 +21,26 @@ def handle_queue_registration(data: dict):
     Is in charge of creating the room up to creating the match.
     """
     if session.get(SESSION_ID) is None:
-        _logger.debug("Attempting to register with no initiated session, denying")
+        _logger.debug(
+            f"({request.remote_addr}) | Attempting to register with no initiated session, denying"
+        )
         raise QueueError(
             "Something went wrong, please refresh the page and try again",
             socket_connection_killer=True,
         )
 
     if session.get(ROOM_ID) is not None:
-        _logger.debug("Already in a room, ignoring registration request")
+        _logger.debug(
+            f"({request.remote_addr}) | Already in a room, ignoring registration request"
+        )
         raise QueueError(
             "You are already registered in the queue", socket_connection_killer=True
         )
 
     if room_handler.at_capacity():
-        _logger.info("Room handler at maximum capacity, denying queue registration")
+        _logger.info(
+            f"({request.remote_addr}) | Room handler at maximum capacity, denying queue registration"
+        )
         raise QueueError(
             "The server has reached its maximum capacity, please try again later",
             socket_connection_killer=True,
@@ -44,7 +50,7 @@ def handle_queue_registration(data: dict):
     player_id = _set_player_id(queue_player_dto)
 
     _logger.info(
-        f"{Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
+        f"({request.remote_addr}) | {Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
     )
 
     (room_id, closed) = _make_enter_in_room(queue_player_dto)
@@ -58,7 +64,7 @@ def handle_queue_registration(data: dict):
         _save_player_info(match_info.player2)
         # Notify the room that the match can start
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
-        mhu.watch_player_entry()
+        # mhu.watch_player_entry()
     else:
         player_info = PlayerInfoDto(player_id, True, queue_player_dto.user)
         _save_player_info(player_info)
