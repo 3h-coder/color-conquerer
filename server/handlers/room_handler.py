@@ -24,6 +24,9 @@ class RoomHandler:
         """
         return len(self.closed_rooms) == self.MAX_CLOSED_ROOMS
 
+    def room_exists(self, room_id):
+        return room_id in self.open_rooms or room_id in self.closed_rooms
+
     # Note : Currently there can only be one open room that gets freed immediately once
     # a second player enters it. In the future we may have multiple open rooms at once
     # to implement match making algorithms.
@@ -57,16 +60,27 @@ class RoomHandler:
         return room, True
 
     def remove_open_room(self, room_id: str):
+        if room_id not in self.open_rooms:
+            self.logger.warning(
+                f"Tried to remove an open room that does not exist : {room_id}"
+            )
+            return
+
         self.logger.debug(f"Removing the room {room_id}")
         del self.open_rooms[room_id]
         self._log_rooms_count()
         # self._log_rooms()
 
     def remove_closed_room(self, room_id: str):
+        if room_id not in self.closed_rooms:
+            self.logger.warning(
+                f"Tried to remove a closed room that does not exist : {room_id}"
+            )
+            return
+
         self.logger.debug(f"Removing the room {room_id}")
         del self.closed_rooms[room_id]
         self._log_rooms_count()
-        # self._log_rooms()
 
     def _log_rooms(self):
         self.logger.debug(f"Open rooms {self.open_rooms}")

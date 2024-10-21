@@ -24,5 +24,15 @@ def clear_match_info():
     id or player info.
     """
     logger.debug("Clearing session match info")
-    del session[ROOM_ID]
-    del session[PLAYER_INFO]
+    safe_delete(ROOM_ID)
+    safe_delete(PLAYER_INFO)
+
+
+def safe_delete(session_variable: str):
+    """
+    Deletes a variable from the session safely.
+    """
+    try:
+        del session[session_variable]
+    except KeyError:
+        pass

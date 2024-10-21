@@ -81,6 +81,10 @@ class MatchHandlerUnit:
     def is_ended(self):
         return self.status == MatchStatus.ENDED
 
+    def cancel_match(self):
+        self.status = MatchStatus.ABORTED
+        self._schedule_garbage_collection()
+
     def end_match(
         self,
         reason: EndingReason,
@@ -183,24 +187,33 @@ class MatchHandlerUnit:
 
     def _schedule_garbage_collection(self, server_ref):
         """
-        Schedules the deletion of this match handler unit.
+        Schedules the deletion of this match handler unit and the associated room.
         """
         if server_ref is None:
             from server_gate import server
 
             server_ref = server
 
-        def delete_self():
+        def delete_self_and_room():
             server_ref.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
 
             room_id = self.match_info.roomId
             self.logger.debug(f"Deleting the match handler unit for the room {room_id}")
 
-            from handlers import match_handler
+            from handlers import match_handler, room_handler
 
-            del match_handler.units[self.match_info.roomId]
+            if room_id in room_handler.closed_rooms:
+                room_handler.remove_closed_room(room_id)
 
-        server_ref.socketio.start_background_task(target=delete_self)
+            if room_id not in match_handler.units:
+                self.logger.warning(
+                    f"Tried to delete a match handler unit that did not exist : {room_id}"
+                )
+                return
+
+            del match_handler.units[room_id]
+
+        server_ref.socketio.start_background_task(target=delete_self_and_room)
 
     def _trigger_turn_watcher(self, turn_swap_event_name):
         from server_gate import server
@@ -292,3 +305,4 @@ class MatchStatus(Enum):
     WAITING_TO_START = 0
     ONGOING = 1
     ENDED = 2
+    ABORTED = 3

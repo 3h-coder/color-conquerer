@@ -30,6 +30,12 @@ def handle_disconnection():
     if not room_id:
         return
 
+    # May occur when there is an error while launching the match and the room gets
+    # cleared up
+    if not room_handler.room_exists(room_id):
+        session_utils.clear_match_info()
+        return
+
     if room_handler.open_rooms.get(room_id):
         _handle_disconnection_in_queue(room_id)
         return
