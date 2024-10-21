@@ -4,6 +4,7 @@ from flask_socketio import emit, join_room
 from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID
 from dto.message_dto import MessageDto
+from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from handlers import match_handler
 from utils import session_utils
@@ -16,7 +17,8 @@ def handle_client_ready():
     Marks the given player (i.e. the client sending emitting the event)
     as ready, possibly  starting the match if everyone is.
     """
-    player_id = session.get(PLAYER_INFO).playerId
+    player_info: PlayerInfoDto = session.get(PLAYER_INFO)
+    player_id = player_info.playerId
     room_id = session.get(ROOM_ID)
 
     join_room(room_id)

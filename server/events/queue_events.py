@@ -1,4 +1,4 @@
-from flask import session, request
+from flask import request, session
 from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
@@ -57,14 +57,15 @@ def handle_queue_registration(data: dict):
 
     # The room in which the player entered already had a player waiting.
     # In that case, initiate the match, and notify both clients that an opponent was found.
+    # TODO: Add exception handling here
     if closed:
         mhu = match_handler.initiate_match(room_handler.closed_rooms[room_id])
         match_info = mhu.match_info
         # save the player info in the session
         _save_player_info(match_info.player2)
+        mhu.watch_player_entry()
         # Notify the room that the match can start
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
-        # mhu.watch_player_entry()
     else:
         player_info = PlayerInfoDto(player_id, True, queue_player_dto.user)
         _save_player_info(player_info)
