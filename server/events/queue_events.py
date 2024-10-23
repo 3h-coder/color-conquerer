@@ -59,7 +59,6 @@ def handle_queue_registration(data: dict):
 
     # The room in which the player entered already had a player waiting.
     # In that case, initiate the match, and notify both clients that an opponent was found.
-    # TODO: Add exception handling here
     if closed:
         _try_to_launch_match(room_id)
     else:
@@ -87,11 +86,16 @@ def _try_to_launch_match(room_id):
             mhu.cancel_match()
         room_handler.remove_closed_room(room_id)
         # The disconnection should clear the session allowing players to re apply for a match
-        emit(
+        from server_gate import server
+
+        server.socketio.emit(
             Events.SERVER_ERROR.value,
-            ErrorDto("An error occured, please try again", True, True).to_dict(),
+            ErrorDto(
+                "An error occured, please try again",
+                displayToUser=True,
+                socketConnectionKiller=True,
+            ).to_dict(),
             to=room_id,
-            broadcast=True,
         )
 
 
