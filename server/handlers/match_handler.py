@@ -13,7 +13,7 @@ class MatchHandler:
         self.logger = get_configured_logger(__name__)
         self.units: dict[str, MatchHandlerUnit] = {}
 
-    def initiate_match(self, room_dto: RoomDto):
+    def initiate_match_and_return_unit(self, room_dto: RoomDto):
         """
         Instanciates a match handler unit and its corresponding match for a specific room.
         """

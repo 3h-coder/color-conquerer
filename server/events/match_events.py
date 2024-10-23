@@ -1,4 +1,4 @@
-from flask import session
+from flask import request, session
 from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
@@ -6,6 +6,7 @@ from constants.session_variables import PLAYER_INFO, ROOM_ID
 from dto.message_dto import MessageDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
+from exceptions.unauthorized_error import UnauthorizedError
 from handlers import match_handler
 from utils import session_utils
 
@@ -18,6 +19,10 @@ def handle_client_ready():
     as ready, possibly  starting the match if everyone is.
     """
     player_info: PlayerInfoDto = session.get(PLAYER_INFO)
+    if player_info is None:
+        _logger.error(f"({request.remote_addr}) | player_info was None")
+        raise UnauthorizedError("What")
+
     player_id = player_info.playerId
     room_id = session.get(ROOM_ID)
 

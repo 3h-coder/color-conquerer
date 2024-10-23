@@ -11,6 +11,7 @@ from events.events import Events
 from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler
 from handlers.match_handler_unit import MatchHandlerUnit
+from server_gate import get_server
 from utils.id_generation_utils import generate_id
 
 _logger = get_configured_logger(__name__)
@@ -56,14 +57,13 @@ def handle_queue_registration(data: dict):
     )
 
     (room_id, closed) = _make_enter_in_room(queue_player_dto)
+    player_info = PlayerInfoDto(player_id, True, queue_player_dto.user)
+    _save_player_info(player_info)
 
     # The room in which the player entered already had a player waiting.
     # In that case, initiate the match, and notify both clients that an opponent was found.
     if closed:
         _try_to_launch_match(room_id)
-    else:
-        player_info = PlayerInfoDto(player_id, True, queue_player_dto.user)
-        _save_player_info(player_info)
 
 
 def _try_to_launch_match(room_id):
@@ -73,10 +73,10 @@ def _try_to_launch_match(room_id):
     mhu: MatchHandlerUnit = None
 
     try:
-        mhu = match_handler.initiate_match(room_handler.closed_rooms[room_id])
-        match_info = mhu.match_info
-        # save the player info in the session
-        _save_player_info(match_info.player2)
+        mhu = match_handler.initiate_match_and_return_unit(
+            room_handler.closed_rooms[room_id]
+        )
+        _logger.debug(f"session[PLAYER_INFO] is {session.get(PLAYER_INFO)}")
         mhu.watch_player_entry()
         # Notify the room that the match can start
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
@@ -86,9 +86,8 @@ def _try_to_launch_match(room_id):
             mhu.cancel_match()
         room_handler.remove_closed_room(room_id)
         # The disconnection should clear the session allowing players to re apply for a match
-        from server_gate import server
 
-        server.socketio.emit(
+        get_server().socketio.emit(
             Events.SERVER_ERROR.value,
             ErrorDto(
                 "An error occured, please try again",

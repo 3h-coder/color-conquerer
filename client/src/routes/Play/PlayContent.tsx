@@ -8,13 +8,13 @@ import { undefinedPlayer, usePlayerInfo } from "../../contexts/PlayerContext";
 import { ErrorDto, ParseErrorDto } from "../../dto/ErrorDto";
 import { GameContextDto } from "../../dto/GameContextDto";
 import { EndingReason, MatchClosureDto } from "../../dto/MatchClosureDto";
+import { MessageDto } from "../../dto/MessageDto";
 import { Events } from "../../enums/events";
 import { socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameInfo from "./components/GameInfo";
 import GameMenu from "./components/GameMenu";
-import { MessageDto } from "../../dto/MessageDto";
 
 export default function PlayContent() {
   const { matchInfo, loading: matchInfoLoading, setMatchInfo } = useMatchInfo();
@@ -88,12 +88,14 @@ export default function PlayContent() {
 
       setModalVisible(true);
       setModalText(errorDto.error);
-      setModalExit(() => {
-        return () => setModalVisible(false);
-      });
 
-      // An error here should never cause the match to end,
-      // hence why we're not handling the socketConnectionKiller field.
+      // Only errors 
+      if (errorDto.socketConnectionKiller) {
+        socket.disconnect();
+        setModalExit(() => {
+          return () => setModalVisible(false);
+        });
+      }
     }
 
     socket.on(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
@@ -112,6 +114,7 @@ export default function PlayContent() {
   });
 
   function onMatchContextError(error: ErrorDto) {
+    developmentLog("lalalala")
     clearMatchInfoFromSession();
     setModalText(error.error);
     setModalVisible(true);

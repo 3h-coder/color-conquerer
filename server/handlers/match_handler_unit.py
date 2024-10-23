@@ -17,6 +17,7 @@ from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from dto.server_only.room_dto import RoomDto
+from server_gate import get_server
 from utils import session_utils
 from utils.id_generation_utils import generate_id
 
@@ -28,6 +29,7 @@ class MatchHandlerUnit:
 
     def __init__(self, room_dto: RoomDto):
         self.logger = get_configured_logger(__name__)
+        self.server = get_server()
         self.match_info = self._get_initial_match_info(room_dto)
         self.session_ids = room_dto.sessionIds
         self.match_closure_info = None
@@ -49,20 +51,19 @@ class MatchHandlerUnit:
         """
         Waits a specific delay before ending the match if one player could not manage to be ready.
         """
-        from server_gate import server
 
         def end_match_after_delay():
-            server.socketio.sleep(DELAY_IN_S_TO_WAIT_FOR_EVERYONE)
+            self.server.socketio.sleep(DELAY_IN_S_TO_WAIT_FOR_EVERYONE)
 
             if all(value is False for value in self.players_ready.values()):
-                self.end_match(EndingReason.DRAW, server_ref=server)
+                self.end_match(EndingReason.DRAW)
                 return
 
             for player_id in self.players_ready:
                 if not self.players_ready[player_id]:
                     self.end_match(EndingReason.NEVER_JOINED, loser_id=player_id)
 
-        server.socketio.start_background_task(target=end_match_after_delay)
+        self.server.socketio.start_background_task(target=end_match_after_delay)
 
     def start_match(self, turn_swap_event_name):
         """
@@ -88,7 +89,6 @@ class MatchHandlerUnit:
     def end_match(
         self,
         reason: EndingReason,
-        server_ref=None,
         winner_id: str | None = None,
         loser_id: str | None = None,
     ):
@@ -104,11 +104,6 @@ class MatchHandlerUnit:
 
         if winner_id is None and loser_id is None and reason != EndingReason.DRAW:
             raise ValueError("No winner id nor loser id provided")
-
-        if server_ref is None:
-            from server_gate import server
-
-            server_ref = server
 
         player1 = self.match_info.player1
         player2 = self.match_info.player2
@@ -132,20 +127,20 @@ class MatchHandlerUnit:
         # Notify the users and close the room
         from events.events import Events
 
-        server_ref.socketio.emit(
+        self.server.socketio.emit(
             Events.SERVER_MATCH_END.value,
             PartialMatchClosureDto.from_match_closure_dto(
                 self.match_closure_info
             ).to_dict(),
             to=self.match_info.roomId,
         )
-        server_ref.socketio.close_room(self.match_info.roomId)
+        self.server.socketio.close_room(self.match_info.roomId)
 
         from handlers import room_handler
 
         room_handler.remove_closed_room(self.match_info.roomId)
         # Schedule the deletion of this object
-        self._schedule_garbage_collection(server_ref)
+        self._schedule_garbage_collection()
 
     def stop_watching_player_exit(self, player_id: str):
         """
@@ -161,15 +156,13 @@ class MatchHandlerUnit:
         stop_event = self.player_exit_watch_stop_events[player_id]
         stop_event.clear()
 
-        from server_gate import server
-
         @copy_current_request_context
         def exit_timer():
             self.logger.debug(
                 f"({request.remote_addr}) | Starting the exit watch for the player {player_id}"
             )
             self._polling_sleep(
-                server.socketio, DELAY_IN_S_BEFORE_MATCH_EXCLUSION, stop_event
+                self.server.socketio, DELAY_IN_S_BEFORE_MATCH_EXCLUSION, stop_event
             )
 
             if stop_event.is_set():
@@ -178,24 +171,18 @@ class MatchHandlerUnit:
                 )
                 return
 
-            self.end_match(
-                EndingReason.PLAYER_LEFT, server_ref=server, loser_id=player_id
-            )
+            self.end_match(EndingReason.PLAYER_LEFT, loser_id=player_id)
             session_utils.clear_match_info()
 
-        server.socketio.start_background_task(target=exit_timer)
+        self.server.socketio.start_background_task(target=exit_timer)
 
-    def _schedule_garbage_collection(self, server_ref):
+    def _schedule_garbage_collection(self):
         """
         Schedules the deletion of this match handler unit and the associated room.
         """
-        if server_ref is None:
-            from server_gate import server
-
-            server_ref = server
 
         def delete_self_and_room():
-            server_ref.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
+            self.server.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
 
             room_id = self.match_info.roomId
             self.logger.debug(f"Deleting the match handler unit for the room {room_id}")
@@ -213,14 +200,13 @@ class MatchHandlerUnit:
 
             del match_handler.units[room_id]
 
-        server_ref.socketio.start_background_task(target=delete_self_and_room)
+        self.server.socketio.start_background_task(target=delete_self_and_room)
 
     def _trigger_turn_watcher(self, turn_swap_event_name):
-        from server_gate import server
 
         def watch_turns():
             while not self.is_ended():
-                server.socketio.sleep(TURN_DURATION_IN_S)
+                self.server.socketio.sleep(TURN_DURATION_IN_S)
                 if self.is_ended():
                     return
 
@@ -230,9 +216,11 @@ class MatchHandlerUnit:
                     if self.current_player == self.match_info.player2
                     else self.match_info.player2
                 )
-                server.socketio.emit(turn_swap_event_name, to=self.match_info.roomId)
+                self.server.socketio.emit(
+                    turn_swap_event_name, to=self.match_info.roomId
+                )
 
-        self.turn_watcher_thread = server.socketio.start_background_task(
+        self.turn_watcher_thread = self.server.socketio.start_background_task(
             target=watch_turns
         )
 

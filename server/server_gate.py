@@ -2,11 +2,18 @@
 Module used to store the server instance so external modules can access it without importing main.
 """
 
-from server import Server
+from typing import TYPE_CHECKING
 
-server: Server = None
+if TYPE_CHECKING:
+    from server import Server
+
+_server: "Server" = None
 
 
-def set_server(value: Server):
-    global server
-    server = value
+def set_server(server_ref: "Server"):
+    global _server
+    _server = server_ref
+
+
+def get_server() -> "Server":
+    return _server
