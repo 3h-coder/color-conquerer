@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import { XMarkIcon } from "../../assets/svg";
+import { BugIcon, InfoIcon, WarningTriangleIcon, XMarkIcon } from "../../assets/svg";
+import { ModalIcon } from "../../enums/modalIcons";
 import { SvgContainer } from "../containers";
 
 export interface ModalProps {
@@ -9,16 +10,17 @@ export interface ModalProps {
     children?: React.ReactNode;
     enableClosing?: boolean;
     onClose?: () => unknown;
+    icon?: ModalIcon;
 }
 
 export default function Modal(props: ModalProps) {
-    const { style, title, children, enableClosing, onClose } = props;
+    const { style, title, children, enableClosing, onClose, icon } = props;
     const [isOpen, setIsOpen] = useState(true);
 
     function closeModal() {
-        if (onClose !== undefined) {
+        if (onClose !== undefined)
             onClose();
-        }
+
         setIsOpen(false);
     }
 
@@ -27,6 +29,7 @@ export default function Modal(props: ModalProps) {
             <div className="modal-overlay">
                 <div className="modal-container" style={style}>
                     <div className="modal-header">
+                        <Icon icon={icon ?? ModalIcon.None} />
                         <h4 style={{ margin: 0 }}>{title}</h4>
                         {enableClosing !== false && <CloseButton onClick={closeModal} />}
                     </div>
@@ -36,6 +39,43 @@ export default function Modal(props: ModalProps) {
         getModalRoot()
     );
 
+}
+
+interface IconProps {
+    icon: ModalIcon;
+}
+
+function Icon(props: IconProps) {
+    const { icon } = props;
+    const crossButtonDimensions = "max(25px, 3vmin)";
+
+    let actualIcon: JSX.Element;
+    switch (icon) {
+        case ModalIcon.Info:
+            actualIcon = <InfoIcon />
+            break;
+
+        case ModalIcon.Warning:
+            actualIcon = <WarningTriangleIcon />
+            break;
+
+        case ModalIcon.Error:
+            actualIcon = <BugIcon />
+            break;
+
+        default:
+            actualIcon = <></>
+            break;
+    }
+
+    return (
+        <SvgContainer style={{
+            width: crossButtonDimensions,
+            height: crossButtonDimensions,
+        }}>
+            {actualIcon}
+        </SvgContainer>
+    );
 }
 
 interface CloseButtonProps {

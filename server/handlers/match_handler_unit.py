@@ -65,13 +65,13 @@ class MatchHandlerUnit:
 
         self.server.socketio.start_background_task(target=end_match_after_delay)
 
-    def start_match(self, turn_swap_event_name):
+    def start_match(self):
         """
         Starts the match, setting up the turn watcher.
         """
         self.status = MatchStatus.ONGOING
         self.match_info.currentTurn = 1
-        self._trigger_turn_watcher(turn_swap_event_name)
+        self._trigger_turn_watcher()
 
     def is_waiting_to_start(self):
         return self.status == MatchStatus.WAITING_TO_START
@@ -202,7 +202,9 @@ class MatchHandlerUnit:
 
         self.server.socketio.start_background_task(target=delete_self_and_room)
 
-    def _trigger_turn_watcher(self, turn_swap_event_name):
+    def _trigger_turn_watcher(self):
+
+        from events.events import Events
 
         def watch_turns():
             while not self.is_ended():
@@ -217,7 +219,7 @@ class MatchHandlerUnit:
                     else self.match_info.player2
                 )
                 self.server.socketio.emit(
-                    turn_swap_event_name, to=self.match_info.roomId
+                    Events.SERVER_TURN_SWAP.value, to=self.match_info.roomId
                 )
 
         self.turn_watcher_thread = self.server.socketio.start_background_task(

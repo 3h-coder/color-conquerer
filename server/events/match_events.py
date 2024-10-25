@@ -6,7 +6,7 @@ from constants.session_variables import PLAYER_INFO, ROOM_ID
 from dto.message_dto import MessageDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
-from exceptions.unauthorized_error import UnauthorizedError
+from exceptions.server_error import ServerError
 from handlers import match_handler
 from utils import session_utils
 
@@ -21,7 +21,10 @@ def handle_client_ready():
     player_info: PlayerInfoDto = session.get(PLAYER_INFO)
     if player_info is None:
         _logger.error(f"({request.remote_addr}) | player_info was None")
-        raise UnauthorizedError("What")
+        raise ServerError(
+            "A server error occured, unable to connect you to your match",
+            socket_connection_killer=True,
+        )
 
     player_id = player_info.playerId
     room_id = session.get(ROOM_ID)
@@ -37,7 +40,7 @@ def handle_client_ready():
     elif mhu.is_waiting_to_start():
         if all(value is True for value in mhu.players_ready.values()):
             _logger.info(f"All players ready in the room {room_id}")
-            mhu.start_match(Events.SERVER_TURN_SWAP.value)
+            mhu.start_match()
             emit(Events.SERVER_MATCH_STARTED.value, to=room_id, broadcast=True)
         else:
             emit(
