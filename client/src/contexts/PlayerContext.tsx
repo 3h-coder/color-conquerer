@@ -39,13 +39,7 @@ export default function PlayerContextProvider(props: PlayerontextProviderProps) 
     async function getPlayerInfo() {
         try {
             const fetchedPlayerInfo = await fetchPlayerInfo();
-
-            const playerInfo: PartialPlayerInfoDto = {
-                playerId: fetchedPlayerInfo.playerId,
-                isPlayer1: fetchedPlayerInfo.isPlayer1
-            };
-
-            setPlayerInfo(playerInfo);
+            setPlayerInfo(fetchedPlayerInfo);
         } catch (error: unknown) {
             developmentErrorLog("Could resolve the player info", ParseErrorDto(error));
             setPlayerInfo(undefinedPlayer);

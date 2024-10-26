@@ -5,6 +5,7 @@ from flask_session import Session
 
 from blueprints.play import play_bp
 from blueprints.session import session_bp
+from blueprints.home import home_bp
 from config.config import default_config, global_config
 from config.logging import get_configured_logger
 from config.variables import OptionalVariables, RequiredVariables
@@ -81,6 +82,7 @@ class Application(Flask):
         Registers all the blueprints present in the blueprints package
         """
         self.register_blueprint(session_bp)
+        self.register_blueprint(home_bp)
         self.register_blueprint(play_bp)
 
     def _get_from_config_or_default_config(self, variable: str):

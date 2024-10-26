@@ -16,8 +16,6 @@ export const undefinedMatch: PartialMatchInfoDto = {
     id: "",
     roomId: "",
     boardArray: [],
-    player1: undefined,
-    player2: undefined,
     currentTurn: 0,
 }
 
@@ -48,8 +46,6 @@ export default function MatchContextProvider(props: MatchContextProviderProps) {
                 id: fetchedMatchInfo.id,
                 roomId: fetchedMatchInfo.roomId,
                 boardArray: fetchedMatchInfo.boardArray,
-                player1: fetchedMatchInfo.player1,
-                player2: fetchedMatchInfo.player2,
                 currentTurn: fetchedMatchInfo.currentTurn
             };
 

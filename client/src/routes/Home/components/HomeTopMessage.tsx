@@ -1,30 +1,22 @@
 import { useEffect, useState } from "react";
-import { checkIfInMatch } from "../../../api/session";
 import { WarningTriangleIcon, XMarkIcon } from "../../../assets/svg";
 import { SvgContainer } from "../../../components/containers";
+import { useHomeState } from "../../../contexts/HomeStateContext";
+import { HomeState } from "../../../enums/homeState";
 
 
 export default function HomeTopMessage() {
-    const [message, setMessage] = useState("You are currently in a match! Click on the button below to join it back.");
-    const [display, setDisplay] = useState(true);
-    const [icon, setIcon] = useState<JSX.Element | undefined>(<WarningTriangleIcon />);
+    const { homeState } = useHomeState();
+    const [display, setDisplay] = useState(homeState.topMessage !== "" && homeState.topMessage !== undefined);
+    const [icon, setIcon] = useState<JSX.Element | undefined>(undefined);
 
     useEffect(() => {
-        fetchMessageToDisplay();
-    }, [])
-
-    async function fetchMessageToDisplay() {
-        const isInMatch = (await checkIfInMatch()).value
-        if (isInMatch) {
-            setDisplay(true);
-            setMessage("You are currently in a match");
+        if (homeState.state === HomeState.JOIN_BACK)
             setIcon(<WarningTriangleIcon />);
-        }
-    }
+    }, []);
 
     function onClose() {
         setDisplay(false);
-        setMessage("");
     }
 
     const crossButtonDimensions = "max(15px, 2vmin)";
@@ -42,7 +34,7 @@ export default function HomeTopMessage() {
                     </SvgContainer>
                 </button>
             </div>
-            <span className="home-top-message-text">{message}</span>
+            <span className="home-top-message-text">{homeState.topMessage}</span>
         </div>
     );
 }
