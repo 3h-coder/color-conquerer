@@ -17,6 +17,7 @@ from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from dto.server_only.room_dto import RoomDto
+from dto.turn_swap_info_dto import TurnSwapInfoDto
 from server_gate import get_server
 from utils import session_utils
 from utils.id_generation_utils import generate_id
@@ -219,7 +220,9 @@ class MatchHandlerUnit:
                     else self.match_info.player2
                 )
                 self.server.socketio.emit(
-                    Events.SERVER_TURN_SWAP.value, to=self.match_info.roomId
+                    Events.SERVER_TURN_SWAP.value,
+                    TurnSwapInfoDto(TURN_DURATION_IN_S).to_dict(),
+                    to=self.match_info.roomId,
                 )
 
         self.turn_watcher_thread = self.server.socketio.start_background_task(

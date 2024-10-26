@@ -1,8 +1,10 @@
 import uuid
 
-from flask import Blueprint, jsonify, session
+from flask import Blueprint, current_app, jsonify, request, session
 
-from constants.session_variables import SESSION_ID
+from constants.session_variables import ROOM_ID, SESSION_ID
+from dto.boolean_dto import BooleanDto
+from handlers import match_handler
 from middlewares.error_handler import handle_error
 from utils import session_utils
 
@@ -14,9 +16,26 @@ session_bp.register_error_handler(Exception, handle_error)
 def index():
     if session.get(SESSION_ID) is None:
         session[SESSION_ID] = f"session-{uuid.uuid4()}"
-        return jsonify({"message": "Session initiated"}), 204
+        return jsonify({"message": "Session initiated"}), 200
 
     return "", 204
+
+
+@session_bp.route("/session/is-in-match", methods=["GET"])
+def is_in_match():
+    room_id = session.get(ROOM_ID)
+    if not room_id:
+        return BooleanDto(False).to_dict(), 200
+
+    current_app.logger.info(f"({request.remote_addr}) is in a match")
+    mhu = match_handler.get_unit(room_id)
+    if mhu is None:
+        return BooleanDto(False).to_dict(), 200
+
+    if mhu.is_ongoing():
+        BooleanDto(True).to_dict(), 200
+    else:
+        BooleanDto(False).to_dict(), 200
 
 
 @session_bp.route("/match-session", methods=["DELETE"])

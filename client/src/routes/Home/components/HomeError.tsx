@@ -24,11 +24,8 @@ export default function HomeError() {
         <div className="home-error-container" style={{ opacity: display ? 1 : 0, userSelect: display ? "text" : "none" }}>
             <span>{error}</span>
             <button className="transparent no-border fit-content" onClick={onClose}>
-                <SvgContainer style={{ width: "fit-content", height: "fit-content" }}>
-                    <XMarkIcon style={{
-                        width: crossButtonDimensions,
-                        height: crossButtonDimensions,
-                    }} />
+                <SvgContainer style={{ width: crossButtonDimensions, height: crossButtonDimensions }}>
+                    <XMarkIcon />
                 </SvgContainer>
             </button>
         </div>

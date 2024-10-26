@@ -31,6 +31,32 @@
   color: white;
 }
 
+.home-top-message-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: max(1vmin, 10px);
+  background-color: rgb(93, 83, 151);
+  border-radius: 5px;
+  padding: max(1vmin, 10px);
+  margin-top: max(2vh, 10px);
+  color: white;
+  box-shadow: 0.5vmin 0.5vmin 0.5vmin 0.25vmin rgba(0, 0, 0, 0.2);
+  min-width: 25vmin;
+  max-width: 50vmin;
+}
+
+.home-top-message-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.home-top-message-text {
+  padding: max(1vmin, 10px);
+}
 
 .play {
   color: white;
