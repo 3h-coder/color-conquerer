@@ -10,6 +10,10 @@ from constants.session_variables import (
 )
 
 
+def get_session_data():
+    return dict(session)
+
+
 def session_initialized():
     return SESSION_ID in session
 

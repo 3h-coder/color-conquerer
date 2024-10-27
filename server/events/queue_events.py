@@ -76,7 +76,6 @@ def _try_to_launch_match(room_id):
         mhu = match_handler.initiate_match_and_return_unit(
             room_handler.closed_rooms[room_id]
         )
-        _logger.debug(f"session[PLAYER_INFO] is {session.get(PLAYER_INFO)}")
         mhu.watch_player_entry()
         # Notify the room that the match can start
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)

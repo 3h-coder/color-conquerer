@@ -58,7 +58,8 @@ class Application(Flask):
         - Flask session : https://flask-session.readthedocs.io/en/latest/config.html
         """
         self.config["SECRET_KEY"] = global_config[RequiredVariables.APP_SECRET_KEY.name]
-        self.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+        self.config["SESSION_COOKIE_SAMESITE"] = "None"
+        self.config["SESSION_COOKIE_SECURE"] = True
         # self.config["SESSION_PERMANENT"] = True
         # self.config["PERMANENT_SESSION_LIFETIME"] = global_config[
         #     RequiredVariables.APP_SESSION_LIFETIME.name

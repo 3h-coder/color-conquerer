@@ -1,12 +1,9 @@
 import { ReactNode, useEffect, useState } from "react";
-import { fetchGameContextInfoFromLocalStorage } from "../../api/game";
-import { clearMatchInfoFromSession } from "../../api/session";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { undefinedMatch, useMatchInfo } from "../../contexts/MatchContext";
 import { undefinedPlayer, usePlayerInfo } from "../../contexts/PlayerContext";
-import { ErrorDto, ParseErrorDto } from "../../dto/ErrorDto";
-import { GameContextDto } from "../../dto/GameContextDto";
+import { ErrorDto } from "../../dto/ErrorDto";
 import { EndingReason, MatchClosureDto } from "../../dto/MatchClosureDto";
 import { MessageDto } from "../../dto/MessageDto";
 import { TurnSwapDurationInfoDto } from "../../dto/TurnSwapDurationInfoDto";
@@ -21,11 +18,10 @@ import { useNavigate } from "react-router-dom";
 
 export default function PlayContent() {
   const navigate = useNavigate();
-  const { matchInfo, loading: matchInfoLoading, setMatchInfo } = useMatchInfo();
+  const { matchInfo, loading: matchInfoLoading } = useMatchInfo();
   const {
     playerInfo,
     loading: playerInfoLoading,
-    setPlayerInfo,
   } = usePlayerInfo();
   const [waitingText, setWaitingText] = useState("");
   const [canRenderContent, setCanRenderContent] = useState(false);
@@ -40,14 +36,7 @@ export default function PlayContent() {
     if (matchInfoLoading || playerInfoLoading) return;
 
     if (matchInfo === undefinedMatch || playerInfo === undefinedPlayer) {
-      fetchGameContextInfoFromLocalStorage()
-        .then((gameContext: GameContextDto) => {
-          setMatchInfo(gameContext.matchInfo);
-          setPlayerInfo(gameContext.playerInfo);
-        })
-        .catch((error: unknown) => {
-          onMatchContextError(ParseErrorDto(error));
-        });
+      navigate("/");
     } else {
       if (!socket.connected) socket.connect();
 
@@ -117,15 +106,6 @@ export default function PlayContent() {
     };
   });
 
-  function onMatchContextError(error: ErrorDto) {
-    clearMatchInfoFromSession();
-    setModalText(error.error);
-    setModalVisible(true);
-    setModalExit(() => {
-      return () => navigate("/");
-    });
-  }
-
   function getMatchEndingText(matchClosureDto: MatchClosureDto) {
     if (!matchClosureDto.winner) return "Draw";
 
@@ -154,7 +134,7 @@ export default function PlayContent() {
       )}
       {modalVisible && (
         <SingleButtonModal buttonText="OK" onClose={modalExit} icon={modalIcon}>
-          <h3>{modalText}</h3>
+          <h3 className="no-margin">{modalText}</h3>
         </SingleButtonModal>
       )}
     </PageContainer>

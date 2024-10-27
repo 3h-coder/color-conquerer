@@ -1,8 +1,5 @@
-import { ClientStoredMatchInfoDto } from "../dto/ClientStoredMatchInfoDto";
-import { GameContextDto } from "../dto/GameContextDto";
 import { PartialMatchInfoDto } from "../dto/PartialMatchInfoDto";
 import { PartialPlayerInfoDto } from "../dto/PartialPlayerInfoDto";
-import { constants } from "../env";
 import { DEFAULT_HEADERS, fetchAs } from "./fetch";
 
 export async function fetchPlayerInfo() {
@@ -18,17 +15,5 @@ export async function fetchMatchInfo() {
         method: "GET",
         headers: DEFAULT_HEADERS,
         credentials: "include"
-    });
-}
-
-export async function fetchGameContextInfoFromLocalStorage() {
-    const playerId = localStorage.getItem(constants.localStoragePlayerId);
-    const roomId = localStorage.getItem(constants.localStorageRoomId);
-
-    return await fetchAs<GameContextDto>("/play/game-context", {
-        method: "POST",
-        headers: DEFAULT_HEADERS,
-        credentials: "include",
-        body: JSON.stringify({ playerId, roomId } as ClientStoredMatchInfoDto)
     });
 }

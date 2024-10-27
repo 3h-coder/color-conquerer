@@ -2,11 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import SingleButtonModal from "../../../components/modals/SingleButtonModal";
 import { useHomeError } from "../../../contexts/HomeErrorContext";
 import { useUser } from "../../../contexts/UserContext";
-import { ClientStoredMatchInfoDto } from "../../../dto/ClientStoredMatchInfoDto";
 import { ErrorDto } from "../../../dto/ErrorDto";
 import { QueuePlayerDto } from "../../../dto/QueuePlayerDto";
 import { Events } from "../../../enums/events";
-import { constants, socket } from "../../../env";
+import { socket } from "../../../env";
 import {
     developmentErrorLog,
     developmentLog,
@@ -18,9 +17,6 @@ import { HomeState } from "../../../enums/homeState";
 import { useNavigate } from "react-router-dom";
 
 export default function HomeButtons() {
-    const PLAY_TEXT = "Play";
-    const REJOIN_TEXT = "Rejoin";
-
     const navigate = useNavigate();
     const { user } = useUser();
     const { setHomeError } = useHomeError();
@@ -29,7 +25,7 @@ export default function HomeButtons() {
     const [mainButtonFunction, setMainButtonFunction] = useState<() => void>(
         () => { }
     );
-    const [mainButtonText, setMainButtonText] = useState(PLAY_TEXT);
+    const [mainButtonText, setMainButtonText] = useState("");
     const [modalVisible, setModalVisible] = useState(false);
     const intendedDisconnection = useRef(false);
 
@@ -44,7 +40,7 @@ export default function HomeButtons() {
                 setMainButtonFunction(() => {
                     return () => navigate(fullPaths.play);
                 });
-                setMainButtonText(REJOIN_TEXT);
+                setMainButtonText("Rejoin");
                 setMainButtonVisible(true);
                 break;
 
@@ -52,7 +48,7 @@ export default function HomeButtons() {
                 setMainButtonFunction(() => {
                     return () => requestMultiplayerMatch();
                 });
-                setMainButtonText(PLAY_TEXT);
+                setMainButtonText("Play");
                 setMainButtonVisible(true);
                 break;
         }
@@ -79,21 +75,8 @@ export default function HomeButtons() {
             socket.disconnect();
         }
 
-        function onQueueRegistrationSuccess(
-            clientStoredMatchInfoDto: ClientStoredMatchInfoDto
-        ) {
-            developmentLog(
-                `Registered in the queue, saving into local storage`,
-                clientStoredMatchInfoDto
-            );
-            localStorage.setItem(
-                constants.localStoragePlayerId,
-                clientStoredMatchInfoDto.playerId
-            );
-            localStorage.setItem(
-                constants.localStorageRoomId,
-                clientStoredMatchInfoDto.roomId
-            );
+        function onQueueRegistrationSuccess() {
+            developmentLog("Registered in the queue");
         }
 
         function goToPlayRoom() {
