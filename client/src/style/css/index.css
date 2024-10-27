@@ -95,6 +95,10 @@ svg {
   padding: 0;
 }
 
+.box-shadow-glow {
+  animation: glow 1s ease infinite alternate;
+}
+
 /* #endregion Custom styles */
 
 /* #region Custom Components & styles*/
@@ -173,6 +177,18 @@ svg {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 1vmin rgb(188, 89, 227);
+  }
+  50% {
+    box-shadow: 0 0 2vmin rgb(188, 89, 227);
+  }
+  100% {
+    box-shadow: 0 0 3vmin rgb(188, 89, 227);
   }
 }
 
