@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request, session
-from flask_socketio import join_room
 
 from config.logging import root_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID

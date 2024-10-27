@@ -1,19 +1,27 @@
 import { useEffect, useState } from "react";
-import { WarningTriangleIcon, XMarkIcon } from "../../../assets/svg";
+import { InfoIcon, WarningTriangleIcon, XMarkIcon } from "../../../assets/svg";
 import { SvgContainer } from "../../../components/containers";
 import { useHomeState } from "../../../contexts/HomeStateContext";
 import { HomeState } from "../../../enums/homeState";
+import { clearMatchInfoFromSession } from "../../../api/session";
 
 
 export default function HomeTopMessage() {
     const { homeState } = useHomeState();
-    const [display, setDisplay] = useState(homeState.topMessage !== "" && homeState.topMessage !== undefined);
-    const [icon, setIcon] = useState<JSX.Element | undefined>(undefined);
+    const [display, setDisplay] = useState(false);
+    const [icon, setIcon] = useState<JSX.Element>(<InfoIcon />);
 
     useEffect(() => {
+        if (Boolean(homeState.topMessage))
+            setDisplay(true);
+
         if (homeState.state === HomeState.JOIN_BACK)
             setIcon(<WarningTriangleIcon />);
-    }, []);
+
+        if (homeState.clearMatchSession)
+            clearMatchInfoFromSession();
+
+    }, [homeState.state, homeState.clearMatchSession, homeState.topMessage]);
 
     function onClose() {
         setDisplay(false);
