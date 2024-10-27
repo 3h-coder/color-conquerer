@@ -6,6 +6,6 @@ class UnauthorizedError(CustomException):
         self, message: str | None = None, socket_connection_killer: bool = False
     ):
         if not message:
-            message = "The requester is not allowed to perform the operation"
+            message = "The requester is not authorized to perform the operation or access the resource"
 
         super().__init__(message, 401, socket_connection_killer)

@@ -17,15 +17,17 @@ import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameInfo from "./components/GameInfo";
 import GameMenu from "./components/GameMenu";
+import { useNavigate } from "react-router-dom";
 
 export default function PlayContent() {
+  const navigate = useNavigate();
   const { matchInfo, loading: matchInfoLoading, setMatchInfo } = useMatchInfo();
   const {
     playerInfo,
     loading: playerInfoLoading,
     setPlayerInfo,
   } = usePlayerInfo();
-  const [waitingText, setWaitingText] = useState("Connecting to your match...");
+  const [waitingText, setWaitingText] = useState("");
   const [canRenderContent, setCanRenderContent] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalText, setModalText] = useState("");
@@ -49,15 +51,14 @@ export default function PlayContent() {
     } else {
       if (!socket.connected) socket.connect();
 
+      setWaitingText("Connecting to your match...");
       socket.emit(Events.CLIENT_READY);
     }
   }, [
     matchInfo,
     matchInfoLoading,
     playerInfo,
-    playerInfoLoading,
-    setMatchInfo,
-    setPlayerInfo,
+    playerInfoLoading
   ]);
 
   useEffect(() => {
@@ -80,9 +81,7 @@ export default function PlayContent() {
       setModalText(getMatchEndingText(matchClosureDto));
       setModalVisible(true);
       setModalExit(() => {
-        return () => {
-          location.href = "/";
-        };
+        return () => navigate("/");
       });
 
       socket.emit(Events.CLIENT_CLEAR_SESSION);
@@ -95,13 +94,10 @@ export default function PlayContent() {
       setModalText(errorDto.error);
       setModalVisible(true);
 
-      // Only errors 
       if (errorDto.socketConnectionKiller) {
         socket.disconnect();
         setModalExit(() => {
-          return () => {
-            location.href = "/";
-          };
+          return () => navigate("/");
         });
       }
     }
@@ -126,9 +122,7 @@ export default function PlayContent() {
     setModalText(error.error);
     setModalVisible(true);
     setModalExit(() => {
-      return () => {
-        location.href = "/";
-      };
+      return () => navigate("/");
     });
   }
 

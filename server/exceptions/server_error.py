@@ -9,6 +9,7 @@ class ServerError(CustomException):
     def __init__(
         self, message: str | None = None, socket_connection_killer: bool = False
     ):
+        # Currently overriden client side
         if not message:
             message = "An unexpected error has occured."
 

@@ -35,6 +35,7 @@ export function callFetch(
             .then(async (response) => {
                 if (response.ok) {
                     resolve(response);
+                // The server returned an error
                 } else {
                     // The server's errors should always return a JSON in the form of {error: <error message>}
                     const responseJson: ErrorDto = await response.json();
@@ -56,11 +57,12 @@ export function callFetch(
                     } as ErrorDto);
                 }
             })
+            // fetching error, when the server is down mostly
             .catch(() => {
                 if (isDevelopment) {
                     reject({
-                        // Other fields are false by default
                         error: `Failed to fetch the URL ${API_URL}${url}`,
+                        // Other fields are false by default
                     } as ErrorDto);
                 }
                 reject({
@@ -88,10 +90,11 @@ export function fetchAs<T>(
                     const data = await response.json();
                     resolve(data as T);
                 } else {
-                    // response is of type ErrorDto
+                    // response is of type ErrorDto, in which case you propagate it
                     reject(response);
                 }
             })
+            // propagate the error
             .catch((error: ErrorDto) => {
                 reject(error);
             });

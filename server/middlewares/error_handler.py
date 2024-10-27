@@ -2,9 +2,8 @@ import sys
 import traceback
 
 import werkzeug.exceptions
-from flask import jsonify
+from flask import jsonify, current_app
 
-from config.logging import root_logger
 from dto.server_only.error_dto import ErrorDto
 from exceptions.custom_exception import CustomException
 
@@ -23,5 +22,5 @@ def get_status_code(exception: Exception) -> int:
         return exception.code
 
     traceback.print_exception(*sys.exc_info())
-    root_logger.error("An unhandled exception occurred: ", exc_info=True)
+    current_app.logger.error("An unhandled exception occurred: ", exc_info=True)
     return 500

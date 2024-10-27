@@ -11,15 +11,17 @@ import {
     developmentErrorLog,
     developmentLog,
 } from "../../../utils/loggingUtils";
-import { paths } from "../../paths";
+import { fullPaths } from "../../paths";
 import OpponentSearch from "./OpponentSearch";
 import { useHomeState } from "../../../contexts/HomeStateContext";
 import { HomeState } from "../../../enums/homeState";
+import { useNavigate } from "react-router-dom";
 
 export default function HomeButtons() {
     const PLAY_TEXT = "Play";
     const REJOIN_TEXT = "Rejoin";
 
+    const navigate = useNavigate();
     const { user } = useUser();
     const { setHomeError } = useHomeError();
     const { homeState } = useHomeState();
@@ -40,9 +42,7 @@ export default function HomeButtons() {
         switch (homeState.state) {
             case HomeState.JOIN_BACK:
                 setMainButtonFunction(() => {
-                    return () => {
-                        location.href = `/${paths.play}`;
-                    };
+                    return () => navigate(fullPaths.play);
                 });
                 setMainButtonText(REJOIN_TEXT);
                 setMainButtonVisible(true);
@@ -99,7 +99,7 @@ export default function HomeButtons() {
         function goToPlayRoom() {
             developmentLog("Opponent found!");
             socket.disconnect();
-            location.href = `/${paths.play}`;
+            navigate(fullPaths.play);
         }
 
         socket.on("disconnect", onDisconnect);

@@ -1,17 +1,16 @@
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request, session, current_app
 
-from config.logging import root_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.game_context_dto import GameContextDto
 from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.partial_player_info_dto import PartialPlayerInfoDto
-from dto.server_only.match_closure_dto import EndingReason
 from exceptions.custom_exception import CustomException
 from exceptions.server_error import ServerError
 from exceptions.unauthorized_error import UnauthorizedError
 from exceptions.wrong_data_error import WrongDataError
 from handlers import match_handler
 from middlewares.error_handler import handle_error
+from utils import session_utils
 
 play_bp = Blueprint("play", __name__)
 play_bp.register_error_handler(Exception, handle_error)
@@ -38,13 +37,13 @@ def get_player_info():
 
 
 @play_bp.route("/play/game-context", methods=["POST"])
-def confirm_ids():
+def get_game_context():
     """
     This route is called when the client failed to retrieve the room id
     and player id from the usual routes.
-    """
-    errorMessage = "An error occured while trying to connect to your match"
 
+    The game context refers to both the match and player info dtos, sent in a bundle.
+    """
     json_data: dict = request.get_json()
 
     mhu = None
@@ -75,10 +74,10 @@ def confirm_ids():
         if isinstance(ex, CustomException):
             raise ex
 
-        root_logger.error(
+        current_app.logger.error(
             f"An error occured while trying to fetch the game context : {ex}"
         )
-        raise ServerError(errorMessage, socket_connection_killer=True)
+        raise ServerError(socket_connection_killer=True)
 
 
 def _get_from_given_info(player_id: str, room_id: str):
@@ -93,7 +92,7 @@ def _get_from_given_info(player_id: str, room_id: str):
             error_msg = (
                 f"The player id {player_id} does not exist in the room {room_id}"
             )
-            root_logger.error(error_msg)
+            current_app.logger.error(error_msg)
             raise ValueError(error_msg)
     except Exception:
         (mhu, player_id) = _get_from_session()
