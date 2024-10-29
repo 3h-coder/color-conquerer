@@ -95,6 +95,10 @@ svg {
   padding: 0;
 }
 
+.pulse {
+  animation: pulse 1s ease infinite alternate;
+}
+
 .box-shadow-glow {
   animation: glow 1s ease infinite alternate;
 }

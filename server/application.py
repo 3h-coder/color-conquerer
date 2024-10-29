@@ -3,9 +3,9 @@ from flask import Flask
 from flask_cors import CORS
 from flask_session import Session
 
+from blueprints.home import home_bp
 from blueprints.play import play_bp
 from blueprints.session import session_bp
-from blueprints.home import home_bp
 from config.config import default_config, global_config
 from config.logging import get_configured_logger
 from config.variables import OptionalVariables, RequiredVariables
@@ -65,7 +65,6 @@ class Application(Flask):
         #     RequiredVariables.APP_SESSION_LIFETIME.name
         # ]
         self.config["SESSION_TYPE"] = "cachelib"
-
         app_session_file_dir = OptionalVariables.APP_SESSION_FILE_DIR.name
         self.config["SESSION_CACHELIB"] = FileSystemCache(
             cache_dir=self._get_from_config_or_default_config(app_session_file_dir),

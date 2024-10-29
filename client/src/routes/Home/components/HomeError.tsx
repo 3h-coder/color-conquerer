@@ -2,16 +2,23 @@ import { useEffect, useState } from "react";
 import { XMarkIcon } from "../../../assets/svg";
 import { SvgContainer } from "../../../components/containers";
 import { useHomeError } from "../../../contexts/HomeErrorContext";
+import { constants } from "../../../env";
+import { extractKey } from "../../../utils/localStorageUtils";
 
 export default function HomeError() {
     const { error, setHomeError } = useHomeError();
     const [display, setDisplay] = useState(false);
+    const [errorFromLocalStorage] = useState(() => {
+        const storedError = extractKey(constants.localStorageKeys.homeError);
+        console.log("Error from local storage", storedError);
+        return storedError;
+    });
 
     useEffect(() => {
-        if (error !== "" && error !== undefined) {
+        if (error || errorFromLocalStorage) {
             setDisplay(true);
         }
-    }, [error])
+    }, [error, errorFromLocalStorage])
 
     function onClose() {
         setDisplay(false);
@@ -22,7 +29,7 @@ export default function HomeError() {
 
     return (
         <div className="home-error-container" style={{ opacity: display ? 1 : 0, userSelect: display ? "text" : "none" }}>
-            <span>{error}</span>
+            <span>{error || errorFromLocalStorage}</span>
             <button className="transparent no-border fit-content" onClick={onClose}>
                 <SvgContainer style={{ width: crossButtonDimensions, height: crossButtonDimensions }}>
                     <XMarkIcon />

@@ -9,9 +9,10 @@ from dto.server_only.error_dto import ErrorDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from exceptions.queue_error import QueueError
-from handlers import match_handler, room_handler
+from handlers import match_handler, room_handler, session_cache_handler
 from handlers.match_handler_unit import MatchHandlerUnit
 from server_gate import get_server
+from utils import session_utils
 from utils.id_generation_utils import generate_id
 
 _logger = get_configured_logger(__name__)
@@ -56,9 +57,9 @@ def handle_queue_registration(data: dict):
         f"({request.remote_addr}) | {Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
     )
 
-    (room_id, closed) = _make_enter_in_room(queue_player_dto)
     player_info = PlayerInfoDto(player_id, True, queue_player_dto.user)
-    _save_player_info(player_info)
+    (room_id, closed) = _make_enter_in_room(queue_player_dto)
+    _save_into_session(room_id, player_info)
 
     # The room in which the player entered already had a player waiting.
     # In that case, initiate the match, and notify both clients that an opponent was found.
@@ -71,7 +72,7 @@ def _try_to_launch_match(room_id):
     Tries to launch a match, saving the second player's session information at the same time.
     """
     mhu: MatchHandlerUnit = None
-
+    server = get_server()
     try:
         mhu = match_handler.initiate_match_and_return_unit(
             room_handler.closed_rooms[room_id]
@@ -86,7 +87,7 @@ def _try_to_launch_match(room_id):
         room_handler.remove_closed_room(room_id)
         # The disconnection should clear the session allowing players to re apply for a match
 
-        get_server().socketio.emit(
+        server.socketio.emit(
             Events.SERVER_ERROR.value,
             ErrorDto(
                 "An error occured, please try again",
@@ -113,13 +114,11 @@ def _make_enter_in_room(queue_player_dto: QueuePlayerDto):
     """
     (room, closed) = room_handler.make_enter_in_room(queue_player_dto)
     if not room.sessionIds:
-        room.sessionIds = {queue_player_dto.playerId: session[SESSION_ID]}
+        room.sessionIds = {session[SESSION_ID]: queue_player_dto.playerId}
     else:
-        room.sessionIds[queue_player_dto.playerId] = session[SESSION_ID]
+        room.sessionIds[session[SESSION_ID]] = queue_player_dto.playerId
 
     room_id = room.id
-
-    session[ROOM_ID] = room_id
     join_room(room_id)
 
     emit(
@@ -130,9 +129,11 @@ def _make_enter_in_room(queue_player_dto: QueuePlayerDto):
     return room_id, closed
 
 
-def _save_player_info(player_info: PlayerInfoDto):
+def _save_into_session(room_id: str, player_info: PlayerInfoDto):
     """
     Saves the player information into the session.
     """
-    session[PLAYER_INFO] = player_info
+    session_cache = session_cache_handler.get_cache_for_session(session.get(SESSION_ID))
+    session[ROOM_ID] = session_cache[ROOM_ID] = room_id
+    session[PLAYER_INFO] = session_cache[PLAYER_INFO] = player_info
     session.modified = True

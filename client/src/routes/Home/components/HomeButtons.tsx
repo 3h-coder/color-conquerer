@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SingleButtonModal from "../../../components/modals/SingleButtonModal";
 import { useHomeError } from "../../../contexts/HomeErrorContext";
+import { useHomeState } from "../../../contexts/HomeStateContext";
 import { useUser } from "../../../contexts/UserContext";
 import { ErrorDto } from "../../../dto/ErrorDto";
 import { QueuePlayerDto } from "../../../dto/QueuePlayerDto";
 import { Events } from "../../../enums/events";
+import { HomeState } from "../../../enums/homeState";
 import { socket } from "../../../env";
 import {
     developmentErrorLog,
@@ -12,9 +15,6 @@ import {
 } from "../../../utils/loggingUtils";
 import { fullPaths } from "../../paths";
 import OpponentSearch from "./OpponentSearch";
-import { useHomeState } from "../../../contexts/HomeStateContext";
-import { HomeState } from "../../../enums/homeState";
-import { useNavigate } from "react-router-dom";
 
 export default function HomeButtons() {
     const navigate = useNavigate();
@@ -52,6 +52,7 @@ export default function HomeButtons() {
                 setMainButtonVisible(true);
                 break;
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [homeState.state]);
 
     useEffect(() => {

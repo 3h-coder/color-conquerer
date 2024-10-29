@@ -3,7 +3,8 @@ from exceptions.custom_exception import CustomException
 
 class ServerError(CustomException):
     """
-    Raise this exception when you want to let the use know about a specific user error.
+    Raise this exception when you want to let the user know about a specific server error in
+    a socket context.
     """
 
     def __init__(

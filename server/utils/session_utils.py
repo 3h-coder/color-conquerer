@@ -22,6 +22,11 @@ def socket_connected():
     return session.get(SOCKET_CONNECTED) is True
 
 
+def save_into_session(key: str, value):
+    session[key] = value
+    session.modified = True
+
+
 def clear_match_info():
     """
     Removes all of the match information from the session, such as the room

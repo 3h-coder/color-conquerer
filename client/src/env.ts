@@ -13,7 +13,6 @@ export const socket = io(API_URL, {
 
 export const constants = {
   localStorageKeys: {
-    goingToPlayRoom: "goingToPlayRoom",
     homeError: "homeError",
   },
 };

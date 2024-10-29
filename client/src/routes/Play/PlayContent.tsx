@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { undefinedMatch, useMatchInfo } from "../../contexts/MatchContext";
@@ -9,12 +10,11 @@ import { MessageDto } from "../../dto/MessageDto";
 import { TurnSwapDurationInfoDto } from "../../dto/TurnSwapDurationInfoDto";
 import { Events } from "../../enums/events";
 import { ModalIcon } from "../../enums/modalIcons";
-import { socket } from "../../env";
+import { constants, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameInfo from "./components/GameInfo";
 import GameMenu from "./components/GameMenu";
-import { useNavigate } from "react-router-dom";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -36,6 +36,7 @@ export default function PlayContent() {
     if (matchInfoLoading || playerInfoLoading) return;
 
     if (matchInfo === undefinedMatch || playerInfo === undefinedPlayer) {
+      localStorage.setItem(constants.localStorageKeys.homeError, "Failed to connect to your match")
       navigate("/");
     } else {
       if (!socket.connected) socket.connect();
@@ -43,6 +44,7 @@ export default function PlayContent() {
       setWaitingText("Connecting to your match...");
       socket.emit(Events.CLIENT_READY);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     matchInfo,
     matchInfoLoading,

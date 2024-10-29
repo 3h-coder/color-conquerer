@@ -4,7 +4,7 @@ from flask import Blueprint, current_app, jsonify, request, session
 
 from constants.session_variables import ROOM_ID, SESSION_ID
 from dto.boolean_dto import BooleanDto
-from handlers import match_handler
+from handlers import match_handler, session_cache_handler
 from middlewares.error_handler import handle_error
 from utils import session_utils
 
@@ -15,7 +15,9 @@ session_bp.register_error_handler(Exception, handle_error)
 @session_bp.route("/session", methods=["GET"])
 def index():
     if session.get(SESSION_ID) is None:
-        session[SESSION_ID] = f"session-{uuid.uuid4()}"
+        session_id = f"session-{uuid.uuid4()}"
+        session[SESSION_ID] = session_id
+        session_cache_handler.create_cache_for_session(session_id)
         return jsonify({"message": "Session initiated"}), 200
 
     return "", 204

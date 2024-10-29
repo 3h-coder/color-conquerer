@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
+import { clearMatchInfoFromSession } from "../../../api/session";
 import { InfoIcon, WarningTriangleIcon, XMarkIcon } from "../../../assets/svg";
 import { SvgContainer } from "../../../components/containers";
 import { useHomeState } from "../../../contexts/HomeStateContext";
 import { HomeState } from "../../../enums/homeState";
-import { clearMatchInfoFromSession } from "../../../api/session";
 
 
 export default function HomeTopMessage() {
@@ -12,7 +12,7 @@ export default function HomeTopMessage() {
     const [icon, setIcon] = useState<JSX.Element>(<InfoIcon />);
 
     useEffect(() => {
-        if (Boolean(homeState.topMessage))
+        if (homeState.topMessage)
             setDisplay(true);
 
         if (homeState.state === HomeState.JOIN_BACK)
