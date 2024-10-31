@@ -1,10 +1,9 @@
 # Server
 
-- Communicate server side event handling errors to the client
-- Create specific log files for each step/situation (match request, match turn info, etc.)
+- Create a match cleanup service handling all cases of match termination
 
 
 # Client
 
-- Handle server side event errors and disconnection (UI/UX wise), such as in the home page for example
+- Display the turn time as well as the turn's player
 

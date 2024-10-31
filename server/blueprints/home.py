@@ -1,10 +1,9 @@
 from flask import Blueprint, session
 
-from constants.session_variables import ROOM_ID
+from constants.session_variables import IN_MATCH, ROOM_ID
 from dto.server_only.home_state_dto import HomeState, HomeStateDto
 from handlers import match_handler
 from middlewares.error_handler import handle_error
-
 
 home_bp = Blueprint("home", __name__)
 home_bp.register_error_handler(Exception, handle_error)
@@ -13,7 +12,8 @@ home_bp.register_error_handler(Exception, handle_error)
 @home_bp.route("/home-state", methods=["GET"])
 def get_home_state():
     room_id = session.get(ROOM_ID)
-    if not room_id:
+    in_match = session.get(IN_MATCH)
+    if not room_id or not in_match:
         return HomeStateDto(HomeState.PLAY.value, "", False).to_dict(), 200
 
     mhu = match_handler.get_unit(room_id)

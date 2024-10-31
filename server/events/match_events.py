@@ -2,7 +2,7 @@ from flask import request, session
 from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
-from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
+from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.message_dto import MessageDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
@@ -47,6 +47,7 @@ def handle_client_ready():
     join_room(room_id)
     mhu = match_handler.get_unit(room_id)
     mhu.players_ready[player_info.playerId] = True
+    session[IN_MATCH] = True
 
     # The start match event is what the client uses to render the game
     if mhu.is_ongoing():

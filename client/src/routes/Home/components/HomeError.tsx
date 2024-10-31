@@ -9,9 +9,7 @@ export default function HomeError() {
     const { error, setHomeError } = useHomeError();
     const [display, setDisplay] = useState(false);
     const [errorFromLocalStorage] = useState(() => {
-        const storedError = extractKey(constants.localStorageKeys.homeError);
-        console.log("Error from local storage", storedError);
-        return storedError;
+        return extractKey(constants.localStorageKeys.homeError);
     });
 
     useEffect(() => {

@@ -1,8 +1,7 @@
-from venv import logger
-
 from flask import session
 
 from constants.session_variables import (
+    IN_MATCH,
     PLAYER_INFO,
     ROOM_ID,
     SESSION_ID,
@@ -31,17 +30,30 @@ def clear_match_info():
     """
     Removes all of the match information from the session, such as the room
     id or player info.
+    This also clears the corresponding values in the session cache.
     """
-    logger.debug("Clearing session match info")
     safe_delete(ROOM_ID)
     safe_delete(PLAYER_INFO)
+    session[IN_MATCH] = False
+
+    from handlers import session_cache_handler
+
+    session_cache = session_cache_handler.get_cache_for_session(session[SESSION_ID])
+    if not session_cache:
+        return
+    _safe_delete_from_dict(session_cache, ROOM_ID)
+    _safe_delete_from_dict(session_cache, PLAYER_INFO)
 
 
 def safe_delete(session_variable: str):
     """
     Deletes a variable from the session safely.
     """
+    _safe_delete_from_dict(session, session_variable)
+
+
+def _safe_delete_from_dict(dict: dict, key):
     try:
-        del session[session_variable]
+        del dict[key]
     except KeyError:
         pass
