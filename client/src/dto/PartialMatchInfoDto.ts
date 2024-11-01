@@ -5,4 +5,6 @@ export interface PartialMatchInfoDto {
     roomId: string;
     boardArray: CellInfoDto[][];
     currentTurn: number;
+    isPlayer1Turn: boolean;
+    totalTurnDurationInS: number;
 }

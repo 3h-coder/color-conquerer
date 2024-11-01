@@ -11,6 +11,7 @@ class PartialMatchInfoDto(BaseDto):
     boardArray: list[list[CellInfoDto]]
     currentTurn: int
     isPlayer1Turn: bool
+    totalTurnDurationInS: int
 
     @classmethod
     def from_match_info_dto(cls, match_info_dto):
@@ -20,4 +21,5 @@ class PartialMatchInfoDto(BaseDto):
             match_info_dto.boardArray,
             match_info_dto.currentTurn,
             match_info_dto.isPlayer1Turn,
+            match_info_dto.totalTurnDurationInS,
         )

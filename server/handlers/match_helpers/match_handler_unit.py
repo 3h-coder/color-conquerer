@@ -87,10 +87,13 @@ class MatchHandlerUnit:
         self.status = MatchStatus.ONGOING
         self.match_info.currentTurn = 1
         self.match_info.isPlayer1Turn = True
+
         self._trigger_turn_watcher()
+
         self.server.socketio.emit(
             Events.SERVER_MATCH_STARTED.value,
             TurnInfoDto(
+                self.match_info.player1.playerId,
                 self.match_info.isPlayer1Turn,
                 TURN_DURATION_IN_S,
             ).to_dict(),
@@ -204,6 +207,14 @@ class MatchHandlerUnit:
 
         self.server.socketio.start_background_task(target=exit_timer)
 
+    def get_current_player_id(self):
+        """Gets the id of the player of whom it is the turn"""
+        return (
+            self.match_info.player1.playerId
+            if self.match_info.isPlayer1Turn
+            else self.match_info.player2.playerId
+        )
+
     def _trigger_turn_watcher(self):
         """
         Triggers the background task that will handle turn swaping.
@@ -227,7 +238,9 @@ class MatchHandlerUnit:
                 self.server.socketio.emit(
                     Events.SERVER_TURN_SWAP.value,
                     TurnInfoDto(
-                        self.match_info.isPlayer1Turn, TURN_DURATION_IN_S
+                        self.get_current_player_id(),
+                        self.match_info.isPlayer1Turn,
+                        TURN_DURATION_IN_S,
                     ).to_dict(),
                     to=self.match_info.roomId,
                 )
@@ -292,6 +305,9 @@ class MatchHandlerUnit:
             id=generate_id(MatchInfoDto),
             roomId=room_dto.id,
             boardArray=self._get_starting_board_array(),
+            currentTurn=0,
+            isPlayer1Turn=False,
+            totalTurnDurationInS=TURN_DURATION_IN_S,
             player1=PlayerInfoDto(
                 user=room_dto.player1.user,
                 playerId=room_dto.player1.playerId,
@@ -302,8 +318,6 @@ class MatchHandlerUnit:
                 playerId=room_dto.player2.playerId,
                 isPlayer1=False,
             ),
-            currentTurn=0,
-            isPlayer1Turn=False,
         )
 
     def _get_starting_board_array(self):

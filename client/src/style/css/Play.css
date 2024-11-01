@@ -2,9 +2,14 @@
 
 .page-container {
     display: flex;
+    flex-direction: column;
     gap: max(30px, 5vmin);
     width: fit-content;
     margin: auto;
+    background-color: rgb(93, 83, 151);
+    padding: max(30px, 4vmin);
+    border-radius: 1rem;
+    box-shadow: 0 0 3vmin 0.25vmin rgba(0, 0, 0, 0.2);
 }
 
 .initial-loading {
@@ -13,19 +18,29 @@
     margin: auto;
 }
 
-.game-side-panel {
-    padding: max(15px, 3vmin);
-    border-radius: 5px;
-    flex-grow: 1;
-    width: 20vmin;
+.game-top-info-container {
+    display: flex;
+    justify-content: space-between;
+    gap: max(15px, 2vmin);
 }
 
-.game-menu {
-    background-color: rgb(107, 89, 227);
+.countdown-bar-outer {
+    border-radius: 1rem;
+    border: 0.1rem solid white;
+    width: 40%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-.game-info {
-    background-color: rgb(188, 89, 227);
+.countdown-bar-inner {
+    border: 0.1rem solid transparent;
+    background-color: green;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.whose-turn-label {
+    margin: 0;
 }
 
 .grid {

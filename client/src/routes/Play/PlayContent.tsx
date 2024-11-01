@@ -13,8 +13,7 @@ import { ModalIcon } from "../../enums/modalIcons";
 import { constants, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
-import GameInfo from "./components/GameInfo";
-import GameMenu from "./components/GameMenu";
+import GameTopInfo from "./components/GameTopInfo";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -23,6 +22,7 @@ export default function PlayContent() {
     playerInfo,
     loading: playerInfoLoading,
   } = usePlayerInfo();
+  const [turnInfo, setTurnInfo] = useState<TurnInfoDto | undefined>(undefined);
   const [waitingText, setWaitingText] = useState("");
   const [canRenderContent, setCanRenderContent] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -59,11 +59,13 @@ export default function PlayContent() {
 
     function onMatchStarted(turnInfoDto: TurnInfoDto) {
       setCanRenderContent(true);
-      developmentLog(`The match started!\nIs it the turn of player 1 ? -> (${turnInfoDto.isPlayer1Turn})\nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `)
+      setTurnInfo(turnInfoDto);
+      developmentLog(`The match started! \nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `)
     }
 
     function onTurnSwap(turnInfoDto: TurnInfoDto) {
-      developmentLog(`Turn swap!\nIs it the turn of player 1 ? -> (${turnInfoDto.isPlayer1Turn})\nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `)
+      setTurnInfo(turnInfoDto);
+      developmentLog(`Turn swap!\nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `)
     }
 
     function onMatchEnded(matchClosureDto: MatchClosureDto) {
@@ -125,9 +127,8 @@ export default function PlayContent() {
     <PageContainer>
       {canRenderContent ? (
         <>
-          <GameMenu />
+          {turnInfo && <GameTopInfo turnInfoDto={turnInfo} />}
           <GameGrid />
-          <GameInfo />
         </>
       ) : (
         <div>

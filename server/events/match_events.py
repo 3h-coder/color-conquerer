@@ -45,6 +45,7 @@ def handle_client_ready():
         emit(
             Events.SERVER_MATCH_STARTED.value,
             TurnInfoDto(
+                match.get_current_player_id(),
                 match.match_info.isPlayer1Turn,
                 match.turn_time_storer.get_remaining_time(),
             ).to_dict(),

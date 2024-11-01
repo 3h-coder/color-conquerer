@@ -17,6 +17,8 @@ export const undefinedMatch: PartialMatchInfoDto = {
     roomId: "",
     boardArray: [],
     currentTurn: 0,
+    isPlayer1Turn: false,
+    totalTurnDurationInS: 0
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -41,15 +43,7 @@ export default function MatchContextProvider(props: MatchContextProviderProps) {
     async function getMatchInfo() {
         try {
             const fetchedMatchInfo = await fetchMatchInfo();
-
-            const matchInfo: PartialMatchInfoDto = {
-                id: fetchedMatchInfo.id,
-                roomId: fetchedMatchInfo.roomId,
-                boardArray: fetchedMatchInfo.boardArray,
-                currentTurn: fetchedMatchInfo.currentTurn
-            };
-
-            setMatchInfo(matchInfo);
+            setMatchInfo(fetchedMatchInfo);
         } catch (error: unknown) {
             developmentErrorLog("Could not fetch the match info", ParseErrorDto(error));
             setMatchInfo(undefinedMatch);
