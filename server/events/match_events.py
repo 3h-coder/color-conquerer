@@ -16,20 +16,22 @@ _logger = get_configured_logger(__name__)
 
 def handle_client_ready():
     """
-    Marks the given player (i.e. the client sending emitting the event)
-    as ready, possibly  starting the match if everyone is.
+    Recieves the signal of the given player's client and marks the player ready
+    server side, possibly starting the match if everyone is.
     """
+    server_error_msg = "A server error occured, unable to connect you to your match"
+
     player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
     if player_info is None:
         raise ServerError(
-            "A server error occured, unable to connect you to your match",
+            server_error_msg,
             socket_connection_killer=True,
         )
 
     room_id = _get_session_variable(ROOM_ID)
     if room_id is None:
         raise ServerError(
-            "A server error occured, unable to connect you to your match",
+            server_error_msg,
             socket_connection_killer=True,
         )
 
@@ -48,9 +50,11 @@ def handle_client_ready():
             ).to_dict(),
         )
     elif match.is_waiting_to_start():
+        # Start the match if everyone is ready
         if all(value is True for value in match.players_ready.values()):
             _logger.info(f"All players ready in the room {room_id}")
             match.start()
+        # Otherwise notify the user that we're still waiting for their opponent
         else:
             emit(
                 Events.SERVER_SET_WAITING_TEXT.value,

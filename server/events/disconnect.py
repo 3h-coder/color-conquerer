@@ -48,15 +48,14 @@ def handle_disconnection():
 
     # If the match is on going, wait a period of time before considering the player gone
     if match is not None and match.is_ongoing():
-        _handle_disconnection_in_match(match, player_id)
+        match.watch_player_exit(player_id)
 
 
 def _handle_disconnection_in_queue(room_id):
+    """Removes the room and clears the user's session information relative to match information"""
+
     _logger.debug(f"({request.remote_addr}) | Disconnected while being in queue")
+
     room_handler.remove_open_room(room_id)
     leave_room(room_id)
     session_utils.clear_match_info()
-
-
-def _handle_disconnection_in_match(match: MatchHandlerUnit, player_id):
-    match.watch_player_exit(player_id)

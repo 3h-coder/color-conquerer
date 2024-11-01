@@ -78,7 +78,7 @@ class MatchHandlerUnit:
 
     def start(self):
         """
-        Starts the match, setting up the turn watcher.
+        Starts the match, setting up the turn watcher and notifying the clients.
         """
         from events.events import Events
 
@@ -107,6 +107,7 @@ class MatchHandlerUnit:
         return self.status == MatchStatus.ENDED
 
     def cancel(self):
+        # TODO: call a match cleanup service/helper/handler
         self.status = MatchStatus.ABORTED
         self._schedule_garbage_collection()
 
@@ -122,6 +123,7 @@ class MatchHandlerUnit:
 
         Additionally, notifies all players and schedules this match handler unit's garbage collection.
         """
+        # TODO: call a match cleanup service/helper/handler
         self.logger.info(f"Terminating the match in the room {self.match_info.roomId}")
 
         if self.is_ended():

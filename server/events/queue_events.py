@@ -78,7 +78,7 @@ def _try_to_launch_match(room_id):
             room_handler.closed_rooms[room_id]
         )
         match.watch_player_entry()
-        # Notify the room that the match can start
+        # Notify the room that the match can start, it will be started once all players are ready
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
     except Exception as ex:
         _logger.exception(f"An error occured when trying to launch a match : {ex}")
