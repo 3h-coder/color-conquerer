@@ -23,10 +23,8 @@ class TimeStorerSeconds:
 
     def start_timer(self, duration_in_s):
         """Starts the timer in a separate process."""
-        if self._process and self._process.is_alive():
-            raise RuntimeError("Timer is already running.")
+        self.stop_timer()
 
-        # Initialize a new process to run the _tick method
         self._process = Process(target=self._tick, args=(duration_in_s,))
         self._process.start()
 

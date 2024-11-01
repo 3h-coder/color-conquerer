@@ -30,11 +30,11 @@ def is_in_match():
         return BooleanDto(False).to_dict(), 200
 
     current_app.logger.info(f"({request.remote_addr}) is in a match")
-    mhu = match_handler.get_unit(room_id)
-    if mhu is None:
+    match = match_handler.get_unit(room_id)
+    if match is None:
         return BooleanDto(False).to_dict(), 200
 
-    if mhu.is_ongoing():
+    if match.is_ongoing():
         BooleanDto(True).to_dict(), 200
     else:
         BooleanDto(False).to_dict(), 200

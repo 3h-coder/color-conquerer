@@ -41,9 +41,9 @@ class MatchHandler:
         """
         return next(
             (
-                mhu
-                for mhu in self.units.values()
-                if session_id in mhu.session_ids.values()
+                match
+                for match in self.units.values()
+                if session_id in match.session_ids.values()
             ),
             None,
         )

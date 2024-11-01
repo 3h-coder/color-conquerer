@@ -23,13 +23,13 @@ def handle_connection(_):
     if not room_id:
         return
 
-    mhu = match_handler.get_unit(room_id)
-    if mhu is None:
+    match = match_handler.get_unit(room_id)
+    if match is None:
         return
 
-    if mhu.is_ongoing():
+    if match.is_ongoing():
         _logger.debug("Player rejoinded the match, stopping exit watcher")
         player_id = session.get(PLAYER_INFO).playerId
-        mhu.stop_watching_player_exit(player_id)
-    elif mhu.is_ended():
+        match.stop_watching_player_exit(player_id)
+    elif match.is_ended():
         _logger.debug("Player rejoined, but the match already ended")

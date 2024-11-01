@@ -71,19 +71,19 @@ def _try_to_launch_match(room_id):
     """
     Tries to launch a match, saving the second player's session information at the same time.
     """
-    mhu: MatchHandlerUnit = None
+    match: MatchHandlerUnit = None
     server = get_server()
     try:
-        mhu = match_handler.initiate_match_and_return_unit(
+        match = match_handler.initiate_match_and_return_unit(
             room_handler.closed_rooms[room_id]
         )
-        mhu.watch_player_entry()
+        match.watch_player_entry()
         # Notify the room that the match can start
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
     except Exception as ex:
         _logger.exception(f"An error occured when trying to launch a match : {ex}")
-        if mhu is not None:
-            mhu.cancel_match()
+        if match is not None:
+            match.cancel()
         room_handler.remove_closed_room(room_id)
         # The disconnection should clear the session allowing players to re apply for a match
 

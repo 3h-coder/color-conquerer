@@ -16,9 +16,9 @@ def get_home_state():
     if not room_id or not in_match:
         return HomeStateDto(HomeState.PLAY.value, "", False).to_dict(), 200
 
-    mhu = match_handler.get_unit(room_id)
+    match = match_handler.get_unit(room_id)
     if (
-        mhu is None or mhu.is_ended()
+        match is None or match.is_ended()
     ):  # TODO check if the match is ended from either the saved closure or something else TBD
         return (
             HomeStateDto(
@@ -29,7 +29,7 @@ def get_home_state():
             200,
         )
 
-    if mhu.is_waiting_to_start() or mhu.is_ongoing():
+    if match.is_waiting_to_start() or match.is_ongoing():
         return (
             HomeStateDto(
                 HomeState.JOIN_BACK.value,

@@ -44,11 +44,11 @@ def handle_disconnection():
         return
 
     player_id = player_info.playerId
-    mhu = match_handler.get_unit(room_id)
+    match = match_handler.get_unit(room_id)
 
     # If the match is on going, wait a period of time before considering the player gone
-    if mhu is not None and mhu.is_ongoing():
-        _handle_disconnection_in_match(mhu, player_id)
+    if match is not None and match.is_ongoing():
+        _handle_disconnection_in_match(match, player_id)
 
 
 def _handle_disconnection_in_queue(room_id):
@@ -58,5 +58,5 @@ def _handle_disconnection_in_queue(room_id):
     session_utils.clear_match_info()
 
 
-def _handle_disconnection_in_match(mhu: MatchHandlerUnit, player_id):
-    mhu.watch_player_exit(player_id)
+def _handle_disconnection_in_match(match: MatchHandlerUnit, player_id):
+    match.watch_player_exit(player_id)

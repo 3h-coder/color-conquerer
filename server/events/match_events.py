@@ -19,59 +19,38 @@ def handle_client_ready():
     Marks the given player (i.e. the client sending emitting the event)
     as ready, possibly  starting the match if everyone is.
     """
-    player_info: PlayerInfoDto = session.get(PLAYER_INFO)
+    player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
     if player_info is None:
-        _logger.error(
-            f"({request.remote_addr}) | player_info was None, resorting to session cache"
+        raise ServerError(
+            "A server error occured, unable to connect you to your match",
+            socket_connection_killer=True,
         )
-        session_cache = session_cache_handler.get_cache_for_session(session[SESSION_ID])
-        player_info = session_cache.get(PLAYER_INFO)
-        if player_info is None:
-            raise ServerError(
-                "A server error occured, unable to connect you to your match",
-                socket_connection_killer=True,
-            )
 
-    room_id = session.get(ROOM_ID)
+    room_id = _get_session_variable(ROOM_ID)
     if room_id is None:
-        _logger.error(
-            f"({request.remote_addr}) | room_id was None, resorting to session cache"
+        raise ServerError(
+            "A server error occured, unable to connect you to your match",
+            socket_connection_killer=True,
         )
-        session_cache = session_cache_handler.get_cache_for_session(session[SESSION_ID])
-        room_id = session_cache.get(ROOM_ID)
-        if room_id is None:
-            raise ServerError(
-                "A server error occured, unable to connect you to your match",
-                socket_connection_killer=True,
-            )
 
     join_room(room_id)
-    mhu = match_handler.get_unit(room_id)
-    mhu.players_ready[player_info.playerId] = True
+    match = match_handler.get_unit(room_id)
+    match.players_ready[player_info.playerId] = True
     session[IN_MATCH] = True
 
-    # The start match event is what the client uses to render the game
-    if mhu.is_ongoing():
+    # The match started event is what the client uses to render the game
+    if match.is_ongoing():
         emit(
             Events.SERVER_MATCH_STARTED.value,
             TurnInfoDto(
-                mhu.match_info.isPlayer1Turn, mhu.turn_time_storer.get_remaining_time()
+                match.match_info.isPlayer1Turn,
+                match.turn_time_storer.get_remaining_time(),
             ).to_dict(),
         )
-    elif mhu.is_waiting_to_start():
-        if all(value is True for value in mhu.players_ready.values()):
+    elif match.is_waiting_to_start():
+        if all(value is True for value in match.players_ready.values()):
             _logger.info(f"All players ready in the room {room_id}")
-            mhu.start_match()
-            # TODO : This emit should be in start match
-            emit(
-                Events.SERVER_MATCH_STARTED.value,
-                TurnInfoDto(
-                    mhu.match_info.isPlayer1Turn,
-                    mhu.turn_time_storer.get_remaining_time(),
-                ).to_dict(),
-                to=room_id,
-                broadcast=True,
-            )
+            match.start()
         else:
             emit(
                 Events.SERVER_SET_WAITING_TEXT.value,
@@ -85,3 +64,15 @@ def handle_session_clearing():
     Clears all the match related session variables so they may queue for a new match.
     """
     session_utils.clear_match_info()
+
+
+def _get_session_variable(variable_name: str):
+    value = session.get(variable_name)
+    if value is None:
+        _logger.error(
+            f"({request.remote_addr}) | {variable_name} was None, resorting to session cache"
+        )
+        session_cache = session_cache_handler.get_cache_for_session(session[SESSION_ID])
+        value = session_cache.get(variable_name)
+
+    return value
