@@ -7,7 +7,7 @@ import { undefinedPlayer, usePlayerInfo } from "../../contexts/PlayerContext";
 import { ErrorDto } from "../../dto/ErrorDto";
 import { EndingReason, MatchClosureDto } from "../../dto/MatchClosureDto";
 import { MessageDto } from "../../dto/MessageDto";
-import { TurnSwapDurationInfoDto } from "../../dto/TurnSwapDurationInfoDto";
+import { TurnInfoDto } from "../../dto/TurnInfoDto";
 import { Events } from "../../enums/events";
 import { ModalIcon } from "../../enums/modalIcons";
 import { constants, socket } from "../../env";
@@ -57,12 +57,13 @@ export default function PlayContent() {
       setWaitingText(messageDto.message);
     }
 
-    function onMatchStarted() {
+    function onMatchStarted(turnInfoDto: TurnInfoDto) {
       setCanRenderContent(true);
+      developmentLog(`The match started!\nIs it the turn of player 1 ? -> (${turnInfoDto.isPlayer1Turn})\nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `)
     }
 
-    function onTurnSwap(info: TurnSwapDurationInfoDto) {
-      developmentLog(`Turn swap ! ( duration : ${info.durationInS} seconds)`);
+    function onTurnSwap(turnInfoDto: TurnInfoDto) {
+      developmentLog(`Turn swap!\nIs it the turn of player 1 ? -> (${turnInfoDto.isPlayer1Turn})\nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `)
     }
 
     function onMatchEnded(matchClosureDto: MatchClosureDto) {

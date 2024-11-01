@@ -4,5 +4,6 @@ from dto.base_dto import BaseDto
 
 
 @dataclass
-class TurnSwapInfoDto(BaseDto):
+class TurnInfoDto(BaseDto):
+    isPlayer1Turn: bool
     durationInS: int

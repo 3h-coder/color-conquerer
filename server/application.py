@@ -6,7 +6,7 @@ from flask_session import Session
 from blueprints.home import home_bp
 from blueprints.play import play_bp
 from blueprints.session import session_bp
-from config.config import default_config, global_config
+from config.config import default_config, get_global_config
 from config.logging import get_configured_logger
 from config.variables import OptionalVariables, RequiredVariables
 from middlewares.error_handler import handle_error
@@ -20,6 +20,7 @@ class Application(Flask):
 
     def __init__(self, import_name, **kwargs):
         self.logger = get_configured_logger(__name__)
+        self.global_config = get_global_config()
         self.logger.debug("Initializing application")
         super().__init__(import_name, **kwargs)
         self.initialize()
@@ -57,7 +58,9 @@ class Application(Flask):
         - Flask config : https://flask.palletsprojects.com/en/latest/config
         - Flask session : https://flask-session.readthedocs.io/en/latest/config.html
         """
-        self.config["SECRET_KEY"] = global_config[RequiredVariables.APP_SECRET_KEY.name]
+        self.config["SECRET_KEY"] = self.global_config[
+            RequiredVariables.APP_SECRET_KEY.name
+        ]
         self.config["SESSION_COOKIE_SAMESITE"] = "None"
         self.config["SESSION_COOKIE_SECURE"] = True
         # self.config["SESSION_PERMANENT"] = True
@@ -86,4 +89,4 @@ class Application(Flask):
         self.register_blueprint(play_bp)
 
     def _get_from_config_or_default_config(self, variable: str):
-        return global_config.get(variable, default_config[variable])
+        return self.global_config.get(variable, default_config[variable])

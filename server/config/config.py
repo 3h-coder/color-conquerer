@@ -1,6 +1,5 @@
 import json
 import os
-import pathlib
 import uuid
 
 from config import root_path
@@ -29,6 +28,20 @@ default_config = {
     ),
     OptionalVariables.RESET_SESSION_FILE_ON_STARTUP.name: True,
 }
+
+# To be initialized at startup once
+_global_config = {}
+
+
+def get_global_config():
+    """
+    Returns the global configuration, that can be used accross all modules.
+    """
+    global _global_config
+    if not _global_config:
+        _global_config = _get_config()
+
+    return _global_config
 
 
 def _get_config():
@@ -139,6 +152,3 @@ def _is_valid_float(var):
         return True
     except ValueError:
         return False
-
-
-global_config = _get_config()

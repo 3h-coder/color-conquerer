@@ -17,7 +17,8 @@ from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from dto.server_only.room_dto import RoomDto
-from dto.turn_swap_info_dto import TurnSwapInfoDto
+from dto.turn_info_dto import TurnInfoDto
+from handlers.match_helpers.time_storer_seconds import TimeStorerSeconds
 from server_gate import get_server
 from utils import session_utils
 from utils.id_generation_utils import generate_id
@@ -31,13 +32,19 @@ class MatchHandlerUnit:
     def __init__(self, room_dto: RoomDto):
         self.logger = get_configured_logger(__name__)
         self.server = get_server()
+
         self.match_info = self._get_initial_match_info(room_dto)
+
+        # Dictionary with the key being the session id and the value the player id
+        # May be used when needed to find a player from its session
         self.session_ids = room_dto.sessionIds
-        self.match_closure_info = None
+
         self.status = MatchStatus.WAITING_TO_START
+
+        # Thread responsible for swapping the turns between players
         self.turn_watcher_thread = None
-        self.current_player = room_dto.player1  # Player 1 is always the starting one
-        # TODO: Add a timer to wait a maximum of x seconds for both players to be ready
+        self.turn_time_storer = TimeStorerSeconds()
+
         self.players_ready = {
             room_dto.player1.playerId: False,
             room_dto.player2.playerId: False,
@@ -47,6 +54,9 @@ class MatchHandlerUnit:
             room_dto.player1.playerId: Event(),
             room_dto.player2.playerId: Event(),
         }
+
+        # Dto which we use to share/save the final match data before disposing the handler unit
+        self.match_closure_info = None
 
     def watch_player_entry(self):
         """
@@ -72,6 +82,7 @@ class MatchHandlerUnit:
         """
         self.status = MatchStatus.ONGOING
         self.match_info.currentTurn = 1
+        self.match_info.isPlayer1Turn = True
         self._trigger_turn_watcher()
 
     def is_waiting_to_start(self):
@@ -177,6 +188,38 @@ class MatchHandlerUnit:
 
         self.server.socketio.start_background_task(target=exit_timer)
 
+    def _trigger_turn_watcher(self):
+        """
+        Triggers the background task that will handle turn swaping.
+        """
+
+        from events.events import Events
+
+        def watch_turns():
+            while not self.is_ended():
+                self.turn_time_storer.start_timer(TURN_DURATION_IN_S)
+                self.server.socketio.sleep(TURN_DURATION_IN_S)
+                if self.is_ended():
+                    return
+
+                # Increment the turn count
+                self.match_info.currentTurn += 1
+                # Swap the current player's turn
+                self.match_info.isPlayer1Turn = not self.match_info.isPlayer1Turn
+
+                # Notify the turn change to players
+                self.server.socketio.emit(
+                    Events.SERVER_TURN_SWAP.value,
+                    TurnInfoDto(
+                        self.match_info.isPlayer1Turn, TURN_DURATION_IN_S
+                    ).to_dict(),
+                    to=self.match_info.roomId,
+                )
+
+        self.turn_watcher_thread = self.server.socketio.start_background_task(
+            target=watch_turns
+        )
+
     def _schedule_garbage_collection(self):
         """
         Schedules the deletion of this match handler unit and the associated room.
@@ -202,32 +245,6 @@ class MatchHandlerUnit:
             del match_handler.units[room_id]
 
         self.server.socketio.start_background_task(target=delete_self_and_room)
-
-    def _trigger_turn_watcher(self):
-
-        from events.events import Events
-
-        def watch_turns():
-            while not self.is_ended():
-                self.server.socketio.sleep(TURN_DURATION_IN_S)
-                if self.is_ended():
-                    return
-
-                self.match_info.currentTurn += 1
-                self.current_player = (
-                    self.match_info.player1
-                    if self.current_player == self.match_info.player2
-                    else self.match_info.player2
-                )
-                self.server.socketio.emit(
-                    Events.SERVER_TURN_SWAP.value,
-                    TurnSwapInfoDto(TURN_DURATION_IN_S).to_dict(),
-                    to=self.match_info.roomId,
-                )
-
-        self.turn_watcher_thread = self.server.socketio.start_background_task(
-            target=watch_turns
-        )
 
     def _polling_sleep(
         self, socketio: SocketIO, sleep_duration_in_s, stop_event: Event
@@ -270,6 +287,7 @@ class MatchHandlerUnit:
                 isPlayer1=False,
             ),
             currentTurn=0,
+            isPlayer1Turn=False,
         )
 
     def _get_starting_board_array(self):

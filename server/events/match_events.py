@@ -5,6 +5,7 @@ from config.logging import get_configured_logger
 from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.message_dto import MessageDto
 from dto.server_only.player_info_dto import PlayerInfoDto
+from dto.turn_info_dto import TurnInfoDto
 from events.events import Events
 from exceptions.server_error import ServerError
 from handlers import match_handler, session_cache_handler
@@ -51,12 +52,26 @@ def handle_client_ready():
 
     # The start match event is what the client uses to render the game
     if mhu.is_ongoing():
-        emit(Events.SERVER_MATCH_STARTED.value)
+        emit(
+            Events.SERVER_MATCH_STARTED.value,
+            TurnInfoDto(
+                mhu.match_info.isPlayer1Turn, mhu.turn_time_storer.get_remaining_time()
+            ).to_dict(),
+        )
     elif mhu.is_waiting_to_start():
         if all(value is True for value in mhu.players_ready.values()):
             _logger.info(f"All players ready in the room {room_id}")
             mhu.start_match()
-            emit(Events.SERVER_MATCH_STARTED.value, to=room_id, broadcast=True)
+            # TODO : This emit should be in start match
+            emit(
+                Events.SERVER_MATCH_STARTED.value,
+                TurnInfoDto(
+                    mhu.match_info.isPlayer1Turn,
+                    mhu.turn_time_storer.get_remaining_time(),
+                ).to_dict(),
+                to=room_id,
+                broadcast=True,
+            )
         else:
             emit(
                 Events.SERVER_SET_WAITING_TEXT.value,
