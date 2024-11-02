@@ -43,7 +43,7 @@ class MatchHandler:
             (
                 match
                 for match in self.units.values()
-                if session_id in match.session_ids.values()
+                if session_id in match._session_ids.values()
             ),
             None,
         )

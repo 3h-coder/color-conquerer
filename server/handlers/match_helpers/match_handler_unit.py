@@ -1,3 +1,5 @@
+import math
+from datetime import datetime
 from enum import Enum
 from threading import Event
 
@@ -18,7 +20,6 @@ from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from dto.server_only.room_dto import RoomDto
 from dto.turn_info_dto import TurnInfoDto
-from handlers.match_helpers.time_storer_seconds import TimeStorerSeconds
 from server_gate import get_server
 from utils import session_utils
 from utils.id_generation_utils import generate_id
@@ -31,19 +32,19 @@ class MatchHandlerUnit:
 
     def __init__(self, room_dto: RoomDto):
         self.logger = get_configured_logger(__name__)
-        self.server = get_server()
+        self._server = get_server()
 
         self.match_info = self._get_initial_match_info(room_dto)
 
         # Dictionary with the key being the session id and the value the player id
         # May be used when needed to find a player from its session
-        self.session_ids = room_dto.sessionIds
+        self._session_ids = room_dto.sessionIds
 
-        self.status = MatchStatus.WAITING_TO_START
+        self._status = MatchStatus.WAITING_TO_START
 
         # Thread responsible for swapping the turns between players
-        self.turn_watcher_thread = None
-        self.turn_time_storer = TimeStorerSeconds()
+        self._turn_watcher_thread = None
+        self._turn_start_time: datetime = None
 
         self.players_ready = {
             room_dto.player1.playerId: False,
@@ -58,13 +59,22 @@ class MatchHandlerUnit:
         # Dto which we use to share/save the final match data before disposing the handler unit
         self.match_closure_info = None
 
+    def is_waiting_to_start(self):
+        return self._status == MatchStatus.WAITING_TO_START
+
+    def is_ongoing(self):
+        return self._status == MatchStatus.ONGOING
+
+    def is_ended(self):
+        return self._status == MatchStatus.ENDED
+
     def watch_player_entry(self):
         """
         Waits a specific delay before ending the match if one player could not manage to be ready.
         """
 
         def end_match_after_delay():
-            self.server.socketio.sleep(DELAY_IN_S_TO_WAIT_FOR_EVERYONE)
+            self._server.socketio.sleep(DELAY_IN_S_TO_WAIT_FOR_EVERYONE)
 
             if all(value is False for value in self.players_ready.values()):
                 self.end(EndingReason.DRAW)
@@ -74,7 +84,7 @@ class MatchHandlerUnit:
                 if not self.players_ready[player_id]:
                     self.end(EndingReason.NEVER_JOINED, loser_id=player_id)
 
-        self.server.socketio.start_background_task(target=end_match_after_delay)
+        self._server.socketio.start_background_task(target=end_match_after_delay)
 
     def start(self):
         """
@@ -84,13 +94,13 @@ class MatchHandlerUnit:
 
         self.logger.info(f"Starting the match in the room {self.match_info.roomId}")
 
-        self.status = MatchStatus.ONGOING
+        self._status = MatchStatus.ONGOING
         self.match_info.currentTurn = 1
         self.match_info.isPlayer1Turn = True
 
         self._trigger_turn_watcher()
 
-        self.server.socketio.emit(
+        self._server.socketio.emit(
             Events.SERVER_MATCH_STARTED.value,
             TurnInfoDto(
                 self.match_info.player1.playerId,
@@ -100,18 +110,9 @@ class MatchHandlerUnit:
             to=self.match_info.roomId,
         )
 
-    def is_waiting_to_start(self):
-        return self.status == MatchStatus.WAITING_TO_START
-
-    def is_ongoing(self):
-        return self.status == MatchStatus.ONGOING
-
-    def is_ended(self):
-        return self.status == MatchStatus.ENDED
-
     def cancel(self):
         # TODO: call a match cleanup service/helper/handler
-        self.status = MatchStatus.ABORTED
+        self._status = MatchStatus.ABORTED
         self._schedule_garbage_collection()
 
     def end(
@@ -149,7 +150,7 @@ class MatchHandlerUnit:
             winner = player1 if loser == player2 else player2
 
         # Update match status
-        self.status = MatchStatus.ENDED
+        self._status = MatchStatus.ENDED
         self.match_closure_info = MatchClosureDto(reason.value, winner, loser)
 
         # TODO: save the match result into a database
@@ -158,20 +159,25 @@ class MatchHandlerUnit:
         # Notify the users and close the room
         from events.events import Events
 
-        self.server.socketio.emit(
+        self._server.socketio.emit(
             Events.SERVER_MATCH_END.value,
             PartialMatchClosureDto.from_match_closure_dto(
                 self.match_closure_info
             ).to_dict(),
             to=self.match_info.roomId,
         )
-        self.server.socketio.close_room(self.match_info.roomId)
+        self._server.socketio.close_room(self.match_info.roomId)
 
         from handlers import room_handler
 
         room_handler.remove_closed_room(self.match_info.roomId)
         # Schedule the deletion of this object
         self._schedule_garbage_collection()
+
+    def get_remaining_turn_time(self):
+        """Returns the remining time in seconds for the current turn"""
+        elapsed_time = datetime.now() - self._turn_start_time
+        return max(0, TURN_DURATION_IN_S - elapsed_time.seconds)
 
     def stop_watching_player_exit(self, player_id: str):
         """
@@ -193,7 +199,7 @@ class MatchHandlerUnit:
                 f"({request.remote_addr}) | Starting the exit watch for the player {player_id}"
             )
             self._polling_sleep(
-                self.server.socketio, DELAY_IN_S_BEFORE_MATCH_EXCLUSION, stop_event
+                self._server.socketio, DELAY_IN_S_BEFORE_MATCH_EXCLUSION, stop_event
             )
 
             if stop_event.is_set():
@@ -205,7 +211,7 @@ class MatchHandlerUnit:
             self.end(EndingReason.PLAYER_LEFT, loser_id=player_id)
             session_utils.clear_match_info()
 
-        self.server.socketio.start_background_task(target=exit_timer)
+        self._server.socketio.start_background_task(target=exit_timer)
 
     def get_current_player_id(self):
         """Gets the id of the player of whom it is the turn"""
@@ -224,8 +230,8 @@ class MatchHandlerUnit:
 
         def watch_turns():
             while not self.is_ended():
-                self.turn_time_storer.start_timer(TURN_DURATION_IN_S)
-                self.server.socketio.sleep(TURN_DURATION_IN_S)
+                self._turn_start_time = datetime.now()
+                self._server.socketio.sleep(TURN_DURATION_IN_S)
                 if self.is_ended():
                     return
 
@@ -235,7 +241,7 @@ class MatchHandlerUnit:
                 self.match_info.isPlayer1Turn = not self.match_info.isPlayer1Turn
 
                 # Notify the turn change to players
-                self.server.socketio.emit(
+                self._server.socketio.emit(
                     Events.SERVER_TURN_SWAP.value,
                     TurnInfoDto(
                         self.get_current_player_id(),
@@ -245,7 +251,7 @@ class MatchHandlerUnit:
                     to=self.match_info.roomId,
                 )
 
-        self.turn_watcher_thread = self.server.socketio.start_background_task(
+        self._turn_watcher_thread = self._server.socketio.start_background_task(
             target=watch_turns
         )
 
@@ -255,7 +261,7 @@ class MatchHandlerUnit:
         """
 
         def delete_self_and_room():
-            self.server.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
+            self._server.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
 
             room_id = self.match_info.roomId
             self.logger.debug(f"Deleting the match handler unit for the room {room_id}")
@@ -273,7 +279,7 @@ class MatchHandlerUnit:
 
             del match_handler.units[room_id]
 
-        self.server.socketio.start_background_task(target=delete_self_and_room)
+        self._server.socketio.start_background_task(target=delete_self_and_room)
 
     def _polling_sleep(
         self, socketio: SocketIO, sleep_duration_in_s, stop_event: Event

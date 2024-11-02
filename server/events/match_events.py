@@ -47,7 +47,7 @@ def handle_client_ready():
             TurnInfoDto(
                 match.get_current_player_id(),
                 match.match_info.isPlayer1Turn,
-                match.turn_time_storer.get_remaining_time(),
+                match.get_remaining_turn_time(),
             ).to_dict(),
         )
     elif match.is_waiting_to_start():

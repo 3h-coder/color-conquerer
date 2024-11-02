@@ -37,6 +37,8 @@
     background-color: green;
     height: 100%;
     box-sizing: border-box;
+    transition: width 0.1s ease-in;
+    transition: background-color 0.3s ease-in;
 }
 
 .whose-turn-label {
