@@ -57,8 +57,10 @@ def handle_queue_registration(data: dict):
         f"({request.remote_addr}) | {Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
     )
 
-    player_info = PlayerInfoDto(player_id, True, queue_player_dto.user)
     (room_id, closed) = _make_enter_in_room(queue_player_dto)
+    player_info = PlayerInfoDto(
+        player_id, isPlayer1=not closed, user=queue_player_dto.user
+    )
     _save_into_session(room_id, player_info)
 
     # The room in which the player entered already had a player waiting.

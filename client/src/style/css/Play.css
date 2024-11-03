@@ -31,14 +31,14 @@
 
 .countdown-bar-outer {
     border-radius: 1rem;
-    border: 0.1rem solid white;
+    border: 0.15rem solid white;
     width: 40%;
     box-sizing: border-box;
     overflow: hidden;
 }
 
 .countdown-bar-inner {
-    border: 0.1rem solid transparent;
+    border: 0.15rem solid transparent;
     background-color: rgb(193, 187, 235);
     height: 100%;
     box-sizing: border-box;

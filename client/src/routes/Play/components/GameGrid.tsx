@@ -6,6 +6,7 @@ import { CellInfoDto } from "../../../dto/CellInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
 import { colors } from "../../../style/constants";
+import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 
 export default function GameGrid() {
@@ -13,8 +14,9 @@ export default function GameGrid() {
     const { playerInfo } = usePlayerInfo();
     const { turnInfo } = useTurnInfo();
     const boardArray = matchInfo.boardArray;
+    developmentLog("Am I player 1 ?", playerInfo.isPlayer1);
     const gridStyle: React.CSSProperties = {
-        transform: `${playerInfo.isPlayer1 ? "rotate(180deg)" : ""}`,
+        transform: `${playerInfo.isPlayer1 ? "rotate(180deg)" : undefined}`,
         gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`,
     };
     const [canSelect, setCanSelect] = useState(false);
@@ -79,11 +81,11 @@ export default function GameGrid() {
         }
 
         socket.on(Events.SERVER_CELL_HOVER, onServerCellHover);
-        socket.on(Events.CLIENT_CELL_HOVER_END, onServerCellHoverEnd);
+        socket.on(Events.SERVER_CELL_HOVER_END, onServerCellHoverEnd);
 
         return () => {
             socket.off(Events.SERVER_CELL_HOVER, onServerCellHover);
-            socket.off(Events.CLIENT_CELL_HOVER_END, onServerCellHoverEnd);
+            socket.off(Events.SERVER_CELL_HOVER_END, onServerCellHoverEnd);
         }
     });
 
@@ -100,7 +102,7 @@ export default function GameGrid() {
                             key={colIndex}
                             id={getCellId(rowIndex, colIndex)}
                             rowIndex={rowIndex}
-                            colIndex={colIndex}
+                            columnIndex={colIndex}
                             canBeSelected={canSelect}
                         />
                     ))}
