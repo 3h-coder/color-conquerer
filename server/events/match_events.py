@@ -3,6 +3,7 @@ from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
 from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
+from dto.cell_info_dto import CellInfoDto
 from dto.message_dto import MessageDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from dto.turn_info_dto import TurnInfoDto
@@ -69,6 +70,34 @@ def handle_session_clearing():
     Clears all the match related session variables so they may queue for a new match.
     """
     session_utils.clear_match_info()
+
+
+def handler_cell_hover(data: dict):
+    """
+    Notifies the room (i.e. the opponent) that a certain cell is being hovered.
+    """
+    cell_info_dto = CellInfoDto.from_dict(data)
+    room_id = _get_session_variable(ROOM_ID)
+    emit(
+        Events.SERVER_CELL_HOVER.value,
+        cell_info_dto.to_dict(),
+        to=room_id,
+        broadcast=True,
+    )
+
+
+def handler_cell_hover_end(data: dict):
+    """
+    Notifies the room (i.e. the opponent) that a certain cell is no longer being hovered.
+    """
+    cell_info_dto = CellInfoDto.from_dict(data)
+    room_id = _get_session_variable(ROOM_ID)
+    emit(
+        Events.SERVER_CELL_HOVER_END.value,
+        cell_info_dto.to_dict(),
+        to=room_id,
+        broadcast=True,
+    )
 
 
 def _get_session_variable(variable_name: str):

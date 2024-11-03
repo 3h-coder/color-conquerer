@@ -43,15 +43,9 @@ interface TimeCountDownBarProps {
 
 function TimeCountDownBar(props: TimeCountDownBarProps) {
     const { turnInfoDto, totalTurnDurationInS } = props;
-    const colors = {
-        green: "green",
-        orange: "orange",
-        red: "red",
-    }
 
     const initialPercentage = round((turnInfoDto.durationInS * 100) / totalTurnDurationInS, 2);
     const [timePercentage, setTimePercentage] = useState(initialPercentage);
-    const [color, setColor] = useState(colors.green);
 
 
     const advancementfactor = 1.08; // Make sure the client time is always a little bit ahead of the server
@@ -60,8 +54,7 @@ function TimeCountDownBar(props: TimeCountDownBarProps) {
     // Update timePercentage whenever turnInfoDto changes
     useEffect(() => {
         setTimePercentage(round((turnInfoDto.durationInS * 100) / totalTurnDurationInS, 2));
-        setColor(colors.green);
-    }, [turnInfoDto, totalTurnDurationInS, colors.green]);
+    }, [turnInfoDto, totalTurnDurationInS]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -73,25 +66,10 @@ function TimeCountDownBar(props: TimeCountDownBarProps) {
         return () => clearInterval(interval);
     }, [percentageLostPer500ms, timePercentage, turnInfoDto]);
 
-    // Update color whenever timePercentage changes
-    useEffect(() => {
-        function updateColor(percentage: number) {
-            if (percentage >= 50) {
-                setColor(colors.green);
-            } else if (percentage >= 20) {
-                setColor(colors.orange);
-            } else {
-                setColor(colors.red);
-            }
-        }
-
-        updateColor(timePercentage);
-    }, [colors.green, colors.orange, colors.red, timePercentage]);
-
 
     return (
         <div className="countdown-bar-outer">
-            <div className="countdown-bar-inner" style={{ width: `${timePercentage}%`, backgroundColor: color }} />
+            <div className="countdown-bar-inner" style={{ width: `${timePercentage}%` }} />
         </div>
     );
 }

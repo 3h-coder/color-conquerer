@@ -11,6 +11,8 @@ from events import (
     handle_disconnection,
     handle_queue_registration,
     handle_session_clearing,
+    handler_cell_hover,
+    handler_cell_hover_end,
 )
 from events.events import Events
 from exceptions.custom_exception import CustomException
@@ -39,6 +41,10 @@ class Server:
             Events.CLIENT_QUEUE_REGISTER.value, handle_queue_registration
         )
         self.socketio.on_event(Events.CLIENT_READY.value, handle_client_ready)
+        self.socketio.on_event(Events.CLIENT_CELL_HOVER.value, handler_cell_hover)
+        self.socketio.on_event(
+            Events.CLIENT_CELL_HOVER_END.value, handler_cell_hover_end
+        )
         self.socketio.on_event(
             Events.CLIENT_CLEAR_SESSION.value, handle_session_clearing
         )

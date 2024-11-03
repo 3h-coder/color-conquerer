@@ -20,11 +20,11 @@ export const undefinedPlayer: PartialPlayerInfoDto = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const PlayerContext = createContext<PlayerContextObject>({ playerInfo: undefinedPlayer, setPlayerInfo: (_playerInfo: PartialPlayerInfoDto) => { }, loading: false });
 
-interface PlayerontextProviderProps {
+interface PlayerContextProviderProps {
     children?: ReactNode;
 }
 
-export default function PlayerContextProvider(props: PlayerontextProviderProps) {
+export default function PlayerContextProvider(props: PlayerContextProviderProps) {
     const { children } = props;
     const { user } = useUser();
     const [playerInfo, setPlayerInfo] = useState(undefinedPlayer);

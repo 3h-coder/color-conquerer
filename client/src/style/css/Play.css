@@ -3,9 +3,13 @@
 .page-container {
     display: flex;
     flex-direction: column;
-    gap: max(30px, 5vmin);
     width: fit-content;
     margin: auto;
+}
+
+.main-inner-container {
+    display: flex;
+    flex-direction: column;
     background-color: rgb(93, 83, 151);
     padding: max(30px, 4vmin);
     border-radius: 1rem;
@@ -22,6 +26,7 @@
     display: flex;
     justify-content: space-between;
     gap: max(15px, 2vmin);
+    margin-bottom: max(15px, 2vmin);
 }
 
 .countdown-bar-outer {
@@ -34,11 +39,10 @@
 
 .countdown-bar-inner {
     border: 0.1rem solid transparent;
-    background-color: green;
+    background-color: rgb(193, 187, 235);
     height: 100%;
     box-sizing: border-box;
-    transition: width 0.1s ease-in;
-    transition: background-color 0.3s ease-in;
+    transition: all 0.1s ease-in-out;
 }
 
 .whose-turn-label {
@@ -62,4 +66,18 @@
     border: 1px solid rgb(200, 200, 200);
     width: max(19px, 4vmin);
     height: max(19px, 4vmin);
+    transition: border 0.15s ease-in-out;
+}
+
+/* meant to be used on cells only */
+.selectable {
+    cursor: pointer;
+}
+
+.selectable:hover {
+    border: 1px solid blue;
+}
+
+.selected {
+    border: 1px solid red;
 }

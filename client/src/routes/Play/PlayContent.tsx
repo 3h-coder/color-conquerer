@@ -4,6 +4,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { undefinedMatch, useMatchInfo } from "../../contexts/MatchContext";
 import { undefinedPlayer, usePlayerInfo } from "../../contexts/PlayerContext";
+import { useTurnInfo } from "../../contexts/TurnContext";
 import { ErrorDto } from "../../dto/ErrorDto";
 import { EndingReason, MatchClosureDto } from "../../dto/MatchClosureDto";
 import { MessageDto } from "../../dto/MessageDto";
@@ -22,7 +23,7 @@ export default function PlayContent() {
     playerInfo,
     loading: playerInfoLoading,
   } = usePlayerInfo();
-  const [turnInfo, setTurnInfo] = useState<TurnInfoDto | undefined>(undefined);
+  const { turnInfo, setTurnInfo } = useTurnInfo();
   const [waitingText, setWaitingText] = useState("");
   const [canRenderContent, setCanRenderContent] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -128,7 +129,9 @@ export default function PlayContent() {
       {canRenderContent ? (
         <>
           {turnInfo && <GameTopInfo turnInfoDto={turnInfo} />}
-          <GameGrid />
+          <div className="main-inner-container">
+            <GameGrid />
+          </div>
         </>
       ) : (
         <div>
