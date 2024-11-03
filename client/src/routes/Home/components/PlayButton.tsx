@@ -8,7 +8,7 @@ import { ErrorDto } from "../../../dto/ErrorDto";
 import { QueuePlayerDto } from "../../../dto/QueuePlayerDto";
 import { Events } from "../../../enums/events";
 import { HomeState } from "../../../enums/homeState";
-import { socket } from "../../../env";
+import { constants, socket } from "../../../env";
 import {
     developmentErrorLog,
     developmentLog,
@@ -16,7 +16,7 @@ import {
 import { fullPaths } from "../../paths";
 import OpponentSearch from "./OpponentSearch";
 
-export default function HomeButtons() {
+export default function PlayButton() {
     const navigate = useNavigate();
     const { user } = useUser();
     const { setHomeError } = useHomeError();
@@ -83,6 +83,7 @@ export default function HomeButtons() {
         function goToPlayRoom() {
             developmentLog("Opponent found!");
             socket.disconnect();
+            localStorage.setItem(constants.localStorageKeys.animateGrid, "true");
             navigate(fullPaths.play);
         }
 

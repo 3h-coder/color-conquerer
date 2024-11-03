@@ -4,9 +4,9 @@ import { usePlayerInfo } from "../../../contexts/PlayerContext";
 import { undefinedTurnInfo, useTurnInfo } from "../../../contexts/TurnContext";
 import { CellInfoDto } from "../../../dto/CellInfoDto";
 import { Events } from "../../../enums/events";
-import { socket } from "../../../env";
-import { colors } from "../../../style/constants";
-import { developmentLog } from "../../../utils/loggingUtils";
+import { constants, socket } from "../../../env";
+import { animations, colors } from "../../../style/constants";
+import { extractKey } from "../../../utils/localStorageUtils";
 import GameCell from "./GameCell";
 
 export default function GameGrid() {
@@ -14,13 +14,13 @@ export default function GameGrid() {
     const { playerInfo } = usePlayerInfo();
     const { turnInfo } = useTurnInfo();
     const boardArray = matchInfo.boardArray;
-    developmentLog("Am I player 1 ?", playerInfo.isPlayer1);
     const gridStyle: React.CSSProperties = {
         transform: `${playerInfo.isPlayer1 ? "rotate(180deg)" : undefined}`,
         gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`,
     };
     const [canSelect, setCanSelect] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
+    const shouldAnimate = Boolean(extractKey(constants.localStorageKeys.animateGrid));
 
     useEffect(() => {
         if (turnInfo === undefinedTurnInfo) return;
@@ -30,7 +30,20 @@ export default function GameGrid() {
     }, [isMyTurn, playerInfo.playerId, turnInfo]);
 
     useEffect(() => {
-        colorBoard();
+        if (!shouldAnimate) {
+            colorBoard();
+        } else {
+            const arrayRowLength = boardArray[0].length;
+            const longestAnimationDelayInMs = (arrayRowLength - 1) * arrayRowLength * animations.grid.cellAnimationDelayFactor;
+            const totalAnimationCompletionTimeInMs = longestAnimationDelayInMs + animations.grid.cellAnimationTimeInMs;
+
+            const timeout = setTimeout(() => {
+                colorBoard();
+            }, totalAnimationCompletionTimeInMs);
+
+            return () => clearTimeout(timeout);
+        }
+
 
         function colorBoard() {
             boardArray.forEach((row) => {
@@ -59,7 +72,7 @@ export default function GameGrid() {
             if (isMyTurn)
                 return;
 
-            const htmlCell = document.getElementById(getCellId(cell.rowIndex, cell.columnIndex))
+            const htmlCell = document.getElementById(getCellId(cell.rowIndex, cell.columnIndex));
             if (!htmlCell)
                 return;
 
@@ -104,6 +117,8 @@ export default function GameGrid() {
                             rowIndex={rowIndex}
                             columnIndex={colIndex}
                             canBeSelected={canSelect}
+                            arrayRowLength={boardArray[0].length}
+                            animate={shouldAnimate}
                         />
                     ))}
                 </div>

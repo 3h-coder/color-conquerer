@@ -6,6 +6,7 @@
 
 # Client
 
+- Match animations and UI embellishment
 - Create the action board ?
 - Check screen responsiveness
 

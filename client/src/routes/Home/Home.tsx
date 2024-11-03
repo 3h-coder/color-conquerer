@@ -1,9 +1,9 @@
 import HomeErrorContextProvider from "../../contexts/HomeErrorContext";
 import HomeStateContextProvider from "../../contexts/HomeStateContext";
 import '../../style/css/Home.css';
-import HomeButtons from "./components/HomeButtons";
 import HomeError from "./components/HomeError";
 import HomeTopMessage from "./components/HomeTopMessage";
+import PlayButton from "./components/PlayButton";
 
 export default function Home() {
 
@@ -14,7 +14,7 @@ export default function Home() {
                 <div className="home-container">
                     <HomeTopMessage />
                     <h1 className="main-title">Welcome to Color Conquerer</h1>
-                    <HomeButtons />
+                    <PlayButton />
                     <HomeError />
                 </div>
             </HomeErrorContextProvider>
