@@ -58,10 +58,15 @@ export default function PlayContent() {
       setWaitingText(messageDto.message);
     }
 
-    function onMatchStarted(turnInfoDto: TurnInfoDto) {
+    function onMatchBeginning(turnInfoDto: TurnInfoDto) {
+      // TODO : Display a big beginning animation on screen here
+      onMatchAlreadyStarted(turnInfoDto);
+    }
+
+    function onMatchAlreadyStarted(turnInfoDto: TurnInfoDto) {
       setCanRenderContent(true);
       setTurnInfo(turnInfoDto);
-      developmentLog(`The match started! \nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `)
+      developmentLog(`The match started! \nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds`);
     }
 
     function onTurnSwap(turnInfoDto: TurnInfoDto) {
@@ -98,14 +103,16 @@ export default function PlayContent() {
     }
 
     socket.on(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
-    socket.on(Events.SERVER_MATCH_STARTED, onMatchStarted);
+    socket.on(Events.SERVER_MATCH_START, onMatchBeginning);
+    socket.on(Events.SERVER_MATCH_ONGOING, onMatchAlreadyStarted);
     socket.on(Events.SERVER_TURN_SWAP, onTurnSwap);
     socket.on(Events.SERVER_MATCH_END, onMatchEnded);
     socket.on(Events.SERVER_ERROR, onError);
 
     return () => {
       socket.off(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
-      socket.off(Events.SERVER_MATCH_STARTED, onMatchStarted);
+      socket.off(Events.SERVER_MATCH_START, onMatchBeginning);
+      socket.off(Events.SERVER_MATCH_ONGOING, onMatchAlreadyStarted);
       socket.off(Events.SERVER_TURN_SWAP, onTurnSwap);
       socket.off(Events.SERVER_MATCH_END, onMatchEnded);
       socket.off(Events.SERVER_ERROR, onError);

@@ -17,7 +17,7 @@ _logger = get_configured_logger(__name__)
 
 def handle_client_ready():
     """
-    Recieves the signal of the given player's client and marks the player ready
+    Receives the signal of the given player's client and marks the player ready
     server side, possibly starting the match if everyone is.
     """
     server_error_msg = "A server error occured, unable to connect you to your match"
@@ -41,10 +41,10 @@ def handle_client_ready():
     match.players_ready[player_info.playerId] = True
     session[IN_MATCH] = True
 
-    # The match started event is what the client uses to render the game
+    # Notify the client so it can render accordingly
     if match.is_ongoing():
         emit(
-            Events.SERVER_MATCH_STARTED.value,
+            Events.SERVER_MATCH_ONGOING.value,
             TurnInfoDto(
                 match.get_current_player_id(),
                 match.match_info.isPlayer1Turn,

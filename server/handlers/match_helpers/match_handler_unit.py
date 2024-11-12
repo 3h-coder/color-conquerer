@@ -1,4 +1,3 @@
-import math
 from datetime import datetime
 from enum import Enum
 from threading import Event
@@ -100,6 +99,7 @@ class MatchHandlerUnit:
 
         self._trigger_turn_watcher()
 
+        # notify the clients
         self._server.socketio.emit(
             Events.SERVER_MATCH_STARTED.value,
             TurnInfoDto(
