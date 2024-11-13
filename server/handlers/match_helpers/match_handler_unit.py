@@ -101,7 +101,7 @@ class MatchHandlerUnit:
 
         # notify the clients
         self._server.socketio.emit(
-            Events.SERVER_MATCH_STARTED.value,
+            Events.SERVER_MATCH_START.value,
             TurnInfoDto(
                 self.match_info.player1.playerId,
                 self.match_info.isPlayer1Turn,

@@ -66,7 +66,20 @@
     border: 1px solid rgb(200, 200, 200);
     width: max(19px, 4vmin);
     height: max(19px, 4vmin);
-    transition: background-color 0.5s;
+    transition: background-color 0.1s;
+}
+
+.turn-swap-image-container {
+    background-color: transparent;
+    height: 45vw;
+    opacity: 0;
+    animation: appear-growing-long 1s ease-in-out 2 alternate;
+}
+
+.turn-swap-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 /* meant to be used on cells only */
@@ -76,8 +89,10 @@
 
 .selectable:hover {
     border: 1px solid blue;
+    background-color: rgb(176, 199, 248);
 }
 
 .selected {
     border: 1px solid red;
+    background-color: rgb(250, 186, 186);
 }

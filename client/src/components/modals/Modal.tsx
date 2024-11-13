@@ -100,10 +100,11 @@ function CloseButton(props: CloseButtonProps) {
 }
 
 function getModalRoot() {
-    let modalRoot = document.getElementById('modal-root');
+    const modalRootId = "modal-root";
+    let modalRoot = document.getElementById(modalRootId);
     if (!modalRoot) {
-        modalRoot = document.createElement('div');
-        modalRoot.id = 'modal-root';
+        modalRoot = document.createElement("div");
+        modalRoot.id = modalRootId;
         document.body.appendChild(modalRoot);
     }
     return modalRoot;

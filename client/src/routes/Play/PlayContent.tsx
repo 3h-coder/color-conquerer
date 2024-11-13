@@ -1,5 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import OpponentTurnImage from "../../assets/images/Your Opponent Turn.png";
+import YourTurnImage from "../../assets/images/Your Turn.png";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { undefinedMatch, useMatchInfo } from "../../contexts/MatchContext";
@@ -15,6 +17,7 @@ import { constants, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameTopInfo from "./components/GameTopInfo";
+import TurnSwapImage from "./components/TurnSwapImage";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -26,12 +29,16 @@ export default function PlayContent() {
   const { turnInfo, setTurnInfo } = useTurnInfo();
   const [waitingText, setWaitingText] = useState("");
   const [canRenderContent, setCanRenderContent] = useState(false);
+  const [isMyTurn, setIsMyTurn] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalText, setModalText] = useState("");
   const [modalIcon, setModalIcon] = useState(ModalIcon.None);
   const [modalExit, setModalExit] = useState<() => unknown>(() => {
     return () => setModalVisible(false);
   });
+  const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
+  const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
+
 
   useEffect(() => {
     if (matchInfoLoading || playerInfoLoading) return;
@@ -59,19 +66,27 @@ export default function PlayContent() {
     }
 
     function onMatchBeginning(turnInfoDto: TurnInfoDto) {
+      onMatchOngoing(turnInfoDto);
       // TODO : Display a big beginning animation on screen here
-      onMatchAlreadyStarted(turnInfoDto);
+      setTurnSwapImagePath(isMyTurn ? YourTurnImage : OpponentTurnImage);
+      setShowTurnSwapImage(true);
+      setTimeout(() => setShowTurnSwapImage(false), 2200);
     }
 
-    function onMatchAlreadyStarted(turnInfoDto: TurnInfoDto) {
+    function onMatchOngoing(turnInfoDto: TurnInfoDto) {
       setCanRenderContent(true);
       setTurnInfo(turnInfoDto);
+      setIsMyTurn(playerInfo.playerId === turnInfo.currentPlayerId);
       developmentLog(`The match started! \nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds`);
     }
 
     function onTurnSwap(turnInfoDto: TurnInfoDto) {
+      developmentLog(`Turn swap!\nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `);
       setTurnInfo(turnInfoDto);
-      developmentLog(`Turn swap!\nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `)
+      setIsMyTurn(playerInfo.playerId === turnInfo.currentPlayerId);
+      setTurnSwapImagePath(isMyTurn ? YourTurnImage : OpponentTurnImage);
+      setShowTurnSwapImage(true);
+      setTimeout(() => setShowTurnSwapImage(false), 2200);
     }
 
     function onMatchEnded(matchClosureDto: MatchClosureDto) {
@@ -104,7 +119,7 @@ export default function PlayContent() {
 
     socket.on(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
     socket.on(Events.SERVER_MATCH_START, onMatchBeginning);
-    socket.on(Events.SERVER_MATCH_ONGOING, onMatchAlreadyStarted);
+    socket.on(Events.SERVER_MATCH_ONGOING, onMatchOngoing);
     socket.on(Events.SERVER_TURN_SWAP, onTurnSwap);
     socket.on(Events.SERVER_MATCH_END, onMatchEnded);
     socket.on(Events.SERVER_ERROR, onError);
@@ -112,7 +127,7 @@ export default function PlayContent() {
     return () => {
       socket.off(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
       socket.off(Events.SERVER_MATCH_START, onMatchBeginning);
-      socket.off(Events.SERVER_MATCH_ONGOING, onMatchAlreadyStarted);
+      socket.off(Events.SERVER_MATCH_ONGOING, onMatchOngoing);
       socket.off(Events.SERVER_TURN_SWAP, onTurnSwap);
       socket.off(Events.SERVER_MATCH_END, onMatchEnded);
       socket.off(Events.SERVER_ERROR, onError);
@@ -151,6 +166,7 @@ export default function PlayContent() {
           <h3 className="no-margin">{modalText}</h3>
         </SingleButtonModal>
       )}
+      {showTurnSwapImage && <TurnSwapImage imagePath={turnSwapImagePath} />}
     </PageContainer>
   );
 }
