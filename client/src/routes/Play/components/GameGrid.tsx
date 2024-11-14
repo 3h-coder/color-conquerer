@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
+import OpponentTurnImage from "../../../assets/images/Your Opponent Turn.png";
+import YourTurnImage from "../../../assets/images/Your Turn.png";
 import { useMatchInfo } from "../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
 import { undefinedTurnInfo, useTurnInfo } from "../../../contexts/TurnContext";
 import { CellInfoDto } from "../../../dto/CellInfoDto";
 import { Events } from "../../../enums/events";
-import { constants, socket } from "../../../env";
+import { socket } from "../../../env";
 import { animations, colors } from "../../../style/constants";
-import { extractKey } from "../../../utils/localStorageUtils";
 import GameCell from "./GameCell";
+import TurnSwapImage from "./TurnSwapImage";
 
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
@@ -19,15 +21,29 @@ export default function GameGrid() {
         gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`,
     };
     const [canSelect, setCanSelect] = useState(false);
+    const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
+    const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
-    const shouldAnimate = Boolean(extractKey(constants.localStorageKeys.animateGrid));
+    //const shouldAnimate = Boolean(extractKey(constants.localStorageKeys.animateGrid));
+    const shouldAnimate = false;
 
     useEffect(() => {
         if (turnInfo === undefinedTurnInfo) return;
 
         setIsMyTurn(turnInfo.currentPlayerId === playerInfo.playerId);
-        setCanSelect(isMyTurn);
-    }, [isMyTurn, playerInfo.playerId, turnInfo]);
+    }, [playerInfo.playerId, turnInfo]);
+
+    useEffect(() => {
+        setTurnSwapImagePath(isMyTurn ? YourTurnImage : OpponentTurnImage);
+        setShowTurnSwapImage(true);
+
+        const timeOut = setTimeout(() => {
+            setShowTurnSwapImage(false);
+            setCanSelect(isMyTurn);
+        }, 2200);
+
+        return () => clearTimeout(timeOut);
+    }, [isMyTurn]);
 
     useEffect(() => {
         if (!shouldAnimate) {
@@ -90,7 +106,7 @@ export default function GameGrid() {
                 return;
 
             const currentClassName = htmlCell.className;
-            htmlCell.className = currentClassName.replace("selected", "");
+            htmlCell.className = currentClassName.replace(" selected", "");
         }
 
         socket.on(Events.SERVER_CELL_HOVER, onServerCellHover);
@@ -123,6 +139,7 @@ export default function GameGrid() {
                     ))}
                 </div>
             ))}
+            {showTurnSwapImage && <TurnSwapImage imagePath={turnSwapImagePath} />}
         </div>
     );
 }

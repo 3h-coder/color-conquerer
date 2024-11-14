@@ -50,8 +50,8 @@
 }
 
 .grid {
+    position: relative;
     display: grid;
-    flex-direction: column;
     background-color: transparent;
     width: fit-content;
     height: fit-content;
@@ -70,8 +70,11 @@
 }
 
 .turn-swap-image-container {
+    position: absolute;
     background-color: transparent;
-    height: 45vw;
+    height: 80%;
+    width: 80%;
+    margin: auto;
     opacity: 0;
     animation: appear-growing-long 1s ease-in-out 2 alternate;
 }
