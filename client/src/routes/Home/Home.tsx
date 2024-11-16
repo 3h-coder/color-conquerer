@@ -1,3 +1,4 @@
+import { ContainerProps } from "../../components/containers";
 import HomeErrorContextProvider from "../../contexts/HomeErrorContext";
 import HomeStateContextProvider from "../../contexts/HomeStateContext";
 import '../../style/css/Home.css';
@@ -11,13 +12,21 @@ export default function Home() {
     return (
         <HomeStateContextProvider>
             <HomeErrorContextProvider>
-                <div className="home-container">
+                <HomeContainer>
                     <HomeTopMessage />
                     <h1 className="main-title">Welcome to Color Conquerer</h1>
                     <PlayButton />
                     <HomeError />
-                </div>
+                </HomeContainer>
             </HomeErrorContextProvider>
         </HomeStateContextProvider>
+    );
+}
+
+function HomeContainer(props: ContainerProps) {
+    return (
+        <div className="home-container">
+            {props.children}
+        </div>
     );
 }

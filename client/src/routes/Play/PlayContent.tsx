@@ -1,5 +1,6 @@
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ContainerProps } from "../../components/containers";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { undefinedMatch, useMatchInfo } from "../../contexts/MatchContext";
@@ -135,9 +136,9 @@ export default function PlayContent() {
       {canRenderContent ? (
         <>
           {turnInfo && <GameTopInfo turnInfoDto={turnInfo} />}
-          <div className="main-inner-container">
+          <MainInnerContainer>
             <GameGrid />
-          </div>
+          </MainInnerContainer>
         </>
       ) : (
         <div>
@@ -154,12 +155,18 @@ export default function PlayContent() {
   );
 }
 
-interface PageContainerProps {
-  children: ReactNode;
+function PageContainer(props: ContainerProps) {
+  return (
+    <div className="page-container">
+      {props.children}
+    </div>
+  );
 }
 
-function PageContainer(props: PageContainerProps) {
-  const { children } = props;
-
-  return <div className="page-container">{children}</div>;
+function MainInnerContainer(props: ContainerProps) {
+  return (
+    <div className="main-inner-container">
+      {props.children}
+    </div>
+  );
 }

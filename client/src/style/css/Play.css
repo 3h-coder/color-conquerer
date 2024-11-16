@@ -49,8 +49,17 @@
     margin: 0;
 }
 
-.grid {
+.grid-outer {
     position: relative;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    height: fit-content;
+}
+
+.grid-inner {
     display: grid;
     background-color: transparent;
     width: fit-content;
@@ -74,7 +83,6 @@
     background-color: transparent;
     height: 80%;
     width: 80%;
-    margin: auto;
     opacity: 0;
     animation: appear-growing-long 1s ease-in-out 2 alternate;
 }

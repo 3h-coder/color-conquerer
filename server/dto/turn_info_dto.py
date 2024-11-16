@@ -8,3 +8,4 @@ class TurnInfoDto(BaseDto):
     currentPlayerId: str
     isPlayer1Turn: bool
     durationInS: int
+    notifyTurnChange: bool

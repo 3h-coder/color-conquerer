@@ -106,6 +106,7 @@ class MatchHandlerUnit:
                 self.match_info.player1.playerId,
                 self.match_info.isPlayer1Turn,
                 TURN_DURATION_IN_S,
+                notifyTurnChange=True,
             ).to_dict(),
             to=self.match_info.roomId,
         )
@@ -247,6 +248,7 @@ class MatchHandlerUnit:
                         self.get_current_player_id(),
                         self.match_info.isPlayer1Turn,
                         TURN_DURATION_IN_S,
+                        notifyTurnChange=True,
                     ).to_dict(),
                     to=self.match_info.roomId,
                 )

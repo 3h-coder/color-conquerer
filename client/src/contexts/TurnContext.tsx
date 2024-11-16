@@ -8,7 +8,7 @@ interface TurnContextObject {
 }
 
 export const undefinedTurnInfo: TurnInfoDto = {
-    currentPlayerId: "", isPlayer1Turn: false, durationInS: 0
+    currentPlayerId: "", isPlayer1Turn: false, durationInS: 0, notifyTurnChange: false
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

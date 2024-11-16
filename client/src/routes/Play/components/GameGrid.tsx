@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import OpponentTurnImage from "../../../assets/images/Your Opponent Turn.png";
 import YourTurnImage from "../../../assets/images/Your Turn.png";
+import { ContainerProps } from "../../../components/containers";
 import { useMatchInfo } from "../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
 import { undefinedTurnInfo, useTurnInfo } from "../../../contexts/TurnContext";
@@ -15,11 +16,14 @@ export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
     const { playerInfo } = usePlayerInfo();
     const { turnInfo } = useTurnInfo();
+
     const boardArray = matchInfo.boardArray;
+    const rotate = playerInfo.isPlayer1;
     const gridStyle: React.CSSProperties = {
-        transform: `${playerInfo.isPlayer1 ? "rotate(180deg)" : undefined}`,
+        transform: `${rotate ? "rotate(180deg)" : undefined}`,
         gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`,
     };
+
     const [canSelect, setCanSelect] = useState(false);
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
     const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
@@ -34,15 +38,21 @@ export default function GameGrid() {
     }, [playerInfo.playerId, turnInfo]);
 
     useEffect(() => {
+        if (!turnInfo.notifyTurnChange) {
+            setCanSelect(isMyTurn);
+            return;
+        }
+
         setTurnSwapImagePath(isMyTurn ? YourTurnImage : OpponentTurnImage);
         setShowTurnSwapImage(true);
 
-        const timeOut = setTimeout(() => {
+        const timeout = setTimeout(() => {
             setShowTurnSwapImage(false);
             setCanSelect(isMyTurn);
-        }, 2200);
+        }, 2000);
 
-        return () => clearTimeout(timeOut);
+        return () => clearTimeout(timeout);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isMyTurn]);
 
     useEffect(() => {
@@ -58,26 +68,6 @@ export default function GameGrid() {
             }, totalAnimationCompletionTimeInMs);
 
             return () => clearTimeout(timeout);
-        }
-
-
-        function colorBoard() {
-            boardArray.forEach((row) => {
-                row.forEach((cell) => {
-                    if (cell.owner === 0) return;
-
-                    const htmlCell = document.getElementById(
-                        getCellId(cell.rowIndex, cell.columnIndex)
-                    );
-                    if (playerInfo.isPlayer1) {
-                        htmlCell!.style.backgroundColor =
-                            cell.owner === 1 ? colors.ownCell : colors.opponentCell;
-                    } else {
-                        htmlCell!.style.backgroundColor =
-                            cell.owner === 2 ? colors.ownCell : colors.opponentCell;
-                    }
-                });
-            });
         }
     });
 
@@ -118,28 +108,74 @@ export default function GameGrid() {
         }
     });
 
+    function colorBoard() {
+        boardArray.forEach((row) => {
+            row.forEach((cell) => {
+                if (cell.owner === 0) return;
+
+                const htmlCell = document.getElementById(
+                    getCellId(cell.rowIndex, cell.columnIndex)
+                );
+                if (playerInfo.isPlayer1) {
+                    htmlCell!.style.backgroundColor =
+                        cell.owner === 1 ? colors.ownCell : colors.opponentCell;
+                } else {
+                    htmlCell!.style.backgroundColor =
+                        cell.owner === 2 ? colors.ownCell : colors.opponentCell;
+                }
+            });
+        });
+    }
+
     function getCellId(rowIndex: number, colIndex: number) {
         return `c-${rowIndex}-${colIndex}`;
     }
 
     return (
-        <div className="grid" style={gridStyle}>
-            {boardArray.map((row, rowIndex) => (
-                <div className="row" id={`r-${rowIndex}`} key={rowIndex}>
-                    {row.map((_cell, colIndex) => (
-                        <GameCell
-                            key={colIndex}
-                            id={getCellId(rowIndex, colIndex)}
-                            rowIndex={rowIndex}
-                            columnIndex={colIndex}
-                            canBeSelected={canSelect}
-                            arrayRowLength={boardArray[0].length}
-                            animate={shouldAnimate}
-                        />
-                    ))}
-                </div>
-            ))}
+        <GridOuter>
+            <GridInner style={gridStyle}>
+                {boardArray.map((row, rowIndex) => (
+                    <GridRow className="row" id={`r-${rowIndex}`} key={rowIndex}>
+                        {row.map((_cell, colIndex) => (
+                            <GameCell
+                                key={colIndex}
+                                id={getCellId(rowIndex, colIndex)}
+                                rowIndex={rowIndex}
+                                columnIndex={colIndex}
+                                canBeSelected={canSelect}
+                                arrayRowLength={boardArray[0].length}
+                                animate={shouldAnimate}
+                            />
+                        ))}
+                    </GridRow>
+                ))}
+            </GridInner>
             {showTurnSwapImage && <TurnSwapImage imagePath={turnSwapImagePath} />}
+        </GridOuter>
+
+    );
+}
+
+function GridOuter(props: ContainerProps) {
+    return (
+        <div className="grid-outer">
+            {props.children}
+        </div>
+    );
+}
+
+function GridInner(props: ContainerProps) {
+    return (
+        <div className="grid-inner" style={props.style}>
+            {props.children}
+        </div>
+    );
+}
+
+function GridRow(props: ContainerProps) {
+    return (
+        <div className="row">
+            {props.children}
         </div>
     );
 }
