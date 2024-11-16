@@ -7,6 +7,7 @@ from flask_socketio import SocketIO
 
 from config.logging import get_configured_logger
 from constants.match_constants import (
+    BOARD_SIZE,
     DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
     DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION,
     DELAY_IN_S_TO_WAIT_FOR_EVERYONE,
@@ -331,21 +332,20 @@ class MatchHandlerUnit:
     def _get_starting_board_array(self):
         # ⚠️ the board size must never change
         # TODO: create unit tests to ensure that
-        board_size = 15
 
         board = [
             [
                 CellInfoDto(owner=0, rowIndex=i, columnIndex=j, state=CellState.IDLE)
-                for j in range(board_size)
+                for j in range(BOARD_SIZE)
             ]
-            for i in range(board_size)
+            for i in range(BOARD_SIZE)
         ]
 
         # initialize the cell[2][7] as owned by player1 and the cell[12][7] by player2
-        board[2][7].owner = 1
-        board[2][7].state = CellState.CAPTURED
-        board[12][7].owner = 2
-        board[12][7].state = CellState.CAPTURED
+        board[2][5].owner = 1
+        board[2][5].state = CellState.CAPTURED
+        board[8][5].owner = 2
+        board[8][5].state = CellState.CAPTURED
 
         return board
 
