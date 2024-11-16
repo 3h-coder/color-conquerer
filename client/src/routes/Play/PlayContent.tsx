@@ -135,16 +135,16 @@ export default function PlayContent() {
     <PageContainer>
       {canRenderContent ? (
         <>
-          {turnInfo && <GameTopInfo turnInfoDto={turnInfo} />}
+          {turnInfo && <GameTopInfo />}
           <MainInnerContainer>
             <GameGrid />
           </MainInnerContainer>
         </>
       ) : (
-        <div>
+        <>
           <LoadingSpinner className="initial-loading" />
           <h3>{waitingText}</h3>
-        </div>
+        </>
       )}
       {modalVisible && (
         <SingleButtonModal buttonText="OK" onClose={modalExit} icon={modalIcon}>

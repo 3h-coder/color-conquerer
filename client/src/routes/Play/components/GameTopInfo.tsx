@@ -1,23 +1,20 @@
 import { useEffect, useState } from "react";
 import { useMatchInfo } from "../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
+import { useTurnInfo } from "../../../contexts/TurnContext";
 import { TurnInfoDto } from "../../../dto/TurnInfoDto";
 import { round } from "../../../utils/mathUtils";
 
-interface GameTopInfoProps {
-    turnInfoDto: TurnInfoDto;
-}
-
-export default function GameTopInfo(props: GameTopInfoProps) {
+export default function GameTopInfo() {
     const { playerInfo } = usePlayerInfo();
     const { matchInfo } = useMatchInfo();
-    const { turnInfoDto } = props;
-    const whoseTurnMessage = playerInfo.playerId === turnInfoDto.currentPlayerId ? "Your turn" : "Your opponent's turn";
+    const { turnInfo } = useTurnInfo();
+    const whoseTurnMessage = playerInfo.playerId === turnInfo.currentPlayerId ? "Your turn" : "Your opponent's turn";
 
     return (
         <GameTopInfoContainer>
             <h3 className="whose-turn-label">{whoseTurnMessage}</h3>
-            <TimeCountDownBar turnInfoDto={turnInfoDto} totalTurnDurationInS={matchInfo.totalTurnDurationInS} />
+            <TimeCountDownBar turnInfoDto={turnInfo} totalTurnDurationInS={matchInfo.totalTurnDurationInS} />
         </GameTopInfoContainer>
     );
 }

@@ -1,34 +1,16 @@
-import { useEffect, useState } from "react";
 import { CellInfoDto } from "../../../dto/CellInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
-import { animations } from "../../../style/constants";
 
 interface GameCellProps {
     id: string;
     rowIndex: number;
     columnIndex: number;
     canBeSelected: boolean;
-    arrayRowLength: number;
-    animate: boolean;
 }
 
 export default function GameCell(props: GameCellProps) {
-    const { id, rowIndex, columnIndex, canBeSelected, arrayRowLength, animate } = props;
-    const [opacity, setOpacity] = useState(animate ? "0" : "1");
-    const animationDelayInMs = (rowIndex * arrayRowLength) * animations.grid.cellAnimationDelayFactor;
-    const animationStyle = `appear-growing ${animations.grid.cellAnimationTimeInMs}ms ${animationDelayInMs}ms ease-in-out`;
-
-    useEffect(() => {
-        if (!animate)
-            return;
-
-        const timeout = setTimeout(() => {
-            setOpacity("1");
-        }, animationDelayInMs);
-
-        return () => clearTimeout(timeout);
-    })
+    const { id, rowIndex, columnIndex, canBeSelected } = props;
 
     function onCellMouseEnter() {
         if (canBeSelected)
@@ -56,7 +38,7 @@ export default function GameCell(props: GameCellProps) {
             id={id}
             onMouseEnter={onCellMouseEnter}
             onMouseLeave={onCellMouseLeave}
-            style={{ position: "relative", opacity: opacity, animation: animate ? animationStyle : undefined }}
+            style={{ position: "relative" }}
         >
             {/* Uncomment the line below to see each cell's row and column index */}
             {/* <span style={{ position: "absolute", fontSize: "px", color: "black" }}>{`[${rowIndex}, ${columnIndex}]`}</span> */}
