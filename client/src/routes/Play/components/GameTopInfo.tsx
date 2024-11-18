@@ -9,11 +9,11 @@ export default function GameTopInfo() {
     const { playerInfo } = usePlayerInfo();
     const { matchInfo } = useMatchInfo();
     const { turnInfo } = useTurnInfo();
-    const whoseTurnMessage = playerInfo.playerId === turnInfo.currentPlayerId ? "Your turn" : "Your opponent's turn";
+    const whoseTurnMessage = playerInfo.playerId === turnInfo.currentPlayerId ? "Your turn" : "Opponent turn";
 
     return (
         <GameTopInfoContainer>
-            <h3 className="whose-turn-label">{whoseTurnMessage}</h3>
+            <h3 className="whose-turn-label adaptive-font-size">{whoseTurnMessage}</h3>
             <TimeCountDownBar turnInfoDto={turnInfo} totalTurnDurationInS={matchInfo.totalTurnDurationInS} />
         </GameTopInfoContainer>
     );

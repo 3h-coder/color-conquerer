@@ -11,9 +11,11 @@
     display: flex;
     flex-direction: column;
     background-color: rgb(93, 83, 151);
-    padding: max(30px, 4vmin);
+    padding: max(10px, 4vmin);
     border-radius: 1rem;
     box-shadow: 0 0 3vmin 0.25vmin rgba(0, 0, 0, 0.2);
+
+
 }
 
 .initial-loading {
@@ -25,6 +27,7 @@
 .game-top-info-container {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: max(15px, 2vmin);
     margin-bottom: max(15px, 2vmin);
 }
@@ -33,6 +36,7 @@
     border-radius: 1rem;
     border: 0.15rem solid white;
     width: 40%;
+    height: max(20px, 3vmin);
     box-sizing: border-box;
     overflow: hidden;
 }
@@ -73,8 +77,8 @@
 .cell {
     background-color: white;
     border: 1px solid rgb(200, 200, 200);
-    width: max(19px, 4vmin);
-    height: max(19px, 4vmin);
+    width: max(25px, 4vmin);
+    height: max(25px, 4vmin);
     transition: background-color 0.1s;
 }
 

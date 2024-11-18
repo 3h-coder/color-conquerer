@@ -103,6 +103,17 @@ svg {
   padding: 0;
 }
 
+.adaptive-font-size {
+
+  @media (max-width: 760px) {
+    font-size: medium;
+  }
+
+  @media (max-width: 460px) {
+    font-size: small;
+  }
+}
+
 .pulse {
   animation: pulse 1s ease infinite alternate;
 }

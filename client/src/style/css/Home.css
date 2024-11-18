@@ -10,6 +10,7 @@
 
 .main-title {
   width: fit-content;
+  text-align: center;
 }
 
 .home-buttons-container, .opponent-search-container {

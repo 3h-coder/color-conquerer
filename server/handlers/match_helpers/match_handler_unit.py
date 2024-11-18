@@ -342,10 +342,10 @@ class MatchHandlerUnit:
         ]
 
         # initialize the cell[2][7] as owned by player1 and the cell[12][7] by player2
-        board[2][5].owner = 1
-        board[2][5].state = CellState.CAPTURED
-        board[8][5].owner = 2
-        board[8][5].state = CellState.CAPTURED
+        board[1][5].owner = 1
+        board[1][5].state = CellState.CAPTURED
+        board[9][5].owner = 2
+        board[9][5].state = CellState.CAPTURED
 
         return board
 
