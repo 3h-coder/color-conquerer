@@ -1,4 +1,5 @@
 import { CellInfoDto } from "./CellInfoDto";
+import { PartialPlayerGameInfoDto } from "./PlayerGameInfoDto";
 
 export interface PartialMatchInfoDto {
     id: string;
@@ -7,4 +8,5 @@ export interface PartialMatchInfoDto {
     currentTurn: number;
     isPlayer1Turn: boolean;
     totalTurnDurationInS: number;
+    opponentGameInfo: PartialPlayerGameInfoDto;
 }

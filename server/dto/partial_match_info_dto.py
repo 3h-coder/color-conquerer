@@ -1,7 +1,12 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from dto.base_dto import BaseDto
 from dto.cell_info_dto import CellInfoDto
+from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
+
+if TYPE_CHECKING:
+    from dto.server_only.match_info_dto import MatchInfoDto
 
 
 @dataclass
@@ -14,7 +19,7 @@ class PartialMatchInfoDto(BaseDto):
     totalTurnDurationInS: int
 
     @classmethod
-    def from_match_info_dto(cls, match_info_dto):
+    def from_match_info_dto(cls, match_info_dto: "MatchInfoDto"):
         return PartialMatchInfoDto(
             match_info_dto.id,
             match_info_dto.roomId,

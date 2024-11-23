@@ -24,6 +24,32 @@ def handle_queue_registration(data: dict):
 
     Is in charge of creating the room up to creating the match.
     """
+    _raise_possible_errors()
+
+    queue_player_dto = QueuePlayerDto.from_dict(data)
+    player_id = _set_player_id(queue_player_dto)
+
+    _logger.info(
+        f"({request.remote_addr}) | {Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
+    )
+
+    (room_id, closed) = _make_enter_in_room(queue_player_dto)
+    player_info = PlayerInfoDto(
+        player_id, isPlayer1=not closed, user=queue_player_dto.user, playerGameInfo=None
+    )
+    _save_into_session(room_id, player_info)
+
+    # If the room is closed, then it already had a player waiting.
+    # In that case, initiate the match, and notify both clients that an opponent was found.
+    if closed:
+        _try_to_launch_match(room_id)
+
+
+def _raise_possible_errors():
+    """
+    Checks if registration is possible, and if not, raises the adequate error.
+    """
+
     if session.get(SESSION_ID) is None:
         _logger.debug(
             f"({request.remote_addr}) | Attempting to register with no initiated session, denying"
@@ -49,24 +75,6 @@ def handle_queue_registration(data: dict):
             "The server has reached its maximum capacity, please try again later",
             socket_connection_killer=True,
         )
-
-    queue_player_dto = QueuePlayerDto.from_dict(data)
-    player_id = _set_player_id(queue_player_dto)
-
-    _logger.info(
-        f"({request.remote_addr}) | {Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
-    )
-
-    (room_id, closed) = _make_enter_in_room(queue_player_dto)
-    player_info = PlayerInfoDto(
-        player_id, isPlayer1=not closed, user=queue_player_dto.user
-    )
-    _save_into_session(room_id, player_info)
-
-    # The room in which the player entered already had a player waiting.
-    # In that case, initiate the match, and notify both clients that an opponent was found.
-    if closed:
-        _try_to_launch_match(room_id)
 
 
 def _try_to_launch_match(room_id):

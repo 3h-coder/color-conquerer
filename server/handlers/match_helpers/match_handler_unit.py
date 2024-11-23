@@ -310,23 +310,8 @@ class MatchHandlerUnit:
         return player2
 
     def _get_initial_match_info(self, room_dto: RoomDto):
-        return MatchInfoDto(
-            id=generate_id(MatchInfoDto),
-            roomId=room_dto.id,
-            boardArray=self._get_starting_board_array(),
-            currentTurn=0,
-            isPlayer1Turn=False,
-            totalTurnDurationInS=TURN_DURATION_IN_S,
-            player1=PlayerInfoDto(
-                user=room_dto.player1.user,
-                playerId=room_dto.player1.playerId,
-                isPlayer1=True,
-            ),
-            player2=PlayerInfoDto(
-                user=room_dto.player2.user,
-                playerId=room_dto.player2.playerId,
-                isPlayer1=False,
-            ),
+        return MatchInfoDto.get_initial_match_info(
+            generate_id(MatchInfoDto), room_dto, self._get_starting_board_array()
         )
 
     def _get_starting_board_array(self):
