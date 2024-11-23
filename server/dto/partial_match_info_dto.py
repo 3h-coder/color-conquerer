@@ -11,6 +11,11 @@ if TYPE_CHECKING:
 
 @dataclass
 class PartialMatchInfoDto(BaseDto):
+    """
+    Stores the basic match info such as the match's id, the associated room id,
+    the board array or the current turn.
+    """
+
     id: str
     roomId: str
     boardArray: list[list[CellInfoDto]]

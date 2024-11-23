@@ -1,7 +1,10 @@
 from flask import Blueprint, current_app, jsonify, request, session
 
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
+from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
 from dto.partial_player_info_dto import PartialPlayerInfoDto
+from dto.player_info_bundle_dto import PlayerInfoBundleDto
+from dto.server_only.player_info_dto import PlayerInfoDto
 from exceptions.unauthorized_error import UnauthorizedError
 from handlers import match_handler, session_cache_handler
 from middlewares.error_handler import handle_error
@@ -13,7 +16,38 @@ play_bp.register_error_handler(Exception, handle_error)
 
 @play_bp.route("/play/match-info", methods=["GET"])
 def get_match_info():
-    room_id = session.get(ROOM_ID)
+    room_id = _get_room_id_or_raise_error()
+
+    partial_match_info = match_handler.get_match_info(room_id, partial=True)
+    return jsonify(partial_match_info.to_dict()), 200
+
+
+@play_bp.route("/play/player-info", methods=["GET"])
+def get_player_info():
+    room_id = _get_room_id_or_raise_error()
+    player_info = _get_player_info_or_raise_error()
+    partial_player_info = PartialPlayerInfoDto.from_player_info_dto(player_info)
+    # The player game info field is not populated in the session,
+    # so we take it from the match info
+    match_info = match_handler.get_match_info(room_id)
+    player_game_info = match_info.get_player_game_info(player_info.isPlayer1)
+    opponent_game_info = PartialPlayerGameInfoDto.from_player_game_info(
+        match_info.get_player_game_info(not player_info.isPlayer1)
+    )
+    player_info_bundle = PlayerInfoBundleDto(
+        playerInfo=partial_player_info,
+        playerGameInfo=player_game_info,
+        opponentGameInfo=opponent_game_info,
+    )
+    return jsonify(player_info_bundle.to_dict()), 200
+
+
+def _get_room_id_or_raise_error():
+    """
+    Tries to get the room id from the session or session cache.
+    If it fails to get it, throws an unauthorized error.
+    """
+    room_id: str = session.get(ROOM_ID)
     # Sometimes the session does not have the time to persist the changes
     # when the client navigation causes immediate requests
     if not room_id:
@@ -26,13 +60,15 @@ def get_match_info():
             raise UnauthorizedError("Could not resolve the room")
         session_utils.save_into_session(ROOM_ID, room_id)
 
-    match_info = match_handler.get_match_info(room_id, partial=True)
-    return jsonify(match_info.to_dict()), 200
+    return room_id
 
 
-@play_bp.route("/play/player-info", methods=["GET"])
-def get_player_info():
-    player_info = session.get(PLAYER_INFO)
+def _get_player_info_or_raise_error():
+    """
+    Tries to get the player info from the session or session cache.
+    If it fails to get it, throws an unauthorized error.
+    """
+    player_info: PlayerInfoDto = session.get(PLAYER_INFO)
     if player_info is None:
         current_app.logger.warning(
             f"({request.remote_addr}) | The player info was not defined, resorting to session cache"
@@ -43,5 +79,4 @@ def get_player_info():
             raise UnauthorizedError("Could not resolve player information")
         session_utils.save_into_session(PLAYER_INFO, player_info)
 
-    partial_player_info = PartialPlayerInfoDto.from_player_info_dto(player_info)
-    return jsonify(partial_player_info.to_dict()), 200
+    return player_info

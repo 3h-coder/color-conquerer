@@ -9,8 +9,15 @@ from dto.server_only.room_dto import RoomDto
 
 @dataclass
 class MatchInfoDto(PartialMatchInfoDto):
+    """
+    Stores both players' information on top of all the match information defined in :class:`PartialMatchInfoDto`
+    """
+
     player1: PlayerInfoDto
     player2: PlayerInfoDto
+
+    def get_player_game_info(self, player1: bool):
+        return self.player1.playerGameInfo if player1 else self.player2.playerGameInfo
 
     @classmethod
     def get_initial_match_info(cls, id: str, room_dto: RoomDto, initial_board_array):

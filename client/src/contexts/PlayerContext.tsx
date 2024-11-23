@@ -1,58 +1,80 @@
 /* eslint-disable react-refresh/only-export-components */
-import { ReactNode, createContext, useContext, useEffect, useState } from "react";
-import { fetchPlayerInfo } from "../api/game";
+import {
+    ReactNode,
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
+import { fetchPlayerInfoBundle } from "../api/game";
 import { ParseErrorDto } from "../dto/ErrorDto";
-import { PartialPlayerInfoDto } from "../dto/PartialPlayerInfoDto";
+import {
+    undefinedPlayerGameInfo
+} from "../dto/PartialPlayerGameInfoDto";
+import {
+    undefinedPlayer
+} from "../dto/PartialPlayerInfoDto";
+import { PlayerInfoBundleDto } from "../dto/PlayerInfoBundleDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
 import { useUser } from "./UserContext";
 
-interface PlayerContextObject {
-    playerInfo: PartialPlayerInfoDto;
-    setPlayerInfo: (p: PartialPlayerInfoDto) => void;
+interface PlayerContextObject extends PlayerInfoBundleDto {
     loading: boolean;
+    resolved: boolean;
 }
 
-export const undefinedPlayer: PartialPlayerInfoDto = {
-    playerId: "undefined",
-    isPlayer1: false
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const PlayerContext = createContext<PlayerContextObject>({ playerInfo: undefinedPlayer, setPlayerInfo: (_playerInfo: PartialPlayerInfoDto) => { }, loading: false });
+const PlayerContext = createContext<PlayerContextObject>({
+    playerInfo: undefinedPlayer,
+    playerGameInfo: undefinedPlayerGameInfo,
+    opponentGameInfo: undefinedPlayerGameInfo,
+    loading: false,
+    resolved: false
+});
 
 interface PlayerContextProviderProps {
     children?: ReactNode;
 }
 
-export default function PlayerContextProvider(props: PlayerContextProviderProps) {
+export default function PlayerContextProvider(
+    props: PlayerContextProviderProps
+) {
     const { children } = props;
     const { user } = useUser();
+    const [resolved, setPlayerContextResolved] = useState(false);
     const [playerInfo, setPlayerInfo] = useState(undefinedPlayer);
+    const [playerGameInfo, setPlayerGameInfo] = useState(undefinedPlayerGameInfo);
+    const [opponentGameInfo, setOpponentGameInfo] = useState(undefinedPlayerGameInfo);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (user.isAuthenticating)
-            return;
+        if (user.isAuthenticating) return;
         getPlayerInfo();
     }, [user.isAuthenticating]);
 
     async function getPlayerInfo() {
         try {
-            const fetchedPlayerInfo = await fetchPlayerInfo();
-            setPlayerInfo(fetchedPlayerInfo);
+            const fetchedPlayerInfoBundle = await fetchPlayerInfoBundle();
+            setPlayerInfo(fetchedPlayerInfoBundle.playerInfo);
+            setPlayerGameInfo(fetchedPlayerInfoBundle.playerGameInfo);
+            setOpponentGameInfo(fetchedPlayerInfoBundle.opponentGameInfo);
+            setPlayerContextResolved(true);
         } catch (error: unknown) {
-            developmentErrorLog("Could resolve the player info", ParseErrorDto(error));
+            developmentErrorLog(
+                "Could resolve the player info",
+                ParseErrorDto(error)
+            );
             setPlayerInfo(undefinedPlayer);
+            setPlayerContextResolved(false);
         } finally {
             setLoading(false);
         }
     }
 
     return (
-        <PlayerContext.Provider value={{ playerInfo, setPlayerInfo, loading }}>
+        <PlayerContext.Provider value={{ playerInfo, playerGameInfo, opponentGameInfo, loading, resolved }}>
             {children}
         </PlayerContext.Provider>
-    )
+    );
 }
 
 export function usePlayerInfo() {

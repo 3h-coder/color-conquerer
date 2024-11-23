@@ -1,5 +1,4 @@
 import { CellInfoDto } from "./CellInfoDto";
-import { PartialPlayerGameInfoDto } from "./PlayerGameInfoDto";
 
 export interface PartialMatchInfoDto {
     id: string;
@@ -8,5 +7,13 @@ export interface PartialMatchInfoDto {
     currentTurn: number;
     isPlayer1Turn: boolean;
     totalTurnDurationInS: number;
-    opponentGameInfo: PartialPlayerGameInfoDto;
+}
+
+export const undefinedMatch: PartialMatchInfoDto = {
+    id: "",
+    roomId: "",
+    boardArray: [],
+    currentTurn: 0,
+    isPlayer1Turn: false,
+    totalTurnDurationInS: 0
 }

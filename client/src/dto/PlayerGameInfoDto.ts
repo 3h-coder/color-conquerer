@@ -1,6 +1,5 @@
-export interface PartialPlayerGameInfoDto {
-    maxHP: number;
-    currentHP: number;
-    maxMP: number;
-    currentMP: number;
+import { PartialPlayerGameInfoDto } from "./PartialPlayerGameInfoDto";
+
+export interface PlayerGameInfoDto extends PartialPlayerGameInfoDto {
+
 }
