@@ -49,6 +49,37 @@
     transition: all 0.1s ease-in-out;
 }
 
+.player-mp-hp-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: max(15px, 2vmin);
+}
+
+.hp-container-outer {
+    width: max(40px, 6vmin);
+    height: max(40px, 6vmin);
+    border: 0rem solid transparent;
+    border-radius: 50%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.hp-container-inner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    background-color: red;
+}
+
+.hp-container-inner h3 {
+    color: white;
+    margin: 0;
+}
+
+
 .whose-turn-label {
     margin: 0;
 }

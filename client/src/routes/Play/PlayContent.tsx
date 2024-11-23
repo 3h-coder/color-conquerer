@@ -9,8 +9,6 @@ import { useTurnInfo } from "../../contexts/TurnContext";
 import { ErrorDto } from "../../dto/ErrorDto";
 import { EndingReason, MatchClosureDto } from "../../dto/MatchClosureDto";
 import { MessageDto } from "../../dto/MessageDto";
-import { undefinedMatch } from "../../dto/PartialMatchInfoDto";
-import { undefinedPlayer } from "../../dto/PartialPlayerInfoDto";
 import { TurnInfoDto } from "../../dto/TurnInfoDto";
 import { Events } from "../../enums/events";
 import { ModalIcon } from "../../enums/modalIcons";
@@ -18,13 +16,19 @@ import { constants, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameTopInfo from "./components/GameTopInfo";
+import OpponentInfo from "./components/OpponentInfo";
 
 export default function PlayContent() {
   const navigate = useNavigate();
-  const { matchInfo, loading: matchInfoLoading } = useMatchInfo();
+  const {
+    matchInfo,
+    loading: matchInfoLoading,
+    failedToResolve: failedToResolveMatchInfo,
+  } = useMatchInfo();
   const {
     playerInfo,
     loading: playerInfoLoading,
+    failedToResolve: failedToResolvePlayerInfo,
   } = usePlayerInfo();
   const { turnInfo, setTurnInfo } = useTurnInfo();
   const [waitingText, setWaitingText] = useState("");
@@ -39,8 +43,11 @@ export default function PlayContent() {
   useEffect(() => {
     if (matchInfoLoading || playerInfoLoading) return;
 
-    if (matchInfo === undefinedMatch || playerInfo === undefinedPlayer) {
-      localStorage.setItem(constants.localStorageKeys.homeError, "Failed to connect to your match")
+    if (failedToResolveMatchInfo || failedToResolvePlayerInfo) {
+      localStorage.setItem(
+        constants.localStorageKeys.homeError,
+        "Failed to connect to your match"
+      );
       navigate("/");
     } else {
       if (!socket.connected) socket.connect();
@@ -49,12 +56,7 @@ export default function PlayContent() {
       socket.emit(Events.CLIENT_READY);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    matchInfo,
-    matchInfoLoading,
-    playerInfo,
-    playerInfoLoading
-  ]);
+  }, [matchInfo, matchInfoLoading, playerInfo, playerInfoLoading]);
 
   useEffect(() => {
     function onSetWaitingText(messageDto: MessageDto) {
@@ -68,11 +70,15 @@ export default function PlayContent() {
     function onMatchOngoing(turnInfoDto: TurnInfoDto) {
       setCanRenderContent(true);
       setTurnInfo(turnInfoDto);
-      developmentLog(`The match started! \nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds`);
+      developmentLog(
+        `The match started! \nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds`
+      );
     }
 
     function onTurnSwap(turnInfoDto: TurnInfoDto) {
-      developmentLog(`Turn swap!\nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `);
+      developmentLog(
+        `Turn swap!\nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `
+      );
       setTurnInfo(turnInfoDto);
     }
 
@@ -127,7 +133,10 @@ export default function PlayContent() {
     const isWinner = matchClosureDto.winner.playerId === playerInfo.playerId;
     if (matchClosureDto.endingReason === EndingReason.PLAYER_LEFT && isWinner)
       return "Your opponent left";
-    else if (matchClosureDto.endingReason === EndingReason.NEVER_JOINED && isWinner)
+    else if (
+      matchClosureDto.endingReason === EndingReason.NEVER_JOINED &&
+      isWinner
+    )
       return "Your opponent did not join the match";
     else if (isWinner) return "You won!";
     else return "You lost";
@@ -139,6 +148,7 @@ export default function PlayContent() {
         <>
           {turnInfo && <GameTopInfo />}
           <MainInnerContainer>
+            <OpponentInfo />
             <GameGrid />
           </MainInnerContainer>
         </>
@@ -158,17 +168,9 @@ export default function PlayContent() {
 }
 
 function PageContainer(props: ContainerProps) {
-  return (
-    <div className="page-container">
-      {props.children}
-    </div>
-  );
+  return <div className="page-container">{props.children}</div>;
 }
 
 function MainInnerContainer(props: ContainerProps) {
-  return (
-    <div className="main-inner-container">
-      {props.children}
-    </div>
-  );
+  return <div className="main-inner-container">{props.children}</div>;
 }

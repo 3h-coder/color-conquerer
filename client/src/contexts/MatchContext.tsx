@@ -18,11 +18,13 @@ import { useUser } from "./UserContext";
 interface MatchContextObject {
     matchInfo: PartialMatchInfoDto;
     loading: boolean;
+    failedToResolve: boolean;
 }
 
 const MatchContext = createContext<MatchContextObject>({
     matchInfo: undefinedMatch,
     loading: false,
+    failedToResolve: false
 });
 
 interface MatchContextProviderProps {
@@ -35,6 +37,7 @@ export default function MatchContextProvider(props: MatchContextProviderProps) {
     const [matchInfo, setMatchInfo] =
         useState<PartialMatchInfoDto>(undefinedMatch);
     const [loading, setLoading] = useState(true);
+    const [failedToResolve, setFailedToResolve] = useState(false);
 
     useEffect(() => {
         if (user.isAuthenticating) return;
@@ -45,19 +48,21 @@ export default function MatchContextProvider(props: MatchContextProviderProps) {
         try {
             const fetchedMatchInfo = await fetchMatchInfo();
             setMatchInfo(fetchedMatchInfo);
+            setFailedToResolve(false);
         } catch (error: unknown) {
             developmentErrorLog(
                 "Could not fetch the match info",
                 ParseErrorDto(error)
             );
             setMatchInfo(undefinedMatch);
+            setFailedToResolve(true);
         } finally {
             setLoading(false);
         }
     }
 
     return (
-        <MatchContext.Provider value={{ matchInfo, loading }}>
+        <MatchContext.Provider value={{ matchInfo, loading, failedToResolve: failedToResolve }}>
             {children}
         </MatchContext.Provider>
     );

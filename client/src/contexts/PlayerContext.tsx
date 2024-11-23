@@ -20,7 +20,7 @@ import { useUser } from "./UserContext";
 
 interface PlayerContextObject extends PlayerInfoBundleDto {
     loading: boolean;
-    resolved: boolean;
+    failedToResolve: boolean;
 }
 
 const PlayerContext = createContext<PlayerContextObject>({
@@ -28,7 +28,7 @@ const PlayerContext = createContext<PlayerContextObject>({
     playerGameInfo: undefinedPlayerGameInfo,
     opponentGameInfo: undefinedPlayerGameInfo,
     loading: false,
-    resolved: false
+    failedToResolve: false
 });
 
 interface PlayerContextProviderProps {
@@ -40,7 +40,7 @@ export default function PlayerContextProvider(
 ) {
     const { children } = props;
     const { user } = useUser();
-    const [resolved, setPlayerContextResolved] = useState(false);
+    const [failedToResolve, setFailedToResolve] = useState(false);
     const [playerInfo, setPlayerInfo] = useState(undefinedPlayer);
     const [playerGameInfo, setPlayerGameInfo] = useState(undefinedPlayerGameInfo);
     const [opponentGameInfo, setOpponentGameInfo] = useState(undefinedPlayerGameInfo);
@@ -57,21 +57,23 @@ export default function PlayerContextProvider(
             setPlayerInfo(fetchedPlayerInfoBundle.playerInfo);
             setPlayerGameInfo(fetchedPlayerInfoBundle.playerGameInfo);
             setOpponentGameInfo(fetchedPlayerInfoBundle.opponentGameInfo);
-            setPlayerContextResolved(true);
+            setFailedToResolve(false);
         } catch (error: unknown) {
             developmentErrorLog(
                 "Could resolve the player info",
                 ParseErrorDto(error)
             );
             setPlayerInfo(undefinedPlayer);
-            setPlayerContextResolved(false);
+            setPlayerGameInfo(undefinedPlayerGameInfo);
+            setOpponentGameInfo(undefinedPlayerGameInfo);
+            setFailedToResolve(true);
         } finally {
             setLoading(false);
         }
     }
 
     return (
-        <PlayerContext.Provider value={{ playerInfo, playerGameInfo, opponentGameInfo, loading, resolved }}>
+        <PlayerContext.Provider value={{ playerInfo, playerGameInfo, opponentGameInfo, loading, failedToResolve: failedToResolve }}>
             {children}
         </PlayerContext.Provider>
     );
