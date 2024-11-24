@@ -14,8 +14,6 @@
     padding: max(10px, 4vmin);
     border-radius: 1rem;
     box-shadow: 0 0 3vmin 0.25vmin rgba(0, 0, 0, 0.2);
-
-
 }
 
 .initial-loading {
@@ -53,32 +51,55 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: max(15px, 2vmin);
 }
 
-.hp-container-outer {
-    width: max(40px, 6vmin);
-    height: max(40px, 6vmin);
+.hp-container {
+    display: flex;
+    gap: max(8px, 1vmin);
+}
+
+.hp-circle-container-outer {
+    width: max(25px, 4vmin);
+    height: max(25px, 4vmin);
     border: 0rem solid transparent;
     border-radius: 50%;
     overflow: hidden;
     box-sizing: border-box;
 }
 
-.hp-container-inner {
+.hp-circle-container-inner {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    background-color: red;
+    background: linear-gradient(
+        180deg,
+        rgb(230, 66, 66) 0%,
+        rgb(239, 50, 50) 50%,
+        rgba(255, 0, 0, 0.642) 100%
+    );
 }
 
-.hp-container-inner h3 {
-    color: white;
-    margin: 0;
+.mp-container {
+    display: flex;
+    gap: max(7px, 0.8vmin);
+    width: fit-content;
 }
 
+.mp {
+   width: max(12px, 1.5vmin);
+   height: max(12px, 1.5vmin);
+   border: 0rem solid transparent;
+   border-radius: 50%;
+   background-color: grey;
+   transition: background-color 1s ease-in-out;
+}
+
+/* Meant to be used for mana points */
+.active {
+    background-color: aqua;
+}
 
 .whose-turn-label {
     margin: 0;
@@ -92,6 +113,7 @@
     align-items: center;
     width: fit-content;
     height: fit-content;
+    margin: max(15px, 2vmin) 0 max(15px, 2vmin) 0;
 }
 
 .grid-inner {
@@ -113,21 +135,6 @@
     transition: background-color 0.1s;
 }
 
-.turn-swap-image-container {
-    position: absolute;
-    background-color: transparent;
-    height: 80%;
-    width: 80%;
-    opacity: 0;
-    animation: appear-growing-long 1s ease-in-out 2 alternate;
-}
-
-.turn-swap-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
 /* meant to be used on cells only */
 .selectable {
     cursor: pointer;
@@ -141,4 +148,19 @@
 .selected {
     border: 1px solid red;
     background-color: rgb(250, 186, 186);
+}
+
+.turn-swap-image-container {
+    position: absolute;
+    background-color: transparent;
+    height: 80%;
+    width: 80%;
+    opacity: 0;
+    animation: appear-growing-long 1s ease-in-out 2 alternate;
+}
+
+.turn-swap-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }

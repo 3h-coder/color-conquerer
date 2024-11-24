@@ -17,6 +17,7 @@ import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameTopInfo from "./components/GameTopInfo";
 import OpponentInfo from "./components/OpponentInfo";
+import MyPlayerInfo from "./components/MyPlayerInfo";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -150,6 +151,7 @@ export default function PlayContent() {
           <MainInnerContainer>
             <OpponentInfo />
             <GameGrid />
+            <MyPlayerInfo />
           </MainInnerContainer>
         </>
       ) : (
