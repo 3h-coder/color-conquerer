@@ -11,6 +11,7 @@ from events import (
     handle_disconnection,
     handle_queue_registration,
     handle_session_clearing,
+    handle_turn_end,
     handler_cell_hover,
     handler_cell_hover_end,
 )
@@ -41,6 +42,7 @@ class Server:
             Events.CLIENT_QUEUE_REGISTER.value, handle_queue_registration
         )
         self.socketio.on_event(Events.CLIENT_READY.value, handle_client_ready)
+        self.socketio.on_event(Events.CLIENT_TURN_END.value, handle_turn_end)
         self.socketio.on_event(Events.CLIENT_CELL_HOVER.value, handler_cell_hover)
         self.socketio.on_event(
             Events.CLIENT_CELL_HOVER_END.value, handler_cell_hover_end

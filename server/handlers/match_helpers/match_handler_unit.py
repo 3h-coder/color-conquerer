@@ -45,6 +45,7 @@ class MatchHandlerUnit:
         # Thread responsible for swapping the turns between players
         self._turn_watcher_thread = None
         self._turn_start_time: datetime = None
+        self.turn_manual_swap_event = Event()
 
         self.players_ready = {
             room_dto.player1.playerId: False,
@@ -228,34 +229,49 @@ class MatchHandlerUnit:
         Triggers the background task that will handle turn swaping.
         """
 
-        from events.events import Events
-
         def watch_turns():
             while not self.is_ended():
                 self._turn_start_time = datetime.now()
-                self._server.socketio.sleep(TURN_DURATION_IN_S)
-                if self.is_ended():
-                    return
 
-                # Increment the turn count
-                self.match_info.currentTurn += 1
-                # Swap the current player's turn
-                self.match_info.isPlayer1Turn = not self.match_info.isPlayer1Turn
-
-                # Notify the turn change to players
-                self._server.socketio.emit(
-                    Events.SERVER_TURN_SWAP.value,
-                    TurnInfoDto(
-                        self.get_current_player_id(),
-                        self.match_info.isPlayer1Turn,
-                        TURN_DURATION_IN_S,
-                        notifyTurnChange=True,
-                    ).to_dict(),
-                    to=self.match_info.roomId,
-                )
+                # Wait for the turn duration or a manual end signal
+                if not self.turn_manual_swap_event.wait(timeout=TURN_DURATION_IN_S):
+                    # Timeout: Automatically end the turn
+                    self._swap_turn(manual=False)
+                else:
+                    # Manual turn end signal received
+                    self._swap_turn(manual=True)
 
         self._turn_watcher_thread = self._server.socketio.start_background_task(
             target=watch_turns
+        )
+
+    def _swap_turn(self, manual=False):
+        """
+        Handles the logic to end the current turn and transition to the next.
+        """
+        if self.is_ended():
+            return
+
+        if manual:
+            self.turn_manual_swap_event.clear()  # Reset the event for the next turn
+
+        from events.events import Events
+
+        # Increment the turn count
+        self.match_info.currentTurn += 1
+        # Swap the current player's turn
+        self.match_info.isPlayer1Turn = not self.match_info.isPlayer1Turn
+
+        # Notify the turn change to players
+        self._server.socketio.emit(
+            Events.SERVER_TURN_SWAP.value,
+            TurnInfoDto(
+                self.get_current_player_id(),
+                self.match_info.isPlayer1Turn,
+                TURN_DURATION_IN_S,
+                notifyTurnChange=True,
+            ).to_dict(),
+            to=self.match_info.roomId,
         )
 
     def _schedule_garbage_collection(self):

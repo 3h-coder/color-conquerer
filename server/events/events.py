@@ -24,4 +24,5 @@ class Events(Enum):
     SERVER_MATCH_START = "server-match-start"  # used client side to allow rendering the game on the screen
     SERVER_MATCH_ONGOING = "server-match-ongoing"  # same thing, but won't display a match started message on the screen
     SERVER_TURN_SWAP = "server-turn-swap"
+    CLIENT_TURN_END = "client-turn-end"  # whenever a player choose's to end their turn
     SERVER_MATCH_END = "server-matchEnd"

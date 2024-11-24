@@ -65,6 +65,24 @@ def handle_client_ready():
             )
 
 
+def handle_turn_end():
+    """
+    Sent by the client when a player choose's to end their turn by clicking
+    the end turn button.
+    """
+    room_id = _get_session_variable(ROOM_ID)
+    player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
+    _logger.info(f"({request.remote_addr}) | Turn swap requested")
+
+    match = match_handler.get_unit(room_id)
+    if not match.get_current_player_id() == player_info.playerId:
+        _logger.error(
+            "The end of turn can only be requested by the player whose turn it is"
+        )
+        return
+    match.turn_manual_swap_event.set()
+
+
 def handle_session_clearing():
     """
     Sent by the client when after acknowledging the end of a match.

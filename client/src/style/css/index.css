@@ -60,7 +60,7 @@ h4 {
 button,
 .button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 0.1rem solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
@@ -77,6 +77,11 @@ button:focus,
 .button:focus button:focus-visible,
 .button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+button:disabled,
+.button:disabled {
+  border: 0.1rem solid transparent;
+  cursor: default;
 }
 
 svg {
@@ -106,11 +111,11 @@ svg {
 .adaptive-font-size {
 
   @media (max-width: 760px) {
-    font-size: medium;
+    font-size: large;
   }
 
-  @media (max-width: 460px) {
-    font-size: small;
+  @media (max-width: 400px) {
+    font-size: medium;
   }
 }
 
@@ -165,7 +170,7 @@ svg {
   max-width: 50vw;
   text-align: center;
 
-  @media (max-width: 768px) {
+  @media (max-width: 760px) {
     min-width: 60vw;
     max-width: 60vw;
   }

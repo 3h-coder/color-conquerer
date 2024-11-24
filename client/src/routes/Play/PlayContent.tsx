@@ -16,8 +16,9 @@ import { constants, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameTopInfo from "./components/GameTopInfo";
-import OpponentInfo from "./components/OpponentInfo";
 import MyPlayerInfo from "./components/MyPlayerInfo";
+import OpponentInfo from "./components/OpponentInfo";
+import RightSideControls from "./components/RightSideControls";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -118,6 +119,7 @@ export default function PlayContent() {
     socket.on(Events.SERVER_MATCH_END, onMatchEnded);
     socket.on(Events.SERVER_ERROR, onError);
 
+    // Ensure the event handlers are attached only once on component mounting
     return () => {
       socket.off(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
       socket.off(Events.SERVER_MATCH_START, onMatchBeginning);
@@ -152,6 +154,9 @@ export default function PlayContent() {
             <OpponentInfo />
             <GameGrid />
             <MyPlayerInfo />
+            <RightSideContainer>
+              <RightSideControls />
+            </RightSideContainer>
           </MainInnerContainer>
         </>
       ) : (
@@ -175,4 +180,9 @@ function PageContainer(props: ContainerProps) {
 
 function MainInnerContainer(props: ContainerProps) {
   return <div className="main-inner-container">{props.children}</div>;
+}
+
+
+function RightSideContainer(props: ContainerProps) {
+  return <div className="right-side-container">{props.children}</div>
 }
