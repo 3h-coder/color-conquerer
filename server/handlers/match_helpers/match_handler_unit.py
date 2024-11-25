@@ -17,9 +17,9 @@ from dto.cell_info_dto import CellInfoDto, CellState
 from dto.partial_match_closure_dto import PartialMatchClosureDto
 from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from dto.server_only.match_info_dto import MatchInfoDto
-from dto.server_only.player_info_dto import PlayerInfoDto
 from dto.server_only.room_dto import RoomDto
 from dto.turn_info_dto import TurnInfoDto
+from handlers.match_helpers.turn_watcher_service import TurnWatcherService
 from server_gate import get_server
 from utils import session_utils
 from utils.id_generation_utils import generate_id
@@ -28,13 +28,14 @@ from utils.id_generation_utils import generate_id
 class MatchHandlerUnit:
     """
     Handles a single ongoing match.
+    Manages the whole lifecyle (start to end) partly thanks to underlying helper classes instances.
     """
 
     def __init__(self, room_dto: RoomDto):
         self.logger = get_configured_logger(__name__)
         self._server = get_server()
 
-        self.match_info = self._get_initial_match_info(room_dto)
+        self.match_info: MatchInfoDto = self._get_initial_match_info(room_dto)
 
         # Dictionary with the key being the session id and the value the player id
         # May be used when needed to find a player from its session
@@ -42,10 +43,7 @@ class MatchHandlerUnit:
 
         self._status = MatchStatus.WAITING_TO_START
 
-        # Thread responsible for swapping the turns between players
-        self._turn_watcher_thread = None
-        self._turn_start_time: datetime = None
-        self.turn_manual_swap_event = Event()
+        self._turn_watcher_service = TurnWatcherService(self._server, self)
 
         self.players_ready = {
             room_dto.player1.playerId: False,
@@ -99,7 +97,7 @@ class MatchHandlerUnit:
         self.match_info.currentTurn = 1
         self.match_info.isPlayer1Turn = True
 
-        self._trigger_turn_watcher()
+        self._turn_watcher_service.trigger()
 
         # notify the clients
         self._server.socketio.emit(
@@ -179,8 +177,11 @@ class MatchHandlerUnit:
 
     def get_remaining_turn_time(self):
         """Returns the remining time in seconds for the current turn"""
-        elapsed_time = datetime.now() - self._turn_start_time
-        return max(0, TURN_DURATION_IN_S - elapsed_time.seconds)
+        return self._turn_watcher_service.get_remaining_turn_time()
+
+    def force_turn_swap(self):
+        """Forces a turn swap by raising up the associated threading Event"""
+        self._turn_watcher_service.force_turn_swap()
 
     def stop_watching_player_exit(self, player_id: str):
         """
@@ -222,56 +223,6 @@ class MatchHandlerUnit:
             self.match_info.player1.playerId
             if self.match_info.isPlayer1Turn
             else self.match_info.player2.playerId
-        )
-
-    def _trigger_turn_watcher(self):
-        """
-        Triggers the background task that will handle turn swaping.
-        """
-
-        def watch_turns():
-            while not self.is_ended():
-                self._turn_start_time = datetime.now()
-
-                # Wait for the turn duration or a manual end signal
-                if not self.turn_manual_swap_event.wait(timeout=TURN_DURATION_IN_S):
-                    # Timeout: Automatically end the turn
-                    self._swap_turn(manual=False)
-                else:
-                    # Manual turn end signal received
-                    self._swap_turn(manual=True)
-
-        self._turn_watcher_thread = self._server.socketio.start_background_task(
-            target=watch_turns
-        )
-
-    def _swap_turn(self, manual=False):
-        """
-        Handles the logic to end the current turn and transition to the next.
-        """
-        if self.is_ended():
-            return
-
-        if manual:
-            self.turn_manual_swap_event.clear()  # Reset the event for the next turn
-
-        from events.events import Events
-
-        # Increment the turn count
-        self.match_info.currentTurn += 1
-        # Swap the current player's turn
-        self.match_info.isPlayer1Turn = not self.match_info.isPlayer1Turn
-
-        # Notify the turn change to players
-        self._server.socketio.emit(
-            Events.SERVER_TURN_SWAP.value,
-            TurnInfoDto(
-                self.get_current_player_id(),
-                self.match_info.isPlayer1Turn,
-                TURN_DURATION_IN_S,
-                notifyTurnChange=True,
-            ).to_dict(),
-            to=self.match_info.roomId,
         )
 
     def _schedule_garbage_collection(self):

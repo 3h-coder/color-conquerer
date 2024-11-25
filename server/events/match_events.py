@@ -80,7 +80,7 @@ def handle_turn_end():
             "The end of turn can only be requested by the player whose turn it is"
         )
         return
-    match.turn_manual_swap_event.set()
+    match.force_turn_swap()
 
 
 def handle_session_clearing():
