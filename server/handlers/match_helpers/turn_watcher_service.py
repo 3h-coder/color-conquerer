@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
 from dto.turn_info_dto import TurnInfoDto
+from handlers.match_helpers.client_notifications import notify_turn_swap
 
 if TYPE_CHECKING:
     from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
@@ -66,21 +67,18 @@ class TurnWatcherService:
         if manual:
             self._turn_manual_swap_event.clear()  # Reset the event for the next turn
 
-        from events.events import Events
-
         # Increment the turn count
         self.match_info.currentTurn += 1
         # Swap the current player's turn
         self.match_info.isPlayer1Turn = not self.match_info.isPlayer1Turn
 
         # Notify the turn change to players
-        self._server.socketio.emit(
-            Events.SERVER_TURN_SWAP.value,
+        notify_turn_swap(
             TurnInfoDto(
                 self.match.get_current_player_id(),
                 self.match_info.isPlayer1Turn,
                 TURN_DURATION_IN_S,
                 notifyTurnChange=True,
-            ).to_dict(),
-            to=self.match_info.roomId,
+            ),
+            self.match_info.roomId,
         )

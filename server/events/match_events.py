@@ -91,7 +91,7 @@ def handle_session_clearing():
     session_utils.clear_match_info()
 
 
-def handler_cell_hover(data: dict):
+def handle_cell_hover(data: dict):
     """
     Notifies the room (i.e. the opponent) that a certain cell is being hovered.
     """
@@ -105,7 +105,7 @@ def handler_cell_hover(data: dict):
     )
 
 
-def handler_cell_hover_end(data: dict):
+def handle_cell_hover_end(data: dict):
     """
     Notifies the room (i.e. the opponent) that a certain cell is no longer being hovered.
     """

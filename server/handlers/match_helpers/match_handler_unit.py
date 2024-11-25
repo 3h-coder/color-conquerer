@@ -1,4 +1,3 @@
-from datetime import datetime
 from enum import Enum
 from threading import Event
 
@@ -19,6 +18,10 @@ from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
 from dto.turn_info_dto import TurnInfoDto
+from handlers.match_helpers.client_notifications import (
+    notify_match_end,
+    notify_match_start,
+)
 from handlers.match_helpers.turn_watcher_service import TurnWatcherService
 from server_gate import get_server
 from utils import session_utils
@@ -89,26 +92,24 @@ class MatchHandlerUnit:
         """
         Starts the match, setting up the turn watcher and notifying the clients.
         """
-        from events.events import Events
-
         self.logger.info(f"Starting the match in the room {self.match_info.roomId}")
 
         self._status = MatchStatus.ONGOING
         self.match_info.currentTurn = 1
         self.match_info.isPlayer1Turn = True
 
+        # Trigger the turn watcher service to process player turns
         self._turn_watcher_service.trigger()
 
         # notify the clients
-        self._server.socketio.emit(
-            Events.SERVER_MATCH_START.value,
+        notify_match_start(
             TurnInfoDto(
                 self.match_info.player1.playerId,
                 self.match_info.isPlayer1Turn,
                 TURN_DURATION_IN_S,
                 notifyTurnChange=True,
-            ).to_dict(),
-            to=self.match_info.roomId,
+            ),
+            self.match_info.roomId,
         )
 
     def cancel(self):
@@ -158,14 +159,9 @@ class MatchHandlerUnit:
         self.logger.debug(f"Match ended -> {self.match_closure_info}")
 
         # Notify the users and close the room
-        from events.events import Events
-
-        self._server.socketio.emit(
-            Events.SERVER_MATCH_END.value,
-            PartialMatchClosureDto.from_match_closure_dto(
-                self.match_closure_info
-            ).to_dict(),
-            to=self.match_info.roomId,
+        notify_match_end(
+            PartialMatchClosureDto.from_match_closure_dto(self.match_closure_info),
+            self.match_info.roomId,
         )
         self._server.socketio.close_room(self.match_info.roomId)
 

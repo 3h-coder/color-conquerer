@@ -12,7 +12,6 @@ from exceptions.queue_error import QueueError
 from handlers import match_handler, room_handler, session_cache_handler
 from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
 from server_gate import get_server
-from utils import session_utils
 from utils.id_generation_utils import generate_id
 
 _logger = get_configured_logger(__name__)

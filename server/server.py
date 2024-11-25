@@ -5,17 +5,17 @@ from flask_socketio import SocketIO, emit
 
 from config.logging import get_configured_logger
 from dto.server_only.error_dto import ErrorDto
-from events import (
+from events.connect import handle_connection
+from events.disconnect import handle_disconnection
+from events.events import Events
+from events.match_events import (
+    handle_cell_hover,
+    handle_cell_hover_end,
     handle_client_ready,
-    handle_connection,
-    handle_disconnection,
-    handle_queue_registration,
     handle_session_clearing,
     handle_turn_end,
-    handler_cell_hover,
-    handler_cell_hover_end,
 )
-from events.events import Events
+from events.queue_events import handle_queue_registration
 from exceptions.custom_exception import CustomException
 
 
@@ -43,9 +43,9 @@ class Server:
         )
         self.socketio.on_event(Events.CLIENT_READY.value, handle_client_ready)
         self.socketio.on_event(Events.CLIENT_TURN_END.value, handle_turn_end)
-        self.socketio.on_event(Events.CLIENT_CELL_HOVER.value, handler_cell_hover)
+        self.socketio.on_event(Events.CLIENT_CELL_HOVER.value, handle_cell_hover)
         self.socketio.on_event(
-            Events.CLIENT_CELL_HOVER_END.value, handler_cell_hover_end
+            Events.CLIENT_CELL_HOVER_END.value, handle_cell_hover_end
         )
         self.socketio.on_event(
             Events.CLIENT_CLEAR_SESSION.value, handle_session_clearing
