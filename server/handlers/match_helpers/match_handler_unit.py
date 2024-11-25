@@ -22,6 +22,7 @@ from handlers.match_helpers.client_notifications import (
     notify_match_end,
     notify_match_start,
 )
+from handlers.match_helpers.player_exit_watcher_service import PlayerExitWatcherService
 from handlers.match_helpers.turn_watcher_service import TurnWatcherService
 from server_gate import get_server
 from utils import session_utils
@@ -36,7 +37,7 @@ class MatchHandlerUnit:
 
     def __init__(self, room_dto: RoomDto):
         self.logger = get_configured_logger(__name__)
-        self._server = get_server()
+        self.server = get_server()
 
         self.match_info: MatchInfoDto = self._get_initial_match_info(room_dto)
 
@@ -46,16 +47,13 @@ class MatchHandlerUnit:
 
         self._status = MatchStatus.WAITING_TO_START
 
-        self._turn_watcher_service = TurnWatcherService(self._server, self)
+        self._turn_watcher_service = TurnWatcherService(self)
+
+        self._player_exit_watcher_service = PlayerExitWatcherService(self)
 
         self.players_ready = {
             room_dto.player1.playerId: False,
             room_dto.player2.playerId: False,
-        }
-        # Events used to cancel an exit watcher task for a specific player, i.e. not kick the player out when they reconnect
-        self.player_exit_watch_stop_events = {
-            room_dto.player1.playerId: Event(),
-            room_dto.player2.playerId: Event(),
         }
 
         # Dto which we use to share/save the final match data before disposing the handler unit
@@ -76,7 +74,7 @@ class MatchHandlerUnit:
         """
 
         def end_match_after_delay():
-            self._server.socketio.sleep(DELAY_IN_S_TO_WAIT_FOR_EVERYONE)
+            self.server.socketio.sleep(DELAY_IN_S_TO_WAIT_FOR_EVERYONE)
 
             if all(value is False for value in self.players_ready.values()):
                 self.end(EndingReason.DRAW)
@@ -86,7 +84,7 @@ class MatchHandlerUnit:
                 if not self.players_ready[player_id]:
                     self.end(EndingReason.NEVER_JOINED, loser_id=player_id)
 
-        self._server.socketio.start_background_task(target=end_match_after_delay)
+        self.server.socketio.start_background_task(target=end_match_after_delay)
 
     def start(self):
         """
@@ -163,7 +161,7 @@ class MatchHandlerUnit:
             PartialMatchClosureDto.from_match_closure_dto(self.match_closure_info),
             self.match_info.roomId,
         )
-        self._server.socketio.close_room(self.match_info.roomId)
+        self.server.socketio.close_room(self.match_info.roomId)
 
         from handlers import room_handler
 
@@ -172,54 +170,49 @@ class MatchHandlerUnit:
         self._schedule_garbage_collection()
 
     def get_remaining_turn_time(self):
-        """Returns the remining time in seconds for the current turn"""
+        """
+        Asks the inner turn watcher service to return the current turn's remaining time.
+        """
         return self._turn_watcher_service.get_remaining_turn_time()
 
     def force_turn_swap(self):
-        """Forces a turn swap by raising up the associated threading Event"""
+        """
+        Asks the inner turn watcher service to forcefully trigger a turn swap.
+        """
         self._turn_watcher_service.force_turn_swap()
 
     def stop_watching_player_exit(self, player_id: str):
         """
-        Sets the exit watcher stop event for the given player.
+        Asks the inner player exit watcher service to stop watching a player exit.
         """
-        self.player_exit_watch_stop_events[player_id].set()
+        self._player_exit_watcher_service.stop_watching_player_exit(player_id)
 
     def watch_player_exit(self, player_id: str):
         """
-        Watches a player exit, ending the match after a given delay unless the
-        exit watcher stop event for the player is set.
+        Asks the inner player exit watcher service to start watching a player exit.
         """
-        stop_event = self.player_exit_watch_stop_events[player_id]
-        stop_event.clear()
-
-        @copy_current_request_context
-        def exit_timer():
-            self.logger.debug(
-                f"({request.remote_addr}) | Starting the exit watch for the player {player_id}"
-            )
-            self._polling_sleep(
-                self._server.socketio, DELAY_IN_S_BEFORE_MATCH_EXCLUSION, stop_event
-            )
-
-            if stop_event.is_set():
-                self.logger.debug(
-                    f"({request.remote_addr}) | The exit watch was stopped"
-                )
-                return
-
-            self.end(EndingReason.PLAYER_LEFT, loser_id=player_id)
-            session_utils.clear_match_info()
-
-        self._server.socketio.start_background_task(target=exit_timer)
+        self._player_exit_watcher_service.watch_player_exit(player_id)
 
     def get_current_player_id(self):
-        """Gets the id of the player of whom it is the turn"""
+        """Gets the id of the player of whom it is the turn."""
         return (
             self.match_info.player1.playerId
             if self.match_info.isPlayer1Turn
             else self.match_info.player2.playerId
         )
+
+    def get_player(self, player_id: str):
+        """
+        Gets the `PlayerInfoDto` instance associated with the given player id.
+        """
+        player1 = self.match_info.player1
+        player2 = self.match_info.player2
+        player_ids = [player1.playerId, player2.playerId]
+
+        if player_id not in player_ids:
+            raise ValueError("Could not get the player from the player id")
+
+        return player1 if player_id == player_ids[0] else player2
 
     def _schedule_garbage_collection(self):
         """
@@ -227,7 +220,7 @@ class MatchHandlerUnit:
         """
 
         def delete_self_and_room():
-            self._server.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
+            self.server.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
 
             room_id = self.match_info.roomId
             self.logger.debug(f"Deleting the match handler unit for the room {room_id}")
@@ -245,32 +238,7 @@ class MatchHandlerUnit:
 
             del match_handler.units[room_id]
 
-        self._server.socketio.start_background_task(target=delete_self_and_room)
-
-    def _polling_sleep(
-        self, socketio: SocketIO, sleep_duration_in_s, stop_event: Event
-    ):
-        check_interval_in_s = 0.05  # 50 ms
-        elapsed = 0
-
-        while elapsed < sleep_duration_in_s:
-            if stop_event.is_set():
-                return
-            socketio.sleep(check_interval_in_s)
-            elapsed += check_interval_in_s
-
-    def get_player(self, player_id: str):
-        player1 = self.match_info.player1
-        player2 = self.match_info.player2
-        player_ids = [player1.playerId, player2.playerId]
-
-        if player_id not in player_ids:
-            raise ValueError("Could not get the player from the player id")
-
-        if player_id == player_ids[0]:
-            return player1
-
-        return player2
+        self.server.socketio.start_background_task(target=delete_self_and_room)
 
     def _get_initial_match_info(self, room_dto: RoomDto):
         return MatchInfoDto.get_initial_match_info(

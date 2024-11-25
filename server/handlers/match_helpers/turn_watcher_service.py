@@ -6,22 +6,19 @@ from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
 from dto.turn_info_dto import TurnInfoDto
 from handlers.match_helpers.client_notifications import notify_turn_swap
+from handlers.match_helpers.service_base import ServiceBase
 
 if TYPE_CHECKING:
     from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
-    from server import Server
 
 
-class TurnWatcherService:
+class TurnWatcherService(ServiceBase):
     """
-    Helper class to properly manage turn swapping and all of the associated events.
+    Helper class responsible of properly managing turn swapping and all of the associated events.
     """
 
-    def __init__(self, server_ref: "Server", match_handler_unit: "MatchHandlerUnit"):
-        self.logger = get_configured_logger(__name__)
-        self._server = server_ref
-        self.match = match_handler_unit
-        self.match_info = match_handler_unit.match_info
+    def __init__(self, match_handler_unit: "MatchHandlerUnit"):
+        super().__init__(match_handler_unit)
 
         self._turn_start_time: datetime = None
         self._turn_watcher_thread = None
@@ -29,7 +26,7 @@ class TurnWatcherService:
 
     def trigger(self):
         """
-        Triggers the background task that will handle turn swaping.
+        Triggers the background task that will handle turn swapping.
         """
 
         def watch_turns():
@@ -49,11 +46,11 @@ class TurnWatcherService:
         )
 
     def force_turn_swap(self):
-        """Forces a turn swap by raising up the associated threading Event"""
+        """Forces a turn swap by raising up the associated threading Event."""
         self._turn_manual_swap_event.set()
 
     def get_remaining_turn_time(self):
-        """Returns the remining time in seconds for the current turn"""
+        """Returns the remining time in seconds for the current turn."""
         elapsed_time = datetime.now() - self._turn_start_time
         return max(0, TURN_DURATION_IN_S - elapsed_time.seconds)
 
