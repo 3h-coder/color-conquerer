@@ -8,7 +8,7 @@ import { ErrorDto } from "../../../dto/ErrorDto";
 import { QueuePlayerDto } from "../../../dto/QueuePlayerDto";
 import { Events } from "../../../enums/events";
 import { HomeState } from "../../../enums/homeState";
-import { constants, socket } from "../../../env";
+import { socket } from "../../../env";
 import {
     developmentErrorLog,
     developmentLog,
@@ -35,22 +35,34 @@ export default function PlayButton() {
     };
 
     useEffect(() => {
-        switch (homeState.state) {
-            case HomeState.JOIN_BACK:
-                setMainButtonFunction(() => {
-                    return () => navigate(fullPaths.play);
-                });
-                setMainButtonText("Rejoin");
-                setMainButtonVisible(true);
-                break;
+        handleHomeState();
 
-            default:
-                setMainButtonFunction(() => {
-                    return () => requestMultiplayerMatch();
-                });
-                setMainButtonText("Play");
-                setMainButtonVisible(true);
-                break;
+        function handleHomeState() {
+            switch (homeState.state) {
+                case HomeState.JOIN_BACK:
+                    setButtonToRejoin();
+                    break;
+
+                default:
+                    setButtonToPlay();
+                    break;
+            }
+        }
+
+        function setButtonToRejoin() {
+            setMainButtonFunction(() => {
+                return () => navigate(fullPaths.play);
+            });
+            setMainButtonText("Rejoin");
+            setMainButtonVisible(true);
+        }
+
+        function setButtonToPlay() {
+            setMainButtonFunction(() => {
+                return () => requestMultiplayerMatch();
+            });
+            setMainButtonText("Play");
+            setMainButtonVisible(true);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [homeState.state]);
@@ -80,23 +92,22 @@ export default function PlayButton() {
             developmentLog("Registered in the queue");
         }
 
-        function goToPlayRoom() {
+        function onOpponentFound() {
             developmentLog("Opponent found!");
             socket.disconnect();
-            localStorage.setItem(constants.localStorageKeys.animateGrid, "true");
             navigate(fullPaths.play);
         }
 
         socket.on("disconnect", onDisconnect);
         socket.on(Events.SERVER_ERROR, onError);
         socket.on(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess);
-        socket.on(Events.SERVER_QUEUE_OPPONENT_FOUND, goToPlayRoom);
+        socket.on(Events.SERVER_QUEUE_OPPONENT_FOUND, onOpponentFound);
 
         return () => {
             socket.off("disconnect", onDisconnect);
             socket.off(Events.SERVER_ERROR, onError);
             socket.off(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess);
-            socket.off(Events.SERVER_QUEUE_OPPONENT_FOUND, goToPlayRoom);
+            socket.off(Events.SERVER_QUEUE_OPPONENT_FOUND, onOpponentFound);
         };
     });
 
