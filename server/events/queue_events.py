@@ -41,6 +41,8 @@ def handle_queue_registration(data: dict):
     # If the room is closed, then it already had a player waiting.
     # In that case, initiate the match, and notify both clients that an opponent was found.
     if closed:
+        # Notify the clients so they can go to the play room
+        emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
         _try_to_launch_match(room_id)
 
 
@@ -81,22 +83,18 @@ def _try_to_launch_match(room_id):
     Tries to launch a match, saving the second player's session information at the same time.
     """
     match: MatchHandlerUnit = None
-    server = get_server()
     try:
-        match = match_handler.initiate_match_and_return_unit(
-            room_handler.closed_rooms[room_id]
-        )
+        room = room_handler.closed_rooms[room_id]
+        match = match_handler.initiate_match_and_return_unit(room)
         match.watch_player_entry()
-        # Notify the room that the match can start, it will be started once all players are ready
-        emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
     except Exception as ex:
         _logger.exception(f"An error occured when trying to launch a match : {ex}")
         if match is not None:
             match.cancel()
         room_handler.remove_closed_room(room_id)
-        # The disconnection should clear the session allowing players to re apply for a match
 
-        server.socketio.emit(
+        # The forced disconnection will trigger a session clearup, see the disconnect handler
+        emit(
             Events.SERVER_ERROR.value,
             ErrorDto(
                 "An error occured, please try again",
@@ -104,6 +102,7 @@ def _try_to_launch_match(room_id):
                 socketConnectionKiller=True,
             ).to_dict(),
             to=room_id,
+            broadcast=True,
         )
 
 

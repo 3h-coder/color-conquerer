@@ -22,6 +22,9 @@ from handlers.match_helpers.client_notifications import (
     notify_match_end,
     notify_match_start,
 )
+from handlers.match_helpers.player_entry_watcher_service import (
+    PlayerEntryWatcherService,
+)
 from handlers.match_helpers.player_exit_watcher_service import PlayerExitWatcherService
 from handlers.match_helpers.turn_watcher_service import TurnWatcherService
 from server_gate import get_server
@@ -47,14 +50,11 @@ class MatchHandlerUnit:
 
         self._status = MatchStatus.WAITING_TO_START
 
-        self._turn_watcher_service = TurnWatcherService(self)
+        self._player_entry_watcher_service = PlayerEntryWatcherService(self)
 
         self._player_exit_watcher_service = PlayerExitWatcherService(self)
 
-        self.players_ready = {
-            room_dto.player1.playerId: False,
-            room_dto.player2.playerId: False,
-        }
+        self._turn_watcher_service = TurnWatcherService(self)
 
         # Dto which we use to share/save the final match data before disposing the handler unit
         self.match_closure_info = None
@@ -68,28 +68,39 @@ class MatchHandlerUnit:
     def is_ended(self):
         return self._status == MatchStatus.ENDED
 
+    def is_cancelled(self):
+        return self._status == MatchStatus.ABORTED
+
     def watch_player_entry(self):
         """
-        Waits a specific delay before ending the match if one player could not manage to be ready.
+        Waits a specific delay before prematurely ending or cancelling the match
+        if at least one player did not join.
         """
+        self._player_entry_watcher_service.watch_player_entry()
 
-        def end_match_after_delay():
-            self.server.socketio.sleep(DELAY_IN_S_TO_WAIT_FOR_EVERYONE)
+    def mark_player_as_ready(self, player_id):
+        self._player_entry_watcher_service.mark_player_as_ready(player_id)
 
-            if all(value is False for value in self.players_ready.values()):
-                self.end(EndingReason.DRAW)
-                return
-
-            for player_id in self.players_ready:
-                if not self.players_ready[player_id]:
-                    self.end(EndingReason.NEVER_JOINED, loser_id=player_id)
-
-        self.server.socketio.start_background_task(target=end_match_after_delay)
+    def all_players_ready(self):
+        """
+        Returns True if all the players are marked as ready, False otherwise.
+        """
+        return self._player_entry_watcher_service.all_players_ready()
 
     def start(self):
         """
         Starts the match, setting up the turn watcher and notifying the clients.
         """
+        self.logger.info(
+            f"Match start requested for the match in the room {self.match_info.roomId}"
+        )
+
+        if not self.is_waiting_to_start():
+            self.logger.warning(
+                f"Can only start a match that is waiting to start. The match status is {self._status.name}"
+            )
+            return
+
         self.logger.info(f"Starting the match in the room {self.match_info.roomId}")
 
         self._status = MatchStatus.ONGOING
@@ -111,6 +122,16 @@ class MatchHandlerUnit:
         )
 
     def cancel(self):
+        self.logger.info(
+            f"Match cancellation requested for the match in the room {self.match_info.roomId}"
+        )
+
+        if not self.is_waiting_to_start():
+            self.logger.warning(
+                f"Can only cancel a match that is waiting to start. The match status is {self._status.name}"
+            )
+            return
+
         # TODO: call a match cleanup service/helper/handler
         self._status = MatchStatus.ABORTED
         self._schedule_garbage_collection()
@@ -128,10 +149,14 @@ class MatchHandlerUnit:
         Additionally, notifies all players and schedules this match handler unit's garbage collection.
         """
         # TODO: call a match cleanup service/helper/handler
-        self.logger.info(f"Terminating the match in the room {self.match_info.roomId}")
+        self.logger.info(
+            f"Received termination request for the match in the room {self.match_info.roomId}"
+        )
 
-        if self.is_ended():
-            self.logger.debug("Match already ended.")
+        if not self.is_ongoing():
+            self.logger.warning(
+                f"Can only end a match that is ongoing. The match status is {self._status.name}"
+            )
             return
 
         if winner_id is None and loser_id is None and reason != EndingReason.DRAW:
@@ -171,25 +196,26 @@ class MatchHandlerUnit:
 
     def get_remaining_turn_time(self):
         """
-        Asks the inner turn watcher service to return the current turn's remaining time.
+        Return the current turn's remaining time.
         """
         return self._turn_watcher_service.get_remaining_turn_time()
 
     def force_turn_swap(self):
         """
-        Asks the inner turn watcher service to forcefully trigger a turn swap.
+        Forcefully triggers a turn swap.
         """
         self._turn_watcher_service.force_turn_swap()
 
     def stop_watching_player_exit(self, player_id: str):
         """
-        Asks the inner player exit watcher service to stop watching a player exit.
+        Stops watching a player exit.
         """
         self._player_exit_watcher_service.stop_watching_player_exit(player_id)
 
     def watch_player_exit(self, player_id: str):
         """
-        Asks the inner player exit watcher service to start watching a player exit.
+        Starts watching a player exit, ending the match after a given delay if the player
+        does not reconnect.
         """
         self._player_exit_watcher_service.watch_player_exit(player_id)
 

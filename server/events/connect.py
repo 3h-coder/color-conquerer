@@ -2,6 +2,7 @@ from flask import request, session
 
 from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
+from dto.server_only.player_info_dto import PlayerInfoDto
 from handlers import connection_handler, match_handler
 
 _logger = get_configured_logger(__name__)
@@ -29,7 +30,8 @@ def handle_connection(_):
 
     if match.is_ongoing():
         _logger.debug("Player rejoinded the match, stopping exit watcher")
-        player_id = session.get(PLAYER_INFO).playerId
+        player_info: PlayerInfoDto = session.get(PLAYER_INFO)
+        player_id = player_info.playerId
         match.stop_watching_player_exit(player_id)
     elif match.is_ended():
         _logger.debug("Player rejoined, but the match already ended")

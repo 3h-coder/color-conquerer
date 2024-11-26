@@ -38,7 +38,6 @@ def handle_client_ready():
 
     join_room(room_id)
     match = match_handler.get_unit(room_id)
-    match.players_ready[player_info.playerId] = True
     session[IN_MATCH] = True
 
     # Notify the client so it can render accordingly
@@ -53,8 +52,9 @@ def handle_client_ready():
             ).to_dict(),
         )
     elif match.is_waiting_to_start():
+        match.mark_player_as_ready(player_info.playerId)
         # Start the match if everyone is ready
-        if all(value is True for value in match.players_ready.values()):
+        if match.all_players_ready():
             _logger.info(f"All players ready in the room {room_id}")
             match.start()
         # Otherwise notify the user that we're still waiting for their opponent
