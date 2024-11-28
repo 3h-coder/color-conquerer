@@ -1,10 +1,13 @@
-import { PartialPlayerGameInfoDto } from "./PartialPlayerGameInfoDto";
-import { PartialPlayerInfoDto } from "./PartialPlayerInfoDto";
+import { PartialPlayerGameInfoDto, undefinedPlayerGameInfo } from "./PartialPlayerGameInfoDto";
 import { PlayerGameInfoDto } from "./PlayerGameInfoDto";
 
 // Used to populate the match's player info context
-export interface PlayerInfoBundleDto {
-    playerInfo: PartialPlayerInfoDto;
-    playerGameInfo: PlayerGameInfoDto;
-    opponentGameInfo: PartialPlayerGameInfoDto;
+export interface PlayerGameInfoBundleDto {
+    player1GameInfo: PlayerGameInfoDto;
+    player2GameInfo: PartialPlayerGameInfoDto;
+}
+
+export const undefinedPlayerInfoBundleDto: PlayerGameInfoBundleDto = {
+    player1GameInfo: undefinedPlayerGameInfo,
+    player2GameInfo: undefinedPlayerGameInfo
 }

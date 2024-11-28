@@ -6,27 +6,22 @@ import {
     useEffect,
     useState,
 } from "react";
-import { fetchPlayerInfoBundle } from "../api/game";
+import { fetchPlayerInfo } from "../api/game";
 import { ParseErrorDto } from "../dto/ErrorDto";
 import {
-    undefinedPlayerGameInfo
-} from "../dto/PartialPlayerGameInfoDto";
-import {
+    PartialPlayerInfoDto,
     undefinedPlayer
 } from "../dto/PartialPlayerInfoDto";
-import { PlayerInfoBundleDto } from "../dto/PlayerInfoBundleDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
 import { useUser } from "./UserContext";
 
-interface PlayerContextObject extends PlayerInfoBundleDto {
+interface PlayerContextObject extends PartialPlayerInfoDto {
     loading: boolean;
     failedToResolve: boolean;
 }
 
 const PlayerContext = createContext<PlayerContextObject>({
-    playerInfo: undefinedPlayer,
-    playerGameInfo: undefinedPlayerGameInfo,
-    opponentGameInfo: undefinedPlayerGameInfo,
+    ...undefinedPlayer,
     loading: false,
     failedToResolve: false
 });
@@ -42,8 +37,6 @@ export default function PlayerContextProvider(
     const { user } = useUser();
     const [failedToResolve, setFailedToResolve] = useState(false);
     const [playerInfo, setPlayerInfo] = useState(undefinedPlayer);
-    const [playerGameInfo, setPlayerGameInfo] = useState(undefinedPlayerGameInfo);
-    const [opponentGameInfo, setOpponentGameInfo] = useState(undefinedPlayerGameInfo);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -53,10 +46,8 @@ export default function PlayerContextProvider(
 
     async function getPlayerInfo() {
         try {
-            const fetchedPlayerInfoBundle = await fetchPlayerInfoBundle();
-            setPlayerInfo(fetchedPlayerInfoBundle.playerInfo);
-            setPlayerGameInfo(fetchedPlayerInfoBundle.playerGameInfo);
-            setOpponentGameInfo(fetchedPlayerInfoBundle.opponentGameInfo);
+            const fetchedPlayerInfo = await fetchPlayerInfo();
+            setPlayerInfo(fetchedPlayerInfo);
             setFailedToResolve(false);
         } catch (error: unknown) {
             developmentErrorLog(
@@ -64,8 +55,6 @@ export default function PlayerContextProvider(
                 ParseErrorDto(error)
             );
             setPlayerInfo(undefinedPlayer);
-            setPlayerGameInfo(undefinedPlayerGameInfo);
-            setOpponentGameInfo(undefinedPlayerGameInfo);
             setFailedToResolve(true);
         } finally {
             setLoading(false);
@@ -73,7 +62,7 @@ export default function PlayerContextProvider(
     }
 
     return (
-        <PlayerContext.Provider value={{ playerInfo, playerGameInfo, opponentGameInfo, loading, failedToResolve: failedToResolve }}>
+        <PlayerContext.Provider value={{ ...playerInfo, loading, failedToResolve: failedToResolve }}>
             {children}
         </PlayerContext.Provider>
     );

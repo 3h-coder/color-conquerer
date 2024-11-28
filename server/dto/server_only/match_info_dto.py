@@ -32,12 +32,16 @@ class MatchInfoDto(PartialMatchInfoDto):
                 user=room_dto.player1.user,
                 playerId=room_dto.player1.playerId,
                 isPlayer1=True,
-                playerGameInfo=PlayerGameInfoDto.get_initial_player_game_info(),
+                playerGameInfo=PlayerGameInfoDto.get_initial_player_game_info(
+                    is_player_1=True
+                ),
             ),
             player2=PlayerInfoDto(
                 user=room_dto.player2.user,
                 playerId=room_dto.player2.playerId,
                 isPlayer1=False,
-                playerGameInfo=PlayerGameInfoDto.get_initial_player_game_info(),
+                playerGameInfo=PlayerGameInfoDto.get_initial_player_game_info(
+                    is_player_1=False
+                ),
             ),
         )

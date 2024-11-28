@@ -1,4 +1,5 @@
 export interface PartialPlayerGameInfoDto {
+    player1: boolean;
     maxHP: number;
     currentHP: number;
     maxMP: number;
@@ -6,6 +7,7 @@ export interface PartialPlayerGameInfoDto {
 }
 
 export const undefinedPlayerGameInfo: PartialPlayerGameInfoDto = {
+    player1: false,
     maxHP: 0,
     currentHP: 0,
     maxMP: 0,

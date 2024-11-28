@@ -4,8 +4,9 @@ import YourTurnImage from "../../../assets/images/Your Turn.png";
 import { ContainerProps } from "../../../components/containers";
 import { useMatchInfo } from "../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
-import { undefinedTurnInfo, useTurnInfo } from "../../../contexts/TurnContext";
+import { useTurnInfo } from "../../../contexts/TurnContext";
 import { CellInfoDto } from "../../../dto/CellInfoDto";
+import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
 import { colors } from "../../../style/constants";
@@ -14,11 +15,11 @@ import TurnSwapImage from "./TurnSwapImage";
 
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
-    const { playerInfo } = usePlayerInfo();
+    const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnInfo } = useTurnInfo();
 
     const boardArray = matchInfo.boardArray;
-    const rotate = playerInfo.isPlayer1;
+    const rotate = isPlayer1;
     const gridStyle: React.CSSProperties = {
         transform: `${rotate ? "rotate(180deg)" : undefined}`,
         gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`,
@@ -32,8 +33,8 @@ export default function GameGrid() {
     useEffect(() => {
         if (turnInfo === undefinedTurnInfo) return;
 
-        setIsMyTurn(turnInfo.currentPlayerId === playerInfo.playerId);
-    }, [playerInfo.playerId, turnInfo]);
+        setIsMyTurn(turnInfo.currentPlayerId === playerId);
+    }, [playerId, turnInfo]);
 
     useEffect(() => {
         if (!turnInfo.notifyTurnChange) {
@@ -102,7 +103,7 @@ export default function GameGrid() {
                 const htmlCell = document.getElementById(
                     getCellId(cell.rowIndex, cell.columnIndex)
                 );
-                if (playerInfo.isPlayer1) {
+                if (isPlayer1) {
                     htmlCell!.style.backgroundColor =
                         cell.owner === 1 ? colors.ownCell : colors.opponentCell;
                 } else {

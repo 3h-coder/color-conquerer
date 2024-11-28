@@ -14,7 +14,11 @@ class PlayerGameInfoDto(PartialPlayerGameInfoDto):
     # TODO : add stuff here
 
     @classmethod
-    def get_initial_player_game_info(cls):
+    def get_initial_player_game_info(cls, is_player_1: bool):
         return PlayerGameInfoDto(
-            maxHP=MAX_HP_VALUE, currentHP=MAX_HP_VALUE, maxMP=MAX_MP_VALUE, currentMP=1
+            player1=is_player_1,
+            maxHP=MAX_HP_VALUE,
+            currentHP=MAX_HP_VALUE,
+            maxMP=MAX_MP_VALUE,
+            currentMP=1,
         )

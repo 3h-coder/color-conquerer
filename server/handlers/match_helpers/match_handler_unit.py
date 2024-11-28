@@ -14,6 +14,8 @@ from constants.match_constants import (
 )
 from dto.cell_info_dto import CellInfoDto, CellState
 from dto.partial_match_closure_dto import PartialMatchClosureDto
+from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
+from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
 from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
@@ -112,12 +114,7 @@ class MatchHandlerUnit:
 
         # notify the clients
         notify_match_start(
-            TurnInfoDto(
-                self.match_info.player1.playerId,
-                self.match_info.isPlayer1Turn,
-                TURN_DURATION_IN_S,
-                notifyTurnChange=True,
-            ),
+            self.get_turn_info(for_new_turn=True),
             self.match_info.roomId,
         )
 
@@ -194,11 +191,25 @@ class MatchHandlerUnit:
         # Schedule the deletion of this object
         self._schedule_garbage_collection()
 
-    def get_remaining_turn_time(self):
-        """
-        Return the current turn's remaining time.
-        """
-        return self._turn_watcher_service.get_remaining_turn_time()
+    def get_turn_info(self, for_new_turn=False):
+        players_game_info = [
+            PartialPlayerGameInfoDto.from_player_game_info(player_game_info)
+            for player_game_info in self._get_players_game_info()
+        ]
+        player1_game_info = players_game_info[0]
+        player2_game_info = players_game_info[1]
+
+        return TurnInfoDto(
+            currentPlayerId=self.get_current_player().playerId,
+            isPlayer1Turn=self.match_info.isPlayer1Turn,
+            durationInS=(
+                TURN_DURATION_IN_S if for_new_turn else self._get_remaining_turn_time()
+            ),
+            playerInfoBundle=PlayerGameInfoBundleDto(
+                player1_game_info, player2_game_info
+            ),
+            notifyTurnChange=for_new_turn,
+        )
 
     def force_turn_swap(self):
         """
@@ -219,12 +230,12 @@ class MatchHandlerUnit:
         """
         self._player_exit_watcher_service.watch_player_exit(player_id)
 
-    def get_current_player_id(self):
+    def get_current_player(self):
         """Gets the id of the player of whom it is the turn."""
         return (
-            self.match_info.player1.playerId
+            self.match_info.player1
             if self.match_info.isPlayer1Turn
-            else self.match_info.player2.playerId
+            else self.match_info.player2
         )
 
     def get_player(self, player_id: str):
@@ -239,6 +250,23 @@ class MatchHandlerUnit:
             raise ValueError("Could not get the player from the player id")
 
         return player1 if player_id == player_ids[0] else player2
+
+    def _get_players_game_info(self):
+        """
+        Gets the player game info of both players.
+        """
+        player_1 = self.match_info.player1
+        player_2 = self.match_info.player2
+        return (
+            player_1.playerGameInfo,
+            player_2.playerGameInfo,
+        )
+
+    def _get_remaining_turn_time(self):
+        """
+        Return the current turn's remaining time.
+        """
+        return self._turn_watcher_service.get_remaining_turn_time()
 
     def _schedule_garbage_collection(self):
         """

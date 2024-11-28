@@ -64,18 +64,25 @@ class TurnWatcherService(ServiceBase):
         if manual:
             self._turn_manual_swap_event.clear()  # Reset the event for the next turn
 
-        # Increment the turn count
-        self.match_info.currentTurn += 1
-        # Swap the current player's turn
-        self.match_info.isPlayer1Turn = not self.match_info.isPlayer1Turn
+        self._process_turn_swap()
 
         # Notify the turn change to players
         notify_turn_swap(
-            TurnInfoDto(
-                self.match.get_current_player_id(),
-                self.match_info.isPlayer1Turn,
-                TURN_DURATION_IN_S,
-                notifyTurnChange=True,
-            ),
+            self.match.get_turn_info(for_new_turn=True),
             self.match_info.roomId,
         )
+
+    def _process_turn_swap(self):
+        """
+        Performs all the processing related to turn swapping such as
+        incrementing the turn or adding a mana point to the player whose turn it will be.
+        """
+        self.match_info.currentTurn += 1
+
+        self.match_info.isPlayer1Turn = not self.match_info.isPlayer1Turn
+
+        # Increment the mana point count if necessary
+        player_game_info = self.match.get_current_player().playerGameInfo
+        current_mp = player_game_info.currentMP
+        max_mp = player_game_info.maxMP
+        player_game_info.currentMP = min(current_mp + 1, max_mp)

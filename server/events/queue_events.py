@@ -39,7 +39,7 @@ def handle_queue_registration(data: dict):
     _save_into_session(room_id, player_info)
 
     # If the room is closed, then it already had a player waiting.
-    # In that case, initiate the match, and notify both clients that an opponent was found.
+    # In that case, notify both clients that an opponent was found and initiate the match.
     if closed:
         # Notify the clients so they can go to the play room
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)

@@ -5,6 +5,8 @@ from config.logging import get_configured_logger
 from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.cell_info_dto import CellInfoDto
 from dto.message_dto import MessageDto
+from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
+from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from dto.turn_info_dto import TurnInfoDto
 from events.events import Events
@@ -44,12 +46,7 @@ def handle_client_ready():
     if match.is_ongoing():
         emit(
             Events.SERVER_MATCH_ONGOING.value,
-            TurnInfoDto(
-                match.get_current_player_id(),
-                match.match_info.isPlayer1Turn,
-                match.get_remaining_turn_time(),
-                notifyTurnChange=False,
-            ).to_dict(),
+            match.get_turn_info().to_dict(),
         )
     elif match.is_waiting_to_start():
         match.mark_player_as_ready(player_info.playerId)
@@ -75,7 +72,7 @@ def handle_turn_end():
     _logger.info(f"({request.remote_addr}) | Turn swap requested")
 
     match = match_handler.get_unit(room_id)
-    if not match.get_current_player_id() == player_info.playerId:
+    if not match.get_current_player().playerId == player_info.playerId:
         _logger.error(
             "The end of turn can only be requested by the player whose turn it is"
         )

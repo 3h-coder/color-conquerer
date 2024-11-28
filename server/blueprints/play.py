@@ -3,7 +3,7 @@ from flask import Blueprint, current_app, jsonify, request, session
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
 from dto.partial_player_info_dto import PartialPlayerInfoDto
-from dto.player_info_bundle_dto import PlayerInfoBundleDto
+from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from exceptions.unauthorized_error import UnauthorizedError
 from handlers import match_handler, session_cache_handler
@@ -24,22 +24,9 @@ def get_match_info():
 
 @play_bp.route("/play/player-info", methods=["GET"])
 def get_player_info():
-    room_id = _get_room_id_or_raise_error()
     player_info = _get_player_info_or_raise_error()
     partial_player_info = PartialPlayerInfoDto.from_player_info_dto(player_info)
-    # The player game info field is not populated in the session,
-    # so we take it from the match info
-    match_info = match_handler.get_match_info(room_id)
-    player_game_info = match_info.get_player_game_info(player_info.isPlayer1)
-    opponent_game_info = PartialPlayerGameInfoDto.from_player_game_info(
-        match_info.get_player_game_info(not player_info.isPlayer1)
-    )
-    player_info_bundle = PlayerInfoBundleDto(
-        playerInfo=partial_player_info,
-        playerGameInfo=player_game_info,
-        opponentGameInfo=opponent_game_info,
-    )
-    return jsonify(player_info_bundle.to_dict()), 200
+    return jsonify(partial_player_info.to_dict()), 200
 
 
 def _get_room_id_or_raise_error():

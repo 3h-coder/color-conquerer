@@ -5,9 +5,9 @@ import { socket } from "../../../../env";
 
 export default function EndTurnButton() {
     const { turnInfo } = useTurnInfo();
-    const { playerInfo } = usePlayerInfo();
+    const { playerId } = usePlayerInfo();
 
-    const isMyTurn = turnInfo.currentPlayerId === playerInfo.playerId;
+    const isMyTurn = turnInfo.currentPlayerId === playerId;
     const text = "End Turn"
 
     function onClick() {

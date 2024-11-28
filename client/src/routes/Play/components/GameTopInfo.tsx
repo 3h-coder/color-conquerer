@@ -6,10 +6,10 @@ import { TurnInfoDto } from "../../../dto/TurnInfoDto";
 import { round } from "../../../utils/mathUtils";
 
 export default function GameTopInfo() {
-    const { playerInfo } = usePlayerInfo();
+    const { playerId } = usePlayerInfo();
     const { matchInfo } = useMatchInfo();
     const { turnInfo } = useTurnInfo();
-    const whoseTurnMessage = playerInfo.playerId === turnInfo.currentPlayerId ? "Your turn" : "Opponent turn";
+    const whoseTurnMessage = playerId === turnInfo.currentPlayerId ? "Your turn" : "Opponent turn";
 
     return (
         <GameTopInfoContainer>

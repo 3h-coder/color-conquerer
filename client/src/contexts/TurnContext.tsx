@@ -1,14 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
-import { TurnInfoDto } from "../dto/TurnInfoDto";
+import { TurnInfoDto, undefinedTurnInfo } from "../dto/TurnInfoDto";
 
 interface TurnContextObject {
     turnInfo: TurnInfoDto;
     setTurnInfo: (t: TurnInfoDto) => void;
-}
-
-export const undefinedTurnInfo: TurnInfoDto = {
-    currentPlayerId: "", isPlayer1Turn: false, durationInS: 0, notifyTurnChange: false
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

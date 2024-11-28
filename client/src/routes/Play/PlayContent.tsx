@@ -28,7 +28,7 @@ export default function PlayContent() {
     failedToResolve: failedToResolveMatchInfo,
   } = useMatchInfo();
   const {
-    playerInfo,
+    playerId,
     loading: playerInfoLoading,
     failedToResolve: failedToResolvePlayerInfo,
   } = usePlayerInfo();
@@ -58,7 +58,7 @@ export default function PlayContent() {
       socket.emit(Events.CLIENT_READY);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchInfo, matchInfoLoading, playerInfo, playerInfoLoading]);
+  }, [matchInfo, matchInfoLoading, playerId, playerInfoLoading]);
 
   useEffect(() => {
     function onSetWaitingText(messageDto: MessageDto) {
@@ -133,7 +133,7 @@ export default function PlayContent() {
   function getMatchEndingText(matchClosureDto: MatchClosureDto) {
     if (!matchClosureDto.winner) return "Draw";
 
-    const isWinner = matchClosureDto.winner.playerId === playerInfo.playerId;
+    const isWinner = matchClosureDto.winner.playerId === playerId;
     if (matchClosureDto.endingReason === EndingReason.PLAYER_LEFT && isWinner)
       return "Your opponent left";
     else if (
