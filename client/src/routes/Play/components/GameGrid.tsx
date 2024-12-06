@@ -16,16 +16,14 @@ import TurnSwapImage from "./TurnSwapImage";
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
     const { playerId, isPlayer1 } = usePlayerInfo();
-    const { turnInfo } = useTurnInfo();
+    const { turnInfo, canInteract, setCanInteract } = useTurnInfo();
 
     const boardArray = matchInfo.boardArray;
-    const rotate = isPlayer1;
     const gridStyle: React.CSSProperties = {
-        transform: `${rotate ? "rotate(180deg)" : undefined}`,
+        transform: `${isPlayer1 ? "rotate(180deg)" : undefined}`,
         gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`,
     };
 
-    const [canSelect, setCanSelect] = useState(false);
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
     const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
@@ -37,20 +35,33 @@ export default function GameGrid() {
     }, [playerId, turnInfo]);
 
     useEffect(() => {
-        if (!turnInfo.notifyTurnChange) {
-            setCanSelect(isMyTurn);
-            return;
+        controlInteractionEnabling();
+
+        // Allows/disallows the player to interact with elements such as the game cells
+        // or the end turn button according to whether it is their turn or not and if the 
+        // turn swap animation is done running.
+        function controlInteractionEnabling() {
+            setCanInteract(false);
+
+            // If not a turn change, the user may interact immediately
+            // if it's theiur turn (typically after a page refresh)
+            if (!turnInfo.notifyTurnChange) {
+                setCanInteract(isMyTurn);
+                return;
+            }
+
+            // Trigger the turn swap image animation
+            setTurnSwapImagePath(isMyTurn ? YourTurnImage : OpponentTurnImage);
+            setShowTurnSwapImage(true);
+
+            // The user must wait for the turn image animation to end before they can interact
+            const timeout = setTimeout(() => {
+                setShowTurnSwapImage(false);
+                setCanInteract(isMyTurn);
+            }, 2000);
+
+            return () => clearTimeout(timeout);
         }
-
-        setTurnSwapImagePath(isMyTurn ? YourTurnImage : OpponentTurnImage);
-        setShowTurnSwapImage(true);
-
-        const timeout = setTimeout(() => {
-            setShowTurnSwapImage(false);
-            setCanSelect(isMyTurn);
-        }, 2000);
-
-        return () => clearTimeout(timeout);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isMyTurn]);
 
@@ -129,7 +140,7 @@ export default function GameGrid() {
                                 id={getCellId(rowIndex, colIndex)}
                                 rowIndex={rowIndex}
                                 columnIndex={colIndex}
-                                canBeSelected={canSelect}
+                                canBeSelected={canInteract}
                             />
                         ))}
                     </GridRow>

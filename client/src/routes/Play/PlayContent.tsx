@@ -43,19 +43,23 @@ export default function PlayContent() {
   });
 
   useEffect(() => {
-    if (matchInfoLoading || playerInfoLoading) return;
+    connectToServer();
 
-    if (failedToResolveMatchInfo || failedToResolvePlayerInfo) {
-      localStorage.setItem(
-        constants.localStorageKeys.homeError,
-        "Failed to connect to your match"
-      );
-      navigate("/");
-    } else {
-      if (!socket.connected) socket.connect();
+    function connectToServer() {
+      if (matchInfoLoading || playerInfoLoading) return;
 
-      setWaitingText("Connecting to your match...");
-      socket.emit(Events.CLIENT_READY);
+      if (failedToResolveMatchInfo || failedToResolvePlayerInfo) {
+        localStorage.setItem(
+          constants.localStorageKeys.homeError,
+          "Failed to connect to your match"
+        );
+        navigate("/");
+      } else {
+        if (!socket.connected) socket.connect();
+
+        setWaitingText("Connecting to your match...");
+        socket.emit(Events.CLIENT_READY);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchInfo, matchInfoLoading, playerId, playerInfoLoading]);
