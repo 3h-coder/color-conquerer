@@ -13,6 +13,7 @@ class CellState(IntEnum):
 @dataclass
 class CellInfoDto(BaseDto):
     owner: int
+    isMaster: bool
     rowIndex: int
     columnIndex: int
     state: CellState

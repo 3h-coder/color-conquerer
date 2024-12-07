@@ -116,6 +116,24 @@ def handle_cell_hover_end(data: dict):
     )
 
 
+def handle_cell_click(data: dict):
+    """
+    Receives the client cell click, and returns all the authorized actions to it.
+    """
+    room_id = _get_session_variable(ROOM_ID)
+    player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
+    match = match_handler.get_unit(room_id)
+
+    player_id = player_info.playerId
+    if not match.get_current_player().playerId == player_id:
+        _logger.error(
+            f"Cannot process the click of the player {player_id} as it is the turn of their opponent"
+        )
+        return
+
+    cell_info_dto = CellInfoDto.from_dict(data)
+
+
 def _get_session_variable(variable_name: str):
     value = session.get(variable_name)
     if value is None:

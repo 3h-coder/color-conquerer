@@ -305,17 +305,27 @@ class MatchHandlerUnit:
 
         board = [
             [
-                CellInfoDto(owner=0, rowIndex=i, columnIndex=j, state=CellState.IDLE)
+                CellInfoDto(
+                    owner=0,
+                    isMaster=False,
+                    rowIndex=i,
+                    columnIndex=j,
+                    state=CellState.IDLE,
+                )
                 for j in range(BOARD_SIZE)
             ]
             for i in range(BOARD_SIZE)
         ]
 
-        # initialize the cell[2][7] as owned by player1 and the cell[12][7] by player2
-        board[1][5].owner = 1
-        board[1][5].state = CellState.CAPTURED
-        board[9][5].owner = 2
-        board[9][5].state = CellState.CAPTURED
+        # Initialize the master cells
+        player1_master_cell = board[1][5]
+        player2_master_cell = board[9][5]
+
+        player1_master_cell.owner = 1
+        player1_master_cell.isMaster = True
+
+        player2_master_cell.owner = 2
+        player2_master_cell.isMaster = True
 
         return board
 

@@ -1,6 +1,7 @@
 export interface CellInfoDto {
-    owner?: number // either 1, 2 or undefined
+    owner: number;
+    isMaster: boolean;
     rowIndex: number;
     columnIndex: number;
-    state?: number
+    state: number;
 }

@@ -3,7 +3,6 @@ from enum import StrEnum
 
 from dto.base_dto import BaseDto
 from dto.partial_player_info_dto import PartialPlayerInfoDto
-from dto.server_only.player_info_dto import PlayerInfoDto
 
 
 @dataclass

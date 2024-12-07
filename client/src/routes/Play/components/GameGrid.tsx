@@ -38,7 +38,7 @@ export default function GameGrid() {
         controlInteractionEnabling();
 
         // Allows/disallows the player to interact with elements such as the game cells
-        // or the end turn button according to whether it is their turn or not and if the 
+        // or the end turn button according to whether it is their turn or not and if the
         // turn swap animation is done running.
         function controlInteractionEnabling() {
             setCanInteract(false);
@@ -70,15 +70,15 @@ export default function GameGrid() {
     });
 
     useEffect(() => {
-        // To let the player know that the opponent has their cursor 
+        // To let the player know that the opponent has their cursor
         // over a specific cell (by coloring the cell's border in red)
         function onServerCellHover(cell: CellInfoDto) {
-            if (isMyTurn)
-                return;
+            if (isMyTurn) return;
 
-            const htmlCell = document.getElementById(getCellId(cell.rowIndex, cell.columnIndex));
-            if (!htmlCell)
-                return;
+            const htmlCell = document.getElementById(
+                getCellId(cell.rowIndex, cell.columnIndex)
+            );
+            if (!htmlCell) return;
 
             const currentClassName = htmlCell.className;
             htmlCell.className = `${currentClassName} selected`;
@@ -86,12 +86,12 @@ export default function GameGrid() {
 
         // End the red border coloring once the opponent is no longer hovering it
         function onServerCellHoverEnd(cell: CellInfoDto) {
-            if (isMyTurn)
-                return;
+            if (isMyTurn) return;
 
-            const htmlCell = document.getElementById(getCellId(cell.rowIndex, cell.columnIndex))
-            if (!htmlCell)
-                return;
+            const htmlCell = document.getElementById(
+                getCellId(cell.rowIndex, cell.columnIndex)
+            );
+            if (!htmlCell) return;
 
             const currentClassName = htmlCell.className;
             htmlCell.className = currentClassName.replace(" selected", "");
@@ -103,7 +103,7 @@ export default function GameGrid() {
         return () => {
             socket.off(Events.SERVER_CELL_HOVER, onServerCellHover);
             socket.off(Events.SERVER_CELL_HOVER_END, onServerCellHoverEnd);
-        }
+        };
     });
 
     function colorBoard() {
@@ -114,15 +114,29 @@ export default function GameGrid() {
                 const htmlCell = document.getElementById(
                     getCellId(cell.rowIndex, cell.columnIndex)
                 );
-                if (isPlayer1) {
-                    htmlCell!.style.backgroundColor =
-                        cell.owner === 1 ? colors.ownCell : colors.opponentCell;
-                } else {
-                    htmlCell!.style.backgroundColor =
-                        cell.owner === 2 ? colors.ownCell : colors.opponentCell;
-                }
+                htmlCell!.style.backgroundColor = getCellColor(cell, isPlayer1);
             });
         });
+    }
+
+    function getCellColor(cell: CellInfoDto, isPlayer1: boolean) {
+        if (isPlayer1) {
+            if (cell.owner === 1 && cell.isMaster)
+                return colors.ownMasterCell;
+            else if (cell.owner === 1)
+                return colors.ownCell;
+            else if (cell.isMaster)
+                return colors.opponentMasterCell;
+            else return colors.opponentCell;
+        } else {
+            if (cell.owner === 2 && cell.isMaster)
+                return colors.ownMasterCell;
+            else if (cell.owner === 2)
+                return colors.ownCell;
+            else if (cell.isMaster)
+                return colors.opponentMasterCell;
+            else return colors.opponentCell;
+        }
     }
 
     function getCellId(rowIndex: number, colIndex: number) {
@@ -148,16 +162,11 @@ export default function GameGrid() {
             </GridInner>
             {showTurnSwapImage && <TurnSwapImage imagePath={turnSwapImagePath} />}
         </GridOuter>
-
     );
 }
 
 function GridOuter(props: ContainerProps) {
-    return (
-        <div className="grid-outer">
-            {props.children}
-        </div>
-    );
+    return <div className="grid-outer">{props.children}</div>;
 }
 
 function GridInner(props: ContainerProps) {
@@ -169,9 +178,5 @@ function GridInner(props: ContainerProps) {
 }
 
 function GridRow(props: ContainerProps) {
-    return (
-        <div className="row">
-            {props.children}
-        </div>
-    );
+    return <div className="row">{props.children}</div>;
 }

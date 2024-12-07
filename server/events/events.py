@@ -25,4 +25,6 @@ class Events(Enum):
     SERVER_MATCH_ONGOING = "server-match-ongoing"  # same thing, but won't display a match started message on the screen
     SERVER_TURN_SWAP = "server-turn-swap"
     CLIENT_TURN_END = "client-turn-end"  # whenever a player choose's to end their turn
+    CLIENT_CELL_CLICK = "client-cell-click"
+    SERVER_CELL_CLICK = "server-cell-click"
     SERVER_MATCH_END = "server-matchEnd"
