@@ -1,6 +1,6 @@
 from datetime import datetime
 from threading import Event
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
@@ -23,6 +23,10 @@ class TurnWatcherService(ServiceBase):
         self._turn_start_time: datetime = None
         self._turn_watcher_thread = None
         self._turn_manual_swap_event = Event()
+        self._turn_swap_external_callbacks: list[Callable] = []
+
+    def add_external_callback(self, callback: Callable):
+        self._turn_swap_external_callbacks.append(callback)
 
     def trigger(self):
         """
@@ -78,11 +82,18 @@ class TurnWatcherService(ServiceBase):
         incrementing the turn or adding a mana point to the player whose turn it will be.
         """
         self.match_info.currentTurn += 1
-
         self.match_info.isPlayer1Turn = not self.match_info.isPlayer1Turn
 
-        # Increment the mana point count if necessary
+        self._increment_player_MP()
+
+        self._trigger_external_callbacks()
+
+    def _increment_player_MP(self):
         player_game_info = self.match.get_current_player().playerGameInfo
         current_mp = player_game_info.currentMP
         max_mp = player_game_info.maxMP
         player_game_info.currentMP = min(current_mp + 1, max_mp)
+
+    def _trigger_external_callbacks(self):
+        for callback in self._turn_swap_external_callbacks:
+            callback()

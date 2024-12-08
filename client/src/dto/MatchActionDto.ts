@@ -1,8 +1,10 @@
-import { ActionType } from "../enums/actionType"
+import { ActionType } from "../enums/actionType";
+import { CoordinatesDto } from "./CoordinatesDto";
 
 export interface MatchActionDto {
-    fromPlayer1: boolean;
+    playerId: string;
     isDirect: boolean;
     type: ActionType;
-    impactedCoords: number[];
+    originatingCellCoords?: CoordinatesDto;
+    impactedCoords: CoordinatesDto[];
 }

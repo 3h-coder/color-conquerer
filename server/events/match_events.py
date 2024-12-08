@@ -2,6 +2,7 @@ from flask import request, session
 from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
+from constants.match_constants import BOARD_SIZE
 from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.cell_info_dto import CellInfoDto
 from dto.message_dto import MessageDto
@@ -132,6 +133,7 @@ def handle_cell_click(data: dict):
         return
 
     cell_info_dto = CellInfoDto.from_dict(data)
+    row, col = cell_info_dto.rowIndex, cell_info_dto.columnIndex
 
 
 def _get_session_variable(variable_name: str):

@@ -24,6 +24,7 @@ from handlers.match_helpers.client_notifications import (
     notify_match_end,
     notify_match_start,
 )
+from handlers.match_helpers.match_actions_service import MatchActionsService
 from handlers.match_helpers.player_entry_watcher_service import (
     PlayerEntryWatcherService,
 )
@@ -52,11 +53,16 @@ class MatchHandlerUnit:
 
         self._status = MatchStatus.WAITING_TO_START
 
+        self._match_actions_service = MatchActionsService(self)
+
         self._player_entry_watcher_service = PlayerEntryWatcherService(self)
 
         self._player_exit_watcher_service = PlayerExitWatcherService(self)
 
         self._turn_watcher_service = TurnWatcherService(self)
+        self._turn_watcher_service.add_external_callback(
+            self._match_actions_service.reset_for_new_turn
+        )
 
         # Dto which we use to share/save the final match data before disposing the handler unit
         self.match_closure_info = None
@@ -321,10 +327,11 @@ class MatchHandlerUnit:
         player1_master_cell = board[1][5]
         player2_master_cell = board[9][5]
 
-        player1_master_cell.owner = 1
+        player1_master_cell.set_owned_by_player1()
         player1_master_cell.isMaster = True
+        board[2][5].owner = 1
 
-        player2_master_cell.owner = 2
+        player2_master_cell.set_owned_by_player2()
         player2_master_cell.isMaster = True
 
         return board
