@@ -9,6 +9,7 @@ from events.connect import handle_connection
 from events.disconnect import handle_disconnection
 from events.events import Events
 from events.match_events import (
+    handle_cell_click,
     handle_cell_hover,
     handle_cell_hover_end,
     handle_client_ready,
@@ -47,6 +48,7 @@ class Server:
         self.socketio.on_event(
             Events.CLIENT_CELL_HOVER_END.value, handle_cell_hover_end
         )
+        self.socketio.on_event(Events.CLIENT_CELL_CLICK.value, handle_cell_click)
         self.socketio.on_event(
             Events.CLIENT_CLEAR_SESSION.value, handle_session_clearing
         )

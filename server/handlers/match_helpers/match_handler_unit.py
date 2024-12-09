@@ -217,6 +217,12 @@ class MatchHandlerUnit:
             notifyTurnChange=for_new_turn,
         )
 
+    def handle_cell_selection(self, cell_row: int, cell_col: int):
+        """
+        Triggers all of the processing relative to a cell selection.
+        """
+        self._match_actions_service.handle_cell_selection(cell_row, cell_col)
+
     def force_turn_swap(self):
         """
         Forcefully triggers a turn swap.
@@ -329,7 +335,7 @@ class MatchHandlerUnit:
 
         player1_master_cell.set_owned_by_player1()
         player1_master_cell.isMaster = True
-        board[2][5].owner = 1
+        board[2][5].set_owned_by_player1()
 
         player2_master_cell.set_owned_by_player2()
         player2_master_cell.isMaster = True

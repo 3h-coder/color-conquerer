@@ -1,6 +1,9 @@
 from typing import TYPE_CHECKING
 
+from flask_socketio import emit
+
 from dto.partial_match_closure_dto import PartialMatchClosureDto
+from dto.possible_actions_dto import PossibleActionsDto
 from dto.turn_info_dto import TurnInfoDto
 from events.events import Events
 from server_gate import get_server
@@ -17,6 +20,10 @@ def notify_match_start(turn_info: TurnInfoDto, room_id: str):
 
 def notify_turn_swap(turn_info: TurnInfoDto, room_id: str):
     _emit(Events.SERVER_TURN_SWAP.value, turn_info.to_dict(), to=room_id)
+
+
+def notify_possible_actions(possible_actions: PossibleActionsDto):
+    emit(Events.SERVER_CELL_CLICK.value, possible_actions.to_dict())
 
 
 def notify_match_end(match_closure_info: PartialMatchClosureDto, room_id: str):

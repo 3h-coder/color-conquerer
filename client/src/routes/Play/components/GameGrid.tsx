@@ -97,12 +97,18 @@ export default function GameGrid() {
             htmlCell.className = currentClassName.replace(" selected", "");
         }
 
+        function onServerCellClick(data: unknown) {
+
+        }
+
         socket.on(Events.SERVER_CELL_HOVER, onServerCellHover);
         socket.on(Events.SERVER_CELL_HOVER_END, onServerCellHoverEnd);
+        socket.on(Events.SERVER_CELL_CLICK, onServerCellClick);
 
         return () => {
             socket.off(Events.SERVER_CELL_HOVER, onServerCellHover);
             socket.off(Events.SERVER_CELL_HOVER_END, onServerCellHoverEnd);
+            socket.off(Events.SERVER_CELL_CLICK, onServerCellClick);
         };
     });
 

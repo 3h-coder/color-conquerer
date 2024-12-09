@@ -119,7 +119,7 @@ def handle_cell_hover_end(data: dict):
 
 def handle_cell_click(data: dict):
     """
-    Receives the client cell click, and returns all the authorized actions to it.
+    Receives the client cell click, and notifies the client accordingly.
     """
     room_id = _get_session_variable(ROOM_ID)
     player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
@@ -133,7 +133,9 @@ def handle_cell_click(data: dict):
         return
 
     cell_info_dto = CellInfoDto.from_dict(data)
+    _logger.info(f"Received cell click event -> {cell_info_dto}")
     row, col = cell_info_dto.rowIndex, cell_info_dto.columnIndex
+    match.handle_cell_selection(row, col)
 
 
 def _get_session_variable(variable_name: str):
