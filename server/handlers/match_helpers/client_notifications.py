@@ -23,7 +23,7 @@ def notify_turn_swap(turn_info: TurnInfoDto, room_id: str):
 
 
 def notify_possible_actions(possible_actions: PossibleActionsDto):
-    emit(Events.SERVER_CELL_CLICK.value, possible_actions.to_dict())
+    emit(Events.SERVER_POSSIBLE_ACTIONS.value, possible_actions.to_dict())
 
 
 def notify_match_end(match_closure_info: PartialMatchClosureDto, room_id: str):

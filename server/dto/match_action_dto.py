@@ -47,7 +47,7 @@ class MatchActionDto(BaseDto):
         return MatchActionDto(
             playerId=player_id,
             isDirect=True,
-            type=ActionType.CELL_MOVE,
+            type=ActionType.CELL_MOVE.value,
             originatingCellCoords=CoordinatesDto(row_index, column_index),
             impactedCoords=(CoordinatesDto(new_row_index, new_column_index),),
         )
@@ -59,7 +59,7 @@ class MatchActionDto(BaseDto):
         return MatchActionDto(
             playerId=player_id,
             isDirect=True,
-            type=ActionType.CELL_ATTACK,
+            type=ActionType.CELL_ATTACK.value,
             originatingCellCoords=CoordinatesDto(row_index, column_index),
             impactedCoords=(CoordinatesDto(attack_row_index, attack_column_index),),
         )

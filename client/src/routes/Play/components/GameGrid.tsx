@@ -6,10 +6,14 @@ import { useMatchInfo } from "../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
 import { useTurnInfo } from "../../../contexts/TurnContext";
 import { CellInfoDto } from "../../../dto/CellInfoDto";
+import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
+import { ProcessedActionsDto } from "../../../dto/ProcessedActionsDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
+import { ActionType } from "../../../enums/actionType";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
 import { colors } from "../../../style/constants";
+import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 import TurnSwapImage from "./TurnSwapImage";
 
@@ -97,18 +101,33 @@ export default function GameGrid() {
             htmlCell.className = currentClassName.replace(" selected", "");
         }
 
-        function onServerCellClick(data: unknown) {
+        function onServerPossibleActions(actionsDto: PossibleActionsDto) {
+            developmentLog("Received the possible actions", actionsDto);
+            actionsDto.possibleActions.forEach((action) => {
+                if (action.type === ActionType.CELL_MOVE) {
+                    const { rowIndex, columnIndex } = { ...action.impactedCoords[0] };
+                    const htmlCell = getHtmlCell(rowIndex, columnIndex);
+                    if (!htmlCell) return;
+                    developmentLog(`attempting to color the cell at (${rowIndex} | ${columnIndex})`);
+                    htmlCell.style.backgroundColor = colors.ownCellMovementPossible;
+                }
+            });
+        }
 
+        function onServerProcessedActions(actions: ProcessedActionsDto) {
+            developmentLog("Received the processed actions", actions);
         }
 
         socket.on(Events.SERVER_CELL_HOVER, onServerCellHover);
         socket.on(Events.SERVER_CELL_HOVER_END, onServerCellHoverEnd);
-        socket.on(Events.SERVER_CELL_CLICK, onServerCellClick);
+        socket.on(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
+        socket.on(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
 
         return () => {
             socket.off(Events.SERVER_CELL_HOVER, onServerCellHover);
             socket.off(Events.SERVER_CELL_HOVER_END, onServerCellHoverEnd);
-            socket.off(Events.SERVER_CELL_CLICK, onServerCellClick);
+            socket.off(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
+            socket.off(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
         };
     });
 
@@ -117,10 +136,10 @@ export default function GameGrid() {
             row.forEach((cell) => {
                 if (cell.owner === 0) return;
 
-                const htmlCell = document.getElementById(
-                    getCellId(cell.rowIndex, cell.columnIndex)
-                );
-                htmlCell!.style.backgroundColor = getCellColor(cell, isPlayer1);
+                const htmlCell = getHtmlCell(cell.rowIndex, cell.columnIndex);
+                if (!htmlCell)
+                    return;
+                htmlCell.style.backgroundColor = getCellColor(cell, isPlayer1);
             });
         });
     }
@@ -143,6 +162,12 @@ export default function GameGrid() {
                 return colors.opponentMasterCell;
             else return colors.opponentCell;
         }
+    }
+
+    function getHtmlCell(rowIndex: number, columnIndex: number) {
+        return document.getElementById(
+            getCellId(rowIndex, columnIndex)
+        );
     }
 
     function getCellId(rowIndex: number, colIndex: number) {
