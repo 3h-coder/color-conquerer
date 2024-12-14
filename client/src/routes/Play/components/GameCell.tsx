@@ -6,26 +6,26 @@ interface GameCellProps {
     id: string;
     rowIndex: number;
     columnIndex: number;
-    canBeSelected: boolean;
+    canInteractWith: boolean;
 }
 
 export default function GameCell(props: GameCellProps) {
-    const { id, rowIndex, columnIndex, canBeSelected } = props;
+    const { id, rowIndex, columnIndex, canInteractWith } = props;
 
     function onCellMouseEnter() {
-        if (!canBeSelected) return;
+        if (!canInteractWith) return;
 
         socket.emit(Events.CLIENT_CELL_HOVER, getCellInfoDto());
     }
 
     function onCellMouseLeave() {
-        if (!canBeSelected) return;
+        if (!canInteractWith) return;
 
         socket.emit(Events.CLIENT_CELL_HOVER_END, getCellInfoDto());
     }
 
     function onCellClick() {
-        if (!canBeSelected) return;
+        if (!canInteractWith) return;
 
         socket.emit(Events.CLIENT_CELL_CLICK, getCellInfoDto());
     }
@@ -44,7 +44,7 @@ export default function GameCell(props: GameCellProps) {
 
     return (
         <div
-            className={`cell ${canBeSelected ? "selectable" : ""}`}
+            className={`cell ${canInteractWith ? "selectable" : ""}`}
             id={id}
             onMouseEnter={onCellMouseEnter}
             onMouseLeave={onCellMouseLeave}

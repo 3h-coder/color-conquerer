@@ -9,10 +9,9 @@ import { CellInfoDto } from "../../../dto/CellInfoDto";
 import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
 import { ProcessedActionsDto } from "../../../dto/ProcessedActionsDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
-import { ActionType } from "../../../enums/actionType";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
-import { colors } from "../../../style/constants";
+import { colorBoard, colorBoardFromPossibleActions, getCellId } from "../../../utils/boardUtils";
 import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 import TurnSwapImage from "./TurnSwapImage";
@@ -70,7 +69,7 @@ export default function GameGrid() {
     }, [isMyTurn]);
 
     useEffect(() => {
-        colorBoard();
+        colorBoard(boardArray, isPlayer1);
     });
 
     useEffect(() => {
@@ -103,15 +102,8 @@ export default function GameGrid() {
 
         function onServerPossibleActions(actionsDto: PossibleActionsDto) {
             developmentLog("Received the possible actions", actionsDto);
-            actionsDto.possibleActions.forEach((action) => {
-                if (action.type === ActionType.CELL_MOVE) {
-                    const { rowIndex, columnIndex } = { ...action.impactedCoords[0] };
-                    const htmlCell = getHtmlCell(rowIndex, columnIndex);
-                    if (!htmlCell) return;
-                    developmentLog(`attempting to color the cell at (${rowIndex} | ${columnIndex})`);
-                    htmlCell.style.backgroundColor = colors.ownCellMovementPossible;
-                }
-            });
+
+            colorBoardFromPossibleActions(actionsDto);
         }
 
         function onServerProcessedActions(actions: ProcessedActionsDto) {
@@ -131,49 +123,6 @@ export default function GameGrid() {
         };
     });
 
-    function colorBoard() {
-        boardArray.forEach((row) => {
-            row.forEach((cell) => {
-                if (cell.owner === 0) return;
-
-                const htmlCell = getHtmlCell(cell.rowIndex, cell.columnIndex);
-                if (!htmlCell)
-                    return;
-                htmlCell.style.backgroundColor = getCellColor(cell, isPlayer1);
-            });
-        });
-    }
-
-    function getCellColor(cell: CellInfoDto, isPlayer1: boolean) {
-        if (isPlayer1) {
-            if (cell.owner === 1 && cell.isMaster)
-                return colors.ownMasterCell;
-            else if (cell.owner === 1)
-                return colors.ownCell;
-            else if (cell.isMaster)
-                return colors.opponentMasterCell;
-            else return colors.opponentCell;
-        } else {
-            if (cell.owner === 2 && cell.isMaster)
-                return colors.ownMasterCell;
-            else if (cell.owner === 2)
-                return colors.ownCell;
-            else if (cell.isMaster)
-                return colors.opponentMasterCell;
-            else return colors.opponentCell;
-        }
-    }
-
-    function getHtmlCell(rowIndex: number, columnIndex: number) {
-        return document.getElementById(
-            getCellId(rowIndex, columnIndex)
-        );
-    }
-
-    function getCellId(rowIndex: number, colIndex: number) {
-        return `c-${rowIndex}-${colIndex}`;
-    }
-
     return (
         <GridOuter>
             <GridInner style={gridStyle}>
@@ -185,7 +134,7 @@ export default function GameGrid() {
                                 id={getCellId(rowIndex, colIndex)}
                                 rowIndex={rowIndex}
                                 columnIndex={colIndex}
-                                canBeSelected={canInteract}
+                                canInteractWith={canInteract && _cell.owner !== 0}
                             />
                         ))}
                     </GridRow>

@@ -163,7 +163,7 @@
 
 .cell {
     background-color: white;
-    border: 1px solid rgb(200, 200, 200);
+    border: 0.1rem solid rgb(200, 200, 200);
     width: max(25px, 4vmin);
     height: max(25px, 4vmin);
     transition: background-color 0.1s;
@@ -175,13 +175,11 @@
 }
 
 .selectable:hover {
-    border: 1px solid blue;
-    background-color: rgb(176, 199, 248);
+    border: 0.1rem solid blue;
 }
 
 .selected {
-    border: 1px solid red;
-    background-color: rgb(250, 186, 186);
+    border: 0.1rem solid red;
 }
 
 .turn-swap-image-container {
