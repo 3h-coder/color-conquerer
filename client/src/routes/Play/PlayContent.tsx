@@ -64,6 +64,7 @@ export default function PlayContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchInfo, matchInfoLoading, playerId, playerInfoLoading]);
 
+  // Socket events
   useEffect(() => {
     function onSetWaitingText(messageDto: MessageDto) {
       setWaitingText(messageDto.message);
@@ -185,7 +186,6 @@ function PageContainer(props: ContainerProps) {
 function MainInnerContainer(props: ContainerProps) {
   return <div className="main-inner-container">{props.children}</div>;
 }
-
 
 function RightSideContainer(props: ContainerProps) {
   return <div className="right-side-container">{props.children}</div>

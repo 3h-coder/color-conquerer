@@ -10,7 +10,7 @@ export function clearCellColor(rowIndex: number, colIndex: number) {
     if (!htmlCell)
         return;
 
-    htmlCell.style.backgroundColor = colors.idleCell;
+    htmlCell.style.backgroundColor = colors.cell.idle;
 }
 
 export function colorOwnedCell(cell: CellInfoDto, isPlayer1: boolean) {
@@ -19,7 +19,6 @@ export function colorOwnedCell(cell: CellInfoDto, isPlayer1: boolean) {
         return;
 
     htmlCell.style.backgroundColor = getOwnedCellColor(cell, isPlayer1);
-
 }
 
 export function colorCellToPossibleMovement(rowIndex: number, colIndex: number) {
@@ -27,28 +26,28 @@ export function colorCellToPossibleMovement(rowIndex: number, colIndex: number) 
     if (!htmlCell)
         return;
 
-    htmlCell.style.backgroundColor = colors.ownCellMovementPossible;
+    htmlCell.style.backgroundColor = colors.cell.ownCellMovementPossible;
 }
 
 export function colorHoveredCell(cell: CellInfoDto) {
-    addClassName(cell, cellStyle.hoveredClassName);
+    addClassName(cell.rowIndex, cell.columnIndex, cellStyle.hoveredClassName);
 }
 
 export function decolorHoveredCell(cell: CellInfoDto) {
-    removeClassName(cell, cellStyle.hoveredClassName);
+    removeClassName(cell.rowIndex, cell.columnIndex, cellStyle.hoveredClassName);
 }
 
 function getOwnedCellColor(cell: CellInfoDto, isPlayer1: boolean) {
     const ownPlayer = isPlayer1 ? 1 : 2;
 
     if (cell.owner === ownPlayer)
-        return cell.isMaster ? colors.ownMasterCell : colors.ownCell;
+        return cell.isMaster ? colors.cell.ownMaster : colors.cell.own;
 
-    return cell.isMaster ? colors.opponentMasterCell : colors.opponentCell;
+    return cell.isMaster ? colors.cell.opponentMaster : colors.cell.opponent;
 }
 
-function addClassName(cell: CellInfoDto, className : string) {
-    const htmlCell = getHtmlCell(cell.rowIndex, cell.columnIndex);
+function addClassName(rowIndex: number, colIndex: number, className : string) {
+    const htmlCell = getHtmlCell(rowIndex, colIndex);
     if (!htmlCell)
         return;
 
@@ -56,8 +55,8 @@ function addClassName(cell: CellInfoDto, className : string) {
     htmlCell.className = `${currentClassName} ${className}`;
 }
 
-function removeClassName(cell: CellInfoDto, className : string) {
-    const htmlCell = getHtmlCell(cell.rowIndex, cell.columnIndex);
+function removeClassName(rowIndex: number, colIndex: number, className : string) {
+    const htmlCell = getHtmlCell(rowIndex, colIndex);
     if (!htmlCell)
         return;
 

@@ -11,7 +11,7 @@ import { ProcessedActionsDto } from "../../../dto/ProcessedActionsDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
-import { clearBoardColoring, colorBoard, colorBoardFromPossibleActions } from "../../../utils/boardUtils";
+import { clearBoardColoring, colorBoard, applyPossibleActionsToBoard, getDefaultSelectableCells } from "../../../utils/boardUtils";
 import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 import TurnSwapImage from "./TurnSwapImage";
@@ -30,7 +30,7 @@ export default function GameGrid() {
     const boardArray = matchInfo.boardArray;
     const [selectableCells, setSelectableCells] = useState(
         // Initialize cells with an owner as selectable
-        boardArray.map(row => row.map((cell) => isOwned(cell)))
+        getDefaultSelectableCells(boardArray)
     );
 
     function setCellsSelectable(coordinates: CoordinatesDto[], isSelectable: boolean) {
@@ -44,9 +44,14 @@ export default function GameGrid() {
     }
 
     useEffect(() => {
-        if (turnInfo === undefinedTurnInfo) return;
+        handleTurnChange();
 
-        setIsMyTurn(turnInfo.currentPlayerId === playerId);
+        function handleTurnChange() {
+            clearBoardColoring(boardArray, cell => isOwned(cell));
+
+            if (turnInfo === undefinedTurnInfo) return;
+            setIsMyTurn(turnInfo.currentPlayerId === playerId);
+        }
     }, [playerId, turnInfo]);
 
     useEffect(() => {
@@ -104,7 +109,8 @@ export default function GameGrid() {
             developmentLog("Received the possible actions", actionsDto);
 
             clearBoardColoring(boardArray, (cell) => isOwned(cell));
-            colorBoardFromPossibleActions(actionsDto);
+            setSelectableCells(getDefaultSelectableCells(boardArray));
+            applyPossibleActionsToBoard(actionsDto, setCellsSelectable);
         }
 
         function onServerProcessedActions(actions: ProcessedActionsDto) {
