@@ -1,11 +1,17 @@
-from enum import IntEnum
+from enum import IntEnum, StrEnum
 from typing import TYPE_CHECKING
 
+from config.logging import get_configured_logger
 from constants.match_constants import BOARD_SIZE
 from dto.cell_info_dto import CellInfoDto
 from dto.match_action_dto import MatchActionDto
 from dto.possible_actions_dto import PossibleActionsDto
-from handlers.match_helpers.client_notifications import notify_possible_actions
+from dto.processed_actions_dto import ProcessedActionsDto
+from handlers.match_helpers.client_notifications import (
+    notify_action_error,
+    notify_possible_actions,
+    notify_processed_actions,
+)
 from handlers.match_helpers.service_base import ServiceBase
 from utils.board_utils import get_neighbours, is_out_of_bounds, is_owned
 
@@ -31,6 +37,11 @@ class ServerMode(IntEnum):
     SHOW_PROCESSED_ACTIONS = 1
 
 
+class ErrorMessages(StrEnum):
+    CANNOT_MOVE_TO_NOR_ATTACK = "Cannot move to nor attack this cell"
+    INVALID_ACTION = "Invalid action"  # The client should prevent this message from being shown, but just in case
+
+
 class MatchActionsService(ServiceBase):
     """
     Helper class responsible for handling action requests from each players.
@@ -39,6 +50,8 @@ class MatchActionsService(ServiceBase):
 
     def __init__(self, match_handler_unit: "MatchHandlerUnit"):
         super().__init__(match_handler_unit)
+        self._logger = get_configured_logger(__name__)
+
         self._boardArray = self.match.match_info.boardArray
         # Dictionary storing all of the actions that happened during a match.
         # Key : turn number | Value : list of actions (type : [TBD])
@@ -47,20 +60,24 @@ class MatchActionsService(ServiceBase):
         self._turn_actions: list = []
         # Used to confirm whether an action can be done or not
         self._possible_actions: set = set()
+        # Actions that have been validated and applied
+        self._processed_actions: set = set()
         self._player_mode = PlayerMode.OWN_CELL_SELECTION
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         # Applicable when the player mode is OWN_CELL_SELECTED
         self._selected_cell: CellInfoDto = None
+        # Message to the player when their request is invalid
+        self._error_msg: str = ""
 
     def reset_for_new_turn(self):
         """
         Performs all the cleanup and reset necessary for a fresh new turn.
+
+        Meant to be used as a callback for the turn watcher service.
         """
+        self.actions[self.match_info.currentTurn] = []
         self._turn_actions = []
-        self._possible_actions = set()
-        self._player_mode = PlayerMode.OWN_CELL_SELECTION
-        self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
-        self._selected_cell = None
+        self._reset_temporary_field_values()
 
     def handle_cell_selection(self, cell_row: int, cell_col: int):
         """
@@ -72,7 +89,7 @@ class MatchActionsService(ServiceBase):
         cell = self._boardArray[cell_row][cell_col]
 
         if cell.belongs_to(player):
-            self._handle_owned_cell_selection(cell, player_id)
+            self._handle_own_cell_selection(cell, player_id)
 
         # the cell belongs to the opponent
         elif cell.is_owned():
@@ -85,9 +102,12 @@ class MatchActionsService(ServiceBase):
 
         self._send_response()
 
-    def _handle_owned_cell_selection(self, cell: CellInfoDto, player_id: str):
+        if self._server_mode == ServerMode.SHOW_PROCESSED_ACTIONS:
+            self._reset_temporary_field_values()
+
+    def _handle_own_cell_selection(self, cell: CellInfoDto, player_id: str):
         """
-        Populates the possible actions field based on the current player mode.
+        Handles all possible cases resulting from a player selecting a cell of their own.
 
         For example, if the player mode is set to owned cell selection, than the possible actions are either
         move, attack, or no action.
@@ -103,14 +123,17 @@ class MatchActionsService(ServiceBase):
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
             if self._selected_cell == cell:
-                self._cancel_cell_selection()
+                # Cancel cell selection
+                self._reset_temporary_field_values()
+            elif cell.is_owned():
+                self._error_msg = ErrorMessages.CANNOT_MOVE_TO_NOR_ATTACK.value
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
             pass  # nothing for now
 
     def _handle_opponent_cell_selection(self, cell: CellInfoDto, player_id: str):
         """
-        Populates the possible actions field based on the current player mode.
+        Handles all possible cases resulting from a player selecting an enemy cell of their own.
 
         For example, if the player mode is set to owned cell selection, than there
         shouldn't be any possible action.
@@ -119,20 +142,25 @@ class MatchActionsService(ServiceBase):
 
     def _handle_idle_cell_selection(self, cell: CellInfoDto, player_id: str):
         """
-        Populates the possible actions field based on the current player mode.
+        Handles all possible cases resulting from a player selecting an idle cell.
 
         For example, if the player mode is set to cell spawn, than there may be a spawn action.
         """
-        pass
+        if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
+            self._error_msg = ErrorMessages.INVALID_ACTION.value
 
-    def _cancel_cell_selection(self):
-        """
-        Resets the appropriate fields relative the previous cell selection.
-        """
-        self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
-        self._player_mode = PlayerMode.OWN_CELL_SELECTION
-        self._selected_cell = None
-        self._possible_actions = set()
+        elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
+            movement = MatchActionDto.cell_movement(
+                player_id,
+                self._selected_cell.rowIndex,
+                self._selected_cell.columnIndex,
+                cell.rowIndex,
+                cell.columnIndex,
+            )
+            if movement not in self._possible_actions:
+                self._error_msg = ErrorMessages.INVALID_ACTION.value
+            else:
+                self._set_processed_actions([movement])
 
     def _send_response(self):
         """
@@ -141,14 +169,31 @@ class MatchActionsService(ServiceBase):
         Let's the client know the server's response to the player's request allowing it to render
         subsequent animations properly.
         """
+        if self._error_msg:
+            notify_action_error(self._error_msg)
+            return
+
         if self._server_mode == ServerMode.SHOW_POSSIBLE_ACTIONS:
-            self.logger.debug(
+            self._logger.debug(
                 f"Sending to the client the possible actions : {self._possible_actions}"
             )
             # sets cannot be json serialized, hence the list() constructor
             notify_possible_actions(PossibleActionsDto(list(self._possible_actions)))
-        else:
-            pass
+        elif self._server_mode == ServerMode.SHOW_PROCESSED_ACTIONS:
+            self._logger.debug(
+                f"Sending to the client the processed actions: {self._processed_actions}"
+            )
+            notify_processed_actions(
+                ProcessedActionsDto(list(self._processed_actions)), self.room_id
+            )
+
+    def _reset_temporary_field_values(self):
+        self._player_mode = PlayerMode.OWN_CELL_SELECTION
+        self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
+        self._possible_actions = set()
+        self._processed_actions = set()
+        self._selected_cell = None
+        self._error_msg = ""
 
     def _set_possible_actions(self, actions: list[MatchActionDto]):
         """
@@ -156,6 +201,24 @@ class MatchActionsService(ServiceBase):
         """
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         self._possible_actions = set(actions)
+
+    def _set_processed_actions(self, actions: list[MatchActionDto]):
+        self._server_mode = ServerMode.SHOW_PROCESSED_ACTIONS
+        self._processed_actions = set(actions)
+        for action in actions:
+            # TODO : ensure a certain order
+            self._register_processed_action(action)
+
+    def _register_processed_action(self, action: MatchActionDto):
+        """
+        Adds a processed action to the turn and match actions fields.
+        """
+        current_turn = self.match_info.currentTurn
+        if current_turn not in self.actions:
+            self.actions[current_turn] = []
+
+        self.actions[current_turn].append(action)
+        self._turn_actions.append(action)
 
     def _set_selected_cell(self, cell: CellInfoDto):
         """

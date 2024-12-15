@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from flask import copy_current_request_context, request
 from flask_socketio import SocketIO
 
+from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_EXCLUSION
 from dto.server_only.match_closure_dto import EndingReason
 from handlers.match_helpers.service_base import ServiceBase
@@ -21,6 +22,7 @@ class PlayerExitWatcherService(ServiceBase):
 
     def __init__(self, match_handler_unit: "MatchHandlerUnit"):
         super().__init__(match_handler_unit)
+        self._logger = get_configured_logger(__name__)
 
         # Events used to cancel an exit watcher task for a specific player, i.e. not kick the player out when they reconnect
         self.player_exit_watch_stop_events = {
@@ -44,7 +46,7 @@ class PlayerExitWatcherService(ServiceBase):
 
         @copy_current_request_context
         def exit_timer():
-            self.logger.debug(
+            self._logger.debug(
                 f"({request.remote_addr}) | Starting the exit watch for the player {player_id}"
             )
             self._polling_sleep(
@@ -52,7 +54,7 @@ class PlayerExitWatcherService(ServiceBase):
             )
 
             if stop_event.is_set():
-                self.logger.debug(
+                self._logger.debug(
                     f"({request.remote_addr}) | The exit watch was stopped"
                 )
                 return

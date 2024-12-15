@@ -1,6 +1,7 @@
 from threading import Event
 from typing import TYPE_CHECKING
 
+from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_TO_WAIT_FOR_EVERYONE
 from dto.server_only.match_closure_dto import EndingReason
 from handlers.match_helpers.service_base import ServiceBase
@@ -20,6 +21,7 @@ class PlayerEntryWatcherService(ServiceBase):
 
     def __init__(self, match_handler_unit: "MatchHandlerUnit"):
         super().__init__(match_handler_unit)
+        self._logger = get_configured_logger(__name__)
 
         # Dictionary used to determine which player is ready or not
         self._players_ready = {
@@ -29,7 +31,7 @@ class PlayerEntryWatcherService(ServiceBase):
 
     def mark_player_as_ready(self, player_id):
         if not player_id in self._players_ready:
-            self.logger.error(
+            self._logger.error(
                 f"Cannot mark the player {player_id} as ready as it does it not in the dictionary."
             )
             return
@@ -57,7 +59,7 @@ class PlayerEntryWatcherService(ServiceBase):
 
             # No player could make it in time, so cancel the match
             if self._no_player_joined():
-                self.logger.info("No player joined the match")
+                self._logger.info("No player joined the match")
                 self.match.cancel()
                 return
 

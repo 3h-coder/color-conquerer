@@ -11,6 +11,7 @@ export function clearCellColor(rowIndex: number, colIndex: number) {
         return;
 
     htmlCell.style.backgroundColor = colors.cell.idle;
+    htmlCell.style.animation = "";
 }
 
 export function colorOwnedCell(cell: CellInfoDto, isPlayer1: boolean) {
@@ -27,6 +28,7 @@ export function colorCellToPossibleMovement(rowIndex: number, colIndex: number) 
         return;
 
     htmlCell.style.backgroundColor = colors.cell.ownCellMovementPossible;
+    htmlCell.style.animation = "half-fade-in 1s infinite alternate-reverse";
 }
 
 export function colorHoveredCell(cell: CellInfoDto) {
@@ -46,7 +48,7 @@ function getOwnedCellColor(cell: CellInfoDto, isPlayer1: boolean) {
     return cell.isMaster ? colors.cell.opponentMaster : colors.cell.opponent;
 }
 
-function addClassName(rowIndex: number, colIndex: number, className : string) {
+function addClassName(rowIndex: number, colIndex: number, className: string) {
     const htmlCell = getHtmlCell(rowIndex, colIndex);
     if (!htmlCell)
         return;
@@ -55,7 +57,7 @@ function addClassName(rowIndex: number, colIndex: number, className : string) {
     htmlCell.className = `${currentClassName} ${className}`;
 }
 
-function removeClassName(rowIndex: number, colIndex: number, className : string) {
+function removeClassName(rowIndex: number, colIndex: number, className: string) {
     const htmlCell = getHtmlCell(rowIndex, colIndex);
     if (!htmlCell)
         return;

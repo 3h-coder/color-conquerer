@@ -19,5 +19,6 @@ export enum Events {
     CLIENT_CELL_CLICK = "client-cell-click",
     SERVER_POSSIBLE_ACTIONS = "server-possibleActions",
     SERVER_PROCESSED_ACTIONS = "server-processedActions",
+    SERVER_ACTION_ERROR = "server-actionError",
     SERVER_MATCH_END = "server-matchEnd",
 }

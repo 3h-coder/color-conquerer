@@ -15,7 +15,7 @@ class ServiceBase:
     """
 
     def __init__(self, match_handler_unit: "MatchHandlerUnit"):
-        self.logger = get_configured_logger(__name__)
         self._server = match_handler_unit.server
         self.match = match_handler_unit
         self.match_info = match_handler_unit.match_info
+        self.room_id = self.match_info.roomId
