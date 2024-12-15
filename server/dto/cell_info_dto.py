@@ -24,6 +24,16 @@ class CellInfoDto(BaseDto):
     columnIndex: int
     state: CellState
 
+    def __eq__(self, other_cell):
+        return (
+            isinstance(other_cell, CellInfoDto)
+            and self.rowIndex == other_cell.rowIndex
+            and self.columnIndex == other_cell.columnIndex
+        )
+
+    def __hash__(self):
+        return hash(self.rowIndex, self.columnIndex)
+
     def set_owned_by_player1(self):
         self.state = CellState.OWNED
         self.owner = CellOwner.PLAYER_1

@@ -49,6 +49,8 @@ class MatchActionsService(ServiceBase):
         self._possible_actions: set = set()
         self._player_mode = PlayerMode.OWN_CELL_SELECTION
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
+        # Applicable when the player mode is OWN_CELL_SELECTED
+        self._selected_cell: CellInfoDto = None
 
     def reset_for_new_turn(self):
         """
@@ -58,6 +60,7 @@ class MatchActionsService(ServiceBase):
         self._possible_actions = set()
         self._player_mode = PlayerMode.OWN_CELL_SELECTION
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
+        self._selected_cell = None
 
     def handle_cell_selection(self, cell_row: int, cell_col: int):
         """
@@ -80,7 +83,7 @@ class MatchActionsService(ServiceBase):
         else:
             self._handle_idle_cell_selection(cell, player_id)
 
-        self._send_notification()
+        self._send_response()
 
     def _handle_owned_cell_selection(self, cell: CellInfoDto, player_id: str):
         """
@@ -90,16 +93,17 @@ class MatchActionsService(ServiceBase):
         move, attack, or no action.
         """
         if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
+            self._set_selected_cell(cell)
             # TODO check if the cell is allowed to move
             movements = self._calculate_possible_movements(cell, player_id)
             # TODO check if the cell is allowed to attack
             attacks = self._calculate_possible_attacks(cell, player_id)
 
             self._set_possible_actions(movements + attacks)
-            self._player_mode = PlayerMode.OWN_CELL_SELECTED
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
-            pass  # nothing for now
+            if self._selected_cell == cell:
+                self._cancel_cell_selection()
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
             pass  # nothing for now
@@ -121,7 +125,16 @@ class MatchActionsService(ServiceBase):
         """
         pass
 
-    def _send_notification(self):
+    def _cancel_cell_selection(self):
+        """
+        Resets the appropriate fields relative the previous cell selection.
+        """
+        self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
+        self._player_mode = PlayerMode.OWN_CELL_SELECTION
+        self._selected_cell = None
+        self._possible_actions = set()
+
+    def _send_response(self):
         """
         Crucial method.
 
@@ -143,6 +156,13 @@ class MatchActionsService(ServiceBase):
         """
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         self._possible_actions = set(actions)
+
+    def _set_selected_cell(self, cell: CellInfoDto):
+        """
+        Sets the player mode and selected cell fields accordingly.
+        """
+        self._player_mode = PlayerMode.OWN_CELL_SELECTED
+        self._selected_cell = cell
 
     def _calculate_possible_movements(self, cell: CellInfoDto, player_id: str):
         """

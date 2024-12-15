@@ -161,6 +161,8 @@
     display: contents;
 }
 
+/* #region Cells*/
+
 .cell {
     background-color: white;
     border: 0.1rem solid rgb(200, 200, 200);
@@ -169,7 +171,6 @@
     transition: background-color 0.1s;
 }
 
-/* meant to be used on cells only */
 .selectable {
     cursor: pointer;
 }
@@ -178,9 +179,11 @@
     border: 0.1rem solid blue;
 }
 
-.selected {
+.hovered {
     border: 0.1rem solid red;
 }
+
+/* #endregion */
 
 .turn-swap-image-container {
     position: absolute;

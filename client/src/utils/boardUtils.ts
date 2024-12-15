@@ -1,28 +1,29 @@
 import { CellInfoDto } from "../dto/CellInfoDto";
 import { PossibleActionsDto } from "../dto/PossibleActionsDto";
 import { ActionType } from "../enums/actionType";
-import { colors } from "../style/constants";
+import { clearCellColor, colorCellToPossibleMovement, colorOwnedCell, isOwned } from "./cellUtils";
+
+type CellDelegate = (cell: CellInfoDto) => boolean;
+
+export function clearBoardColoring(boardArray: CellInfoDto[][], excludingCondition?: CellDelegate) {
+    boardArray.forEach((row) => {
+        row.forEach((cell) => {
+            if (excludingCondition !== undefined && excludingCondition(cell))
+                return;
+
+            clearCellColor(cell.rowIndex, cell.columnIndex);
+        })
+    })
+}
 
 export function colorBoard(boardArray: CellInfoDto[][], isPlayer1: boolean) {
     boardArray.forEach((row) => {
         row.forEach((cell) => {
-            if (cell.owner === 0) return;
+            if (!isOwned(cell)) return;
 
-            const htmlCell = getHtmlCell(cell.rowIndex, cell.columnIndex);
-            if (!htmlCell)
-                return;
-            htmlCell.style.backgroundColor = getCellColor(cell, isPlayer1);
+            colorOwnedCell(cell, isPlayer1);
         });
     });
-}
-
-function getCellColor(cell: CellInfoDto, isPlayer1: boolean) {
-    const ownPlayer = isPlayer1 ? 1 : 2;
-
-    if (cell.owner === ownPlayer)
-        return cell.isMaster ? colors.ownMasterCell : colors.ownCell;
-
-    return cell.isMaster ? colors.opponentMasterCell : colors.opponentCell;
 }
 
 export function colorBoardFromPossibleActions(possibleActionsDto: PossibleActionsDto) {
@@ -32,22 +33,4 @@ export function colorBoardFromPossibleActions(possibleActionsDto: PossibleAction
             colorCellToPossibleMovement(rowIndex, columnIndex);
         }
     });
-}
-
-function colorCellToPossibleMovement(rowIndex: number, columnIndex: number) {
-    const htmlCell = getHtmlCell(rowIndex, columnIndex);
-    if (!htmlCell)
-        return;
-
-    htmlCell.style.backgroundColor = colors.ownCellMovementPossible;
-}
-
-export function getHtmlCell(rowIndex: number, columnIndex: number) {
-    return document.getElementById(
-        getCellId(rowIndex, columnIndex)
-    );
-}
-
-export function getCellId(rowIndex: number, colIndex: number) {
-    return `c-${rowIndex}-${colIndex}`;
 }

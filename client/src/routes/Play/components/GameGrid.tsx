@@ -11,25 +11,37 @@ import { ProcessedActionsDto } from "../../../dto/ProcessedActionsDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
-import { colorBoard, colorBoardFromPossibleActions, getCellId } from "../../../utils/boardUtils";
+import { clearBoardColoring, colorBoard, colorBoardFromPossibleActions } from "../../../utils/boardUtils";
 import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 import TurnSwapImage from "./TurnSwapImage";
+import { colorHoveredCell, decolorHoveredCell, getCellId, isOwned } from "../../../utils/cellUtils";
+import { CoordinatesDto } from "../../../dto/CoordinatesDto";
 
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
     const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnInfo, canInteract, setCanInteract } = useTurnInfo();
 
-    const boardArray = matchInfo.boardArray;
-    const gridStyle: React.CSSProperties = {
-        transform: `${isPlayer1 ? "rotate(180deg)" : undefined}`,
-        gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`,
-    };
-
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
     const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
+
+    const boardArray = matchInfo.boardArray;
+    const [selectableCells, setSelectableCells] = useState(
+        // Initialize cells with an owner as selectable
+        boardArray.map(row => row.map((cell) => isOwned(cell)))
+    );
+
+    function setCellsSelectable(coordinates: CoordinatesDto[], isSelectable: boolean) {
+        setSelectableCells(prevState => {
+            const newState = prevState.map(row => [...row]); // Clone state
+            coordinates.forEach((coord) => { // Update
+                newState[coord.rowIndex][coord.columnIndex] = isSelectable;
+            });
+            return newState;
+        });
+    }
 
     useEffect(() => {
         if (turnInfo === undefinedTurnInfo) return;
@@ -78,31 +90,20 @@ export default function GameGrid() {
         function onServerCellHover(cell: CellInfoDto) {
             if (isMyTurn) return;
 
-            const htmlCell = document.getElementById(
-                getCellId(cell.rowIndex, cell.columnIndex)
-            );
-            if (!htmlCell) return;
-
-            const currentClassName = htmlCell.className;
-            htmlCell.className = `${currentClassName} selected`;
+            colorHoveredCell(cell);
         }
 
         // End the red border coloring once the opponent is no longer hovering it
         function onServerCellHoverEnd(cell: CellInfoDto) {
             if (isMyTurn) return;
 
-            const htmlCell = document.getElementById(
-                getCellId(cell.rowIndex, cell.columnIndex)
-            );
-            if (!htmlCell) return;
-
-            const currentClassName = htmlCell.className;
-            htmlCell.className = currentClassName.replace(" selected", "");
+            decolorHoveredCell(cell);
         }
 
         function onServerPossibleActions(actionsDto: PossibleActionsDto) {
             developmentLog("Received the possible actions", actionsDto);
 
+            clearBoardColoring(boardArray, (cell) => isOwned(cell));
             colorBoardFromPossibleActions(actionsDto);
         }
 
@@ -123,18 +124,23 @@ export default function GameGrid() {
         };
     });
 
+    const gridStyle: React.CSSProperties = {
+        transform: `${isPlayer1 ? "rotate(180deg)" : undefined}`,
+        gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`,
+    };
+
     return (
         <GridOuter>
             <GridInner style={gridStyle}>
                 {boardArray.map((row, rowIndex) => (
                     <GridRow className="row" id={`r-${rowIndex}`} key={rowIndex}>
-                        {row.map((_cell, colIndex) => (
+                        {row.map((_, colIndex) => (
                             <GameCell
                                 key={colIndex}
                                 id={getCellId(rowIndex, colIndex)}
                                 rowIndex={rowIndex}
                                 columnIndex={colIndex}
-                                canInteractWith={canInteract && _cell.owner !== 0}
+                                selectable={canInteract && selectableCells[rowIndex][colIndex]}
                             />
                         ))}
                     </GridRow>
