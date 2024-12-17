@@ -7,3 +7,4 @@ from dto.match_action_dto import MatchActionDto
 @dataclass
 class ProcessedActionsDto(BaseDto):
     processedActions: list[MatchActionDto]
+    # Add the updated matchInfo (or at least board array)

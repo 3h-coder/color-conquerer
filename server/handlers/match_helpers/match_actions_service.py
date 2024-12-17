@@ -7,6 +7,7 @@ from dto.cell_info_dto import CellInfoDto
 from dto.match_action_dto import MatchActionDto
 from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_actions_dto import ProcessedActionsDto
+from handlers.match_helpers.action_processor import ActionProcessor
 from handlers.match_helpers.client_notifications import (
     notify_action_error,
     notify_possible_actions,
@@ -53,6 +54,7 @@ class MatchActionsService(ServiceBase):
         self._logger = get_configured_logger(__name__)
 
         self._boardArray = self.match.match_info.boardArray
+        self._action_processor = ActionProcessor(self.match_info)
         # Dictionary storing all of the actions that happened during a match.
         # Key : turn number | Value : list of actions (type : [TBD])
         self.actions: dict[int, list] = {}
@@ -60,7 +62,7 @@ class MatchActionsService(ServiceBase):
         self._turn_actions: list = []
         # Used to confirm whether an action can be done or not
         self._possible_actions: set = set()
-        # Actions that have been validated and applied
+        # Actions that have been validated and applied, overridden each time a set of action is processed
         self._processed_actions: set = set()
         self._player_mode = PlayerMode.OWN_CELL_SELECTION
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
@@ -83,7 +85,6 @@ class MatchActionsService(ServiceBase):
         """
         Handles the selection of a cell. This can either trigger an action or return a list of possible actions.
         """
-        # Todo
         player = self.match.get_current_player()
         player_id = player.playerId
         cell = self._boardArray[cell_row][cell_col]
@@ -119,7 +120,7 @@ class MatchActionsService(ServiceBase):
             # TODO check if the cell is allowed to attack
             attacks = self._calculate_possible_attacks(cell, player_id)
 
-            self._set_possible_actions(movements + attacks)
+            self._set_possible_actions(set(movements + attacks))
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
             if self._selected_cell == cell:
@@ -160,7 +161,7 @@ class MatchActionsService(ServiceBase):
             if movement not in self._possible_actions:
                 self._error_msg = ErrorMessages.INVALID_ACTION.value
             else:
-                self._set_processed_actions([movement])
+                self._process_actions([movement])
 
     def _send_response(self):
         """
@@ -195,21 +196,23 @@ class MatchActionsService(ServiceBase):
         self._selected_cell = None
         self._error_msg = ""
 
-    def _set_possible_actions(self, actions: list[MatchActionDto]):
+    def _set_possible_actions(self, actions: set[MatchActionDto]):
         """
         Stores all of the possible actions and sets the server mode accordingly.
         """
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
-        self._possible_actions = set(actions)
+        self._possible_actions = actions
 
-    def _set_processed_actions(self, actions: list[MatchActionDto]):
+    def _process_actions(self, actions: set[MatchActionDto]):
+        """
+        Processes all of the given actions, setting the associate fields along the way.
+        """
         self._server_mode = ServerMode.SHOW_PROCESSED_ACTIONS
-        self._processed_actions = set(actions)
-        for action in actions:
-            # TODO : ensure a certain order
-            self._register_processed_action(action)
+        processed_actions = self._action_processor.process_actions_sequentially(actions)
+        self._processed_actions = processed_actions
+        self._register_processed_actions(processed_actions)
 
-    def _register_processed_action(self, action: MatchActionDto):
+    def _register_processed_actions(self, actions: set[MatchActionDto]):
         """
         Adds a processed action to the turn and match actions fields.
         """
@@ -217,8 +220,9 @@ class MatchActionsService(ServiceBase):
         if current_turn not in self.actions:
             self.actions[current_turn] = []
 
-        self.actions[current_turn].append(action)
-        self._turn_actions.append(action)
+        for action in actions:
+            self.actions[current_turn].append(action)
+            self._turn_actions.append(action)
 
     def _set_selected_cell(self, cell: CellInfoDto):
         """

@@ -12,6 +12,33 @@ def is_owned(row_index: int, col_index: int, board: list[list[CellInfoDto]]):
     return board[row_index][col_index].is_owned()
 
 
+def move_cell(
+    row_index: int,
+    col_index: int,
+    new_row_index: int,
+    new_col_index: int,
+    board: list[list[CellInfoDto]],
+):
+    """
+    Moves a cell from the given original coordinates to the given new coordinates.
+
+    This method does nothing if the cell to move is idle, and leaves an idle cell at the original coordinates otherwise.
+    """
+    cell_original_coords = board[row_index][col_index]
+    cell_new_coords = board[new_row_index][new_col_index]
+
+    if not cell_original_coords.is_owned():
+        return
+
+    if cell_original_coords.belongs_to_player_1():
+        cell_new_coords.set_owned_by_player1()
+
+    elif cell_original_coords.belongs_to_player_2():
+        cell_new_coords.set_owned_by_player2()
+
+    cell_original_coords.set_idle()
+
+
 def is_out_of_bounds(index, board_size: int = None, square_board: list[list] = None):
     if index < 0:
         return True
