@@ -185,7 +185,8 @@ class MatchActionsService(ServiceBase):
                 f"Sending to the client the processed actions: {self._processed_actions}"
             )
             notify_processed_actions(
-                ProcessedActionsDto(list(self._processed_actions)), self.room_id
+                ProcessedActionsDto(list(self._processed_actions), self._boardArray),
+                self.room_id,
             )
 
     def _reset_temporary_field_values(self):

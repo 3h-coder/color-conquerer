@@ -6,17 +6,17 @@ import { useMatchInfo } from "../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
 import { useTurnInfo } from "../../../contexts/TurnContext";
 import { CellInfoDto } from "../../../dto/CellInfoDto";
+import { CoordinatesDto } from "../../../dto/CoordinatesDto";
 import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
 import { ProcessedActionsDto } from "../../../dto/ProcessedActionsDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
-import { clearBoardColoring, colorBoard, applyPossibleActionsToBoard, getDefaultSelectableCells } from "../../../utils/boardUtils";
+import { animateProcessedActionsOnBoard, applyPossibleActionsToBoard, clearBoardColoring, colorBoard, getDefaultSelectableCells } from "../../../utils/boardUtils";
+import { colorHoveredCell, decolorHoveredCell, getCellId, isOwned } from "../../../utils/cellUtils";
 import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 import TurnSwapImage from "./TurnSwapImage";
-import { colorHoveredCell, decolorHoveredCell, getCellId, isOwned } from "../../../utils/cellUtils";
-import { CoordinatesDto } from "../../../dto/CoordinatesDto";
 
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
@@ -43,6 +43,7 @@ export default function GameGrid() {
         });
     }
 
+    // Set the isMyTurn variable on turn change
     useEffect(() => {
         handleTurnChange();
 
@@ -52,8 +53,9 @@ export default function GameGrid() {
             if (turnInfo === undefinedTurnInfo) return;
             setIsMyTurn(turnInfo.currentPlayerId === playerId);
         }
-    }, [playerId, turnInfo]);
+    }, [boardArray, playerId, turnInfo]);
 
+    // React to the isMyTurn change
     useEffect(() => {
         controlInteractionEnabling();
 
@@ -85,10 +87,12 @@ export default function GameGrid() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isMyTurn]);
 
+    // Color the board on render
     useEffect(() => {
         colorBoard(boardArray, isPlayer1);
     });
 
+    // Register socket events
     useEffect(() => {
         // To let the player know that the opponent has their cursor
         // over a specific cell (by coloring the cell's border in red)
@@ -115,6 +119,9 @@ export default function GameGrid() {
 
         function onServerProcessedActions(actions: ProcessedActionsDto) {
             developmentLog("Received the processed actions", actions);
+
+            clearBoardColoring(boardArray, (cell) => isOwned(cell));
+            animateProcessedActionsOnBoard(actions, isPlayer1, setSelectableCells);
         }
 
         socket.on(Events.SERVER_CELL_HOVER, onServerCellHover);

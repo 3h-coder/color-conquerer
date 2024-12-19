@@ -56,4 +56,4 @@ export default function GameCell(props: GameCellProps) {
             {/* <span style={{ position: "absolute", fontSize: "px", color: "black" }}>{`[${rowIndex}, ${columnIndex}]`}</span> */}
         </div>
     );
-};
+}

@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
+from dto.cell_info_dto import CellInfoDto
 from dto.match_action_dto import MatchActionDto
 
 
 @dataclass
 class ProcessedActionsDto(BaseDto):
     processedActions: list[MatchActionDto]
-    # Add the updated matchInfo (or at least board array)
+    updatedBoardArray: list[list[CellInfoDto]]
