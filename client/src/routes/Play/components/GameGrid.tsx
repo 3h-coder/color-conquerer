@@ -12,7 +12,7 @@ import { ProcessedActionsDto } from "../../../dto/ProcessedActionsDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
-import { animateProcessedActionsOnBoard, applyPossibleActionsToBoard, clearBoardColoring, colorBoard, getDefaultSelectableCells } from "../../../utils/boardUtils";
+import { applyPossibleActionsToBoard, clearBoardColoring, getDefaultSelectableCells } from "../../../utils/boardUtils";
 import { colorHoveredCell, decolorHoveredCell, getCellId, isOwned } from "../../../utils/cellUtils";
 import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
@@ -27,7 +27,7 @@ export default function GameGrid() {
     const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
 
-    const boardArray = matchInfo.boardArray;
+    const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
     const [selectableCells, setSelectableCells] = useState(
         // Initialize cells with an owner as selectable
         getDefaultSelectableCells(boardArray)
@@ -87,11 +87,6 @@ export default function GameGrid() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isMyTurn]);
 
-    // Color the board on render
-    useEffect(() => {
-        colorBoard(boardArray, isPlayer1);
-    });
-
     // Register socket events
     useEffect(() => {
         // To let the player know that the opponent has their cursor
@@ -120,8 +115,8 @@ export default function GameGrid() {
         function onServerProcessedActions(actions: ProcessedActionsDto) {
             developmentLog("Received the processed actions", actions);
 
-            clearBoardColoring(boardArray, (cell) => isOwned(cell));
-            animateProcessedActionsOnBoard(actions, isPlayer1, setSelectableCells);
+            setBoardArray(actions.updatedBoardArray);
+            setSelectableCells(getDefaultSelectableCells(actions.updatedBoardArray));
         }
 
         socket.on(Events.SERVER_CELL_HOVER, onServerCellHover);
@@ -147,12 +142,12 @@ export default function GameGrid() {
             <GridInner style={gridStyle}>
                 {boardArray.map((row, rowIndex) => (
                     <GridRow className="row" id={`r-${rowIndex}`} key={rowIndex}>
-                        {row.map((_, colIndex) => (
+                        {row.map((cellInfo, colIndex) => (
                             <GameCell
                                 key={colIndex}
                                 id={getCellId(rowIndex, colIndex)}
-                                rowIndex={rowIndex}
-                                columnIndex={colIndex}
+                                isPlayer1={isPlayer1}
+                                cellInfo={cellInfo}
                                 selectable={canInteract && selectableCells[rowIndex][colIndex]}
                             />
                         ))}

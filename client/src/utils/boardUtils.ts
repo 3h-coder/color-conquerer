@@ -1,12 +1,10 @@
 import { CellInfoDto } from "../dto/CellInfoDto";
 import { CoordinatesDto } from "../dto/CoordinatesDto";
 import { PossibleActionsDto } from "../dto/PossibleActionsDto";
-import { ProcessedActionsDto } from "../dto/ProcessedActionsDto";
 import { ActionType } from "../enums/actionType";
 import {
   clearCellColor,
   colorCellToPossibleMovement,
-  colorOwnedCell,
   isOwned,
 } from "./cellUtils";
 
@@ -30,16 +28,6 @@ export function clearBoardColoring(
   });
 }
 
-export function colorBoard(boardArray: CellInfoDto[][], isPlayer1: boolean) {
-  boardArray.forEach((row) => {
-    row.forEach((cell) => {
-      if (!isOwned(cell)) return;
-
-      colorOwnedCell(cell, isPlayer1);
-    });
-  });
-}
-
 export function applyPossibleActionsToBoard(
   possibleActionsDto: PossibleActionsDto,
   setCellsSelectable: (
@@ -57,28 +45,4 @@ export function applyPossibleActionsToBoard(
     }
   });
   setCellsSelectable(selectableCellsCoordinates, true);
-}
-
-export function animateProcessedActionsOnBoard(
-  processedActionsDto: ProcessedActionsDto,
-  isPlayer1: boolean,
-  setSelectableCells: (
-    selectableArray: boolean[][]
-  ) => void
-) {
-  const updatedBoardArray = processedActionsDto.updatedBoardArray;
-
-  processedActionsDto.processedActions.forEach((action) => {
-    // TODO extract into a method with a switch case later on
-    if (action.type == ActionType.CELL_MOVE) {
-      if (!action.originatingCellCoords)
-        return;
-
-      // const { rowIndex, columnIndex } = { ...action.originatingCellCoords }
-      // const { rowIndex: newRowIndex, columnIndex: newColumnIndex } = { ...action.impactedCoords[0] }
-
-      setSelectableCells(getDefaultSelectableCells(updatedBoardArray));
-      clearBoardColoring(updatedBoardArray, cell => isOwned(cell));
-    }
-  })
 }

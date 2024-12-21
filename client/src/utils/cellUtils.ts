@@ -5,6 +5,14 @@ export function isOwned(cell: CellInfoDto) {
     return cell.owner !== 0;
 }
 
+export function getDefaultStyle(cell: CellInfoDto, isPlayer1: boolean) {
+    const style: React.CSSProperties = {
+        backgroundColor: getCellColor(cell, isPlayer1)
+    }
+
+    return style;
+}
+
 export function clearCellColor(rowIndex: number, colIndex: number) {
     const htmlCell = getHtmlCell(rowIndex, colIndex);
     if (!htmlCell)
@@ -12,14 +20,6 @@ export function clearCellColor(rowIndex: number, colIndex: number) {
 
     htmlCell.style.backgroundColor = colors.cell.idle;
     htmlCell.style.animation = "";
-}
-
-export function colorOwnedCell(cell: CellInfoDto, isPlayer1: boolean) {
-    const htmlCell = getHtmlCell(cell.rowIndex, cell.columnIndex);
-    if (!htmlCell)
-        return;
-
-    htmlCell.style.backgroundColor = getOwnedCellColor(cell, isPlayer1);
 }
 
 export function colorCellToPossibleMovement(rowIndex: number, colIndex: number) {
@@ -39,7 +39,10 @@ export function decolorHoveredCell(cell: CellInfoDto) {
     removeClassName(cell.rowIndex, cell.columnIndex, cellStyle.hoveredClassName);
 }
 
-function getOwnedCellColor(cell: CellInfoDto, isPlayer1: boolean) {
+function getCellColor(cell: CellInfoDto, isPlayer1: boolean) {
+    if (!isOwned(cell))
+        return colors.cell.idle;
+
     const ownPlayer = isPlayer1 ? 1 : 2;
 
     if (cell.owner === ownPlayer)

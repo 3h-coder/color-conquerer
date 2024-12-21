@@ -169,6 +169,7 @@
     width: max(25px, 4vmin);
     height: max(25px, 4vmin);
     transition: background-color 0.1s;
+    position: relative;
 }
 
 .selectable {
