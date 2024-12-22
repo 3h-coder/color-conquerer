@@ -1,7 +1,7 @@
-import { MatchActionDto } from "./MatchActionDto";
 import { PartialCellInfoDto } from "./PartialCellInfoDto";
+import { PartialMatchActionDto } from "./PartialMatchActionDto";
 
 export interface ProcessedActionsDto {
-    processedActions: MatchActionDto[];
+    processedActions: PartialMatchActionDto[];
     updatedBoardArray: PartialCellInfoDto[][];
 }

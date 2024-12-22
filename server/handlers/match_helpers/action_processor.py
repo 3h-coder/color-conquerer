@@ -1,5 +1,5 @@
 from config.logging import get_configured_logger
-from dto.match_action_dto import ActionType, MatchActionDto
+from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from utils.board_utils import move_cell
 

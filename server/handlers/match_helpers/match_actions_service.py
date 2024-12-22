@@ -3,10 +3,11 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from constants.match_constants import BOARD_SIZE
-from dto.match_action_dto import MatchActionDto
+from dto.partial_match_action_dto import PartialMatchActionDto
 from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_actions_dto import ProcessedActionsDto
 from dto.server_only.cell_info_dto import CellInfoDto
+from dto.server_only.match_action_dto import MatchActionDto
 from handlers.match_helpers.action_processor import ActionProcessor
 from handlers.match_helpers.client_notifications import (
     notify_action_error,
@@ -158,6 +159,7 @@ class MatchActionsService(ServiceBase):
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
             movement = MatchActionDto.cell_movement(
                 player_id,
+                self._selected_cell.id,
                 self._selected_cell.rowIndex,
                 self._selected_cell.columnIndex,
                 cell.rowIndex,
@@ -184,14 +186,17 @@ class MatchActionsService(ServiceBase):
                 f"Sending to the client the possible actions : {self._possible_actions}"
             )
             # sets cannot be json serialized, hence the list() constructor
-            notify_possible_actions(PossibleActionsDto(list(self._possible_actions)))
+            notify_possible_actions(
+                PossibleActionsDto(_to_client_actions_dto(self._possible_actions))
+            )
         elif self._server_mode == ServerMode.SHOW_PROCESSED_ACTIONS:
             self._logger.debug(
                 f"Sending to the client the processed actions: {self._processed_actions}"
             )
             notify_processed_actions(
                 ProcessedActionsDto(
-                    list(self._processed_actions), to_client_board_dto(self._boardArray)
+                    _to_client_actions_dto(self._processed_actions),
+                    to_client_board_dto(self._boardArray),
                 ),
                 self.room_id,
             )
@@ -259,7 +264,12 @@ class MatchActionsService(ServiceBase):
 
             movements.append(
                 MatchActionDto.cell_movement(
-                    player_id, row_index, column_index, new_row_index, new_col_index
+                    player_id,
+                    cell.id,
+                    row_index,
+                    column_index,
+                    new_row_index,
+                    new_col_index,
                 )
             )
 
@@ -280,6 +290,7 @@ class MatchActionsService(ServiceBase):
                 attacks.append(
                     MatchActionDto.cell_attack(
                         player_id,
+                        cell.id,
                         row_index,
                         column_index,
                         neighbour.rowIndex,
@@ -291,3 +302,7 @@ class MatchActionsService(ServiceBase):
 
 def _is_out_of_bounds(index: int):
     return is_out_of_bounds(index, board_size=BOARD_SIZE)
+
+
+def _to_client_actions_dto(actions: set[MatchActionDto]):
+    return [PartialMatchActionDto.from_match_action_dto(action) for action in actions]

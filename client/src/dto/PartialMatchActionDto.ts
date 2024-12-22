@@ -1,9 +1,8 @@
 import { ActionType } from "../enums/actionType";
 import { CoordinatesDto } from "./CoordinatesDto";
 
-export interface MatchActionDto {
+export interface PartialMatchActionDto {
     playerId: string;
-    isDirect: boolean;
     type: ActionType;
     originatingCellCoords?: CoordinatesDto;
     impactedCoords: CoordinatesDto[];

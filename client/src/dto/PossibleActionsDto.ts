@@ -1,5 +1,5 @@
-import { MatchActionDto } from "./MatchActionDto";
+import { PartialMatchActionDto } from "./PartialMatchActionDto";
 
 export interface PossibleActionsDto {
-    possibleActions: MatchActionDto[];
+    possibleActions: PartialMatchActionDto[];
 }

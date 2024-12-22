@@ -46,7 +46,7 @@ class CellInfoDto(PartialCellInfoDto):
         from utils.id_generation_utils import generate_id
 
         self.owner = CellOwner.PLAYER_2
-        generate_id(CellInfoDto)
+        self.id = generate_id(CellInfoDto)
 
     def is_owned(self):
         return self.owner != CellOwner.NONE

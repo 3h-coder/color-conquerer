@@ -1,9 +1,13 @@
 from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
-from dto.match_action_dto import MatchActionDto
+from dto.partial_match_action_dto import PartialMatchActionDto
 
 
 @dataclass
 class PossibleActionsDto(BaseDto):
-    possibleActions: list[MatchActionDto]
+    """
+    Meant to be sent to the client.
+    """
+
+    possibleActions: list[PartialMatchActionDto]

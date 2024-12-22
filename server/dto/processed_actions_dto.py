@@ -1,11 +1,15 @@
 from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
-from dto.match_action_dto import MatchActionDto
 from dto.partial_cell_info_dto import PartialCellInfoDto
+from dto.partial_match_action_dto import PartialMatchActionDto
 
 
 @dataclass
 class ProcessedActionsDto(BaseDto):
-    processedActions: list[MatchActionDto]
+    """
+    Meant to be sent to the client.
+    """
+
+    processedActions: list[PartialMatchActionDto]
     updatedBoardArray: list[list[PartialCellInfoDto]]
