@@ -16,8 +16,8 @@ class PartialMatchActionDto(BaseDto):
     originatingCellCoords: CoordinatesDto
     impactedCoords: tuple[CoordinatesDto]
 
-    @classmethod
-    def from_match_action_dto(cls, match_action_dto: "MatchActionDto"):
+    @staticmethod
+    def from_match_action_dto(match_action_dto: "MatchActionDto"):
         return PartialMatchActionDto(
             match_action_dto.playerId,
             match_action_dto.type,

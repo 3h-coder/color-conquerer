@@ -23,8 +23,8 @@ class PartialMatchInfoDto(BaseDto):
     isPlayer1Turn: bool
     totalTurnDurationInS: int
 
-    @classmethod
-    def from_match_info_dto(cls, match_info_dto: "MatchInfoDto"):
+    @staticmethod
+    def from_match_info_dto(match_info_dto: "MatchInfoDto"):
         return PartialMatchInfoDto(
             match_info_dto.id,
             match_info_dto.roomId,

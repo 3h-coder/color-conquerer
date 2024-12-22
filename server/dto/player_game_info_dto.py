@@ -13,8 +13,8 @@ class PlayerGameInfoDto(PartialPlayerGameInfoDto):
 
     # TODO : add stuff here
 
-    @classmethod
-    def get_initial_player_game_info(cls, is_player_1: bool):
+    @staticmethod
+    def get_initial_player_game_info(is_player_1: bool):
         return PlayerGameInfoDto(
             player1=is_player_1,
             maxHP=MAX_HP_VALUE,

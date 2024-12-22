@@ -20,8 +20,8 @@ class PartialPlayerGameInfoDto(BaseDto):
     maxMP: int
     currentMP: int
 
-    @classmethod
-    def from_player_game_info(cls, player_game_info: "PlayerGameInfoDto"):
+    @staticmethod
+    def from_player_game_info(player_game_info: "PlayerGameInfoDto"):
         return PartialPlayerGameInfoDto(
             player_game_info.player1,
             player_game_info.maxHP,

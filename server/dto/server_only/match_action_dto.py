@@ -40,9 +40,8 @@ class MatchActionDto(PartialMatchActionDto):
             )
         )
 
-    @classmethod
+    @staticmethod
     def cell_movement(
-        cls,
         player_id,
         cell_id,
         row_index,
@@ -59,9 +58,8 @@ class MatchActionDto(PartialMatchActionDto):
             cellId=cell_id,
         )
 
-    @classmethod
+    @staticmethod
     def cell_attack(
-        cls,
         player_id,
         cell_id,
         row_index,

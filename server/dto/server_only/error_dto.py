@@ -10,8 +10,8 @@ class ErrorDto(BaseDto):
     displayToUser: bool
     socketConnectionKiller: bool
 
-    @classmethod
-    def from_exception(cls, ex: Exception):
+    @staticmethod
+    def from_exception(ex: Exception):
         error = str(ex)
         display_to_user = False
         socket_connection_killer = False

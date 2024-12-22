@@ -20,9 +20,9 @@ class MatchInfoDto(PartialMatchInfoDto):
     def get_player_game_info(self, player1: bool):
         return self.player1.playerGameInfo if player1 else self.player2.playerGameInfo
 
-    @classmethod
+    @staticmethod
     def get_initial_match_info(
-        cls, id: str, room_dto: RoomDto, initial_board_array: list[list[CellInfoDto]]
+        id: str, room_dto: RoomDto, initial_board_array: list[list[CellInfoDto]]
     ):
         return MatchInfoDto(
             id=id,

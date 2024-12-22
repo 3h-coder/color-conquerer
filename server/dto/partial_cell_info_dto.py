@@ -14,8 +14,8 @@ class PartialCellInfoDto(BaseDto):
     rowIndex: int
     columnIndex: int
 
-    @classmethod
-    def from_cell_info_dto(cls, cell_info_dto: "CellInfoDto"):
+    @staticmethod
+    def from_cell_info_dto(cell_info_dto: "CellInfoDto"):
         return PartialCellInfoDto(
             cell_info_dto.owner,
             cell_info_dto.isMaster,
