@@ -39,25 +39,19 @@ class Server:
     def _add_listeners(self):
         self.socketio.on_event("connect", handle_connection)
         self.socketio.on_event("disconnect", handle_disconnection)
-        self.socketio.on_event(
-            Events.CLIENT_QUEUE_REGISTER.value, handle_queue_registration
-        )
-        self.socketio.on_event(Events.CLIENT_READY.value, handle_client_ready)
-        self.socketio.on_event(Events.CLIENT_TURN_END.value, handle_turn_end)
-        self.socketio.on_event(Events.CLIENT_CELL_HOVER.value, handle_cell_hover)
-        self.socketio.on_event(
-            Events.CLIENT_CELL_HOVER_END.value, handle_cell_hover_end
-        )
-        self.socketio.on_event(Events.CLIENT_CELL_CLICK.value, handle_cell_click)
-        self.socketio.on_event(
-            Events.CLIENT_CLEAR_SESSION.value, handle_session_clearing
-        )
+        self.socketio.on_event(Events.CLIENT_QUEUE_REGISTER, handle_queue_registration)
+        self.socketio.on_event(Events.CLIENT_READY, handle_client_ready)
+        self.socketio.on_event(Events.CLIENT_TURN_END, handle_turn_end)
+        self.socketio.on_event(Events.CLIENT_CELL_HOVER, handle_cell_hover)
+        self.socketio.on_event(Events.CLIENT_CELL_HOVER_END, handle_cell_hover_end)
+        self.socketio.on_event(Events.CLIENT_CELL_CLICK, handle_cell_click)
+        self.socketio.on_event(Events.CLIENT_CLEAR_SESSION, handle_session_clearing)
 
         @self.socketio.on_error()
         def _(ex: Exception):
             if not isinstance(ex, CustomException):
                 self.logger.error(f"A socket error occured : {traceback.format_exc()}")
-            emit(Events.SERVER_ERROR.value, ErrorDto.from_exception(ex).to_dict())
+            emit(Events.SERVER_ERROR, ErrorDto.from_exception(ex).to_dict())
 
     def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):
         self.socketio.run(

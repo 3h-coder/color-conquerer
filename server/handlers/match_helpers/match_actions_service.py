@@ -127,7 +127,7 @@ class MatchActionsService(ServiceBase):
                 # Cancel cell selection
                 self._reset_temporary_field_values()
             elif cell.is_owned():
-                self._error_msg = ErrorMessages.CANNOT_MOVE_TO_NOR_ATTACK.value
+                self._error_msg = ErrorMessages.CANNOT_MOVE_TO_NOR_ATTACK
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
             pass  # nothing for now
@@ -148,7 +148,7 @@ class MatchActionsService(ServiceBase):
         For example, if the player mode is set to cell spawn, than there may be a spawn action.
         """
         if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
-            self._error_msg = ErrorMessages.INVALID_ACTION.value
+            self._error_msg = ErrorMessages.INVALID_ACTION
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
             movement = MatchActionDto.cell_movement(
@@ -159,7 +159,7 @@ class MatchActionsService(ServiceBase):
                 cell.columnIndex,
             )
             if movement not in self._possible_actions:
-                self._error_msg = ErrorMessages.INVALID_ACTION.value
+                self._error_msg = ErrorMessages.INVALID_ACTION
             else:
                 self._process_actions([movement])
 

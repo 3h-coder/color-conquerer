@@ -17,29 +17,27 @@ _server: "Server" = None
 
 
 def notify_match_start(turn_info: TurnInfoDto, room_id: str):
-    _emit(Events.SERVER_MATCH_START.value, turn_info.to_dict(), to=room_id)
+    _emit(Events.SERVER_MATCH_START, turn_info.to_dict(), to=room_id)
 
 
 def notify_turn_swap(turn_info: TurnInfoDto, room_id: str):
-    _emit(Events.SERVER_TURN_SWAP.value, turn_info.to_dict(), to=room_id)
+    _emit(Events.SERVER_TURN_SWAP, turn_info.to_dict(), to=room_id)
 
 
 def notify_possible_actions(possible_actions: PossibleActionsDto):
-    emit(Events.SERVER_POSSIBLE_ACTIONS.value, possible_actions.to_dict())
+    emit(Events.SERVER_POSSIBLE_ACTIONS, possible_actions.to_dict())
 
 
 def notify_processed_actions(processed_actions: ProcessedActionsDto, room_id: str):
-    _emit(
-        Events.SERVER_PROCESSED_ACTIONS.value, processed_actions.to_dict(), to=room_id
-    )
+    _emit(Events.SERVER_PROCESSED_ACTIONS, processed_actions.to_dict(), to=room_id)
 
 
 def notify_action_error(error_msg: str):
-    emit(Events.SERVER_ACTION_ERROR.value, MessageDto(error_msg).to_dict())
+    emit(Events.SERVER_ACTION_ERROR, MessageDto(error_msg).to_dict())
 
 
 def notify_match_end(match_closure_info: PartialMatchClosureDto, room_id: str):
-    _emit(Events.SERVER_MATCH_END.value, match_closure_info.to_dict(), to=room_id)
+    _emit(Events.SERVER_MATCH_END, match_closure_info.to_dict(), to=room_id)
 
 
 def _emit(*args, **kwargs):

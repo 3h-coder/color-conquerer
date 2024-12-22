@@ -179,7 +179,7 @@ class MatchHandlerUnit:
 
         # Update match status
         self._status = MatchStatus.ENDED
-        self.match_closure_info = MatchClosureDto(reason.value, winner, loser)
+        self.match_closure_info = MatchClosureDto(reason, winner, loser)
 
         # TODO: save the match result into a database
         self.logger.debug(f"Match ended -> {self.match_closure_info}")

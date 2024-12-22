@@ -46,7 +46,7 @@ def handle_client_ready():
     # Notify the client so it can render accordingly
     if match.is_ongoing():
         emit(
-            Events.SERVER_MATCH_ONGOING.value,
+            Events.SERVER_MATCH_ONGOING,
             match.get_turn_info().to_dict(),
         )
     elif match.is_waiting_to_start():
@@ -58,7 +58,7 @@ def handle_client_ready():
         # Otherwise notify the user that we're still waiting for their opponent
         else:
             emit(
-                Events.SERVER_SET_WAITING_TEXT.value,
+                Events.SERVER_SET_WAITING_TEXT,
                 MessageDto.from_string("Waiting for your opponent...").to_dict(),
             )
 
@@ -96,7 +96,7 @@ def handle_cell_hover(data: dict):
     cell_info_dto = CellInfoDto.from_dict(data)
     room_id = _get_session_variable(ROOM_ID)
     emit(
-        Events.SERVER_CELL_HOVER.value,
+        Events.SERVER_CELL_HOVER,
         cell_info_dto.to_dict(),
         to=room_id,
         broadcast=True,
@@ -110,7 +110,7 @@ def handle_cell_hover_end(data: dict):
     cell_info_dto = CellInfoDto.from_dict(data)
     room_id = _get_session_variable(ROOM_ID)
     emit(
-        Events.SERVER_CELL_HOVER_END.value,
+        Events.SERVER_CELL_HOVER_END,
         cell_info_dto.to_dict(),
         to=room_id,
         broadcast=True,

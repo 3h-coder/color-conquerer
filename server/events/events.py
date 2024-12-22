@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class Events(Enum):
+class Events(StrEnum):
     """
     Represents all the different socket events transmitted between the client and the server.
 

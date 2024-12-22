@@ -14,7 +14,7 @@ def get_home_state():
     room_id = session.get(ROOM_ID)
     in_match = session.get(IN_MATCH)
     if not room_id or not in_match:
-        return HomeStateDto(HomeState.PLAY.value, "", False).to_dict(), 200
+        return HomeStateDto(HomeState.PLAY, "", False).to_dict(), 200
 
     match = match_handler.get_unit(room_id)
     if (
@@ -22,7 +22,7 @@ def get_home_state():
     ):  # TODO check if the match is ended from either the saved closure or something else TBD
         return (
             HomeStateDto(
-                HomeState.PLAY.value,
+                HomeState.PLAY,
                 "You lost your previous match as you left it.",
                 True,
             ).to_dict(),
@@ -32,7 +32,7 @@ def get_home_state():
     if match.is_waiting_to_start() or match.is_ongoing():
         return (
             HomeStateDto(
-                HomeState.JOIN_BACK.value,
+                HomeState.JOIN_BACK,
                 "You are currently in a match, click the button below to join it back",
                 False,
             ).to_dict(),

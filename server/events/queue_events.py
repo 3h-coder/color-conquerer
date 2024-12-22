@@ -42,7 +42,7 @@ def handle_queue_registration(data: dict):
     # In that case, notify both clients that an opponent was found and initiate the match.
     if closed:
         # Notify the clients so they can go to the play room
-        emit(Events.SERVER_QUEUE_OPPONENT_FOUND.value, to=room_id, broadcast=True)
+        emit(Events.SERVER_QUEUE_OPPONENT_FOUND, to=room_id, broadcast=True)
         _try_to_launch_match(room_id)
 
 
@@ -95,7 +95,7 @@ def _try_to_launch_match(room_id):
 
         # The forced disconnection will trigger a session clearup, see the disconnect handler
         emit(
-            Events.SERVER_ERROR.value,
+            Events.SERVER_ERROR,
             ErrorDto(
                 "An error occured, please try again",
                 displayToUser=True,
@@ -130,7 +130,7 @@ def _make_enter_in_room(queue_player_dto: QueuePlayerDto):
     join_room(room_id)
 
     emit(
-        Events.SERVER_QUEUE_REGISTERED.value,
+        Events.SERVER_QUEUE_REGISTERED,
         ClientStoredMatchInfoDto(queue_player_dto.playerId, room_id).to_dict(),
     )  # Notify the client that registration succeeded, sending them their player id and room id
 

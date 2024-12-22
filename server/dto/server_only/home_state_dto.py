@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import IntEnum
+
 from dto.base_dto import BaseDto
 
 
-class HomeState(Enum):
+class HomeState(IntEnum):
     PLAY = 1
     JOIN_BACK = 2
 
