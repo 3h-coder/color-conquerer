@@ -1,14 +1,13 @@
 from dataclasses import dataclass
 from enum import IntEnum
 
-from dto.base_dto import BaseDto
+from dto.partial_cell_info_dto import PartialCellInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 
 
 class CellState(IntEnum):
-    IDLE = 0
-    OWNED = 1
-    # Possibly other states in the future hence the redundancy with cell owner
+    AVAILABLE = 0
+    UNAVAILABLE = 1
 
 
 class CellOwner(IntEnum):
@@ -18,11 +17,8 @@ class CellOwner(IntEnum):
 
 
 @dataclass
-class CellInfoDto(BaseDto):
-    owner: CellOwner
-    isMaster: bool
-    rowIndex: int
-    columnIndex: int
+class CellInfoDto(PartialCellInfoDto):
+    id: str
     state: CellState
 
     def __eq__(self, other_cell):
@@ -30,34 +26,39 @@ class CellInfoDto(BaseDto):
             isinstance(other_cell, CellInfoDto)
             and self.rowIndex == other_cell.rowIndex
             and self.columnIndex == other_cell.columnIndex
+            and self.id == other_cell.id
         )
 
     def __hash__(self):
-        return hash(self.rowIndex, self.columnIndex)
+        return hash(self.rowIndex, self.columnIndex, self.id)
 
     def set_idle(self):
-        self.state = CellState.IDLE
         self.owner = CellOwner.NONE
+        self.id = None
 
     def set_owned_by_player1(self):
-        self.state = CellState.OWNED
+        from utils.id_generation_utils import generate_id
+
         self.owner = CellOwner.PLAYER_1
+        self.id = generate_id(CellInfoDto)
 
     def set_owned_by_player2(self):
-        self.state = CellState.OWNED
+        from utils.id_generation_utils import generate_id
+
         self.owner = CellOwner.PLAYER_2
+        generate_id(CellInfoDto)
 
     def is_owned(self):
-        return self.state == CellState.OWNED
+        return self.owner != CellOwner.NONE
 
     def belongs_to_player_1(self):
-        return self.is_owned() and self.owner == CellOwner.PLAYER_1
+        return self.owner == CellOwner.PLAYER_1
 
     def belongs_to_player_2(self):
-        return self.is_owned() and self.owner == CellOwner.PLAYER_2
+        return self.owner == CellOwner.PLAYER_2
 
     def belongs_to(self, player: PlayerInfoDto):
-        return self.state == CellState.OWNED and (
+        return (
             self.owner == CellOwner.PLAYER_1
             if player.isPlayer1
             else self.owner == CellOwner.PLAYER_2

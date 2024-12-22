@@ -1,4 +1,4 @@
-import { CellInfoDto } from "../../../dto/CellInfoDto";
+import { PartialCellInfoDto } from "../../../dto/PartialCellInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
 import { cellStyle } from "../../../style/constants";
@@ -7,7 +7,7 @@ import { getDefaultStyle } from "../../../utils/cellUtils";
 interface GameCellProps {
     id: string;
     isPlayer1: boolean;
-    cellInfo: CellInfoDto;
+    cellInfo: PartialCellInfoDto;
     selectable: boolean;
 }
 

@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from constants.match_constants import BOARD_SIZE
-from dto.cell_info_dto import CellInfoDto
 from dto.match_action_dto import MatchActionDto
 from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_actions_dto import ProcessedActionsDto
+from dto.server_only.cell_info_dto import CellInfoDto
 from handlers.match_helpers.action_processor import ActionProcessor
 from handlers.match_helpers.client_notifications import (
     notify_action_error,
@@ -14,7 +14,12 @@ from handlers.match_helpers.client_notifications import (
     notify_processed_actions,
 )
 from handlers.match_helpers.service_base import ServiceBase
-from utils.board_utils import get_neighbours, is_out_of_bounds, is_owned
+from utils.board_utils import (
+    get_neighbours,
+    is_out_of_bounds,
+    is_owned,
+    to_client_board_dto,
+)
 
 if TYPE_CHECKING:
     from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
@@ -87,7 +92,8 @@ class MatchActionsService(ServiceBase):
         """
         player = self.match.get_current_player()
         player_id = player.playerId
-        cell = self._boardArray[cell_row][cell_col]
+        cell: CellInfoDto = self._boardArray[cell_row][cell_col]
+        print(f"The type of cell is {type(cell)}")
 
         if cell.belongs_to(player):
             self._handle_own_cell_selection(cell, player_id)
@@ -185,7 +191,9 @@ class MatchActionsService(ServiceBase):
                 f"Sending to the client the processed actions: {self._processed_actions}"
             )
             notify_processed_actions(
-                ProcessedActionsDto(list(self._processed_actions), self._boardArray),
+                ProcessedActionsDto(
+                    list(self._processed_actions), to_client_board_dto(self._boardArray)
+                ),
                 self.room_id,
             )
 

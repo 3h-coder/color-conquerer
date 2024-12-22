@@ -1,5 +1,5 @@
-import { CellInfoDto } from "../dto/CellInfoDto";
 import { CoordinatesDto } from "../dto/CoordinatesDto";
+import { PartialCellInfoDto } from "../dto/PartialCellInfoDto";
 import { PossibleActionsDto } from "../dto/PossibleActionsDto";
 import { ActionType } from "../enums/actionType";
 import {
@@ -8,15 +8,15 @@ import {
   isOwned,
 } from "./cellUtils";
 
-type CellDelegate = (cell: CellInfoDto) => boolean;
+type CellDelegate = (cell: PartialCellInfoDto) => boolean;
 
-export function getDefaultSelectableCells(boardArray: CellInfoDto[][]) {
+export function getDefaultSelectableCells(boardArray: PartialCellInfoDto[][]) {
   // By default, a cell is selectable if it is owned, even if it's an enemy cell
   return boardArray.map((row) => row.map((cell) => isOwned(cell)));
 }
 
 export function clearBoardColoring(
-  boardArray: CellInfoDto[][],
+  boardArray: PartialCellInfoDto[][],
   excludingCondition?: CellDelegate
 ) {
   boardArray.forEach((row) => {

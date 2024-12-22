@@ -1,21 +1,15 @@
 from enum import Enum
-from threading import Event
-
-from flask import copy_current_request_context, request
-from flask_socketio import SocketIO
 
 from config.logging import get_configured_logger
 from constants.match_constants import (
     BOARD_SIZE,
-    DELAY_IN_S_BEFORE_MATCH_EXCLUSION,
     DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION,
-    DELAY_IN_S_TO_WAIT_FOR_EVERYONE,
     TURN_DURATION_IN_S,
 )
-from dto.cell_info_dto import CellInfoDto, CellState
 from dto.partial_match_closure_dto import PartialMatchClosureDto
 from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
 from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
+from dto.server_only.cell_info_dto import CellInfoDto, CellOwner, CellState
 from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
@@ -31,7 +25,7 @@ from handlers.match_helpers.player_entry_watcher_service import (
 from handlers.match_helpers.player_exit_watcher_service import PlayerExitWatcherService
 from handlers.match_helpers.turn_watcher_service import TurnWatcherService
 from server_gate import get_server
-from utils import session_utils
+from utils.board_utils import create_starting_board
 from utils.id_generation_utils import generate_id
 
 
@@ -315,19 +309,7 @@ class MatchHandlerUnit:
         # ⚠️ the board size must never change
         # TODO: create unit tests to ensure that
 
-        board = [
-            [
-                CellInfoDto(
-                    owner=0,
-                    isMaster=False,
-                    rowIndex=i,
-                    columnIndex=j,
-                    state=CellState.IDLE,
-                )
-                for j in range(BOARD_SIZE)
-            ]
-            for i in range(BOARD_SIZE)
-        ]
+        board = create_starting_board(BOARD_SIZE)
 
         # Initialize the master cells
         player1_master_cell = board[1][5]

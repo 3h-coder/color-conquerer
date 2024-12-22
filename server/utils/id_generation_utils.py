@@ -1,8 +1,8 @@
 import uuid
 from enum import StrEnum
 
-from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.queue_player_dto import QueuePlayerDto
+from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
 from dto.user_dto import UserDto
@@ -13,6 +13,7 @@ class IdPrefixes(StrEnum):
     PLAYER = "p"
     ROOM = "r"
     MATCH = "m"
+    CELL = "c"
 
 
 def generate_id(type):
@@ -22,5 +23,7 @@ def generate_id(type):
         return f"{IdPrefixes.PLAYER}-{uuid.uuid4()}"
     elif type is RoomDto:
         return f"{IdPrefixes.ROOM}-{uuid.uuid4()}"
-    elif type is MatchInfoDto or type is PartialMatchInfoDto:
+    elif type is MatchInfoDto:
         return f"{IdPrefixes.MATCH}-{uuid.uuid4()}"
+    elif type is CellInfoDto:
+        return f"{IdPrefixes.CELL}-{uuid.uuid4()}"

@@ -1,4 +1,36 @@
-from dto.cell_info_dto import CellInfoDto
+from dto.partial_cell_info_dto import PartialCellInfoDto
+from dto.server_only.cell_info_dto import CellInfoDto, CellOwner, CellState
+
+
+def create_starting_board(board_size: int):
+    return [
+        [
+            CellInfoDto(
+                owner=CellOwner.NONE,
+                isMaster=False,
+                rowIndex=i,
+                columnIndex=j,
+                state=CellState.AVAILABLE,
+                id=None,
+            )
+            for j in range(board_size)
+        ]
+        for i in range(board_size)
+    ]
+
+
+def to_client_board_dto(board: list[list[CellInfoDto]]):
+    """
+    Converts a board of CellInfoDto objects to PartialCellInfoDto to be sent to the client.
+    """
+    result: list[list[PartialCellInfoDto]] = []
+    for row in board:
+        new_row = []
+        for cell in row:
+            new_row.append(PartialCellInfoDto.from_cell_info_dto(cell))
+        result.append(new_row)
+
+    return result
 
 
 def display_board_owners(board: list[list[CellInfoDto]]):

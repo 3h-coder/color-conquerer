@@ -4,8 +4,8 @@ from flask_socketio import emit, join_room
 from config.logging import get_configured_logger
 from constants.match_constants import BOARD_SIZE
 from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
-from dto.cell_info_dto import CellInfoDto
 from dto.message_dto import MessageDto
+from dto.partial_cell_info_dto import PartialCellInfoDto
 from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
 from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
 from dto.server_only.player_info_dto import PlayerInfoDto
@@ -93,11 +93,11 @@ def handle_cell_hover(data: dict):
     """
     Notifies the room (i.e. the opponent) that a certain cell is being hovered.
     """
-    cell_info_dto = CellInfoDto.from_dict(data)
+    partial_cell_info = PartialCellInfoDto.from_dict(data)
     room_id = _get_session_variable(ROOM_ID)
     emit(
         Events.SERVER_CELL_HOVER,
-        cell_info_dto.to_dict(),
+        partial_cell_info.to_dict(),
         to=room_id,
         broadcast=True,
     )
@@ -107,7 +107,7 @@ def handle_cell_hover_end(data: dict):
     """
     Notifies the room (i.e. the opponent) that a certain cell is no longer being hovered.
     """
-    cell_info_dto = CellInfoDto.from_dict(data)
+    cell_info_dto = PartialCellInfoDto.from_dict(data)
     room_id = _get_session_variable(ROOM_ID)
     emit(
         Events.SERVER_CELL_HOVER_END,
@@ -132,7 +132,7 @@ def handle_cell_click(data: dict):
         )
         return
 
-    cell_info_dto = CellInfoDto.from_dict(data)
+    cell_info_dto = PartialCellInfoDto.from_dict(data)
     _logger.info(f"Received cell click event -> {cell_info_dto}")
     row, col = cell_info_dto.rowIndex, cell_info_dto.columnIndex
     match.handle_cell_selection(row, col)

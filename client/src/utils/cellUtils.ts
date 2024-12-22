@@ -1,11 +1,11 @@
-import { CellInfoDto } from "../dto/CellInfoDto";
+import { PartialCellInfoDto } from "../dto/PartialCellInfoDto";
 import { cellStyle, colors } from "../style/constants";
 
-export function isOwned(cell: CellInfoDto) {
+export function isOwned(cell: PartialCellInfoDto) {
     return cell.owner !== 0;
 }
 
-export function getDefaultStyle(cell: CellInfoDto, isPlayer1: boolean) {
+export function getDefaultStyle(cell: PartialCellInfoDto, isPlayer1: boolean) {
     const style: React.CSSProperties = {
         backgroundColor: getCellColor(cell, isPlayer1)
     }
@@ -31,15 +31,15 @@ export function colorCellToPossibleMovement(rowIndex: number, colIndex: number) 
     htmlCell.style.animation = "half-fade-in 1s infinite alternate-reverse";
 }
 
-export function colorHoveredCell(cell: CellInfoDto) {
+export function colorHoveredCell(cell: PartialCellInfoDto) {
     addClassName(cell.rowIndex, cell.columnIndex, cellStyle.hoveredClassName);
 }
 
-export function decolorHoveredCell(cell: CellInfoDto) {
+export function decolorHoveredCell(cell: PartialCellInfoDto) {
     removeClassName(cell.rowIndex, cell.columnIndex, cellStyle.hoveredClassName);
 }
 
-function getCellColor(cell: CellInfoDto, isPlayer1: boolean) {
+function getCellColor(cell: PartialCellInfoDto, isPlayer1: boolean) {
     if (!isOwned(cell))
         return colors.cell.idle;
 

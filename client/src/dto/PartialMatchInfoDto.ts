@@ -1,9 +1,9 @@
-import { CellInfoDto } from "./CellInfoDto";
+import { PartialCellInfoDto } from "./PartialCellInfoDto";
 
 export interface PartialMatchInfoDto {
     id: string;
     roomId: string;
-    boardArray: CellInfoDto[][];
+    boardArray: PartialCellInfoDto[][];
     currentTurn: number;
     isPlayer1Turn: boolean;
     totalTurnDurationInS: number;

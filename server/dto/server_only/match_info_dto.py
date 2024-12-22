@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from constants.match_constants import TURN_DURATION_IN_S
 from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.player_game_info_dto import PlayerGameInfoDto
+from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from dto.server_only.room_dto import RoomDto
 
@@ -20,7 +21,9 @@ class MatchInfoDto(PartialMatchInfoDto):
         return self.player1.playerGameInfo if player1 else self.player2.playerGameInfo
 
     @classmethod
-    def get_initial_match_info(cls, id: str, room_dto: RoomDto, initial_board_array):
+    def get_initial_match_info(
+        cls, id: str, room_dto: RoomDto, initial_board_array: list[list[CellInfoDto]]
+    ):
         return MatchInfoDto(
             id=id,
             roomId=room_dto.id,

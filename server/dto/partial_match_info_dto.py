@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from dto.base_dto import BaseDto
-from dto.cell_info_dto import CellInfoDto
-from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
+from dto.partial_cell_info_dto import PartialCellInfoDto
+from utils.board_utils import to_client_board_dto
 
 if TYPE_CHECKING:
     from dto.server_only.match_info_dto import MatchInfoDto
@@ -18,7 +18,7 @@ class PartialMatchInfoDto(BaseDto):
 
     id: str
     roomId: str
-    boardArray: list[list[CellInfoDto]]
+    boardArray: list[list[PartialCellInfoDto]]
     currentTurn: int
     isPlayer1Turn: bool
     totalTurnDurationInS: int
@@ -28,7 +28,7 @@ class PartialMatchInfoDto(BaseDto):
         return PartialMatchInfoDto(
             match_info_dto.id,
             match_info_dto.roomId,
-            match_info_dto.boardArray,
+            to_client_board_dto(match_info_dto.boardArray),
             match_info_dto.currentTurn,
             match_info_dto.isPlayer1Turn,
             match_info_dto.totalTurnDurationInS,
