@@ -36,17 +36,23 @@ class CellInfoDto(PartialCellInfoDto):
         self.owner = CellOwner.NONE
         self.id = None
 
-    def set_owned_by_player1(self):
+    def set_owned_by_player1(self, id: str = None):
+        if self.owner == CellOwner.PLAYER_1:
+            return
+
         from utils.id_generation_utils import generate_id
 
         self.owner = CellOwner.PLAYER_1
-        self.id = generate_id(CellInfoDto)
+        self.id = id if id else generate_id(CellInfoDto)
 
-    def set_owned_by_player2(self):
+    def set_owned_by_player2(self, id: str = None):
+        if self.owner == CellOwner.PLAYER_2:
+            return
+
         from utils.id_generation_utils import generate_id
 
         self.owner = CellOwner.PLAYER_2
-        self.id = generate_id(CellInfoDto)
+        self.id = id if id else generate_id(CellInfoDto)
 
     def is_owned(self):
         return self.owner != CellOwner.NONE

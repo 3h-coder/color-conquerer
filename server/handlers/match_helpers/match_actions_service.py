@@ -7,7 +7,8 @@ from dto.partial_match_action_dto import PartialMatchActionDto
 from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_actions_dto import ProcessedActionsDto
 from dto.server_only.cell_info_dto import CellInfoDto
-from dto.server_only.match_action_dto import MatchActionDto
+from dto.server_only.match_action_dto import ActionType, MatchActionDto
+from handlers.match_helpers.action_calculator import ActionCalculator
 from handlers.match_helpers.action_processor import ActionProcessor
 from handlers.match_helpers.client_notifications import (
     notify_action_error,
@@ -59,13 +60,16 @@ class MatchActionsService(ServiceBase):
         super().__init__(match_handler_unit)
         self._logger = get_configured_logger(__name__)
 
-        self._boardArray = self.match.match_info.boardArray
+        self._board_array = self.match.match_info.boardArray
+        self._action_calculator = ActionCalculator(self.match_info)
         self._action_processor = ActionProcessor(self.match_info)
         # Dictionary storing all of the actions that happened during a match.
         # Key : turn number | Value : list of actions (type : [TBD])
         self.actions: dict[int, list] = {}
-        # used to track all the actions performed during the turn
-        self._turn_actions: list = []
+        # used to track all the cells that moved during the turn
+        self._turn_movements: set[str] = set()
+        # used to track all the cells that attacked during the turn
+        self._turn_attacks: set[str] = set()
         # Used to confirm whether an action can be done or not
         self._possible_actions: set = set()
         # Actions that have been validated and applied, overridden each time a set of action is processed
@@ -84,7 +88,8 @@ class MatchActionsService(ServiceBase):
         Meant to be used as a callback for the turn watcher service.
         """
         self.actions[self.match_info.currentTurn] = []
-        self._turn_actions = []
+        self._turn_movements = set()
+        self._turn_attacks = set()
         self._reset_temporary_field_values()
 
     def handle_cell_selection(self, cell_row: int, cell_col: int):
@@ -93,7 +98,7 @@ class MatchActionsService(ServiceBase):
         """
         player = self.match.get_current_player()
         player_id = player.playerId
-        cell: CellInfoDto = self._boardArray[cell_row][cell_col]
+        cell: CellInfoDto = self._board_array[cell_row][cell_col]
 
         if cell.belongs_to(player):
             self._handle_own_cell_selection(cell, player_id)
@@ -121,12 +126,8 @@ class MatchActionsService(ServiceBase):
         """
         if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
             self._set_selected_cell(cell)
-            # TODO check if the cell is allowed to move
-            movements = self._calculate_possible_movements(cell, player_id)
-            # TODO check if the cell is allowed to attack
-            attacks = self._calculate_possible_attacks(cell, player_id)
-
-            self._set_possible_actions(set(movements + attacks))
+            possible_actions = self._get_possible_actions(player_id)
+            self._set_possible_actions(set(possible_actions))
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
             if self._selected_cell == cell:
@@ -196,7 +197,7 @@ class MatchActionsService(ServiceBase):
             notify_processed_actions(
                 ProcessedActionsDto(
                     _to_client_actions_dto(self._processed_actions),
-                    to_client_board_dto(self._boardArray),
+                    to_client_board_dto(self._board_array),
                 ),
                 self.room_id,
             )
@@ -235,7 +236,12 @@ class MatchActionsService(ServiceBase):
 
         for action in actions:
             self.actions[current_turn].append(action)
-            self._turn_actions.append(action)
+
+            cell_id = action.cellId
+            if action.type == ActionType.CELL_MOVE:
+                self._turn_movements.add(cell_id)
+            elif action.type == ActionType.CELL_ATTACK:
+                self._turn_attacks.add(cell_id)
 
     def _set_selected_cell(self, cell: CellInfoDto):
         """
@@ -244,64 +250,33 @@ class MatchActionsService(ServiceBase):
         self._player_mode = PlayerMode.OWN_CELL_SELECTED
         self._selected_cell = cell
 
-    def _calculate_possible_movements(self, cell: CellInfoDto, player_id: str):
-        """
-        Returns the list of movements that an owned cell can perform.
-        """
-        row_index, column_index = cell.rowIndex, cell.columnIndex
+    def _selected_cell_has_already_moved_this_turn(self):
+        return (
+            self._selected_cell is not None
+            and self._selected_cell.id in self._turn_movements
+        )
 
-        movements = []
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # down, up, left, right
-        for direction in directions:
-            new_row_index = row_index + direction[0]
-            new_col_index = column_index + direction[1]
-            if (
-                _is_out_of_bounds(new_row_index)
-                or _is_out_of_bounds(new_col_index)
-                or is_owned(new_row_index, new_col_index, self._boardArray)
-            ):
-                continue
+    def _selected_cell_has_already_attacked_this_turn(self):
+        return (
+            self._selected_cell is not None
+            and self._selected_cell.id in self._turn_attacks
+        )
 
-            movements.append(
-                MatchActionDto.cell_movement(
-                    player_id,
-                    cell.id,
-                    row_index,
-                    column_index,
-                    new_row_index,
-                    new_col_index,
-                )
+    def _get_possible_actions(self, player_id: str):
+        movements: list[MatchActionDto] = []
+        attacks: list[MatchActionDto] = []
+
+        if not self._selected_cell_has_already_moved_this_turn():
+            movements = self._action_calculator.calculate_possible_movements(
+                self._selected_cell, player_id
             )
 
-        return movements
+        if not self._selected_cell_has_already_attacked_this_turn():
+            attacks = self._action_calculator.calculate_possible_attacks(
+                self._selected_cell, player_id
+            )
 
-    def _calculate_possible_attacks(self, cell: CellInfoDto, player_id: str):
-        """
-        Returns the list of attacks that an owned cell can perform.
-        """
-        row_index, column_index = cell.rowIndex, cell.columnIndex
-
-        attacks = []
-        neighbours: list[CellInfoDto] = get_neighbours(
-            cell.rowIndex, cell.columnIndex, self._boardArray
-        )
-        for neighbour in neighbours:
-            if cell.is_hostile_to(neighbour):
-                attacks.append(
-                    MatchActionDto.cell_attack(
-                        player_id,
-                        cell.id,
-                        row_index,
-                        column_index,
-                        neighbour.rowIndex,
-                        neighbour.columnIndex,
-                    )
-                )
-        return attacks
-
-
-def _is_out_of_bounds(index: int):
-    return is_out_of_bounds(index, board_size=BOARD_SIZE)
+        return movements + attacks
 
 
 def _to_client_actions_dto(actions: set[MatchActionDto]):
