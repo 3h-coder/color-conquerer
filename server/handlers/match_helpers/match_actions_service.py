@@ -93,7 +93,6 @@ class MatchActionsService(ServiceBase):
         player = self.match.get_current_player()
         player_id = player.playerId
         cell: CellInfoDto = self._boardArray[cell_row][cell_col]
-        print(f"The type of cell is {type(cell)}")
 
         if cell.belongs_to(player):
             self._handle_own_cell_selection(cell, player_id)

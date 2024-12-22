@@ -57,10 +57,11 @@ def move_cell(
     This method does nothing if the cell to move is idle, and leaves an idle cell at the original coordinates otherwise.
     """
     cell_original_coords = board[row_index][col_index]
-    cell_new_coords = board[new_row_index][new_col_index]
 
     if not cell_original_coords.is_owned():
         return
+
+    cell_new_coords = board[new_row_index][new_col_index]
 
     if cell_original_coords.belongs_to_player_1():
         cell_new_coords.set_owned_by_player1()

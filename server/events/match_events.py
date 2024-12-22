@@ -132,9 +132,9 @@ def handle_cell_click(data: dict):
         )
         return
 
-    cell_info_dto = PartialCellInfoDto.from_dict(data)
-    _logger.info(f"Received cell click event -> {cell_info_dto}")
-    row, col = cell_info_dto.rowIndex, cell_info_dto.columnIndex
+    partial_cell_info = PartialCellInfoDto.from_dict(data)
+    _logger.info(f"Received cell click event -> {partial_cell_info}")
+    row, col = partial_cell_info.rowIndex, partial_cell_info.columnIndex
     match.handle_cell_selection(row, col)
 
 
