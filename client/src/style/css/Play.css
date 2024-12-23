@@ -184,6 +184,11 @@
     border: 0.1rem solid red;
 }
 
+.cell-possible-move {
+    background-color: rgb(176, 199, 248, 1);
+    animation: half-fade-in 1s infinite alternate-reverse;
+}
+
 /* #endregion */
 
 .turn-swap-image-container {

@@ -63,12 +63,15 @@ def move_cell(
 
     cell_new_coords = board[new_row_index][new_col_index]
     cell_id = cell_original_coords.id
+    is_master = cell_original_coords.isMaster
 
     if cell_original_coords.belongs_to_player_1():
         cell_new_coords.set_owned_by_player1(cell_id)
+        cell_new_coords.isMaster = is_master
 
     elif cell_original_coords.belongs_to_player_2():
         cell_new_coords.set_owned_by_player2(cell_id)
+        cell_new_coords.isMaster = is_master
 
     cell_original_coords.set_idle()
 

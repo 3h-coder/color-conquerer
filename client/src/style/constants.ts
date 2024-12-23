@@ -1,5 +1,5 @@
 export const colors = {
-    cell : {
+    cell: {
         idle: "white",
         opponentMaster: "red",
         ownMaster: "blue",
@@ -10,10 +10,11 @@ export const colors = {
 }
 
 export const cellStyle = {
-    className : "cell",
-    selectableClassName : "selectable",
-    selectedClassName : "selected",
-    hoveredClassName: "hovered"
+    className: "cell",
+    selectableClassName: "selectable",
+    selectedClassName: "selected",
+    hoveredClassName: "hovered",
+    possibleMoveClassName: "cell-possible-move"
 }
 
 export const animations = {

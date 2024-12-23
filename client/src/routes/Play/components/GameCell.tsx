@@ -33,10 +33,11 @@ export default function GameCell(props: GameCellProps) {
     }
 
     const computedStyle = getDefaultStyle(cellInfo, isPlayer1);
+    const className = `${cellStyle.className} ${selectable ? cellStyle.selectableClassName : ""}`.trim();
 
     return (
         <div
-            className={`${cellStyle.className} ${selectable ? cellStyle.selectableClassName : ""}`}
+            className={className}
             id={id}
             onMouseEnter={onCellMouseEnter}
             onMouseLeave={onCellMouseLeave}

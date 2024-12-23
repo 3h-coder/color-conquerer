@@ -7,7 +7,8 @@ export function isOwned(cell: PartialCellInfoDto) {
 
 export function getDefaultStyle(cell: PartialCellInfoDto, isPlayer1: boolean) {
     const style: React.CSSProperties = {
-        backgroundColor: getCellColor(cell, isPlayer1)
+        backgroundColor: getCellColor(cell, isPlayer1),
+        animation: ""
     }
 
     return style;
@@ -56,8 +57,7 @@ function addClassName(rowIndex: number, colIndex: number, className: string) {
     if (!htmlCell)
         return;
 
-    const currentClassName = htmlCell.className;
-    htmlCell.className = `${currentClassName} ${className}`;
+    htmlCell.classList.add(className);
 }
 
 function removeClassName(rowIndex: number, colIndex: number, className: string) {
@@ -65,8 +65,7 @@ function removeClassName(rowIndex: number, colIndex: number, className: string) 
     if (!htmlCell)
         return;
 
-    const currentClassName = htmlCell.className;
-    htmlCell.className = currentClassName.replace(className, "").trim();
+    htmlCell.classList.remove(className);
 }
 
 function getHtmlCell(rowIndex: number, columnIndex: number) {

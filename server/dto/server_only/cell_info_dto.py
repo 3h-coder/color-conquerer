@@ -35,6 +35,7 @@ class CellInfoDto(PartialCellInfoDto):
     def set_idle(self):
         self.owner = CellOwner.NONE
         self.id = None
+        self.isMaster = False
 
     def set_owned_by_player1(self, id: str = None):
         if self.owner == CellOwner.PLAYER_1:

@@ -43,7 +43,18 @@ export default function GameGrid() {
         });
     }
 
+    // Reset the board colors and selectable cells when it changes
+    useEffect(() => {
+        handleBoardArrayChange();
+
+        function handleBoardArrayChange() {
+            clearBoardColoring(boardArray, cell => isOwned(cell));
+            setSelectableCells(getDefaultSelectableCells(boardArray));
+        }
+    }, [boardArray])
+
     // Set the isMyTurn variable on turn change
+    // Reset the colors on the boardArray variable change
     useEffect(() => {
         handleTurnChange();
 
@@ -53,7 +64,8 @@ export default function GameGrid() {
             if (turnInfo === undefinedTurnInfo) return;
             setIsMyTurn(turnInfo.currentPlayerId === playerId);
         }
-    }, [boardArray, playerId, turnInfo]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [turnInfo]);
 
     // React to the isMyTurn change
     useEffect(() => {
@@ -115,8 +127,10 @@ export default function GameGrid() {
         function onServerProcessedActions(actions: ProcessedActionsDto) {
             developmentLog("Received the processed actions", actions);
 
+            // Remove the animations on non owned cells before they eventually get
+            // captured and escape animation clearing.
+            clearBoardColoring(boardArray, (cell) => isOwned(cell));
             setBoardArray(actions.updatedBoardArray);
-            setSelectableCells(getDefaultSelectableCells(actions.updatedBoardArray));
         }
 
         socket.on(Events.SERVER_CELL_HOVER, onServerCellHover);
