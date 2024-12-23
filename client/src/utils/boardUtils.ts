@@ -10,8 +10,10 @@ import {
 
 type CellDelegate = (cell: PartialCellInfoDto) => boolean;
 
+/**
+ * By default, a cell is selectable if it is owned, even if it's an enemy cell
+ */
 export function getDefaultSelectableCells(boardArray: PartialCellInfoDto[][]) {
-  // By default, a cell is selectable if it is owned, even if it's an enemy cell
   return boardArray.map((row) => row.map((cell) => isOwned(cell)));
 }
 

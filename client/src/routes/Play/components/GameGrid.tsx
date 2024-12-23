@@ -12,8 +12,17 @@ import { ProcessedActionsDto } from "../../../dto/ProcessedActionsDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
-import { applyPossibleActionsToBoard, clearBoardColoring, getDefaultSelectableCells } from "../../../utils/boardUtils";
-import { colorHoveredCell, decolorHoveredCell, getCellId, isOwned } from "../../../utils/cellUtils";
+import {
+    applyPossibleActionsToBoard,
+    clearBoardColoring,
+    getDefaultSelectableCells,
+} from "../../../utils/boardUtils";
+import {
+    colorHoveredCell,
+    decolorHoveredCell,
+    getCellId,
+    isOwned,
+} from "../../../utils/cellUtils";
 import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 import TurnSwapImage from "./TurnSwapImage";
@@ -29,14 +38,17 @@ export default function GameGrid() {
 
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
     const [selectableCells, setSelectableCells] = useState(
-        // Initialize cells with an owner as selectable
         getDefaultSelectableCells(boardArray)
     );
 
-    function setCellsSelectable(coordinates: CoordinatesDto[], isSelectable: boolean) {
-        setSelectableCells(prevState => {
-            const newState = prevState.map(row => [...row]); // Clone state
-            coordinates.forEach((coord) => { // Update
+    function setCellsSelectable(
+        coordinates: CoordinatesDto[],
+        isSelectable: boolean
+    ) {
+        setSelectableCells((prevState) => {
+            const newState = prevState.map((row) => [...row]); // Clone state
+            coordinates.forEach((coord) => {
+                // Update
                 newState[coord.rowIndex][coord.columnIndex] = isSelectable;
             });
             return newState;
@@ -48,10 +60,10 @@ export default function GameGrid() {
         handleBoardArrayChange();
 
         function handleBoardArrayChange() {
-            clearBoardColoring(boardArray, cell => isOwned(cell));
+            clearBoardColoring(boardArray, (cell) => isOwned(cell));
             setSelectableCells(getDefaultSelectableCells(boardArray));
         }
-    }, [boardArray])
+    }, [boardArray]);
 
     // Set the isMyTurn variable on turn change
     // Reset the colors on the boardArray variable change
@@ -59,7 +71,7 @@ export default function GameGrid() {
         handleTurnChange();
 
         function handleTurnChange() {
-            clearBoardColoring(boardArray, cell => isOwned(cell));
+            clearBoardColoring(boardArray, (cell) => isOwned(cell));
 
             if (turnInfo === undefinedTurnInfo) return;
             setIsMyTurn(turnInfo.currentPlayerId === playerId);
