@@ -25,9 +25,9 @@ if TYPE_CHECKING:
 
 
 class PlayerMode(IntEnum):
-    # Default, the player is expected to select a cell of his own
+    # Default, the player is expected to select a cell of their own
     OWN_CELL_SELECTION = 0
-    # The player just selected a cell of his own and is expected to perform an action from it (move or attack)
+    # The player just selected a cell of their own and is expected to perform an action from it (move or attack)
     OWN_CELL_SELECTED = 1
     # A spawn action is being awaited on an idle cell with no owner
     CELL_SPAWN = 2
@@ -186,7 +186,6 @@ class MatchActionsService(ServiceBase):
             self._logger.debug(
                 f"Sending to the client the possible actions : {self._possible_actions}"
             )
-            # sets cannot be json serialized, hence the list() constructor
             notify_possible_actions(
                 PossibleActionsDto(_to_client_actions_dto(self._possible_actions))
             )

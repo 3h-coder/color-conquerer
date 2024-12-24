@@ -19,8 +19,13 @@ export function clearCellColor(rowIndex: number, colIndex: number) {
     if (!htmlCell)
         return;
 
+    clearHTMLCellStyle(htmlCell);
+}
+
+function clearHTMLCellStyle(htmlCell: HTMLElement) {
     htmlCell.style.backgroundColor = colors.cell.idle;
     htmlCell.style.animation = "";
+    htmlCell.classList.remove(cellStyle.hoveredClassName);
 }
 
 export function colorCellToPossibleMovement(rowIndex: number, colIndex: number) {

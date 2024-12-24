@@ -26,6 +26,8 @@ import {
 import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 import TurnSwapImage from "./TurnSwapImage";
+import GameError from "./GameError";
+import { MessageDto } from "../../../dto/MessageDto";
 
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
@@ -35,6 +37,7 @@ export default function GameGrid() {
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
     const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
+    const [actionErrorMessage, setActionErrorMessage] = useState("");
 
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
     const [selectableCells, setSelectableCells] = useState(
@@ -72,6 +75,7 @@ export default function GameGrid() {
 
         function handleTurnChange() {
             clearBoardColoring(boardArray, (cell) => isOwned(cell));
+            setActionErrorMessage("");
 
             if (turnInfo === undefinedTurnInfo) return;
             setIsMyTurn(turnInfo.currentPlayerId === playerId);
@@ -111,6 +115,23 @@ export default function GameGrid() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isMyTurn]);
 
+
+    // Clear the error message ~1 second after it has been set
+    useEffect(() => {
+        delayedErrorMessageClearance();
+
+        function delayedErrorMessageClearance() {
+            if (!actionErrorMessage)
+                return;
+
+            const timeout = setTimeout(() => {
+                setActionErrorMessage("");
+            }, 1400);
+
+            return () => clearTimeout(timeout);
+        }
+    }, [actionErrorMessage])
+
     // Register socket events
     useEffect(() => {
         // To let the player know that the opponent has their cursor
@@ -145,16 +166,25 @@ export default function GameGrid() {
             setBoardArray(actions.updatedBoardArray);
         }
 
+        function onServerActionError(errorMessageDto: MessageDto) {
+            const gameErrorMessage = errorMessageDto.message;
+            developmentLog("Received the game error", gameErrorMessage);
+
+            setActionErrorMessage(gameErrorMessage);
+        }
+
         socket.on(Events.SERVER_CELL_HOVER, onServerCellHover);
         socket.on(Events.SERVER_CELL_HOVER_END, onServerCellHoverEnd);
         socket.on(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
         socket.on(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
+        socket.on(Events.SERVER_ACTION_ERROR, onServerActionError);
 
         return () => {
             socket.off(Events.SERVER_CELL_HOVER, onServerCellHover);
             socket.off(Events.SERVER_CELL_HOVER_END, onServerCellHoverEnd);
             socket.off(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
             socket.off(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
+            socket.off(Events.SERVER_ACTION_ERROR, onServerActionError);
         };
     });
 
@@ -181,6 +211,7 @@ export default function GameGrid() {
                 ))}
             </GridInner>
             {showTurnSwapImage && <TurnSwapImage imagePath={turnSwapImagePath} />}
+            {actionErrorMessage && <GameError errorMessage={actionErrorMessage} />}
         </GridOuter>
     );
 }

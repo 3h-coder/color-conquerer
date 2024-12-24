@@ -206,5 +206,39 @@
     object-fit: contain;
 }
 
+.game-error {
+    position: absolute;
+    background-color: transparent;
+    font-size: 1.2rem;
+    text-align: center;
+    color: blanchedalmond;
+    text-shadow: 1px 1px 2px purple;
+    animation: fade-out 1.5s ease-in-out;
+}
+
+/* #region Action board */
+
+.action-board-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: fit-content;
+    margin-top: max(15px, 1vmin);
+    gap: max(10px, 1vmin);
+    box-sizing: border-box;
+}
+
+#spawn-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: max(5px, 0.5vmin);
+    background-color: rgba(103, 48, 185, 1);
+    box-shadow: 0 0 0.8rem 0.1rem rgb(0, 0, 0, 0.2);
+}
+
+/* #endregion */
+
 /* #endregion */
 

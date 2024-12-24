@@ -19,6 +19,7 @@ import GameTopInfo from "./components/GameTopInfo";
 import MyPlayerInfo from "./components/MyPlayerInfo";
 import OpponentInfo from "./components/OpponentInfo";
 import RightSideControls from "./components/RightSideControls";
+import ActionBoard from "./components/action_board/ActionBoard";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -159,6 +160,7 @@ export default function PlayContent() {
             <OpponentInfo />
             <GameGrid />
             <MyPlayerInfo />
+            <ActionBoard />
             <RightSideContainer>
               <RightSideControls />
             </RightSideContainer>
