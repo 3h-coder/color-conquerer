@@ -17,9 +17,6 @@ from handlers.match_helpers.client_notifications import (
 )
 from handlers.match_helpers.service_base import ServiceBase
 from utils.board_utils import (
-    get_neighbours,
-    is_out_of_bounds,
-    is_owned,
     to_client_board_dto,
 )
 
@@ -179,6 +176,9 @@ class MatchActionsService(ServiceBase):
         subsequent animations properly.
         """
         if self._error_msg:
+            self._logger.debug(
+                f"Sending to the client the error message : {self._error_msg}"
+            )
             notify_action_error(self._error_msg)
             return
 
@@ -222,6 +222,7 @@ class MatchActionsService(ServiceBase):
         Processes all of the given actions, setting the associate fields along the way.
         """
         self._server_mode = ServerMode.SHOW_PROCESSED_ACTIONS
+        self._error_msg = ""  # Reset the error message as it is no longer relevant
         processed_actions = self._action_processor.process_actions_sequentially(actions)
         self._processed_actions = processed_actions
         self._register_processed_actions(processed_actions)

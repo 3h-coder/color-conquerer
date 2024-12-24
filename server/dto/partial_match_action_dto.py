@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from enum import IntEnum
 from typing import TYPE_CHECKING
 
 from dto.base_dto import BaseDto
