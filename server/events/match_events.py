@@ -138,6 +138,24 @@ def handle_cell_click(data: dict):
     match.handle_cell_selection(row, col)
 
 
+def handle_spawn_button():
+    """
+    Receives the client's request to spawn a unit.
+    """
+    room_id = _get_session_variable(ROOM_ID)
+    player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
+    match = match_handler.get_unit(room_id)
+
+    player_id = player_info.playerId
+    if not match.get_current_player().playerId == player_id:
+        _logger.error(
+            f"Cannot process the spawn request of the player {player_id} as it is the turn of their opponent"
+        )
+        return
+
+    match.handle_spawn_button()
+
+
 def _get_session_variable(variable_name: str):
     value = session.get(variable_name)
     if value is None:

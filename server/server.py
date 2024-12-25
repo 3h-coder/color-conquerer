@@ -14,6 +14,7 @@ from events.match_events import (
     handle_cell_hover_end,
     handle_client_ready,
     handle_session_clearing,
+    handle_spawn_button,
     handle_turn_end,
 )
 from events.queue_events import handle_queue_registration
@@ -45,6 +46,7 @@ class Server:
         self.socketio.on_event(Events.CLIENT_CELL_HOVER, handle_cell_hover)
         self.socketio.on_event(Events.CLIENT_CELL_HOVER_END, handle_cell_hover_end)
         self.socketio.on_event(Events.CLIENT_CELL_CLICK, handle_cell_click)
+        self.socketio.on_event(Events.CLIENT_SPAWN_BUTTON, handle_spawn_button)
         self.socketio.on_event(Events.CLIENT_CLEAR_SESSION, handle_session_clearing)
 
         @self.socketio.on_error()

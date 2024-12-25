@@ -5,7 +5,7 @@ export const colors = {
         ownMaster: "blue",
         own: "rgb(79, 139, 242, 1)", // lighter blue
         opponent: "rgb(247, 111, 111, 1)", // lighter red
-        ownCellMovementPossible: "rgb(176, 199, 248, 1)"
+        ownCellActionPossible: "rgb(176, 199, 248, 1)"
     },
 }
 

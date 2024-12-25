@@ -1,5 +1,6 @@
 export enum ActionType {
     CELL_MOVE = 0,
     CELL_ATTACk = 1,
-    PLAYER_SPELL = 2,
+    CELL_SPAWN = 2,
+    PLAYER_SPELL = 3,
 }

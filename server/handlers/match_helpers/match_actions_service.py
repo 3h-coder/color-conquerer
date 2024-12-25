@@ -44,6 +44,7 @@ class ServerMode(IntEnum):
 
 class ErrorMessages(StrEnum):
     CANNOT_MOVE_TO_NOR_ATTACK = "Cannot move to nor attack this cell"
+    SELECT_IDLE_CELL = "Select an idle cell to spawn a new cell"
     INVALID_ACTION = "Invalid action"  # The client should prevent this message from being shown, but just in case
 
 
@@ -114,6 +115,25 @@ class MatchActionsService(ServiceBase):
         if self._server_mode == ServerMode.SHOW_PROCESSED_ACTIONS:
             self._reset_temporary_field_values()
 
+    def handle_spawn_toggle(self):
+        """
+        Handles the spawn request of a player.
+        """
+        if self._player_mode == PlayerMode.CELL_SPAWN:
+            self._reset_temporary_field_values()
+
+        elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
+            self._reset_temporary_field_values()
+            self._find_possible_spawns()
+
+        elif self._player_mode == PlayerMode.OWN_CELL_SELECTION:
+            self._find_possible_spawns()
+
+        elif self._player_mode == PlayerMode.SPELL_SELECTED:
+            pass  # nothing for now
+
+        self._send_response()
+
     def _handle_own_cell_selection(self, cell: CellInfoDto, player_id: str):
         """
         Handles all possible cases resulting from a player selecting a cell of their own.
@@ -132,6 +152,9 @@ class MatchActionsService(ServiceBase):
                 self._reset_temporary_field_values()
             elif cell.is_owned():
                 self._error_msg = ErrorMessages.CANNOT_MOVE_TO_NOR_ATTACK
+
+        elif self._player_mode == PlayerMode.CELL_SPAWN:
+            self._error_msg = ErrorMessages.SELECT_IDLE_CELL
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
             pass  # nothing for now
@@ -200,6 +223,15 @@ class MatchActionsService(ServiceBase):
                 ),
                 self.room_id,
             )
+
+    def _find_possible_spawns(self):
+        self._player_mode = PlayerMode.CELL_SPAWN
+        player = self.match.get_current_player()
+        self._set_possible_actions(
+            self._action_calculator.calculate_possible_spawns(
+                player.isPlayer1, player.playerId
+            )
+        )
 
     def _reset_temporary_field_values(self):
         self._player_mode = PlayerMode.OWN_CELL_SELECTION

@@ -33,11 +33,17 @@ def to_client_board_dto(board: list[list[CellInfoDto]]):
     return result
 
 
-def display_board_owners(board: list[list[CellInfoDto]]):
-    for row in board:
-        row_display = "|".join(str(cell.owner) for cell in row)
-        print(f"|{row_display}|")
-        print("_" * (2 * len(row)))
+def get_cells_owned_by_player(player1: bool, board: list[list[CellInfoDto]]):
+    """
+    Returns a list of cells owned by the given player.
+    """
+    return [
+        cell
+        for row in board
+        for cell in row
+        if (player1 and cell.belongs_to_player_1())
+        or (not player1 and cell.belongs_to_player_2())
+    ]
 
 
 def is_owned(row_index: int, col_index: int, board: list[list[CellInfoDto]]):

@@ -4,7 +4,7 @@ import { PossibleActionsDto } from "../dto/PossibleActionsDto";
 import { ActionType } from "../enums/actionType";
 import {
   clearCellColor,
-  colorCellToPossibleMovement,
+  colorCellToPossibleAction,
   isOwned,
 } from "./cellUtils";
 
@@ -41,9 +41,17 @@ export function applyPossibleActionsToBoard(
   possibleActionsDto.possibleActions.forEach((action) => {
     // TODO extract into a method with a switch case later on
     if (action.type === ActionType.CELL_MOVE) {
+
       const { rowIndex, columnIndex } = { ...action.impactedCoords[0] };
-      colorCellToPossibleMovement(rowIndex, columnIndex);
+      colorCellToPossibleAction(rowIndex, columnIndex);
       selectableCellsCoordinates.push({ rowIndex, columnIndex });
+
+    } else if (action.type === ActionType.CELL_SPAWN) {
+
+      const { rowIndex, columnIndex } = { ...action.impactedCoords[0] };
+      colorCellToPossibleAction(rowIndex, columnIndex);
+      selectableCellsCoordinates.push({ rowIndex, columnIndex });
+
     }
   });
   setCellsSelectable(selectableCellsCoordinates, true);

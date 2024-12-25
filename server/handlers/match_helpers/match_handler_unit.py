@@ -217,6 +217,12 @@ class MatchHandlerUnit:
         """
         self._match_actions_service.handle_cell_selection(cell_row, cell_col)
 
+    def handle_spawn_button(self):
+        """
+        Triggers all of the processing relative to a spawn request.
+        """
+        self._match_actions_service.handle_spawn_toggle()
+
     def force_turn_swap(self):
         """
         Forcefully triggers a turn swap.

@@ -152,8 +152,11 @@ export default function GameGrid() {
         function onServerPossibleActions(actionsDto: PossibleActionsDto) {
             developmentLog("Received the possible actions", actionsDto);
 
+            // Reset the board coloring and selectable cells
             clearBoardColoring(boardArray, (cell) => isOwned(cell));
             setSelectableCells(getDefaultSelectableCells(boardArray));
+
+            // Apply the new coloring and selectable cells
             applyPossibleActionsToBoard(actionsDto, setCellsSelectable);
         }
 

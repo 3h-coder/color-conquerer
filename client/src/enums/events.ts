@@ -17,6 +17,8 @@ export enum Events {
     SERVER_TURN_SWAP = "server-turn-swap",
     CLIENT_TURN_END = "client-turn-end",  // whenever a player choose's to end their turn
     CLIENT_CELL_CLICK = "client-cell-click",
+    CLIENT_SPAWN_BUTTON = "client-spawn-button",
+    SERVER_SPAWN_ACTIVATED = "server-spawn-activated",
     SERVER_POSSIBLE_ACTIONS = "server-possibleActions",
     SERVER_PROCESSED_ACTIONS = "server-processedActions",
     SERVER_ACTION_ERROR = "server-actionError",

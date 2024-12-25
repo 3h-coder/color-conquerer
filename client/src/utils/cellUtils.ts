@@ -28,12 +28,12 @@ function clearHTMLCellStyle(htmlCell: HTMLElement) {
     htmlCell.classList.remove(cellStyle.hoveredClassName);
 }
 
-export function colorCellToPossibleMovement(rowIndex: number, colIndex: number) {
+export function colorCellToPossibleAction(rowIndex: number, colIndex: number) {
     const htmlCell = getHtmlCell(rowIndex, colIndex);
     if (!htmlCell)
         return;
 
-    htmlCell.style.backgroundColor = colors.cell.ownCellMovementPossible;
+    htmlCell.style.backgroundColor = colors.cell.ownCellActionPossible;
     htmlCell.style.animation = "half-fade-in 1s infinite alternate-reverse";
 }
 

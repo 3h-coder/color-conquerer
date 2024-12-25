@@ -3,7 +3,12 @@ from constants.match_constants import BOARD_SIZE
 from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
-from utils.board_utils import get_neighbours, is_out_of_bounds, is_owned
+from utils.board_utils import (
+    get_cells_owned_by_player,
+    get_neighbours,
+    is_out_of_bounds,
+    is_owned,
+)
 
 
 class ActionCalculator:
@@ -71,6 +76,31 @@ class ActionCalculator:
                     )
                 )
         return attacks
+
+    def calculate_possible_spawns(self, player1: bool, player_id: str):
+        """
+        Returns a set of spawns that a player can perform.
+        """
+        possible_spawns: set[MatchActionDto] = set()
+
+        owned_cells = get_cells_owned_by_player(player1, self._board_array)
+        for cell in owned_cells:
+            row_index, column_index = cell.rowIndex, cell.columnIndex
+            neighbours: list[CellInfoDto] = get_neighbours(
+                row_index, column_index, self._board_array
+            )
+            for neighbour in neighbours:
+                if neighbour.is_owned():
+                    continue
+                possible_spawns.add(
+                    MatchActionDto.cell_spawn(
+                        player_id,
+                        neighbour.rowIndex,
+                        neighbour.columnIndex,
+                    )
+                )
+
+        return possible_spawns
 
 
 def _is_out_of_bounds(index: int):
