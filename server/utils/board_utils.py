@@ -82,6 +82,19 @@ def move_cell(
     cell_original_coords.set_idle()
 
 
+def spawn_cell(
+    row_index: int, col_index: int, player1: bool, board: list[list[CellInfoDto]]
+):
+    """
+    Spawns a cell at the given coordinates for the given player.
+    """
+    cell = board[row_index][col_index]
+    if player1:
+        cell.set_owned_by_player1()
+    else:
+        cell.set_owned_by_player2()
+
+
 def is_out_of_bounds(index, board_size: int = None, square_board: list[list] = None):
     if index < 0:
         return True

@@ -28,11 +28,13 @@ import GameCell from "./GameCell";
 import TurnSwapImage from "./TurnSwapImage";
 import GameError from "./GameError";
 import { MessageDto } from "../../../dto/MessageDto";
+import { usePlayerMode } from "../../../contexts/PlayerModeContext";
 
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
     const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnInfo, canInteract, setCanInteract } = useTurnInfo();
+    const { setPlayerMode } = usePlayerMode();
 
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
     const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
@@ -152,6 +154,8 @@ export default function GameGrid() {
         function onServerPossibleActions(actionsDto: PossibleActionsDto) {
             developmentLog("Received the possible actions", actionsDto);
 
+            setPlayerMode(actionsDto.playerMode);
+
             // Reset the board coloring and selectable cells
             clearBoardColoring(boardArray, (cell) => isOwned(cell));
             setSelectableCells(getDefaultSelectableCells(boardArray));
@@ -162,6 +166,8 @@ export default function GameGrid() {
 
         function onServerProcessedActions(actions: ProcessedActionsDto) {
             developmentLog("Received the processed actions", actions);
+
+            setPlayerMode(actions.playerMode);
 
             // Remove the animations on non owned cells before they eventually get
             // captured and escape animation clearing.

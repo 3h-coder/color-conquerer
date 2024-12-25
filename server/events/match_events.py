@@ -9,7 +9,6 @@ from dto.partial_cell_info_dto import PartialCellInfoDto
 from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
 from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
 from dto.server_only.player_info_dto import PlayerInfoDto
-from dto.turn_info_dto import TurnInfoDto
 from events.events import Events
 from exceptions.server_error import ServerError
 from handlers import match_handler, session_cache_handler

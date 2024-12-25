@@ -11,3 +11,4 @@ class PossibleActionsDto(BaseDto):
     """
 
     possibleActions: list[PartialMatchActionDto]
+    playerMode: int

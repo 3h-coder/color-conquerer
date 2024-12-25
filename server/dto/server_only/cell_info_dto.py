@@ -45,6 +45,7 @@ class CellInfoDto(PartialCellInfoDto):
 
         self.owner = CellOwner.PLAYER_1
         self.id = id if id else generate_id(CellInfoDto)
+        self.isMaster = False
 
     def set_owned_by_player2(self, id: str = None):
         if self.owner == CellOwner.PLAYER_2:
@@ -54,6 +55,7 @@ class CellInfoDto(PartialCellInfoDto):
 
         self.owner = CellOwner.PLAYER_2
         self.id = id if id else generate_id(CellInfoDto)
+        self.isMaster = False
 
     def is_owned(self):
         return self.owner != CellOwner.NONE

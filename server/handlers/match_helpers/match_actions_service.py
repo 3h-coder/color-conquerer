@@ -210,7 +210,9 @@ class MatchActionsService(ServiceBase):
                 f"Sending to the client the possible actions : {self._possible_actions}"
             )
             notify_possible_actions(
-                PossibleActionsDto(_to_client_actions_dto(self._possible_actions))
+                PossibleActionsDto(
+                    _to_client_actions_dto(self._possible_actions), self._player_mode
+                )
             )
         elif self._server_mode == ServerMode.SHOW_PROCESSED_ACTIONS:
             self._logger.debug(
@@ -220,6 +222,7 @@ class MatchActionsService(ServiceBase):
                 ProcessedActionsDto(
                     _to_client_actions_dto(self._processed_actions),
                     to_client_board_dto(self._board_array),
+                    self._player_mode,
                 ),
                 self.room_id,
             )

@@ -13,3 +13,4 @@ class ProcessedActionsDto(BaseDto):
 
     processedActions: list[PartialMatchActionDto]
     updatedBoardArray: list[list[PartialCellInfoDto]]
+    playerMode: int

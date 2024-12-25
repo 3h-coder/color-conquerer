@@ -12,10 +12,8 @@ interface TurnContextObject {
 
 const TurnContext = createContext<TurnContextObject>({
     turnInfo: undefinedTurnInfo,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setTurnInfo: (_turnInfo: TurnInfoDto) => { },
     canInteract: false,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setCanInteract: (_canInteract: boolean) => { },
 });
 

@@ -1,7 +1,7 @@
 from config.logging import get_configured_logger
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
-from utils.board_utils import move_cell
+from utils.board_utils import move_cell, spawn_cell
 
 
 class ActionProcessor:
@@ -49,6 +49,9 @@ class ActionProcessor:
                 )
             elif action_type == ActionType.CELL_ATTACK:
                 pass  # nothing for now
+            elif action_type == ActionType.CELL_SPAWN:
+                coords = action.impactedCoords[0]
+                spawn_cell(coords.rowIndex, coords.columnIndex, True, self._board_array)
             elif action_type == ActionType.PLAYER_SPELL:
                 pass  # nothing for now
             return True
