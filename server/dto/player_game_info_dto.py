@@ -20,5 +20,5 @@ class PlayerGameInfoDto(PartialPlayerGameInfoDto):
             maxHP=MAX_HP_VALUE,
             currentHP=MAX_HP_VALUE,
             maxMP=MAX_MP_VALUE,
-            currentMP=1,
+            currentMP=1 if is_player_1 else 0,
         )

@@ -9,7 +9,6 @@ from constants.match_constants import (
 from dto.partial_match_closure_dto import PartialMatchClosureDto
 from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
 from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
-from dto.server_only.cell_info_dto import CellInfoDto, CellOwner, CellState
 from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
@@ -323,7 +322,6 @@ class MatchHandlerUnit:
 
         player1_master_cell.set_owned_by_player1()
         player1_master_cell.isMaster = True
-        board[2][5].set_owned_by_player1()
 
         player2_master_cell.set_owned_by_player2()
         player2_master_cell.isMaster = True

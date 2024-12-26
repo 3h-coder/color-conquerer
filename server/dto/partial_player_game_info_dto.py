@@ -22,6 +22,9 @@ class PartialPlayerGameInfoDto(BaseDto):
 
     @staticmethod
     def from_player_game_info(player_game_info: "PlayerGameInfoDto"):
+        if player_game_info is None:
+            return None
+
         return PartialPlayerGameInfoDto(
             player_game_info.player1,
             player_game_info.maxHP,

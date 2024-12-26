@@ -6,8 +6,6 @@ from constants.match_constants import BOARD_SIZE
 from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.message_dto import MessageDto
 from dto.partial_cell_info_dto import PartialCellInfoDto
-from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
-from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from exceptions.server_error import ServerError

@@ -1,4 +1,5 @@
 from config.logging import get_configured_logger
+from dto.player_game_info_dto import PlayerGameInfoDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from utils.board_utils import move_cell, spawn_cell
@@ -27,10 +28,7 @@ class ActionProcessor:
         action_type = action.type
         player_game_info = self._match_info.get_player_game_info(action.player1)
         try:
-            if action.manaCost > player_game_info.currentMP:
-                raise ValueError(
-                    f"Player {action.player1} tried to perform an action with not enough mana."
-                )
+            self._process_player_mana(player_game_info, action)
 
             if action_type == ActionType.CELL_MOVE:
                 original_coords = action.originatingCellCoords
@@ -64,3 +62,16 @@ class ActionProcessor:
                 f"Failed to process the action : {action}", exc_info=True
             )
             return None
+
+    def _process_player_mana(
+        self, player_game_info: PlayerGameInfoDto, action: MatchActionDto
+    ):
+        """
+        Processes the player mana regeneration.
+        """
+        if action.manaCost > player_game_info.currentMP:
+            raise ValueError(
+                f"Player {action.player1} tried to perform an action with not enough mana."
+            )
+
+        player_game_info.currentMP -= action.manaCost

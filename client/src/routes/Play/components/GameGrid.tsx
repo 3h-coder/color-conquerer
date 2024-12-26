@@ -151,28 +151,35 @@ export default function GameGrid() {
             decolorHoveredCell(cell);
         }
 
-        function onServerPossibleActions(actionsDto: PossibleActionsDto) {
-            developmentLog("Received the possible actions", actionsDto);
+        function onServerPossibleActions(possibleActions: PossibleActionsDto) {
+            developmentLog("Received the possible actions", possibleActions);
 
-            setPlayerMode(actionsDto.playerMode);
+            // Update the player mode for the dependent components to react to
+            setPlayerMode(possibleActions.playerMode);
 
             // Reset the board coloring and selectable cells
             clearBoardColoring(boardArray, (cell) => isOwned(cell));
             setSelectableCells(getDefaultSelectableCells(boardArray));
 
             // Apply the new coloring and selectable cells
-            applyPossibleActionsToBoard(actionsDto, setCellsSelectable);
+            applyPossibleActionsToBoard(possibleActions, setCellsSelectable);
         }
 
-        function onServerProcessedActions(actions: ProcessedActionDto) {
-            developmentLog("Received the processed actions", actions);
+        function onServerProcessedActions(processedActions: ProcessedActionDto) {
+            developmentLog("Received the processed actions", processedActions);
 
-            setPlayerMode(actions.playerMode);
+            // Update the player mode for the dependent components to react to
+            setPlayerMode(processedActions.playerMode);
+
+            // Update the player info bundle to display the proper HP/MP values
+            turnInfo.playerInfoBundle = processedActions.playerInfoBundle;
 
             // Remove the animations on non owned cells before they eventually get
             // captured and escape animation clearing.
             clearBoardColoring(boardArray, (cell) => isOwned(cell));
-            setBoardArray(actions.updatedBoardArray);
+
+            // Update the board array with the new cell info
+            setBoardArray(processedActions.updatedBoardArray);
         }
 
         function onServerActionError(errorMessageDto: MessageDto) {

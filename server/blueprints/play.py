@@ -1,9 +1,7 @@
 from flask import Blueprint, current_app, jsonify, request, session
 
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
-from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
 from dto.partial_player_info_dto import PartialPlayerInfoDto
-from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from exceptions.unauthorized_error import UnauthorizedError
 from handlers import match_handler, session_cache_handler

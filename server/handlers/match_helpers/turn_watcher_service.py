@@ -85,15 +85,23 @@ class TurnWatcherService(ServiceBase):
         self.match_info.currentTurn += 1
         self.match_info.isPlayer1Turn = not self.match_info.isPlayer1Turn
 
-        self._increment_player_MP()
+        self._increment_current_player_MP()
 
         self._trigger_external_callbacks()
 
-    def _increment_player_MP(self):
-        player_game_info = self.match.get_current_player().playerGameInfo
-        current_mp = player_game_info.currentMP
-        max_mp = player_game_info.maxMP
-        player_game_info.currentMP = min(current_mp + 1, max_mp)
+    def _increment_current_player_MP(self):
+        """
+        Increments the current player's available mana points for the turn by 1.
+        """
+        current_turn = self.match_info.currentTurn
+        current_player = self.match.get_current_player()
+
+        player_game_info = current_player.playerGameInfo
+
+        remainder = current_turn % 2
+        quotient = current_turn // 2
+
+        player_game_info.currentMP = min(quotient + remainder, player_game_info.maxMP)
 
     def _trigger_external_callbacks(self):
         for callback in self._turn_swap_external_callbacks:

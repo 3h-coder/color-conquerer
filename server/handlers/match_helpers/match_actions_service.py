@@ -264,6 +264,7 @@ class MatchActionsService(ServiceBase):
                     PartialMatchActionDto.from_match_action_dto(self._processed_action),
                     to_client_board_dto(self._board_array),
                     self._player_mode,
+                    self.match.get_turn_info().playerInfoBundle,
                 ),
                 self.room_id,
             )
