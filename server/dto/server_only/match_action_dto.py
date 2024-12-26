@@ -21,7 +21,7 @@ class MatchActionDto(PartialMatchActionDto):
     def __eq__(self, other):
         return (
             isinstance(other, MatchActionDto)
-            and self.playerId == other.playerId
+            and self.player1 == other.player1
             and self.type == other.type
             and self.originatingCellCoords == other.originatingCellCoords
             and self.impactedCoords == other.impactedCoords
@@ -33,7 +33,7 @@ class MatchActionDto(PartialMatchActionDto):
     def __hash__(self):
         return hash(
             (
-                self.playerId,
+                self.player1,
                 self.isDirect,
                 self.type,
                 self.originatingCellCoords,
@@ -46,7 +46,7 @@ class MatchActionDto(PartialMatchActionDto):
 
     @staticmethod
     def cell_movement(
-        player_id,
+        player1,
         cell_id,
         row_index,
         column_index,
@@ -54,7 +54,7 @@ class MatchActionDto(PartialMatchActionDto):
         new_column_index,
     ):
         return MatchActionDto(
-            playerId=player_id,
+            player1=player1,
             isDirect=True,
             type=ActionType.CELL_MOVE,
             originatingCellCoords=CoordinatesDto(row_index, column_index),
@@ -65,7 +65,7 @@ class MatchActionDto(PartialMatchActionDto):
 
     @staticmethod
     def cell_attack(
-        player_id,
+        player1,
         cell_id,
         row_index,
         column_index,
@@ -73,7 +73,7 @@ class MatchActionDto(PartialMatchActionDto):
         attack_column_index,
     ):
         return MatchActionDto(
-            playerId=player_id,
+            player1=player1,
             isDirect=True,
             type=ActionType.CELL_ATTACK,
             originatingCellCoords=CoordinatesDto(row_index, column_index),
@@ -83,9 +83,9 @@ class MatchActionDto(PartialMatchActionDto):
         )
 
     @staticmethod
-    def cell_spawn(player_id, row_index, column_index):
+    def cell_spawn(player1, row_index, column_index):
         return MatchActionDto(
-            playerId=player_id,
+            player1=player1,
             isDirect=True,
             type=ActionType.CELL_SPAWN,
             originatingCellCoords=None,

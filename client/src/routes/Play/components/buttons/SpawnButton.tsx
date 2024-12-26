@@ -8,23 +8,37 @@ import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { PlayerMode } from "../../../../enums/playerMode";
 
 export default function SpawnButton() {
+    const buttonKey = "s";
     const { canInteract } = useTurnInfo();
     const { playerMode } = usePlayerMode();
 
     const spawnIconSize = "max(10px, 0.8vmin)";
-    const [text, setText] = useState("Spawn");
+    const [text, setText] = useState(`Spawn (${buttonKey.toUpperCase()})`);
 
     function onClick() {
         socket.emit(Events.CLIENT_SPAWN_BUTTON);
     }
 
+    function handleKeyPress(event: KeyboardEvent) {
+        if (event.key === buttonKey)
+            onClick();
+    }
+
     useEffect(() => {
         if (playerMode === PlayerMode.CELL_SPAWN) {
-            setText("Cancel");
+            setText(`Cancel (${buttonKey.toUpperCase()})`);
         } else {
-            setText("Spawn");
+            setText(`Spawn (${buttonKey.toUpperCase()})`);
         }
     }, [playerMode]);
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyPress);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyPress);
+        };
+    }, []);
 
     return (
         <button id="spawn-button" disabled={!canInteract} onClick={onClick}>

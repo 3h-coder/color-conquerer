@@ -7,6 +7,8 @@ from utils.board_utils import move_cell, spawn_cell
 class ActionProcessor:
     """
     Class responsible for the raw action processing and match info updating from it.
+
+    Note : Action validation should be done before calling this class's methods.
     """
 
     def __init__(self, match_info: MatchInfoDto):
@@ -18,7 +20,7 @@ class ActionProcessor:
         """
         Processes and applies the given action in the order they were given.
 
-        Retruns the set of actions that were processed properly.
+        Returns the set of actions that were processed properly.
         """
         processed_actions: set[MatchActionDto] = set()
         for action in actions:
@@ -36,7 +38,13 @@ class ActionProcessor:
         Returns True if the action could be processed properly, false otherwise.
         """
         action_type = action.type
+        player_game_info = self._match_info.get_player_game_info(action.player1)
         try:
+            if action.manaCost > player_game_info.currentMP:
+                raise ValueError(
+                    f"Player {action.player1} tried to perform an action with not enough mana."
+                )
+
             if action_type == ActionType.CELL_MOVE:
                 original_coords = action.originatingCellCoords
                 new_coords = action.impactedCoords[0]
@@ -47,13 +55,22 @@ class ActionProcessor:
                     new_coords.columnIndex,
                     self._board_array,
                 )
+
             elif action_type == ActionType.CELL_ATTACK:
                 pass  # nothing for now
+
             elif action_type == ActionType.CELL_SPAWN:
                 coords = action.impactedCoords[0]
-                spawn_cell(coords.rowIndex, coords.columnIndex, True, self._board_array)
+                spawn_cell(
+                    coords.rowIndex,
+                    coords.columnIndex,
+                    action.player1,
+                    self._board_array,
+                )
+
             elif action_type == ActionType.PLAYER_SPELL:
                 pass  # nothing for now
+
             return True
         except Exception:
             self._logger.critical(

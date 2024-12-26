@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class PartialMatchActionDto(BaseDto):
-    playerId: str
+    player1: bool
     type: "ActionType"
     originatingCellCoords: CoordinatesDto
     impactedCoords: tuple[CoordinatesDto]
@@ -18,7 +18,7 @@ class PartialMatchActionDto(BaseDto):
     @staticmethod
     def from_match_action_dto(match_action_dto: "MatchActionDto"):
         return PartialMatchActionDto(
-            match_action_dto.playerId,
+            match_action_dto.player1,
             match_action_dto.type,
             match_action_dto.originatingCellCoords,
             match_action_dto.impactedCoords,

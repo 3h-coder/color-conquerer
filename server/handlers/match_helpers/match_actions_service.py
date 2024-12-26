@@ -8,6 +8,7 @@ from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_actions_dto import ProcessedActionsDto
 from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
+from dto.server_only.player_info_dto import PlayerInfoDto
 from handlers.match_helpers.action_calculator import ActionCalculator
 from handlers.match_helpers.action_processor import ActionProcessor
 from handlers.match_helpers.client_notifications import (
@@ -45,6 +46,7 @@ class ServerMode(IntEnum):
 class ErrorMessages(StrEnum):
     CANNOT_MOVE_TO_NOR_ATTACK = "Cannot move to nor attack this cell"
     SELECT_IDLE_CELL = "Select an idle cell to spawn a new cell"
+    NOT_ENOUGH_MANA = "Not enough mana to perform this action"
     INVALID_ACTION = "Invalid action"  # The client should prevent this message from being shown, but just in case
 
 
@@ -58,16 +60,32 @@ class MatchActionsService(ServiceBase):
         super().__init__(match_handler_unit)
         self._logger = get_configured_logger(__name__)
 
+        # region Match persistent fields
+
         self._board_array = self.match.match_info.boardArray
         self._action_calculator = ActionCalculator(self.match_info)
         self._action_processor = ActionProcessor(self.match_info)
+
         # Dictionary storing all of the actions that happened during a match.
         # Key : turn number | Value : list of actions (type : [TBD])
         self.actions: dict[int, list] = {}
+
+        # endregion
+
+        # region Turn persistent fields
+        # ⚠️ Any field below is meant to be reset in the reset_for_new_turn method ⚠️
+
         # used to track all the cells that moved during the turn
         self._turn_movements: set[str] = set()
         # used to track all the cells that attacked during the turn
         self._turn_attacks: set[str] = set()
+        self._current_player: PlayerInfoDto = None
+
+        # endregion
+
+        # region Player action state fields
+        # ⚠️ Any field below is meant to be reset in the _reset_temporary_field_values method ⚠️
+
         # Used to confirm whether an action can be done or not
         self._possible_actions: set = set()
         # Actions that have been validated and applied, overridden each time a set of action is processed
@@ -79,6 +97,8 @@ class MatchActionsService(ServiceBase):
         # Message to the player when their request is invalid
         self._error_msg: str = ""
 
+        # endregion
+
     def reset_for_new_turn(self):
         """
         Performs all the cleanup and reset necessary for a fresh new turn.
@@ -88,27 +108,27 @@ class MatchActionsService(ServiceBase):
         self.actions[self.match_info.currentTurn] = []
         self._turn_movements = set()
         self._turn_attacks = set()
+        self._current_player = self.match.get_current_player()
         self._reset_temporary_field_values()
 
     def handle_cell_selection(self, cell_row: int, cell_col: int):
         """
         Handles the selection of a cell. This can either trigger an action or return a list of possible actions.
         """
-        player = self.match.get_current_player()
-        player_id = player.playerId
+        player = self._current_player = self.match.get_current_player()
+        is_player_1 = player.isPlayer1
         cell: CellInfoDto = self._board_array[cell_row][cell_col]
 
         if cell.belongs_to(player):
-            self._handle_own_cell_selection(cell, player_id)
+            self._handle_own_cell_selection(cell, is_player_1)
 
         # the cell belongs to the opponent
         elif cell.is_owned():
-            # handle attack or spell
-            self._handle_opponent_cell_selection(cell, player_id)
+            self._handle_opponent_cell_selection(cell, is_player_1)
 
         # the cell is idle
         else:
-            self._handle_idle_cell_selection(cell, player_id)
+            self._handle_idle_cell_selection(cell, is_player_1)
 
         self._send_response()
 
@@ -117,24 +137,26 @@ class MatchActionsService(ServiceBase):
 
     def handle_spawn_toggle(self):
         """
-        Handles the spawn request of a player.
+        Handles the spawn/spawn cancellation request of a player.
         """
-        if self._player_mode == PlayerMode.CELL_SPAWN:
-            self._reset_temporary_field_values()
+        self._current_player = self.match.get_current_player()
+
+        if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
+            self._find_possible_spawns()
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
             self._reset_temporary_field_values()
             self._find_possible_spawns()
 
-        elif self._player_mode == PlayerMode.OWN_CELL_SELECTION:
-            self._find_possible_spawns()
+        elif self._player_mode == PlayerMode.CELL_SPAWN:
+            self._reset_temporary_field_values()
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
             pass  # nothing for now
 
         self._send_response()
 
-    def _handle_own_cell_selection(self, cell: CellInfoDto, player_id: str):
+    def _handle_own_cell_selection(self, cell: CellInfoDto, player1: bool):
         """
         Handles all possible cases resulting from a player selecting a cell of their own.
 
@@ -143,13 +165,17 @@ class MatchActionsService(ServiceBase):
         """
         if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
             self._set_selected_cell(cell)
-            possible_actions = self._get_possible_actions(player_id)
-            self._set_possible_actions(set(possible_actions))
+            possible_actions = self._get_possible_movements_and_attacks(player1)
+            if possible_actions:
+                self._set_possible_actions(set(possible_actions))
+            else:
+                self._reset_temporary_field_values()
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
+
             if self._selected_cell == cell:
-                # Cancel cell selection
                 self._reset_temporary_field_values()
+
             elif cell.is_owned():
                 self._error_msg = ErrorMessages.CANNOT_MOVE_TO_NOR_ATTACK
 
@@ -159,37 +185,52 @@ class MatchActionsService(ServiceBase):
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
             pass  # nothing for now
 
-    def _handle_opponent_cell_selection(self, cell: CellInfoDto, player_id: str):
+    def _handle_opponent_cell_selection(self, cell: CellInfoDto, player1: bool):
         """
         Handles all possible cases resulting from a player selecting an enemy cell of their own.
 
         For example, if the player mode is set to owned cell selection, than there
         shouldn't be any possible action.
         """
-        pass
+        if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
+            pass  # no action possible
 
-    def _handle_idle_cell_selection(self, cell: CellInfoDto, player_id: str):
+        elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
+            pass  # TODO : process attack here
+
+        elif self._player_mode == PlayerMode.CELL_SPAWN:
+            self._error_msg = ErrorMessages.SELECT_IDLE_CELL
+
+        elif self._player_mode == PlayerMode.SPELL_SELECTED:
+            pass  # nothing for now
+
+    def _handle_idle_cell_selection(self, cell: CellInfoDto, player1: bool):
         """
         Handles all possible cases resulting from a player selecting an idle cell.
 
         For example, if the player mode is set to cell spawn, than there may be a spawn action.
         """
+        # This particular case should be prevented from happening on the client side
         if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
             self._error_msg = ErrorMessages.INVALID_ACTION
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
             movement = MatchActionDto.cell_movement(
-                player_id,
+                player1,
                 self._selected_cell.id,
                 self._selected_cell.rowIndex,
                 self._selected_cell.columnIndex,
                 cell.rowIndex,
                 cell.columnIndex,
             )
-            if movement not in self._possible_actions:
-                self._error_msg = ErrorMessages.INVALID_ACTION
-            else:
-                self._process_actions([movement])
+            self._validate_and_process_action(movement)
+
+        elif self._player_mode == PlayerMode.CELL_SPAWN:
+            spawn = MatchActionDto.cell_spawn(player1, cell.rowIndex, cell.columnIndex)
+            self._validate_and_process_action(spawn)
+
+        elif self._player_mode == PlayerMode.SPELL_SELECTED:
+            pass  # nothing for now
 
     def _send_response(self):
         """
@@ -227,16 +268,12 @@ class MatchActionsService(ServiceBase):
                 self.room_id,
             )
 
-    def _find_possible_spawns(self):
-        self._player_mode = PlayerMode.CELL_SPAWN
-        player = self.match.get_current_player()
-        self._set_possible_actions(
-            self._action_calculator.calculate_possible_spawns(
-                player.isPlayer1, player.playerId
-            )
-        )
-
     def _reset_temporary_field_values(self):
+        """
+        Resets all the temporary fields used to store the state of the current player's action.
+
+        This is an effective reset of a player's action state.
+        """
         self._player_mode = PlayerMode.OWN_CELL_SELECTION
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         self._possible_actions = set()
@@ -251,15 +288,34 @@ class MatchActionsService(ServiceBase):
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         self._possible_actions = actions
 
-    def _process_actions(self, actions: set[MatchActionDto]):
+    def _validate_and_process_action(self, action: MatchActionDto):
+        """
+        Validates the given action and processes it if it is valid.
+        """
+        if action not in self._possible_actions:
+            self._error_msg = ErrorMessages.INVALID_ACTION
+            return
+
+        if action.manaCost > self._current_player.playerGameInfo.currentMP:
+            self._error_msg = ErrorMessages.NOT_ENOUGH_MANA
+            return
+
+        self._process_actions([action])
+
+    def _process_actions(self, actions: list[MatchActionDto]):
         """
         Processes all of the given actions, setting the associate fields along the way.
+
+        Note : Action validation should be done before calling this method.
         """
+        # Reset the error message as it is no longer relevant
+        self._error_msg = ""
         self._server_mode = ServerMode.SHOW_PROCESSED_ACTIONS
-        self._error_msg = ""  # Reset the error message as it is no longer relevant
         processed_actions = self._action_processor.process_actions_sequentially(actions)
         self._processed_actions = processed_actions
         self._register_processed_actions(processed_actions)
+        # Reset the player mode after action processing before notifying the client
+        self._player_mode = PlayerMode.OWN_CELL_SELECTION
 
     def _register_processed_actions(self, actions: set[MatchActionDto]):
         """
@@ -275,6 +331,7 @@ class MatchActionsService(ServiceBase):
             cell_id = action.cellId
             if action.type == ActionType.CELL_MOVE:
                 self._turn_movements.add(cell_id)
+
             elif action.type == ActionType.CELL_ATTACK:
                 self._turn_attacks.add(cell_id)
 
@@ -297,18 +354,25 @@ class MatchActionsService(ServiceBase):
             and self._selected_cell.id in self._turn_attacks
         )
 
-    def _get_possible_actions(self, player_id: str):
+    def _find_possible_spawns(self):
+        self._player_mode = PlayerMode.CELL_SPAWN
+        player = self._current_player
+        self._set_possible_actions(
+            self._action_calculator.calculate_possible_spawns(player.isPlayer1)
+        )
+
+    def _get_possible_movements_and_attacks(self, player1: bool):
         movements: list[MatchActionDto] = []
         attacks: list[MatchActionDto] = []
 
         if not self._selected_cell_has_already_moved_this_turn():
             movements = self._action_calculator.calculate_possible_movements(
-                self._selected_cell, player_id
+                self._selected_cell, player1
             )
 
         if not self._selected_cell_has_already_attacked_this_turn():
             attacks = self._action_calculator.calculate_possible_attacks(
-                self._selected_cell, player_id
+                self._selected_cell, player1
             )
 
         return movements + attacks

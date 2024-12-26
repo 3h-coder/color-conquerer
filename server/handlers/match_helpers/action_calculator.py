@@ -22,7 +22,7 @@ class ActionCalculator:
         self._match_info = match_info
         self._board_array = match_info.boardArray
 
-    def calculate_possible_movements(self, cell: CellInfoDto, player_id: str):
+    def calculate_possible_movements(self, cell: CellInfoDto, player1: bool):
         """
         Returns the list of movements that an owned cell can perform.
         """
@@ -42,7 +42,7 @@ class ActionCalculator:
 
             movements.append(
                 MatchActionDto.cell_movement(
-                    player_id,
+                    player1,
                     cell.id,
                     row_index,
                     column_index,
@@ -53,7 +53,7 @@ class ActionCalculator:
 
         return movements
 
-    def calculate_possible_attacks(self, cell: CellInfoDto, player_id: str):
+    def calculate_possible_attacks(self, cell: CellInfoDto, player1: bool):
         """
         Returns the list of attacks that an owned cell can perform.
         """
@@ -67,7 +67,7 @@ class ActionCalculator:
             if cell.is_hostile_to(neighbour):
                 attacks.append(
                     MatchActionDto.cell_attack(
-                        player_id,
+                        player1,
                         cell.id,
                         row_index,
                         column_index,
@@ -77,7 +77,7 @@ class ActionCalculator:
                 )
         return attacks
 
-    def calculate_possible_spawns(self, player1: bool, player_id: str):
+    def calculate_possible_spawns(self, player1: bool):
         """
         Returns a set of spawns that a player can perform.
         """
@@ -94,7 +94,7 @@ class ActionCalculator:
                     continue
                 possible_spawns.add(
                     MatchActionDto.cell_spawn(
-                        player_id,
+                        player1,
                         neighbour.rowIndex,
                         neighbour.columnIndex,
                     )

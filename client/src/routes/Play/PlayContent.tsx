@@ -20,6 +20,8 @@ import MyPlayerInfo from "./components/MyPlayerInfo";
 import OpponentInfo from "./components/OpponentInfo";
 import RightSideControls from "./components/RightSideControls";
 import ActionBoard from "./components/action_board/ActionBoard";
+import { usePlayerMode } from "../../contexts/PlayerModeContext";
+import { PlayerMode } from "../../enums/playerMode";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -34,6 +36,9 @@ export default function PlayContent() {
     failedToResolve: failedToResolvePlayerInfo,
   } = usePlayerInfo();
   const { turnInfo, setTurnInfo } = useTurnInfo();
+  const { setPlayerMode } = usePlayerMode();
+
+
   const [waitingText, setWaitingText] = useState("");
   const [canRenderContent, setCanRenderContent] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -64,6 +69,14 @@ export default function PlayContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchInfo, matchInfoLoading, playerId, playerInfoLoading]);
+
+  useEffect(() => {
+    resetPlayerModeOnNewTurn();
+
+    function resetPlayerModeOnNewTurn() {
+      setPlayerMode(PlayerMode.OWN_CELL_SELECTION);
+    }
+  }, [turnInfo]);
 
   // Socket events
   useEffect(() => {
