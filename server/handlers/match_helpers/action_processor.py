@@ -16,19 +16,6 @@ class ActionProcessor:
         self._match_info = match_info
         self._board_array = match_info.boardArray
 
-    def process_actions_sequentially(self, actions: set[MatchActionDto]):
-        """
-        Processes and applies the given action in the order they were given.
-
-        Returns the set of actions that were processed properly.
-        """
-        processed_actions: set[MatchActionDto] = set()
-        for action in actions:
-            if self.process_action(action):
-                processed_actions.add(action)
-
-        return processed_actions
-
     def process_action(self, action: MatchActionDto):
         """
         Processes and applies the given action to the match info reference.
@@ -71,9 +58,9 @@ class ActionProcessor:
             elif action_type == ActionType.PLAYER_SPELL:
                 pass  # nothing for now
 
-            return True
+            return action
         except Exception:
             self._logger.critical(
                 f"Failed to process the action : {action}", exc_info=True
             )
-            return False
+            return None

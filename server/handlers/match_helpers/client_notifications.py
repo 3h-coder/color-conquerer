@@ -5,7 +5,7 @@ from flask_socketio import emit
 from dto.message_dto import MessageDto
 from dto.partial_match_closure_dto import PartialMatchClosureDto
 from dto.possible_actions_dto import PossibleActionsDto
-from dto.processed_actions_dto import ProcessedActionsDto
+from dto.processed_action_dto import ProcessedActionDto
 from dto.turn_info_dto import TurnInfoDto
 from events.events import Events
 from server_gate import get_server
@@ -28,7 +28,7 @@ def notify_possible_actions(possible_actions: PossibleActionsDto):
     emit(Events.SERVER_POSSIBLE_ACTIONS, possible_actions.to_dict())
 
 
-def notify_processed_actions(processed_actions: ProcessedActionsDto, room_id: str):
+def notify_processed_actions(processed_actions: ProcessedActionDto, room_id: str):
     _emit(Events.SERVER_PROCESSED_ACTIONS, processed_actions.to_dict(), to=room_id)
 
 

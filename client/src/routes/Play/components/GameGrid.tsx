@@ -8,7 +8,7 @@ import { useTurnInfo } from "../../../contexts/TurnContext";
 import { CoordinatesDto } from "../../../dto/CoordinatesDto";
 import { PartialCellInfoDto } from "../../../dto/PartialCellInfoDto";
 import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
-import { ProcessedActionsDto } from "../../../dto/ProcessedActionsDto";
+import { ProcessedActionDto } from "../../../dto/ProcessedActionDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
@@ -164,7 +164,7 @@ export default function GameGrid() {
             applyPossibleActionsToBoard(actionsDto, setCellsSelectable);
         }
 
-        function onServerProcessedActions(actions: ProcessedActionsDto) {
+        function onServerProcessedActions(actions: ProcessedActionDto) {
             developmentLog("Received the processed actions", actions);
 
             setPlayerMode(actions.playerMode);

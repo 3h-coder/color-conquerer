@@ -17,6 +17,9 @@ class PartialMatchActionDto(BaseDto):
 
     @staticmethod
     def from_match_action_dto(match_action_dto: "MatchActionDto"):
+        if not match_action_dto:
+            return None
+
         return PartialMatchActionDto(
             match_action_dto.player1,
             match_action_dto.type,

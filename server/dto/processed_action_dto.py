@@ -6,11 +6,11 @@ from dto.partial_match_action_dto import PartialMatchActionDto
 
 
 @dataclass
-class ProcessedActionsDto(BaseDto):
+class ProcessedActionDto(BaseDto):
     """
     Meant to be sent to the client.
     """
 
-    processedActions: list[PartialMatchActionDto]
+    processedAction: PartialMatchActionDto
     updatedBoardArray: list[list[PartialCellInfoDto]]
     playerMode: int
