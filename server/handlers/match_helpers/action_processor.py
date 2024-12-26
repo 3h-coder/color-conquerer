@@ -2,7 +2,7 @@ from config.logging import get_configured_logger
 from dto.player_game_info_dto import PlayerGameInfoDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
-from utils.board_utils import move_cell, spawn_cell
+from utils.board_utils import move_cell, spawn_cell, trigger_cell_attack
 
 
 class ActionProcessor:
@@ -42,7 +42,15 @@ class ActionProcessor:
                 )
 
             elif action_type == ActionType.CELL_ATTACK:
-                pass  # nothing for now
+                attacking_coords = action.originatingCellCoords
+                target_coords = action.impactedCoords[0]
+                trigger_cell_attack(
+                    attacking_coords.rowIndex,
+                    attacking_coords.columnIndex,
+                    target_coords.rowIndex,
+                    target_coords.columnIndex,
+                    self._match_info,
+                )
 
             elif action_type == ActionType.CELL_SPAWN:
                 coords = action.impactedCoords[0]

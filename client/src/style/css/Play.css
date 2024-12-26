@@ -97,10 +97,11 @@
 .hp-circle-container-outer {
     width: max(25px, 4vmin);
     height: max(25px, 4vmin);
-    border: 0rem solid transparent;
+    border: 0.09rem solid white;
     border-radius: 50%;
     overflow: hidden;
     box-sizing: border-box;
+    rotate: 180deg;
 }
 
 .hp-circle-container-inner {

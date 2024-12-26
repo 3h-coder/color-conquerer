@@ -26,8 +26,8 @@ if TYPE_CHECKING:
 
 
 class PlayerMode(IntEnum):
-    # Default, the player is expected to select a cell of their own
-    OWN_CELL_SELECTION = 0
+    # Default, the player is expected to select a cell, spawn a cell, or select a spell
+    IDLE = 0
     # The player just selected a cell of their own and is expected to perform an action from it (move or attack)
     OWN_CELL_SELECTED = 1
     # A spawn action is being awaited on an idle cell with no owner
@@ -84,13 +84,13 @@ class MatchActionsService(ServiceBase):
         # endregion
 
         # region Player action state fields
-        # ⚠️ Any field below is meant to be reset in the _reset_temporary_field_values method ⚠️
+        # ⚠️ Any field below is meant to be reset in the _set_player_to_idle method ⚠️
 
         # Used to confirm whether an action can be done or not
         self._possible_actions: set[MatchActionDto] = set()
         # Actions that have been validated and applied, overridden each time a set of action is processed
         self._processed_action: MatchActionDto = None
-        self._player_mode = PlayerMode.OWN_CELL_SELECTION
+        self._player_mode = PlayerMode.IDLE
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         # Applicable when the player mode is OWN_CELL_SELECTED
         self._selected_cell: CellInfoDto = None
@@ -109,7 +109,7 @@ class MatchActionsService(ServiceBase):
         self._turn_movements = set()
         self._turn_attacks = set()
         self._current_player = self.match.get_current_player()
-        self._reset_temporary_field_values()
+        self._set_player_to_idle()
 
     def handle_cell_selection(self, cell_row: int, cell_col: int):
         """
@@ -133,7 +133,7 @@ class MatchActionsService(ServiceBase):
         self._send_response()
 
         if self._server_mode == ServerMode.SHOW_PROCESSED_ACTIONS:
-            self._reset_temporary_field_values()
+            self._set_player_to_idle()
 
     def handle_spawn_toggle(self):
         """
@@ -141,15 +141,15 @@ class MatchActionsService(ServiceBase):
         """
         self._current_player = self.match.get_current_player()
 
-        if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
+        if self._player_mode == PlayerMode.IDLE:
             self._find_possible_spawns()
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
-            self._reset_temporary_field_values()
+            self._set_player_to_idle()
             self._find_possible_spawns()
 
         elif self._player_mode == PlayerMode.CELL_SPAWN:
-            self._reset_temporary_field_values()
+            self._set_player_to_idle()
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
             pass  # nothing for now
@@ -163,18 +163,18 @@ class MatchActionsService(ServiceBase):
         For example, if the player mode is set to owned cell selection, than the possible actions are either
         move, attack, or no action.
         """
-        if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
+        if self._player_mode == PlayerMode.IDLE:
             self._set_selected_cell(cell)
             possible_actions = self._get_possible_movements_and_attacks(player1)
             if possible_actions:
                 self._set_possible_actions(set(possible_actions))
             else:
-                self._reset_temporary_field_values()
+                self._set_player_to_idle()
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
 
             if self._selected_cell == cell:
-                self._reset_temporary_field_values()
+                self._set_player_to_idle()
 
             elif cell.is_owned():
                 self._error_msg = ErrorMessages.CANNOT_MOVE_TO_NOR_ATTACK
@@ -192,11 +192,19 @@ class MatchActionsService(ServiceBase):
         For example, if the player mode is set to owned cell selection, than there
         shouldn't be any possible action.
         """
-        if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
+        if self._player_mode == PlayerMode.IDLE:
             pass  # no action possible
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
-            pass  # TODO : process attack here
+            attack = MatchActionDto.cell_attack(
+                player1,
+                self._selected_cell.id,
+                self._selected_cell.rowIndex,
+                self._selected_cell.columnIndex,
+                cell.rowIndex,
+                cell.columnIndex,
+            )
+            self._validate_and_process_action(attack)
 
         elif self._player_mode == PlayerMode.CELL_SPAWN:
             self._error_msg = ErrorMessages.SELECT_IDLE_CELL
@@ -211,7 +219,7 @@ class MatchActionsService(ServiceBase):
         For example, if the player mode is set to cell spawn, than there may be a spawn action.
         """
         # This particular case should be prevented from happening on the client side
-        if self._player_mode == PlayerMode.OWN_CELL_SELECTION:
+        if self._player_mode == PlayerMode.IDLE:
             self._error_msg = ErrorMessages.INVALID_ACTION
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
@@ -269,13 +277,13 @@ class MatchActionsService(ServiceBase):
                 self.room_id,
             )
 
-    def _reset_temporary_field_values(self):
+    def _set_player_to_idle(self):
         """
         Resets all the temporary fields used to store the state of the current player's action.
 
         This is an effective reset of a player's action state.
         """
-        self._player_mode = PlayerMode.OWN_CELL_SELECTION
+        self._player_mode = PlayerMode.IDLE
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         self._possible_actions = set()
         self._processed_action = None
@@ -315,13 +323,13 @@ class MatchActionsService(ServiceBase):
         processed_action = self._action_processor.process_action(action)
         if processed_action is None:
             self._error_msg = ErrorMessages.INVALID_ACTION
-            self._player_mode = PlayerMode.OWN_CELL_SELECTION
+            self._player_mode = PlayerMode.IDLE
             return
 
         self._processed_action = processed_action
         self._register_processed_action(processed_action)
         # Reset the player mode after action processing before notifying the client
-        self._player_mode = PlayerMode.OWN_CELL_SELECTION
+        self._player_mode = PlayerMode.IDLE
 
     def _register_processed_action(self, action: MatchActionDto):
         """

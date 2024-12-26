@@ -7,7 +7,7 @@ interface PlayerModeContextObject {
 }
 
 export const PlayerModeContext = createContext<PlayerModeContextObject>({
-    playerMode: PlayerMode.OWN_CELL_SELECTION,
+    playerMode: PlayerMode.IDLE,
     setPlayerMode: (_mode: PlayerMode) => { },
 });
 
@@ -19,7 +19,7 @@ export default function PlayerModeContextProvider(
     props: PlayerModeContextProviderProps
 ) {
     const { children } = props;
-    const [playerMode, setPlayerMode] = useState(PlayerMode.OWN_CELL_SELECTION);
+    const [playerMode, setPlayerMode] = useState(PlayerMode.IDLE);
 
     return (
         <PlayerModeContext.Provider value={{ playerMode, setPlayerMode }}>

@@ -74,7 +74,7 @@ export default function PlayContent() {
     resetPlayerModeOnNewTurn();
 
     function resetPlayerModeOnNewTurn() {
-      setPlayerMode(PlayerMode.OWN_CELL_SELECTION);
+      setPlayerMode(PlayerMode.IDLE);
     }
   }, [turnInfo]);
 

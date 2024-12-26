@@ -117,7 +117,6 @@ export default function GameGrid() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isMyTurn]);
 
-
     // Clear the error message ~1 second after it has been set
     useEffect(() => {
         delayedErrorMessageClearance();
