@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from dto.base_dto import BaseDto
 from dto.partial_cell_info_dto import PartialCellInfoDto
+from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
 from utils.board_utils import to_client_board_dto
 
 if TYPE_CHECKING:
@@ -21,7 +22,10 @@ class PartialMatchInfoDto(BaseDto):
     boardArray: list[list[PartialCellInfoDto]]
     currentTurn: int
     isPlayer1Turn: bool
-    totalTurnDurationInS: int
+    # This property is currently not updated server side,
+    # but is recalculated when sent to the client via
+    # the from_match_info_dto method below.
+    playerInfoBundle: PlayerGameInfoBundleDto
 
     @staticmethod
     def from_match_info_dto(match_info_dto: "MatchInfoDto"):
@@ -31,5 +35,5 @@ class PartialMatchInfoDto(BaseDto):
             to_client_board_dto(match_info_dto.boardArray),
             match_info_dto.currentTurn,
             match_info_dto.isPlayer1Turn,
-            match_info_dto.totalTurnDurationInS,
+            match_info_dto.get_player_info_bundle(),
         )

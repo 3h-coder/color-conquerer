@@ -1,20 +1,19 @@
-import {
-    PlayerGameInfoBundleDto,
-    undefinedPlayerInfoBundleDto,
-} from "./PlayerInfoBundleDto";
+import { PlayerGameInfoBundleDto, undefinedPlayerInfoBundleDto } from "./PlayerInfoBundleDto";
 
 export interface TurnInfoDto {
     currentPlayerId: string;
     isPlayer1Turn: boolean;
     durationInS: number;
-    playerInfoBundle: PlayerGameInfoBundleDto;
+    totalTurnDurationInS: number;
     notifyTurnChange: boolean;
+    playerGameInfoBundle: PlayerGameInfoBundleDto;
 }
 
 export const undefinedTurnInfo: TurnInfoDto = {
     currentPlayerId: "",
     isPlayer1Turn: false,
     durationInS: 0,
-    playerInfoBundle: undefinedPlayerInfoBundleDto,
+    totalTurnDurationInS: 0,
     notifyTurnChange: false,
+    playerGameInfoBundle: undefinedPlayerInfoBundleDto
 };

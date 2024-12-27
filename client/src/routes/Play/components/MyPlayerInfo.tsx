@@ -1,13 +1,14 @@
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
-import { useTurnInfo } from "../../../contexts/TurnContext";
+import { usePlayersGameInfo } from "../../../contexts/PlayersGameInfoContext";
 import PlayerHPAndMPInfo from "./PlayerHPAndMPInfo";
 
 export default function MyPlayerInfo() {
     const { isPlayer1 } = usePlayerInfo();
-    const { turnInfo } = useTurnInfo();
+    const { playerGameInfoBundle } = usePlayersGameInfo();
+
     const playerGameInfo = isPlayer1
-        ? turnInfo.playerInfoBundle.player1GameInfo
-        : turnInfo.playerInfoBundle.player2GameInfo;
+        ? playerGameInfoBundle.player1GameInfo
+        : playerGameInfoBundle.player2GameInfo;
 
     return (
         <PlayerHPAndMPInfo

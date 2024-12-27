@@ -11,6 +11,5 @@ class PossibleActionsDto(BaseDto):
     Meant to be sent to the client.
     """
 
-    possibleActions: list[PartialMatchActionDto]
     playerMode: int
     transientBoardArray: list[list[PartialCellInfoDto]]

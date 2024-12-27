@@ -1,12 +1,12 @@
 import { PartialCellInfoDto } from "./PartialCellInfoDto";
+import { PlayerGameInfoBundleDto, undefinedPlayerInfoBundleDto } from "./PlayerInfoBundleDto";
 
 export interface PartialMatchInfoDto {
     id: string;
     roomId: string;
     boardArray: PartialCellInfoDto[][];
     currentTurn: number;
-    isPlayer1Turn: boolean;
-    totalTurnDurationInS: number;
+    playerInfoBundle: PlayerGameInfoBundleDto;
 }
 
 export const undefinedMatch: PartialMatchInfoDto = {
@@ -14,6 +14,5 @@ export const undefinedMatch: PartialMatchInfoDto = {
     roomId: "",
     boardArray: [],
     currentTurn: 0,
-    isPlayer1Turn: false,
-    totalTurnDurationInS: 0
+    playerInfoBundle: undefinedPlayerInfoBundleDto
 }

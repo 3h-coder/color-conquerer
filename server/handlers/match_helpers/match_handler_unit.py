@@ -8,7 +8,6 @@ from constants.match_constants import (
 )
 from dto.partial_match_closure_dto import PartialMatchClosureDto
 from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
-from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
 from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
@@ -191,23 +190,15 @@ class MatchHandlerUnit:
         self._schedule_garbage_collection()
 
     def get_turn_info(self, for_new_turn=False):
-        players_game_info = [
-            PartialPlayerGameInfoDto.from_player_game_info(player_game_info)
-            for player_game_info in self._get_players_game_info()
-        ]
-        player1_game_info = players_game_info[0]
-        player2_game_info = players_game_info[1]
-
         return TurnInfoDto(
             currentPlayerId=self.get_current_player().playerId,
             isPlayer1Turn=self.match_info.isPlayer1Turn,
             durationInS=(
                 TURN_DURATION_IN_S if for_new_turn else self._get_remaining_turn_time()
             ),
-            playerInfoBundle=PlayerGameInfoBundleDto(
-                player1_game_info, player2_game_info
-            ),
+            totalTurnDurationInS=TURN_DURATION_IN_S,
             notifyTurnChange=for_new_turn,
+            playerGameInfoBundle=self.match_info.get_player_info_bundle(),
         )
 
     def handle_cell_selection(self, cell_row: int, cell_col: int):

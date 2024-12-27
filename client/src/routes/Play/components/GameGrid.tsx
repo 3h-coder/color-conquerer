@@ -26,11 +26,13 @@ import TurnSwapImage from "./TurnSwapImage";
 import GameError from "./GameError";
 import { MessageDto } from "../../../dto/MessageDto";
 import { usePlayerMode } from "../../../contexts/PlayerModeContext";
+import { usePlayersGameInfo } from "../../../contexts/PlayersGameInfoContext";
 
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
     const { playerId, isPlayer1 } = usePlayerInfo();
-    const { turnInfo, setTurnInfo, canInteract, setCanInteract } = useTurnInfo();
+    const { turnInfo, canInteract, setCanInteract } = useTurnInfo();
+    const { setPlayerGameInfoBundle } = usePlayersGameInfo();
     const { setPlayerMode } = usePlayerMode();
 
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
@@ -47,6 +49,7 @@ export default function GameGrid() {
 
         function handleTurnChange() {
             clearBoardColoring(boardArray, (cell) => isOwned(cell));
+            setPlayerGameInfoBundle(turnInfo.playerGameInfoBundle);
             setActionErrorMessage("");
 
             if (turnInfo === undefinedTurnInfo) return;
@@ -137,10 +140,10 @@ export default function GameGrid() {
             setPlayerMode(processedActions.playerMode);
 
             // Update the player info bundle to display the proper HP/MP values
-            turnInfo.playerInfoBundle = processedActions.playerInfoBundle;
+            setPlayerGameInfoBundle(processedActions.updatedMatchInfo.playerInfoBundle);
 
             // Update the board array with the new cell info
-            setBoardArray(processedActions.updatedBoardArray);
+            setBoardArray(processedActions.updatedMatchInfo.boardArray);
         }
 
         function onServerActionError(errorMessageDto: MessageDto) {

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from config.logging import get_configured_logger
 from constants.match_constants import BOARD_SIZE
 from dto.partial_match_action_dto import PartialMatchActionDto
+from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_action_dto import ProcessedActionDto
 from dto.server_only.cell_info_dto import CellInfoDto
@@ -264,7 +265,6 @@ class MatchActionsService(ServiceBase):
             )
             notify_possible_actions(
                 PossibleActionsDto(
-                    _to_client_actions_dto(self._possible_actions),
                     self._player_mode,
                     transient_board_array,
                 )
@@ -276,9 +276,8 @@ class MatchActionsService(ServiceBase):
             notify_processed_actions(
                 ProcessedActionDto(
                     PartialMatchActionDto.from_match_action_dto(self._processed_action),
-                    to_client_board_dto(self._board_array),
                     self._player_mode,
-                    self.match.get_turn_info().playerInfoBundle,
+                    PartialMatchInfoDto.from_match_info_dto(self.match_info),
                 ),
                 self.room_id,
             )
@@ -396,7 +395,3 @@ class MatchActionsService(ServiceBase):
             )
 
         return movements + attacks
-
-
-def _to_client_actions_dto(actions: set[MatchActionDto]):
-    return [PartialMatchActionDto.from_match_action_dto(action) for action in actions]

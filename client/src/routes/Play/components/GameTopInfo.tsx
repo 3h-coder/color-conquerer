@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useMatchInfo } from "../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
 import { useTurnInfo } from "../../../contexts/TurnContext";
 import { TurnInfoDto } from "../../../dto/TurnInfoDto";
@@ -7,14 +6,13 @@ import { round } from "../../../utils/mathUtils";
 
 export default function GameTopInfo() {
     const { playerId } = usePlayerInfo();
-    const { matchInfo } = useMatchInfo();
     const { turnInfo } = useTurnInfo();
     const whoseTurnMessage = playerId === turnInfo.currentPlayerId ? "Your turn" : "Opponent turn";
 
     return (
         <GameTopInfoContainer>
             <h3 className="whose-turn-label adaptive-font-size">{whoseTurnMessage}</h3>
-            <TimeCountDownBar turnInfoDto={turnInfo} totalTurnDurationInS={matchInfo.totalTurnDurationInS} />
+            <TimeCountDownBar turnInfoDto={turnInfo} />
         </GameTopInfoContainer>
     );
 }
@@ -35,11 +33,11 @@ function GameTopInfoContainer(props: GameTopInfoContainerProps) {
 
 interface TimeCountDownBarProps {
     turnInfoDto: TurnInfoDto;
-    totalTurnDurationInS: number;
 }
 
 function TimeCountDownBar(props: TimeCountDownBarProps) {
-    const { turnInfoDto, totalTurnDurationInS } = props;
+    const { turnInfoDto } = props;
+    const totalTurnDurationInS = turnInfoDto.totalTurnDurationInS;
 
     const initialPercentage = round((turnInfoDto.durationInS * 100) / totalTurnDurationInS, 2);
     const [timePercentage, setTimePercentage] = useState(initialPercentage);
@@ -51,8 +49,9 @@ function TimeCountDownBar(props: TimeCountDownBarProps) {
     // Update timePercentage whenever turnInfoDto changes
     useEffect(() => {
         setTimePercentage(round((turnInfoDto.durationInS * 100) / totalTurnDurationInS, 2));
-    }, [turnInfoDto, totalTurnDurationInS]);
+    }, [turnInfoDto]);
 
+    // Update timePercentage every 500ms
     useEffect(() => {
         const interval = setInterval(() => {
             setTimePercentage((prevPercentage) => {
@@ -61,8 +60,7 @@ function TimeCountDownBar(props: TimeCountDownBarProps) {
         }, 500);
 
         return () => clearInterval(interval);
-    }, [percentageLostPer500ms, timePercentage, turnInfoDto]);
-
+    }, [timePercentage, turnInfoDto]);
 
     return (
         <div className="countdown-bar-outer">

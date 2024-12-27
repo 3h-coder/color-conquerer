@@ -14,3 +14,14 @@ class PlayerInfoDto(PartialPlayerInfoDto):
 
     user: UserDto
     playerGameInfo: PlayerGameInfoDto
+
+    @staticmethod
+    def get_initial_player_info(user: UserDto, player_id: str, is_player_1: bool):
+        return PlayerInfoDto(
+            user=user,
+            playerId=player_id,
+            isPlayer1=is_player_1,
+            playerGameInfo=PlayerGameInfoDto.get_initial_player_game_info(
+                is_player_1=is_player_1
+            ),
+        )

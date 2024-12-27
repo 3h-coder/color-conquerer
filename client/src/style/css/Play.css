@@ -114,6 +114,8 @@
             rgb(230, 66, 66) 0%,
             rgb(239, 50, 50) 50%,
             rgba(255, 0, 0, 0.642) 100%);
+
+    transition: height 1s ease-in-out;
 }
 
 .mp-container {

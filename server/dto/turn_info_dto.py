@@ -9,5 +9,6 @@ class TurnInfoDto(BaseDto):
     currentPlayerId: str
     isPlayer1Turn: bool
     durationInS: int
-    playerInfoBundle: PlayerGameInfoBundleDto
+    totalTurnDurationInS: int
     notifyTurnChange: bool
+    playerGameInfoBundle: PlayerGameInfoBundleDto
