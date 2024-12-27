@@ -33,7 +33,7 @@ import { usePlayerMode } from "../../../contexts/PlayerModeContext";
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
     const { playerId, isPlayer1 } = usePlayerInfo();
-    const { turnInfo, canInteract, setCanInteract } = useTurnInfo();
+    const { turnInfo, setTurnInfo, canInteract, setCanInteract } = useTurnInfo();
     const { setPlayerMode } = usePlayerMode();
 
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
@@ -171,7 +171,10 @@ export default function GameGrid() {
             setPlayerMode(processedActions.playerMode);
 
             // Update the player info bundle to display the proper HP/MP values
-            turnInfo.playerInfoBundle = processedActions.playerInfoBundle;
+            setTurnInfo({
+                ...turnInfo,
+                playerInfoBundle: processedActions.playerInfoBundle,
+            });
 
             // Remove the animations on non owned cells before they eventually get
             // captured and escape animation clearing.

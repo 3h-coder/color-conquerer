@@ -46,7 +46,7 @@ class ServerMode(IntEnum):
 class ErrorMessages(StrEnum):
     CANNOT_MOVE_TO_NOR_ATTACK = "Cannot move to nor attack this cell"
     SELECT_IDLE_CELL = "Select an idle cell to spawn a new cell"
-    NOT_ENOUGH_MANA = "Not enough mana to perform this action"
+    NOT_ENOUGH_MANA = "Not enough mana"
     INVALID_ACTION = "Invalid action"  # The client should prevent this message from being shown, but just in case
 
 
@@ -218,9 +218,8 @@ class MatchActionsService(ServiceBase):
 
         For example, if the player mode is set to cell spawn, than there may be a spawn action.
         """
-        # This particular case should be prevented from happening on the client side
         if self._player_mode == PlayerMode.IDLE:
-            self._error_msg = ErrorMessages.INVALID_ACTION
+            pass  # no action possible
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
             movement = MatchActionDto.cell_movement(
