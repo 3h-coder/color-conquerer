@@ -1,14 +1,22 @@
 import { PartialCellInfoDto } from "../dto/PartialCellInfoDto";
+import { CellState } from "../enums/cellState";
 import { cellStyle, colors } from "../style/constants";
 
 export function isOwned(cell: PartialCellInfoDto) {
     return cell.owner !== 0;
 }
 
-export function getDefaultStyle(cell: PartialCellInfoDto, isPlayer1: boolean) {
-    const style: React.CSSProperties = {
-        backgroundColor: getCellColor(cell, isPlayer1),
-        animation: ""
+export function getCellStyle(cell: PartialCellInfoDto, isPlayer1: boolean) {
+    const style: React.CSSProperties = {};
+
+    if (cell.state === CellState.CAN_BE_MOVED_INTO || cell.state === CellState.CAN_BE_SPAWNED_INTO) {
+        style.backgroundColor = colors.cell.ownCellActionPossible;
+        style.animation = "half-fade-in 1s infinite alternate-reverse";
+    } 
+
+    else {
+        style.backgroundColor = getCellColor(cell, isPlayer1);
+        style.animation = "";
     }
 
     return style;
@@ -26,15 +34,6 @@ function clearHTMLCellStyle(htmlCell: HTMLElement) {
     htmlCell.style.backgroundColor = colors.cell.idle;
     htmlCell.style.animation = "";
     htmlCell.classList.remove(cellStyle.hoveredClassName);
-}
-
-export function colorCellToPossibleAction(rowIndex: number, colIndex: number) {
-    const htmlCell = getHtmlCell(rowIndex, colIndex);
-    if (!htmlCell)
-        return;
-
-    htmlCell.style.backgroundColor = colors.cell.ownCellActionPossible;
-    htmlCell.style.animation = "half-fade-in 1s infinite alternate-reverse";
 }
 
 export function colorHoveredCell(cell: PartialCellInfoDto) {
@@ -77,6 +76,10 @@ function getHtmlCell(rowIndex: number, columnIndex: number) {
     return document.getElementById(
         getCellId(rowIndex, columnIndex)
     );
+}
+
+export function isSelectable(cell: PartialCellInfoDto) {
+    return cell.owner !== 0 || cell.state !== CellState.NONE;
 }
 
 export function getCellId(rowIndex: number, colIndex: number) {

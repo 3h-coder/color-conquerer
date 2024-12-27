@@ -15,13 +15,17 @@ def create_starting_board(board_size: int):
                 isMaster=False,
                 rowIndex=i,
                 columnIndex=j,
-                state=CellState.AVAILABLE,
+                state=CellState.NONE,
                 id=None,
             )
             for j in range(board_size)
         ]
         for i in range(board_size)
     ]
+
+
+def copy_board(board: list[list[CellInfoDto]]):
+    return [[cell.clone() for cell in row] for row in board]
 
 
 def to_client_board_dto(board: list[list[CellInfoDto]]):
@@ -49,10 +53,6 @@ def get_cells_owned_by_player(player1: bool, board: list[list[CellInfoDto]]):
         if (player1 and cell.belongs_to_player_1())
         or (not player1 and cell.belongs_to_player_2())
     ]
-
-
-def is_owned(row_index: int, col_index: int, board: list[list[CellInfoDto]]):
-    return board[row_index][col_index].is_owned()
 
 
 def move_cell(
@@ -144,6 +144,10 @@ def trigger_cell_attack(
     else:
         attacking_cell.set_idle()
         target_cell.set_idle()
+
+
+def is_owned(row_index: int, col_index: int, board: list[list[CellInfoDto]]):
+    return board[row_index][col_index].is_owned()
 
 
 def is_out_of_bounds(index, board_size: int = None, square_board: list[list] = None):

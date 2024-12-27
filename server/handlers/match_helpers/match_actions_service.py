@@ -257,9 +257,16 @@ class MatchActionsService(ServiceBase):
             self._logger.debug(
                 f"Sending to the client the possible actions : {self._possible_actions}"
             )
+            transient_board_array = (
+                to_client_board_dto(self._action_calculator.transient_board_array)
+                if self._action_calculator.transient_board_array
+                else to_client_board_dto(self._board_array)
+            )
             notify_possible_actions(
                 PossibleActionsDto(
-                    _to_client_actions_dto(self._possible_actions), self._player_mode
+                    _to_client_actions_dto(self._possible_actions),
+                    self._player_mode,
+                    transient_board_array,
                 )
             )
         elif self._server_mode == ServerMode.SHOW_PROCESSED_ACTIONS:
@@ -288,6 +295,7 @@ class MatchActionsService(ServiceBase):
         self._processed_action = None
         self._selected_cell = None
         self._error_msg = ""
+        self._action_calculator.transient_board_array = None
 
     def _set_possible_actions(self, actions: set[MatchActionDto]):
         """

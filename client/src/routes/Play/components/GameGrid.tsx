@@ -5,7 +5,6 @@ import { ContainerProps } from "../../../components/containers";
 import { useMatchInfo } from "../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
 import { useTurnInfo } from "../../../contexts/TurnContext";
-import { CoordinatesDto } from "../../../dto/CoordinatesDto";
 import { PartialCellInfoDto } from "../../../dto/PartialCellInfoDto";
 import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
 import { ProcessedActionDto } from "../../../dto/ProcessedActionDto";
@@ -13,9 +12,7 @@ import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
 import {
-    applyPossibleActionsToBoard,
     clearBoardColoring,
-    getDefaultSelectableCells,
 } from "../../../utils/boardUtils";
 import {
     colorHoveredCell,
@@ -42,33 +39,6 @@ export default function GameGrid() {
     const [actionErrorMessage, setActionErrorMessage] = useState("");
 
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
-    const [selectableCells, setSelectableCells] = useState(
-        getDefaultSelectableCells(boardArray)
-    );
-
-    function setCellsSelectable(
-        coordinates: CoordinatesDto[],
-        isSelectable: boolean
-    ) {
-        setSelectableCells((prevState) => {
-            const newState = prevState.map((row) => [...row]); // Clone state
-            coordinates.forEach((coord) => {
-                // Update
-                newState[coord.rowIndex][coord.columnIndex] = isSelectable;
-            });
-            return newState;
-        });
-    }
-
-    // Reset the board colors and selectable cells when it changes
-    useEffect(() => {
-        handleBoardArrayChange();
-
-        function handleBoardArrayChange() {
-            clearBoardColoring(boardArray, (cell) => isOwned(cell));
-            setSelectableCells(getDefaultSelectableCells(boardArray));
-        }
-    }, [boardArray]);
 
     // Set the isMyTurn variable on turn change
     // Reset the colors on the boardArray variable change
@@ -156,12 +126,8 @@ export default function GameGrid() {
             // Update the player mode for the dependent components to react to
             setPlayerMode(possibleActions.playerMode);
 
-            // Reset the board coloring and selectable cells
-            clearBoardColoring(boardArray, (cell) => isOwned(cell));
-            setSelectableCells(getDefaultSelectableCells(boardArray));
-
             // Apply the new coloring and selectable cells
-            applyPossibleActionsToBoard(possibleActions, setCellsSelectable);
+            setBoardArray(possibleActions.transientBoardArray);
         }
 
         function onServerProcessedActions(processedActions: ProcessedActionDto) {
@@ -171,14 +137,7 @@ export default function GameGrid() {
             setPlayerMode(processedActions.playerMode);
 
             // Update the player info bundle to display the proper HP/MP values
-            setTurnInfo({
-                ...turnInfo,
-                playerInfoBundle: processedActions.playerInfoBundle,
-            });
-
-            // Remove the animations on non owned cells before they eventually get
-            // captured and escape animation clearing.
-            clearBoardColoring(boardArray, (cell) => isOwned(cell));
+            turnInfo.playerInfoBundle = processedActions.playerInfoBundle;
 
             // Update the board array with the new cell info
             setBoardArray(processedActions.updatedBoardArray);
@@ -222,7 +181,7 @@ export default function GameGrid() {
                                 id={getCellId(rowIndex, colIndex)}
                                 isPlayer1={isPlayer1}
                                 cellInfo={cellInfo}
-                                selectable={canInteract && selectableCells[rowIndex][colIndex]}
+                                canInteract={canInteract}
                             />
                         ))}
                     </GridRow>

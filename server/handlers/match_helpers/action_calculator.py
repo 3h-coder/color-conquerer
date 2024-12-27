@@ -1,9 +1,11 @@
+import functools
 from config.logging import get_configured_logger
 from constants.match_constants import BOARD_SIZE
 from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from utils.board_utils import (
+    copy_board,
     get_cells_owned_by_player,
     get_neighbours,
     is_out_of_bounds,
@@ -22,6 +24,20 @@ class ActionCalculator:
         self._match_info = match_info
         self._board_array = match_info.boardArray
 
+        # Board copy to save and send to the client the states resulting from
+        # the possible actions.
+        self.transient_board_array: list[list[CellInfoDto]] = None
+
+    def _initialize_transient_board(func):
+        @functools.wraps(func)
+        def wrapper(self: "ActionCalculator", *args, **kwargs):
+            if self.transient_board_array is None:
+                self.transient_board_array = copy_board(self._board_array)
+            return func(self, *args, **kwargs)
+
+        return wrapper
+
+    @_initialize_transient_board
     def calculate_possible_movements(self, cell: CellInfoDto, player1: bool):
         """
         Returns the list of movements that an owned cell can perform.
@@ -40,6 +56,11 @@ class ActionCalculator:
             ):
                 continue
 
+            transient_board_cell = self.transient_board_array[new_row_index][
+                new_col_index
+            ]
+            transient_board_cell.set_can_be_moved_into()
+
             movements.append(
                 MatchActionDto.cell_movement(
                     player1,
@@ -53,6 +74,7 @@ class ActionCalculator:
 
         return movements
 
+    @_initialize_transient_board
     def calculate_possible_attacks(self, cell: CellInfoDto, player1: bool):
         """
         Returns the list of attacks that an owned cell can perform.
@@ -64,19 +86,27 @@ class ActionCalculator:
             cell.rowIndex, cell.columnIndex, self._board_array
         )
         for neighbour in neighbours:
-            if cell.is_hostile_to(neighbour):
-                attacks.append(
-                    MatchActionDto.cell_attack(
-                        player1,
-                        cell.id,
-                        row_index,
-                        column_index,
-                        neighbour.rowIndex,
-                        neighbour.columnIndex,
-                    )
+            if not cell.is_hostile_to(neighbour):
+                continue
+
+            transient_board_cell = self.transient_board_array[neighbour.rowIndex][
+                neighbour.columnIndex
+            ]
+            transient_board_cell.set_can_be_attacked()
+
+            attacks.append(
+                MatchActionDto.cell_attack(
+                    player1,
+                    cell.id,
+                    row_index,
+                    column_index,
+                    neighbour.rowIndex,
+                    neighbour.columnIndex,
                 )
+            )
         return attacks
 
+    @_initialize_transient_board
     def calculate_possible_spawns(self, player1: bool):
         """
         Returns a set of spawns that a player can perform.
@@ -92,6 +122,12 @@ class ActionCalculator:
             for neighbour in neighbours:
                 if neighbour.is_owned():
                     continue
+
+                transient_board_cell = self.transient_board_array[neighbour.rowIndex][
+                    neighbour.columnIndex
+                ]
+                transient_board_cell.set_can_be_spawned_into()
+
                 possible_spawns.add(
                     MatchActionDto.cell_spawn(
                         player1,

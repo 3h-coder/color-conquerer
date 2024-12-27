@@ -1,18 +1,28 @@
+import { useEffect } from "react";
 import { PartialCellInfoDto } from "../../../dto/PartialCellInfoDto";
 import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
 import { cellStyle } from "../../../style/constants";
-import { getDefaultStyle } from "../../../utils/cellUtils";
+import { getCellStyle as getCellStyle, isSelectable } from "../../../utils/cellUtils";
 
 interface GameCellProps {
     id: string;
     isPlayer1: boolean;
     cellInfo: PartialCellInfoDto;
-    selectable: boolean;
+    canInteract: boolean;
 }
 
 export default function GameCell(props: GameCellProps) {
-    const { id, isPlayer1, cellInfo, selectable } = props;
+    const { id, isPlayer1, cellInfo, canInteract } = props;
+    const selectable = canInteract && isSelectable(cellInfo);
+
+    // If the cell was previously hovered and is being re-rendered
+    // send a HOVER_END event to the server to clear the hover effect 
+    // for the opponent client
+    useEffect(() => {
+        if (!selectable)
+            socket.emit(Events.CLIENT_CELL_HOVER_END, cellInfo);
+    });
 
     function onCellMouseEnter() {
         if (!selectable) return;
@@ -32,7 +42,7 @@ export default function GameCell(props: GameCellProps) {
         socket.emit(Events.CLIENT_CELL_CLICK, cellInfo);
     }
 
-    const computedStyle = getDefaultStyle(cellInfo, isPlayer1);
+    const computedStyle = getCellStyle(cellInfo, isPlayer1);
     const className = `${cellStyle.className} ${selectable ? cellStyle.selectableClassName : ""}`.trim();
 
     return (

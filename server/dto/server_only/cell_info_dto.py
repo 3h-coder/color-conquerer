@@ -5,9 +5,15 @@ from dto.partial_cell_info_dto import PartialCellInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 
 
+# The following states are temporary and are meant to be
+# sent to the player whose turn it is to inform him of the
+# possible actions he can take.
 class CellState(IntEnum):
-    AVAILABLE = 0
-    UNAVAILABLE = 1
+    NONE = 0
+    SELECTED = 1
+    CAN_BE_MOVED_INTO = 2
+    CAN_BE_SPAWNED_INTO = 3
+    CAN_BE_ATTACKED = 4
 
 
 class CellOwner(IntEnum):
@@ -19,7 +25,6 @@ class CellOwner(IntEnum):
 @dataclass
 class CellInfoDto(PartialCellInfoDto):
     id: str
-    state: CellState
 
     def __eq__(self, other_cell):
         return (
@@ -31,6 +36,16 @@ class CellInfoDto(PartialCellInfoDto):
 
     def __hash__(self):
         return hash(self.rowIndex, self.columnIndex, self.id)
+
+    def clone(self):
+        return CellInfoDto(
+            owner=self.owner,
+            isMaster=self.isMaster,
+            rowIndex=self.rowIndex,
+            columnIndex=self.columnIndex,
+            state=self.state,
+            id=self.id,
+        )
 
     def set_idle(self):
         self.owner = CellOwner.NONE
@@ -75,3 +90,18 @@ class CellInfoDto(PartialCellInfoDto):
 
     def is_hostile_to(self, other_cell: "CellInfoDto"):
         return other_cell.owner != CellOwner.NONE and other_cell.owner != self.owner
+
+    def clear_state(self):
+        self.state = CellState.NONE
+
+    def set_selected(self):
+        self.state = CellState.SELECTED
+
+    def set_can_be_moved_into(self):
+        self.state = CellState.CAN_BE_MOVED_INTO
+
+    def set_can_be_spawned_into(self):
+        self.state = CellState.CAN_BE_SPAWNED_INTO
+
+    def set_can_be_attacked(self):
+        self.state = CellState.CAN_BE_ATTACKED
