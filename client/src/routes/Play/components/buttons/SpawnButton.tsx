@@ -6,7 +6,6 @@ import { Events } from "../../../../enums/events";
 import { socket } from "../../../../env";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { PlayerMode } from "../../../../enums/playerMode";
-import { developmentLog } from "../../../../utils/loggingUtils";
 
 export default function SpawnButton() {
     const buttonKey = "s";
@@ -20,13 +19,6 @@ export default function SpawnButton() {
         socket.emit(Events.CLIENT_SPAWN_BUTTON);
     }
 
-    function handleKeyPress(event: KeyboardEvent) {
-        if (event.key === buttonKey)
-            onClick();
-        else if (event.key === "Escape" && playerMode === PlayerMode.CELL_SPAWN)
-            onClick();
-    }
-
     useEffect(() => {
         if (playerMode === PlayerMode.CELL_SPAWN) {
             setText(`Cancel (${buttonKey})`);
@@ -36,12 +28,19 @@ export default function SpawnButton() {
     }, [playerMode]);
 
     useEffect(() => {
+        function handleKeyPress(event: KeyboardEvent) {
+            if (event.key === buttonKey)
+                onClick();
+            else if (event.key === "Escape" && playerMode === PlayerMode.CELL_SPAWN)
+                onClick();
+        }
+
         window.addEventListener('keydown', handleKeyPress);
 
         return () => {
             window.removeEventListener('keydown', handleKeyPress);
         };
-    }, []);
+    }, [playerMode]);
 
     return (
         <button id="spawn-button" disabled={!canInteract} onClick={onClick}>
