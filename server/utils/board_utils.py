@@ -96,8 +96,10 @@ def spawn_cell(
     cell = board[row_index][col_index]
     if player1:
         cell.set_owned_by_player1()
+        cell.set_freshly_spawned()
     else:
         cell.set_owned_by_player2()
+        cell.set_freshly_spawned()
 
 
 def trigger_cell_attack(

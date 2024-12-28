@@ -396,6 +396,14 @@ class MatchActionsService(ServiceBase):
 
     @_initialize_transient_board
     def _get_possible_movements_and_attacks(self, player1: bool):
+        """
+        Returns the concatenated possible movements and attacks a cell may perform.
+
+        Note : A freshly spawned cell cannot move or attack.
+        """
+        if self._selected_cell.is_freshly_spawned():
+            return []
+
         movements: list[MatchActionDto] = []
         attacks: list[MatchActionDto] = []
 

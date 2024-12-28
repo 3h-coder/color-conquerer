@@ -5,15 +5,16 @@ from dto.partial_cell_info_dto import PartialCellInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 
 
-# The following states are temporary and are meant to be
-# sent to the player whose turn it is to inform him of the
+# The following states marked with a "# T" comment are temporary and
+# meant to be sent to the player whose turn it is to inform him of the
 # possible actions he can take.
 class CellState(IntEnum):
     NONE = 0
-    SELECTED = 1
-    CAN_BE_MOVED_INTO = 2
-    CAN_BE_SPAWNED_INTO = 3
-    CAN_BE_ATTACKED = 4
+    SELECTED = 1  # T
+    CAN_BE_MOVED_INTO = 2  # T
+    CAN_BE_SPAWNED_INTO = 3  # T
+    CAN_BE_ATTACKED = 4  # T
+    FRESHLY_SPAWNED = 5
 
 
 class CellOwner(IntEnum):
@@ -48,6 +49,7 @@ class CellInfoDto(PartialCellInfoDto):
         )
 
     def set_idle(self):
+        self.state = CellState.NONE
         self.owner = CellOwner.NONE
         self.id = None
         self.isMaster = False
@@ -91,6 +93,9 @@ class CellInfoDto(PartialCellInfoDto):
     def is_hostile_to(self, other_cell: "CellInfoDto"):
         return other_cell.owner != CellOwner.NONE and other_cell.owner != self.owner
 
+    def is_freshly_spawned(self):
+        return self.state == CellState.FRESHLY_SPAWNED
+
     def clear_state(self):
         self.state = CellState.NONE
 
@@ -105,3 +110,6 @@ class CellInfoDto(PartialCellInfoDto):
 
     def set_can_be_attacked(self):
         self.state = CellState.CAN_BE_ATTACKED
+
+    def set_freshly_spawned(self):
+        self.state = CellState.FRESHLY_SPAWNED

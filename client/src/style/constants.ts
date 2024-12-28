@@ -5,7 +5,9 @@ export const colors = {
         ownMaster: "blue",
         own: "rgb(79, 139, 242, 1)", // lighter blue
         opponent: "rgb(247, 111, 111, 1)", // lighter red
-        ownCellActionPossible: "rgb(176, 199, 248, 1)"
+        ownCellActionPossible: "rgb(176, 199, 248, 1)", // slightly lighter blue
+        ownCellFreshlySpawned: "rgb(144, 183, 249, 1)", // even lighter blue
+        opponentCellFreshlySpawned: "rgb(249, 152, 152, 1)", // even lighter red
     },
 }
 
@@ -14,7 +16,7 @@ export const cellStyle = {
     selectableClassName: "selectable",
     selectedClassName: "selected",
     hoveredClassName: "hovered",
-    possibleMoveClassName: "cell-possible-move"
+    absPositionClassName: "absolute-positioning-centered"
 }
 
 export const animations = {

@@ -5,6 +5,7 @@ import { socket } from "../../../env";
 import { cellStyle } from "../../../style/constants";
 import { getCellStyle as getCellStyle, isSelectable } from "../../../utils/cellUtils";
 import { CellState } from "../../../enums/cellState";
+import { SwordIcon } from "../../../assets/svg";
 
 interface GameCellProps {
     id: string;
@@ -17,6 +18,7 @@ export default function GameCell(props: GameCellProps) {
     const { id, isPlayer1, cellInfo, canInteract } = props;
     const selectable = canInteract && isSelectable(cellInfo);
     const selected = cellInfo.state === CellState.SELECTED;
+    const attackable = cellInfo.state === CellState.CAN_BE_ATTACKED;
 
     // If the cell was previously hovered and is being re-rendered
     // send a HOVER_END event to the server to clear the hover effect 
@@ -59,10 +61,22 @@ export default function GameCell(props: GameCellProps) {
             {/* Uncomment the line below to see each cell's row and column index */}
             {/* <span style={{ position: "absolute", fontSize: "px", color: "black" }}>{`[${rowIndex}, ${columnIndex}]`}</span> */}
             {selected && <SelectedIndicator />}
+            {attackable && <AttackableIndicator isPlayer1={isPlayer1} />}
         </div>
     );
 }
 
 function SelectedIndicator() {
-    return <div className="selected-indicator" />;
+    return <div className={`selected-indicator ${cellStyle.absPositionClassName}`} />;
+}
+
+
+function AttackableIndicator({ isPlayer1 }: { isPlayer1: boolean }) {
+    const rotateStyle = isPlayer1 ? "rotate(180deg)" : undefined;
+
+    return (
+        <div className={`attackable-indicator ${cellStyle.absPositionClassName}`}>
+            <SwordIcon style={{ transform: rotateStyle }} />
+        </div>
+    );
 }
