@@ -4,6 +4,7 @@ import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
 import { cellStyle } from "../../../style/constants";
 import { getCellStyle as getCellStyle, isSelectable } from "../../../utils/cellUtils";
+import { CellState } from "../../../enums/cellState";
 
 interface GameCellProps {
     id: string;
@@ -15,6 +16,7 @@ interface GameCellProps {
 export default function GameCell(props: GameCellProps) {
     const { id, isPlayer1, cellInfo, canInteract } = props;
     const selectable = canInteract && isSelectable(cellInfo);
+    const selected = cellInfo.state === CellState.SELECTED;
 
     // If the cell was previously hovered and is being re-rendered
     // send a HOVER_END event to the server to clear the hover effect 
@@ -56,6 +58,11 @@ export default function GameCell(props: GameCellProps) {
         >
             {/* Uncomment the line below to see each cell's row and column index */}
             {/* <span style={{ position: "absolute", fontSize: "px", color: "black" }}>{`[${rowIndex}, ${columnIndex}]`}</span> */}
+            {selected && <SelectedIndicator />}
         </div>
     );
+}
+
+function SelectedIndicator() {
+    return <div className="selected-indicator" />;
 }

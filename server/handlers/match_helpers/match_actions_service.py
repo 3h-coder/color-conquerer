@@ -1,4 +1,5 @@
 from enum import IntEnum, StrEnum
+import functools
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
@@ -19,6 +20,7 @@ from handlers.match_helpers.client_notifications import (
 )
 from handlers.match_helpers.service_base import ServiceBase
 from utils.board_utils import (
+    copy_board,
     to_client_board_dto,
 )
 
@@ -93,12 +95,24 @@ class MatchActionsService(ServiceBase):
         self._processed_action: MatchActionDto = None
         self._player_mode = PlayerMode.IDLE
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
+        # Board copy to save and send to the client the states resulting from
+        # the possible actions.
+        self._transient_board_array: list[list[CellInfoDto]] = None
         # Applicable when the player mode is OWN_CELL_SELECTED
         self._selected_cell: CellInfoDto = None
         # Message to the player when their request is invalid
         self._error_msg: str = ""
 
         # endregion
+
+    def _initialize_transient_board(func):
+        @functools.wraps(func)
+        def wrapper(self: "MatchActionsService", *args, **kwargs):
+            if self._transient_board_array is None:
+                self._transient_board_array = copy_board(self._board_array)
+            return func(self, *args, **kwargs)
+
+        return wrapper
 
     def reset_for_new_turn(self):
         """
@@ -255,12 +269,9 @@ class MatchActionsService(ServiceBase):
             return
 
         if self._server_mode == ServerMode.SHOW_POSSIBLE_ACTIONS:
-            self._logger.debug(
-                f"Sending to the client the possible actions : {self._possible_actions}"
-            )
             transient_board_array = (
-                to_client_board_dto(self._action_calculator.transient_board_array)
-                if self._action_calculator.transient_board_array
+                to_client_board_dto(self._transient_board_array)
+                if self._transient_board_array
                 else to_client_board_dto(self._board_array)
             )
             notify_possible_actions(
@@ -270,9 +281,6 @@ class MatchActionsService(ServiceBase):
                 )
             )
         elif self._server_mode == ServerMode.SHOW_PROCESSED_ACTIONS:
-            self._logger.debug(
-                f"Sending to the client the processed actions: {self._processed_action}"
-            )
             notify_processed_actions(
                 ProcessedActionDto(
                     PartialMatchActionDto.from_match_action_dto(self._processed_action),
@@ -294,7 +302,7 @@ class MatchActionsService(ServiceBase):
         self._processed_action = None
         self._selected_cell = None
         self._error_msg = ""
-        self._action_calculator.transient_board_array = None
+        self._transient_board_array = None
 
     def _set_possible_actions(self, actions: set[MatchActionDto]):
         """
@@ -354,12 +362,15 @@ class MatchActionsService(ServiceBase):
         elif action.type == ActionType.CELL_ATTACK:
             self._turn_attacks.add(cell_id)
 
+    @_initialize_transient_board
     def _set_selected_cell(self, cell: CellInfoDto):
         """
         Sets the player mode and selected cell fields accordingly.
         """
         self._player_mode = PlayerMode.OWN_CELL_SELECTED
         self._selected_cell = cell
+        transient_cell = self._transient_board_array[cell.rowIndex][cell.columnIndex]
+        transient_cell.set_selected()
 
     def _selected_cell_has_already_moved_this_turn(self):
         return (
@@ -373,25 +384,29 @@ class MatchActionsService(ServiceBase):
             and self._selected_cell.id in self._turn_attacks
         )
 
+    @_initialize_transient_board
     def _find_possible_spawns(self):
         self._player_mode = PlayerMode.CELL_SPAWN
         player = self._current_player
         self._set_possible_actions(
-            self._action_calculator.calculate_possible_spawns(player.isPlayer1)
+            self._action_calculator.calculate_possible_spawns(
+                player.isPlayer1, self._transient_board_array
+            )
         )
 
+    @_initialize_transient_board
     def _get_possible_movements_and_attacks(self, player1: bool):
         movements: list[MatchActionDto] = []
         attacks: list[MatchActionDto] = []
 
         if not self._selected_cell_has_already_moved_this_turn():
             movements = self._action_calculator.calculate_possible_movements(
-                self._selected_cell, player1
+                self._selected_cell, player1, self._transient_board_array
             )
 
         if not self._selected_cell_has_already_attacked_this_turn():
             attacks = self._action_calculator.calculate_possible_attacks(
-                self._selected_cell, player1
+                self._selected_cell, player1, self._transient_board_array
             )
 
         return movements + attacks

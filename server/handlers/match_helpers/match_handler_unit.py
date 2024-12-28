@@ -23,7 +23,7 @@ from handlers.match_helpers.player_entry_watcher_service import (
 from handlers.match_helpers.player_exit_watcher_service import PlayerExitWatcherService
 from handlers.match_helpers.turn_watcher_service import TurnWatcherService
 from server_gate import get_server
-from utils.board_utils import create_starting_board
+from utils.board_utils import create_starting_board, to_client_board_dto
 from utils.id_generation_utils import generate_id
 
 
@@ -199,6 +199,7 @@ class MatchHandlerUnit:
             totalTurnDurationInS=TURN_DURATION_IN_S,
             notifyTurnChange=for_new_turn,
             playerGameInfoBundle=self.match_info.get_player_info_bundle(),
+            updatedBoardArray=to_client_board_dto(self.match_info.boardArray),
         )
 
     def handle_cell_selection(self, cell_row: int, cell_col: int):

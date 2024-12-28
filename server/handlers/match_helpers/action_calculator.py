@@ -24,21 +24,12 @@ class ActionCalculator:
         self._match_info = match_info
         self._board_array = match_info.boardArray
 
-        # Board copy to save and send to the client the states resulting from
-        # the possible actions.
-        self.transient_board_array: list[list[CellInfoDto]] = None
-
-    def _initialize_transient_board(func):
-        @functools.wraps(func)
-        def wrapper(self: "ActionCalculator", *args, **kwargs):
-            if self.transient_board_array is None:
-                self.transient_board_array = copy_board(self._board_array)
-            return func(self, *args, **kwargs)
-
-        return wrapper
-
-    @_initialize_transient_board
-    def calculate_possible_movements(self, cell: CellInfoDto, player1: bool):
+    def calculate_possible_movements(
+        self,
+        cell: CellInfoDto,
+        player1: bool,
+        transient_board_array: list[list[CellInfoDto]],
+    ):
         """
         Returns the list of movements that an owned cell can perform.
         """
@@ -56,9 +47,7 @@ class ActionCalculator:
             ):
                 continue
 
-            transient_board_cell = self.transient_board_array[new_row_index][
-                new_col_index
-            ]
+            transient_board_cell = transient_board_array[new_row_index][new_col_index]
             transient_board_cell.set_can_be_moved_into()
 
             movements.append(
@@ -74,8 +63,12 @@ class ActionCalculator:
 
         return movements
 
-    @_initialize_transient_board
-    def calculate_possible_attacks(self, cell: CellInfoDto, player1: bool):
+    def calculate_possible_attacks(
+        self,
+        cell: CellInfoDto,
+        player1: bool,
+        transient_board_array: list[list[CellInfoDto]],
+    ):
         """
         Returns the list of attacks that an owned cell can perform.
         """
@@ -89,7 +82,7 @@ class ActionCalculator:
             if not cell.is_hostile_to(neighbour):
                 continue
 
-            transient_board_cell = self.transient_board_array[neighbour.rowIndex][
+            transient_board_cell = transient_board_array[neighbour.rowIndex][
                 neighbour.columnIndex
             ]
             transient_board_cell.set_can_be_attacked()
@@ -106,8 +99,9 @@ class ActionCalculator:
             )
         return attacks
 
-    @_initialize_transient_board
-    def calculate_possible_spawns(self, player1: bool):
+    def calculate_possible_spawns(
+        self, player1: bool, transient_board_array: list[list[CellInfoDto]]
+    ):
         """
         Returns a set of spawns that a player can perform.
         """
@@ -123,7 +117,7 @@ class ActionCalculator:
                 if neighbour.is_owned():
                     continue
 
-                transient_board_cell = self.transient_board_array[neighbour.rowIndex][
+                transient_board_cell = transient_board_array[neighbour.rowIndex][
                     neighbour.columnIndex
                 ]
                 transient_board_cell.set_can_be_spawned_into()

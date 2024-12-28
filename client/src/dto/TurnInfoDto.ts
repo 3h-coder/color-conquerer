@@ -1,3 +1,4 @@
+import { PartialCellInfoDto } from "./PartialCellInfoDto";
 import { PlayerGameInfoBundleDto, undefinedPlayerInfoBundleDto } from "./PlayerInfoBundleDto";
 
 export interface TurnInfoDto {
@@ -7,6 +8,7 @@ export interface TurnInfoDto {
     totalTurnDurationInS: number;
     notifyTurnChange: boolean;
     playerGameInfoBundle: PlayerGameInfoBundleDto;
+    updatedBoardArray: PartialCellInfoDto[][];
 }
 
 export const undefinedTurnInfo: TurnInfoDto = {
@@ -15,5 +17,6 @@ export const undefinedTurnInfo: TurnInfoDto = {
     durationInS: 0,
     totalTurnDurationInS: 0,
     notifyTurnChange: false,
-    playerGameInfoBundle: undefinedPlayerInfoBundleDto
+    playerGameInfoBundle: undefinedPlayerInfoBundleDto,
+    updatedBoardArray: []
 };

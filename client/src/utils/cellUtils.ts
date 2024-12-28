@@ -10,14 +10,18 @@ export function isOwned(cell: PartialCellInfoDto) {
 export function getCellStyle(cell: PartialCellInfoDto, isPlayer1: boolean) {
     const style: React.CSSProperties = {};
 
-    if (cell.state === CellState.CAN_BE_MOVED_INTO || cell.state === CellState.CAN_BE_SPAWNED_INTO) {
-        style.backgroundColor = colors.cell.ownCellActionPossible;
-        style.animation = "half-fade-in 1s infinite alternate-reverse";
-    } 
+    switch (cell.state) {
 
-    else {
-        style.backgroundColor = getCellColor(cell, isPlayer1);
-        style.animation = EMPTY_STRING;
+        case CellState.CAN_BE_MOVED_INTO:
+        case CellState.CAN_BE_SPAWNED_INTO:
+            style.backgroundColor = colors.cell.ownCellActionPossible;
+            style.animation = "half-fade-in 1s infinite alternate-reverse";
+            break;
+
+        default:
+            style.backgroundColor = getCellColor(cell, isPlayer1);
+            style.animation = undefined;
+            break;
     }
 
     return style;

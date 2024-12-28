@@ -12,13 +12,9 @@ import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
 import { Events } from "../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../env";
 import {
-    clearBoardColoring,
-} from "../../../utils/boardUtils";
-import {
     colorHoveredCell,
     decolorHoveredCell,
     getCellId,
-    isOwned,
 } from "../../../utils/cellUtils";
 import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
@@ -48,7 +44,7 @@ export default function GameGrid() {
         handleTurnChange();
 
         function handleTurnChange() {
-            clearBoardColoring(boardArray, (cell) => isOwned(cell));
+            setBoardArray(turnInfo.updatedBoardArray);
             setPlayerGameInfoBundle(turnInfo.playerGameInfoBundle);
             setActionErrorMessage(EMPTY_STRING);
 

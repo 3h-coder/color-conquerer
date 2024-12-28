@@ -187,9 +187,21 @@
     border: 0.1rem solid red;
 }
 
-.cell-possible-move {
-    background-color: rgb(176, 199, 248, 1);
-    animation: half-fade-in 1s infinite alternate-reverse;
+.selected-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    background-color: transparent;
+    border: 0.1rem solid blue;
+    box-sizing: border-box;
+    animation: pulse-up-fade 1s infinite;
+    transition: all 0.2s ease-in-out;
+    z-index: 1;
+
+    /* Centering */
+    transform: translate(-50%, -50%);
 }
 
 /* #endregion */
