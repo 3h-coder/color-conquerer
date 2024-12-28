@@ -1,9 +1,8 @@
 import { createContext, useContext, useState } from "react";
-
-const noError = "";
+import { EMPTY_STRING } from "../env";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const HomeErrorContext = createContext({ error: noError, setHomeError: (_error: string) => { } })
+const HomeErrorContext = createContext({ error: EMPTY_STRING, setHomeError: (_error: string) => { } })
 
 interface HomeErrorContextProps {
     children?: React.ReactNode;
@@ -12,7 +11,7 @@ interface HomeErrorContextProps {
 export default function HomeErrorContextProvider(props: HomeErrorContextProps) {
     const { children } = props;
 
-    const [error, setHomeError] = useState<string>(noError);
+    const [error, setHomeError] = useState<string>(EMPTY_STRING);
 
     return (
         <HomeErrorContext.Provider value={{ error, setHomeError }}>

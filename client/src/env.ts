@@ -14,5 +14,7 @@ export const socket = io(API_URL, {
 export const constants = {
   localStorageKeys: {
     homeError: "homeError",
-  },
+  }
 };
+
+export const EMPTY_STRING = "";

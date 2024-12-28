@@ -10,7 +10,7 @@ import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
 import { ProcessedActionDto } from "../../../dto/ProcessedActionDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
 import { Events } from "../../../enums/events";
-import { socket } from "../../../env";
+import { EMPTY_STRING, socket } from "../../../env";
 import {
     clearBoardColoring,
 } from "../../../utils/boardUtils";
@@ -38,7 +38,7 @@ export default function GameGrid() {
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
     const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
-    const [actionErrorMessage, setActionErrorMessage] = useState("");
+    const [actionErrorMessage, setActionErrorMessage] = useState(EMPTY_STRING);
 
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
 
@@ -50,7 +50,7 @@ export default function GameGrid() {
         function handleTurnChange() {
             clearBoardColoring(boardArray, (cell) => isOwned(cell));
             setPlayerGameInfoBundle(turnInfo.playerGameInfoBundle);
-            setActionErrorMessage("");
+            setActionErrorMessage(EMPTY_STRING);
 
             if (turnInfo === undefinedTurnInfo) return;
             setIsMyTurn(turnInfo.currentPlayerId === playerId);
@@ -99,7 +99,7 @@ export default function GameGrid() {
                 return;
 
             const timeout = setTimeout(() => {
-                setActionErrorMessage("");
+                setActionErrorMessage(EMPTY_STRING);
             }, 1400);
 
             return () => clearTimeout(timeout);

@@ -12,7 +12,7 @@ import { MessageDto } from "../../dto/MessageDto";
 import { TurnInfoDto } from "../../dto/TurnInfoDto";
 import { Events } from "../../enums/events";
 import { ModalIcon } from "../../enums/modalIcons";
-import { constants, socket } from "../../env";
+import { constants, EMPTY_STRING, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
 import GameGrid from "./components/GameGrid";
 import GameTopInfo from "./components/GameTopInfo";
@@ -39,10 +39,10 @@ export default function PlayContent() {
   const { setPlayerMode } = usePlayerMode();
 
 
-  const [waitingText, setWaitingText] = useState("");
+  const [waitingText, setWaitingText] = useState(EMPTY_STRING);
   const [canRenderContent, setCanRenderContent] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalText, setModalText] = useState("");
+  const [modalText, setModalText] = useState(EMPTY_STRING);
   const [modalIcon, setModalIcon] = useState(ModalIcon.None);
   const [modalExit, setModalExit] = useState<() => unknown>(() => {
     return () => setModalVisible(false);

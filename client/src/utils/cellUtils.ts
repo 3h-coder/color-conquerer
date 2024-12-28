@@ -1,5 +1,6 @@
 import { PartialCellInfoDto } from "../dto/PartialCellInfoDto";
 import { CellState } from "../enums/cellState";
+import { EMPTY_STRING } from "../env";
 import { cellStyle, colors } from "../style/constants";
 
 export function isOwned(cell: PartialCellInfoDto) {
@@ -16,7 +17,7 @@ export function getCellStyle(cell: PartialCellInfoDto, isPlayer1: boolean) {
 
     else {
         style.backgroundColor = getCellColor(cell, isPlayer1);
-        style.animation = "";
+        style.animation = EMPTY_STRING;
     }
 
     return style;
@@ -32,7 +33,7 @@ export function clearCellColor(rowIndex: number, colIndex: number) {
 
 function clearHTMLCellStyle(htmlCell: HTMLElement) {
     htmlCell.style.backgroundColor = colors.cell.idle;
-    htmlCell.style.animation = "";
+    htmlCell.style.animation = EMPTY_STRING;
     htmlCell.classList.remove(cellStyle.hoveredClassName);
 }
 

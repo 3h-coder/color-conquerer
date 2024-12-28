@@ -8,7 +8,7 @@ import { ErrorDto } from "../../../dto/ErrorDto";
 import { QueuePlayerDto } from "../../../dto/QueuePlayerDto";
 import { Events } from "../../../enums/events";
 import { HomeState } from "../../../enums/homeState";
-import { socket } from "../../../env";
+import { EMPTY_STRING, socket } from "../../../env";
 import {
     developmentErrorLog,
     developmentLog,
@@ -25,7 +25,7 @@ export default function PlayButton() {
     const [mainButtonFunction, setMainButtonFunction] = useState<() => void>(
         () => { }
     );
-    const [mainButtonText, setMainButtonText] = useState("");
+    const [mainButtonText, setMainButtonText] = useState(EMPTY_STRING);
     const [modalVisible, setModalVisible] = useState(false);
     const intendedDisconnection = useRef(false);
 

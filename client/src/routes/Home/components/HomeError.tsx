@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { XMarkIcon } from "../../../assets/svg";
 import { SvgContainer } from "../../../components/containers";
 import { useHomeError } from "../../../contexts/HomeErrorContext";
-import { constants } from "../../../env";
+import { constants, EMPTY_STRING } from "../../../env";
 import { extractKey } from "../../../utils/localStorageUtils";
 
 export default function HomeError() {
@@ -20,7 +20,7 @@ export default function HomeError() {
 
     function onClose() {
         setDisplay(false);
-        setHomeError("");
+        setHomeError(EMPTY_STRING);
     }
 
     const crossButtonDimensions = "max(15px, 2.4vmin)";
