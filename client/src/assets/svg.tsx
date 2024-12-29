@@ -91,7 +91,6 @@ export function SwordIcon(props: SvgProps) {
                         20.0597 3.20676 20.0214Z">
                 </path>
             </g>
-
         </svg>
-    )
+    );
 }

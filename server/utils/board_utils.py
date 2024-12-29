@@ -1,5 +1,10 @@
 from dto.partial_cell_info_dto import PartialCellInfoDto
-from dto.server_only.cell_info_dto import CellInfoDto, CellOwner, CellState
+from dto.server_only.cell_info_dto import (
+    CellInfoDto,
+    CellOwner,
+    CellState,
+    CellTransientState,
+)
 
 from typing import TYPE_CHECKING
 
@@ -16,6 +21,7 @@ def create_starting_board(board_size: int):
                 rowIndex=i,
                 columnIndex=j,
                 state=CellState.NONE,
+                transientState=CellTransientState.NONE,
                 id=None,
             )
             for j in range(board_size)

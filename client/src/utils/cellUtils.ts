@@ -1,5 +1,5 @@
 import { PartialCellInfoDto } from "../dto/PartialCellInfoDto";
-import { CellState } from "../enums/cellState";
+import { CellState, CellTransientState } from "../enums/cellStates";
 import { EMPTY_STRING } from "../env";
 import { cellStyle, colors } from "../style/constants";
 
@@ -10,22 +10,22 @@ export function isOwned(cell: PartialCellInfoDto) {
 export function getCellStyle(cell: PartialCellInfoDto, isPlayer1: boolean) {
   const style: React.CSSProperties = {};
 
-  switch (cell.state) {
-    case CellState.FRESHLY_SPAWNED:
-      style.backgroundColor = getFreshlySpawnedCellColor(cell, isPlayer1);
-      style.animation = undefined;
-      break;
+  if (
+    cell.transientState === CellTransientState.CAN_BE_MOVED_INTO ||
+    cell.transientState === CellTransientState.CAN_BE_SPAWNED_INTO
+  ) {
 
-    case CellState.CAN_BE_MOVED_INTO:
-    case CellState.CAN_BE_SPAWNED_INTO:
-      style.backgroundColor = colors.cell.ownCellActionPossible;
-      style.animation = "half-fade-in 1s infinite alternate-reverse";
-      break;
+    style.backgroundColor = colors.cell.ownCellActionPossible;
+    style.animation = "half-fade-in 1s infinite alternate-reverse";
 
-    default:
-      style.backgroundColor = getCellColor(cell, isPlayer1);
-      style.animation = undefined;
-      break;
+  } else if (cell.state === CellState.FRESHLY_SPAWNED ) {
+
+    style.backgroundColor = getFreshlySpawnedCellColor(cell, isPlayer1);
+    style.animation = undefined;
+
+  } else {
+    style.backgroundColor = getCellColor(cell, isPlayer1);
+    style.animation = undefined;
   }
 
   return style;
@@ -97,7 +97,7 @@ function getHtmlCell(rowIndex: number, columnIndex: number) {
 }
 
 export function isSelectable(cell: PartialCellInfoDto) {
-  return cell.owner !== 0 || cell.state !== CellState.NONE;
+  return cell.owner !== 0 || cell.transientState !== CellTransientState.NONE;
 }
 
 export function getCellId(rowIndex: number, colIndex: number) {

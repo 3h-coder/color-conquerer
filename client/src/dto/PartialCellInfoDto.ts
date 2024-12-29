@@ -1,4 +1,4 @@
-import { CellState } from "../enums/cellState";
+import { CellState, CellTransientState } from "../enums/cellStates";
 
 export interface PartialCellInfoDto {
     owner: number;
@@ -6,4 +6,5 @@ export interface PartialCellInfoDto {
     rowIndex: number;
     columnIndex: number;
     state: CellState;
+    transientState: CellTransientState;
 }

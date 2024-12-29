@@ -5,16 +5,20 @@ from dto.partial_cell_info_dto import PartialCellInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 
 
-# The following states marked with a "# T" comment are temporary and
-# meant to be sent to the player whose turn it is to inform him of the
+# The following states are temporary and meant to be sent to
+# the player whose turn it is to inform him of the
 # possible actions he can take.
+class CellTransientState(IntEnum):
+    NONE = 0
+    SELECTED = 1
+    CAN_BE_MOVED_INTO = 2
+    CAN_BE_SPAWNED_INTO = 3
+    CAN_BE_ATTACKED = 4
+
+
 class CellState(IntEnum):
     NONE = 0
-    SELECTED = 1  # T
-    CAN_BE_MOVED_INTO = 2  # T
-    CAN_BE_SPAWNED_INTO = 3  # T
-    CAN_BE_ATTACKED = 4  # T
-    FRESHLY_SPAWNED = 5
+    FRESHLY_SPAWNED = 1
 
 
 class CellOwner(IntEnum):
@@ -45,14 +49,16 @@ class CellInfoDto(PartialCellInfoDto):
             rowIndex=self.rowIndex,
             columnIndex=self.columnIndex,
             state=self.state,
+            transientState=self.transientState,
             id=self.id,
         )
 
     def set_idle(self):
-        self.state = CellState.NONE
         self.owner = CellOwner.NONE
         self.id = None
         self.isMaster = False
+        self.state = CellState.NONE
+        self.transientState = CellTransientState.NONE
 
     def set_owned_by_player1(self, id: str = None):
         if self.owner == CellOwner.PLAYER_1:
@@ -100,16 +106,16 @@ class CellInfoDto(PartialCellInfoDto):
         self.state = CellState.NONE
 
     def set_selected(self):
-        self.state = CellState.SELECTED
+        self.transientState = CellTransientState.SELECTED
 
     def set_can_be_moved_into(self):
-        self.state = CellState.CAN_BE_MOVED_INTO
+        self.transientState = CellTransientState.CAN_BE_MOVED_INTO
 
     def set_can_be_spawned_into(self):
-        self.state = CellState.CAN_BE_SPAWNED_INTO
+        self.transientState = CellTransientState.CAN_BE_SPAWNED_INTO
 
     def set_can_be_attacked(self):
-        self.state = CellState.CAN_BE_ATTACKED
+        self.transientState = CellTransientState.CAN_BE_ATTACKED
 
     def set_freshly_spawned(self):
         self.state = CellState.FRESHLY_SPAWNED

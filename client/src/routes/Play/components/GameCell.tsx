@@ -4,7 +4,7 @@ import { Events } from "../../../enums/events";
 import { socket } from "../../../env";
 import { cellStyle } from "../../../style/constants";
 import { getCellStyle as getCellStyle, isSelectable } from "../../../utils/cellUtils";
-import { CellState } from "../../../enums/cellState";
+import { CellTransientState } from "../../../enums/cellStates";
 import { SwordIcon } from "../../../assets/svg";
 
 interface GameCellProps {
@@ -17,8 +17,9 @@ interface GameCellProps {
 export default function GameCell(props: GameCellProps) {
     const { id, isPlayer1, cellInfo, canInteract } = props;
     const selectable = canInteract && isSelectable(cellInfo);
-    const selected = cellInfo.state === CellState.SELECTED;
-    const attackable = cellInfo.state === CellState.CAN_BE_ATTACKED;
+
+    const selected = cellInfo.transientState === CellTransientState.SELECTED;
+    const attackable = cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
 
     // If the cell was previously hovered and is being re-rendered
     // send a HOVER_END event to the server to clear the hover effect 
