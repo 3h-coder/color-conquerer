@@ -36,8 +36,23 @@ class ActionCalculator:
         row_index, column_index = cell.rowIndex, cell.columnIndex
 
         movements: list[MatchActionDto] = []
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # down, up, left, right
-        for direction in directions:
+        basic_directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # down, up, left, right
+        extra_master_direction = [
+            (-1, -1),  # bottom-left
+            (-1, 1),  # bottom-right
+            (1, -1),  # top-left
+            (1, 1),  # top-right
+            (-2, 0),  # far-down
+            (2, 0),  # far-up
+            (0, -2),  # far-left
+            (0, 2),  # far-right
+        ]
+        all_directions = (
+            basic_directions
+            if not cell.isMaster
+            else basic_directions + extra_master_direction
+        )
+        for direction in all_directions:
             new_row_index = row_index + direction[0]
             new_col_index = column_index + direction[1]
             if (

@@ -91,12 +91,13 @@ class MatchActionsService(ServiceBase):
 
         # Used to confirm whether an action can be done or not
         self._possible_actions: set[MatchActionDto] = set()
-        # Actions that have been validated and applied, overridden each time a set of action is processed
+        # Actions that have been validated and applied,
+        # overridden each time a set of action is processed
         self._processed_action: MatchActionDto = None
         self._player_mode = PlayerMode.IDLE
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
-        # Board copy to save and send to the client the states resulting from
-        # the possible actions.
+        # Board copy to save and send to the client the transient states
+        # resulting from the possible actions.
         self._transient_board_array: list[list[CellInfoDto]] = None
         # Applicable when the player mode is OWN_CELL_SELECTED
         self._selected_cell: CellInfoDto = None
@@ -106,6 +107,12 @@ class MatchActionsService(ServiceBase):
         # endregion
 
     def _initialize_transient_board(func):
+        """
+        Decorator method that ensures the transient board is properly initialized.
+
+        To be wrapped around any method that uses the transient board.
+        """
+
         @functools.wraps(func)
         def wrapper(self: "MatchActionsService", *args, **kwargs):
             if self._transient_board_array is None:
@@ -295,14 +302,16 @@ class MatchActionsService(ServiceBase):
         Resets all the temporary fields used to store the state of the current player's action.
 
         This is an effective reset of a player's action state.
+
+        Note : This will also reset any error message.
         """
         self._player_mode = PlayerMode.IDLE
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         self._possible_actions = set()
         self._processed_action = None
+        self._transient_board_array = None
         self._selected_cell = None
         self._error_msg = ""
-        self._transient_board_array = None
 
     def _set_possible_actions(self, actions: set[MatchActionDto]):
         """

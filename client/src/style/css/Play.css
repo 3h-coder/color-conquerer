@@ -214,6 +214,16 @@
     animation: half-fade-in 1s infinite alternate-reverse;
 }
 
+.cell-clash-indicator {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    z-index: 1;
+
+    animation: shadow-explosion 0.8s;
+}
+
 /* #endregion */
 
 .turn-swap-image-container {

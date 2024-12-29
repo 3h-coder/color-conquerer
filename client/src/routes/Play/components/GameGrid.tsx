@@ -23,6 +23,7 @@ import GameError from "./GameError";
 import { MessageDto } from "../../../dto/MessageDto";
 import { usePlayerMode } from "../../../contexts/PlayerModeContext";
 import { usePlayersGameInfo } from "../../../contexts/PlayersGameInfoContext";
+import { animateProcessedAction } from "../../../utils/boardUtils";
 
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
@@ -129,17 +130,20 @@ export default function GameGrid() {
             setBoardArray(possibleActions.transientBoardArray);
         }
 
-        function onServerProcessedActions(processedActions: ProcessedActionDto) {
-            developmentLog("Received the processed actions", processedActions);
+        function onServerProcessedActions(processedActionDto: ProcessedActionDto) {
+            developmentLog("Received the processed actions", processedActionDto);
 
             // Update the player mode for the dependent components to react to
-            setPlayerMode(processedActions.playerMode);
+            setPlayerMode(processedActionDto.playerMode);
 
             // Update the player info bundle to display the proper HP/MP values
-            setPlayerGameInfoBundle(processedActions.updatedMatchInfo.playerInfoBundle);
+            setPlayerGameInfoBundle(processedActionDto.updatedMatchInfo.playerInfoBundle);
 
             // Update the board array with the new cell info
-            setBoardArray(processedActions.updatedMatchInfo.boardArray);
+            setBoardArray(processedActionDto.updatedMatchInfo.boardArray);
+
+            // Trigger animations
+            animateProcessedAction(processedActionDto.processedAction)
         }
 
         function onServerActionError(errorMessageDto: MessageDto) {

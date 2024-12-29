@@ -18,7 +18,7 @@ export function getCellStyle(cell: PartialCellInfoDto, isPlayer1: boolean) {
     style.backgroundColor = colors.cell.ownCellActionPossible;
     style.animation = "half-fade-in 1s infinite alternate-reverse";
 
-  } else if (cell.state === CellState.FRESHLY_SPAWNED ) {
+  } else if (cell.state === CellState.FRESHLY_SPAWNED) {
 
     style.backgroundColor = getFreshlySpawnedCellColor(cell, isPlayer1);
     style.animation = undefined;
@@ -92,7 +92,7 @@ function removeClassName(
   htmlCell.classList.remove(className);
 }
 
-function getHtmlCell(rowIndex: number, columnIndex: number) {
+export function getHtmlCell(rowIndex: number, columnIndex: number) {
   return document.getElementById(getCellId(rowIndex, columnIndex));
 }
 
