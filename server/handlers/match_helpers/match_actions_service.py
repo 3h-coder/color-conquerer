@@ -351,6 +351,7 @@ class MatchActionsService(ServiceBase):
 
         self._processed_action = processed_action
         self._register_processed_action(processed_action)
+        # TODO : maybe change that ? (spaghetti-ish)
         # Reset the player mode after action processing before notifying the client
         self._player_mode = PlayerMode.IDLE
 

@@ -54,3 +54,6 @@ class MatchInfoDto(PartialMatchInfoDto):
                 room_dto.player2.user, room_dto.player2.playerId, False
             ),
         )
+
+    def player_is_dead(self, player1: bool):
+        return self.get_player_game_info(player1).player_is_dead()

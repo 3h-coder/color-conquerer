@@ -3,20 +3,17 @@ from enum import Enum
 from config.logging import get_configured_logger
 from constants.match_constants import (
     BOARD_SIZE,
-    DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION,
     TURN_DURATION_IN_S,
 )
-from dto.partial_match_closure_dto import PartialMatchClosureDto
-from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
-from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
+from dto.server_only.match_closure_dto import EndingReason
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
 from dto.turn_info_dto import TurnInfoDto
 from handlers.match_helpers.client_notifications import (
-    notify_match_end,
     notify_match_start,
 )
 from handlers.match_helpers.match_actions_service import MatchActionsService
+from handlers.match_helpers.match_termination_service import MatchTerminationService
 from handlers.match_helpers.player_entry_watcher_service import (
     PlayerEntryWatcherService,
 )
@@ -43,7 +40,9 @@ class MatchHandlerUnit:
         # May be used when needed to find a player from its session
         self._session_ids = room_dto.sessionIds
 
-        self._status = MatchStatus.WAITING_TO_START
+        self.status = MatchStatus.WAITING_TO_START
+
+        self._match_termination_service = MatchTerminationService(self)
 
         self._match_actions_service = MatchActionsService(self)
 
@@ -56,20 +55,17 @@ class MatchHandlerUnit:
             self._match_actions_service.reset_for_new_turn
         )
 
-        # Dto which we use to share/save the final match data before disposing the handler unit
-        self.match_closure_info = None
-
     def is_waiting_to_start(self):
-        return self._status == MatchStatus.WAITING_TO_START
+        return self.status == MatchStatus.WAITING_TO_START
 
     def is_ongoing(self):
-        return self._status == MatchStatus.ONGOING
+        return self.status == MatchStatus.ONGOING
 
     def is_ended(self):
-        return self._status == MatchStatus.ENDED
+        return self.status == MatchStatus.ENDED
 
     def is_cancelled(self):
-        return self._status == MatchStatus.ABORTED
+        return self.status == MatchStatus.ABORTED
 
     def watch_player_entry(self):
         """
@@ -97,13 +93,13 @@ class MatchHandlerUnit:
 
         if not self.is_waiting_to_start():
             self.logger.warning(
-                f"Can only start a match that is waiting to start. The match status is {self._status.name}"
+                f"Can only start a match that is waiting to start. The match status is {self.status.name}"
             )
             return
 
         self.logger.info(f"Starting the match in the room {self.match_info.roomId}")
 
-        self._status = MatchStatus.ONGOING
+        self.status = MatchStatus.ONGOING
         self.match_info.currentTurn = 1
         self.match_info.isPlayer1Turn = True
 
@@ -117,19 +113,7 @@ class MatchHandlerUnit:
         )
 
     def cancel(self):
-        self.logger.info(
-            f"Match cancellation requested for the match in the room {self.match_info.roomId}"
-        )
-
-        if not self.is_waiting_to_start():
-            self.logger.warning(
-                f"Can only cancel a match that is waiting to start. The match status is {self._status.name}"
-            )
-            return
-
-        # TODO: call a match cleanup service/helper/handler
-        self._status = MatchStatus.ABORTED
-        self._schedule_garbage_collection()
+        self._match_termination_service.cancel_match()
 
     def end(
         self,
@@ -143,51 +127,7 @@ class MatchHandlerUnit:
 
         Additionally, notifies all players and schedules this match handler unit's garbage collection.
         """
-        # TODO: call a match cleanup service/helper/handler
-        self.logger.info(
-            f"Received termination request for the match in the room {self.match_info.roomId}"
-        )
-
-        if not self.is_ongoing():
-            self.logger.warning(
-                f"Can only end a match that is ongoing. The match status is {self._status.name}"
-            )
-            return
-
-        if winner_id is None and loser_id is None and reason != EndingReason.DRAW:
-            raise ValueError("No winner id nor loser id provided")
-
-        player1 = self.match_info.player1
-        player2 = self.match_info.player2
-        winner = None
-        loser = None
-
-        if winner_id is not None:
-            winner = self.get_player(winner_id)
-            loser = player1 if winner == player2 else player2
-        else:
-            loser = self.get_player(loser_id)
-            winner = player1 if loser == player2 else player2
-
-        # Update match status
-        self._status = MatchStatus.ENDED
-        self.match_closure_info = MatchClosureDto(reason, winner, loser)
-
-        # TODO: save the match result into a database
-        self.logger.debug(f"Match ended -> {self.match_closure_info}")
-
-        # Notify the users and close the room
-        notify_match_end(
-            PartialMatchClosureDto.from_match_closure_dto(self.match_closure_info),
-            self.match_info.roomId,
-        )
-        self.server.socketio.close_room(self.match_info.roomId)
-
-        from handlers import room_handler
-
-        room_handler.remove_closed_room(self.match_info.roomId)
-        # Schedule the deletion of this object
-        self._schedule_garbage_collection()
+        self._match_termination_service.end_match(reason, winner_id, loser_id)
 
     def get_turn_info(self, for_new_turn=False):
         return TurnInfoDto(
@@ -270,32 +210,6 @@ class MatchHandlerUnit:
         Return the current turn's remaining time.
         """
         return self._turn_watcher_service.get_remaining_turn_time()
-
-    def _schedule_garbage_collection(self):
-        """
-        Schedules the deletion of this match handler unit and the associated room.
-        """
-
-        def delete_self_and_room():
-            self.server.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
-
-            room_id = self.match_info.roomId
-            self.logger.debug(f"Deleting the match handler unit for the room {room_id}")
-
-            from handlers import match_handler, room_handler
-
-            if room_id in room_handler.closed_rooms:
-                room_handler.remove_closed_room(room_id)
-
-            if room_id not in match_handler.units:
-                self.logger.warning(
-                    f"Tried to delete a match handler unit that did not exist : {room_id}"
-                )
-                return
-
-            del match_handler.units[room_id]
-
-        self.server.socketio.start_background_task(target=delete_self_and_room)
 
     def _get_initial_match_info(self, room_dto: RoomDto):
         return MatchInfoDto.get_initial_match_info(

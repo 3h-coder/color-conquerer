@@ -36,7 +36,7 @@ def notify_action_error(error_msg: str):
     emit(Events.SERVER_ACTION_ERROR, MessageDto(error_msg).to_dict())
 
 
-def notify_match_end(match_closure_info: PartialMatchClosureDto, room_id: str):
+def notify_match_ending(match_closure_info: PartialMatchClosureDto, room_id: str):
     _emit(Events.SERVER_MATCH_END, match_closure_info.to_dict(), to=room_id)
 
 

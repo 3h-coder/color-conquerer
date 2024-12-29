@@ -22,3 +22,6 @@ class PlayerGameInfoDto(PartialPlayerGameInfoDto):
             maxMP=MAX_MP_VALUE,
             currentMP=1 if is_player_1 else 0,
         )
+
+    def player_is_dead(self):
+        return self.currentHP <= 0
