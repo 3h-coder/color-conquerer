@@ -20,7 +20,7 @@ export default function PlayButton() {
     const navigate = useNavigate();
     const { user } = useUser();
     const { setHomeError } = useHomeError();
-    const { homeState } = useHomeState();
+    const { homeState, loading: homeStateLoading } = useHomeState();
     const [mainButtonVisible, setMainButtonVisible] = useState(false);
     const [mainButtonFunction, setMainButtonFunction] = useState<() => void>(
         () => { }
@@ -38,6 +38,11 @@ export default function PlayButton() {
         handleHomeState();
 
         function handleHomeState() {
+            if (homeStateLoading) {
+                setMainButtonVisible(false);
+                return;
+            }
+
             switch (homeState.state) {
                 case HomeState.JOIN_BACK:
                     setButtonToRejoin();
@@ -64,8 +69,7 @@ export default function PlayButton() {
             setMainButtonText("Play");
             setMainButtonVisible(true);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [homeState.state]);
+    }, [homeState.state, homeStateLoading]);
 
     useEffect(() => {
         function onError(errorDto: ErrorDto) {

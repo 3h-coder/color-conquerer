@@ -3,7 +3,6 @@ from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELET
 from dto.partial_match_closure_dto import PartialMatchClosureDto
 from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from handlers.match_helpers.client_notifications import notify_match_ending
-from handlers.match_helpers.match_handler_unit import MatchStatus
 from handlers.match_helpers.service_base import ServiceBase
 
 from typing import TYPE_CHECKING
@@ -50,7 +49,7 @@ class MatchTerminationService(ServiceBase):
 
         winner, loser = self._get_winner_and_loser(winner_id, loser_id)
 
-        self.match.status = MatchStatus.ENDED
+        self.match.mark_as_ended()
         self.match_closure_info = MatchClosureDto(reason, winner, loser)
 
         # TODO: save the match result into a database
@@ -77,7 +76,7 @@ class MatchTerminationService(ServiceBase):
             )
             return
 
-        self.match.status = MatchStatus.ABORTED
+        self.match.mark_as_cancelled()
         self._schedule_garbage_collection()
 
     def _verify_ids(self, reason, winner_id, loser_id):

@@ -1,8 +1,12 @@
 from flask import request, session
+from flask_socketio import emit
 
 from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
+from dto.message_dto import MessageDto
 from dto.server_only.player_info_dto import PlayerInfoDto
+from events.events import Events
+from exceptions.server_error import ServerError
 from handlers import connection_handler, match_handler
 
 _logger = get_configured_logger(__name__)
@@ -34,4 +38,7 @@ def handle_connection(_):
         player_id = player_info.playerId
         match.stop_watching_player_exit(player_id)
     elif match.is_ended():
-        _logger.debug("Player rejoined, but the match already ended")
+        _logger.debug(
+            "Player rejoined, but the match already ended. Redirecting them to the home page"
+        )
+        emit(Events.SERVER_REDIRECT, MessageDto("/").to_dict())

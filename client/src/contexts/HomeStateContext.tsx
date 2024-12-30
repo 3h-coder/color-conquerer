@@ -13,7 +13,7 @@ const defaultHomeState: HomeStateDto = {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const HomeStateContext = createContext({ homeState: defaultHomeState, setHomeState: (_state: HomeStateDto) => { } })
+const HomeStateContext = createContext({ homeState: defaultHomeState, setHomeState: (_state: HomeStateDto) => { }, loading: false })
 
 interface HomeStateContextProps {
     children?: React.ReactNode;
@@ -23,8 +23,11 @@ export default function HomeStateContextProvider(props: HomeStateContextProps) {
     const { children } = props;
     const { user } = useUser();
     const [homeState, setHomeState] = useState<HomeStateDto>(defaultHomeState);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setLoading(true);
+
         if (user.isAuthenticating)
             return;
         setHomeStateContext();
@@ -37,11 +40,13 @@ export default function HomeStateContextProvider(props: HomeStateContextProps) {
         } catch (error: unknown) {
             developmentErrorLog("Failed to retrieve the home state", ParseErrorDto(error));
             setHomeState(defaultHomeState);
+        } finally {
+            setLoading(false);
         }
     }
 
     return (
-        <HomeStateContext.Provider value={{ homeState, setHomeState }}>
+        <HomeStateContext.Provider value={{ homeState, setHomeState, loading }}>
             {children}
         </HomeStateContext.Provider>
     );

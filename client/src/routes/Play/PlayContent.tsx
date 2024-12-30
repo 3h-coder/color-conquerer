@@ -131,12 +131,17 @@ export default function PlayContent() {
       }
     }
 
+    function onRedirection(messageDto: MessageDto) {
+      navigate(messageDto.message);
+    }
+
     socket.on(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
     socket.on(Events.SERVER_MATCH_START, onMatchBeginning);
     socket.on(Events.SERVER_MATCH_ONGOING, onMatchOngoing);
     socket.on(Events.SERVER_TURN_SWAP, onTurnSwap);
     socket.on(Events.SERVER_MATCH_END, onMatchEnded);
     socket.on(Events.SERVER_ERROR, onError);
+    socket.on(Events.SERVER_REDIRECT, onRedirection);
 
     // Ensure the event handlers are attached only once on component mounting
     return () => {
@@ -146,6 +151,7 @@ export default function PlayContent() {
       socket.off(Events.SERVER_TURN_SWAP, onTurnSwap);
       socket.off(Events.SERVER_MATCH_END, onMatchEnded);
       socket.off(Events.SERVER_ERROR, onError);
+      socket.off(Events.SERVER_REDIRECT, onRedirection);
     };
   });
 

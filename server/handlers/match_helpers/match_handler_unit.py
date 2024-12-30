@@ -67,6 +67,12 @@ class MatchHandlerUnit:
     def is_cancelled(self):
         return self.status == MatchStatus.ABORTED
 
+    def mark_as_ended(self):
+        self.status = MatchStatus.ENDED
+
+    def mark_as_cancelled(self):
+        self.status = MatchStatus.ABORTED
+
     def watch_player_entry(self):
         """
         Waits a specific delay before prematurely ending or cancelling the match
