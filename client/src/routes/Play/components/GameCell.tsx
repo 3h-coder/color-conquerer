@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { PartialCellInfoDto } from "../../../dto/PartialCellInfoDto";
 import { Events } from "../../../enums/events";
-import { socket } from "../../../env";
+import { EMPTY_STRING, socket } from "../../../env";
 import { cellStyle } from "../../../style/constants";
 import { getCellStyle as getCellStyle, isSelectable } from "../../../utils/cellUtils";
 import { CellTransientState } from "../../../enums/cellStates";
@@ -48,7 +48,7 @@ export default function GameCell(props: GameCellProps) {
     }
 
     const computedStyle = getCellStyle(cellInfo, isPlayer1);
-    const className = `${cellStyle.className} ${selectable ? cellStyle.selectableClassName : ""}`.trim();
+    const className = `${cellStyle.className} ${selectable ? cellStyle.selectableClassName : EMPTY_STRING}`.trim();
 
     return (
         <div

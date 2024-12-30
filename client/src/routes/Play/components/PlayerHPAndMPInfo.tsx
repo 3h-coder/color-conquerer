@@ -1,3 +1,5 @@
+import { EMPTY_STRING } from "../../../env";
+
 interface PlayerHPAndMPInfoProps {
     currentHP: number;
     maxHP: number;
@@ -42,7 +44,7 @@ interface ManaPointProps {
 
 function ManaPoint(props: ManaPointProps) {
     const { isActive } = props;
-    return <div className={`mp ${isActive ? "active" : ""}`} />
+    return <div className={`mp ${isActive ? "active" : EMPTY_STRING}`} />
 }
 
 interface PlayerHPProps {

@@ -5,10 +5,11 @@ import { developmentErrorLog } from "../utils/loggingUtils";
 import { ParseErrorDto } from "../dto/ErrorDto";
 import { fetchHomeState } from "../api/home";
 import { useUser } from "./UserContext";
+import { EMPTY_STRING } from "../env";
 
 const defaultHomeState: HomeStateDto = {
     state: HomeState.PLAY,
-    topMessage: "",
+    topMessage: EMPTY_STRING,
     clearMatchSession: false
 }
 

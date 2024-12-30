@@ -31,7 +31,7 @@ export default function PlayButton() {
 
     const queuePlayerDto: QueuePlayerDto = {
         user: user,
-        playerId: "",
+        playerId: EMPTY_STRING,
     };
 
     useEffect(() => {
@@ -139,7 +139,7 @@ export default function PlayButton() {
                 <button
                     onClick={mainButtonFunction}
                     style={{ opacity: mainButtonVisible ? 1 : 0 }}
-                    className={homeState.state === HomeState.JOIN_BACK ? "box-shadow-glow" : ""}
+                    className={homeState.state === HomeState.JOIN_BACK ? "box-shadow-glow" : EMPTY_STRING}
                 >
                     {mainButtonText}
                 </button>

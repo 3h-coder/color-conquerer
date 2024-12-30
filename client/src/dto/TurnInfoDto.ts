@@ -1,3 +1,4 @@
+import { EMPTY_STRING } from "../env";
 import { PartialCellInfoDto } from "./PartialCellInfoDto";
 import { PlayerGameInfoBundleDto, undefinedPlayerInfoBundleDto } from "./PlayerInfoBundleDto";
 
@@ -12,7 +13,7 @@ export interface TurnInfoDto {
 }
 
 export const undefinedTurnInfo: TurnInfoDto = {
-    currentPlayerId: "",
+    currentPlayerId: EMPTY_STRING,
     isPlayer1Turn: false,
     durationInS: 0,
     totalTurnDurationInS: 0,
