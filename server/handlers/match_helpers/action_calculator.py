@@ -36,30 +36,47 @@ class ActionCalculator:
         row_index, column_index = cell.rowIndex, cell.columnIndex
 
         movements: list[MatchActionDto] = []
-        basic_directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # down, up, left, right
-        extra_master_direction = [
-            (-1, -1),  # bottom-left
-            (-1, 1),  # bottom-right
-            (1, -1),  # top-left
-            (1, 1),  # top-right
-            (-2, 0),  # far-down
-            (2, 0),  # far-up
-            (0, -2),  # far-left
-            (0, 2),  # far-right
-        ]
-        all_directions = (
-            basic_directions
-            if not cell.isMaster
-            else basic_directions + extra_master_direction
-        )
-        for direction in all_directions:
+        primary_directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # down, up, left, right
+        for direction in primary_directions:
             new_row_index = row_index + direction[0]
             new_col_index = column_index + direction[1]
+
             if (
                 _is_out_of_bounds(new_row_index)
                 or _is_out_of_bounds(new_col_index)
-                or is_owned(new_row_index, new_col_index, self._board_array)
+                or (
+                    is_owned(new_row_index, new_col_index, self._board_array)
+                    and not cell.isMaster
+                )
             ):
+                continue
+
+            corresponding_cell: CellInfoDto = self._board_array[new_row_index][
+                new_col_index
+            ]
+            if cell.isMaster and not corresponding_cell.is_hostile_to(cell):
+                self._logger.debug(
+                    f"Trying to get the additional movements as the cell is master"
+                )
+                additional_movements = self.calculate_possible_movements(
+                    corresponding_cell, player1, transient_board_array
+                )
+                self._logger.debug(
+                    f"Found {len(additional_movements)} additional movements"
+                )
+                for movement in additional_movements:
+                    movements.append(
+                        MatchActionDto.cell_movement(
+                            player1,
+                            cell.id,
+                            row_index,
+                            column_index,
+                            movement.impactedCoords[0].rowIndex,
+                            movement.impactedCoords[0].columnIndex,
+                        )
+                    )
+
+            if corresponding_cell.is_owned():
                 continue
 
             transient_board_cell = transient_board_array[new_row_index][new_col_index]
@@ -76,7 +93,41 @@ class ActionCalculator:
                 )
             )
 
+        self._logger.debug(f"Returning {len(movements)} movements")
         return movements
+
+    def _get_extra_movements_if_cell_is_master(
+        self,
+        cell: CellInfoDto,
+        player1: bool,
+        transient_board_array: list[list[CellInfoDto]],
+        movements: list[MatchActionDto],
+        neighbour_cell: CellInfoDto,
+    ):
+        if not cell.isMaster or neighbour_cell.is_hostile_to(cell):
+            return
+
+        additional_movements = self.calculate_possible_movements(
+            neighbour_cell,
+            player1,
+            transient_board_array,
+        )
+        self._logger.debug(
+            f"Found {len(additional_movements)} additonal movements for the corresponding cell"
+            f"at ({neighbour_cell.rowIndex}, {neighbour_cell.columnIndex})"
+        )
+        for movement in additional_movements:
+
+            movements.append(
+                MatchActionDto.cell_movement(
+                    player1,
+                    cell.id,
+                    cell.rowIndex,
+                    cell.columnIndex,
+                    movement.impactedCoords[0].rowIndex,
+                    movement.impactedCoords[0].columnIndex,
+                )
+            )
 
     def calculate_possible_attacks(
         self,

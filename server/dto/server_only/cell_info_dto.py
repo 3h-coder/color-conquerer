@@ -53,6 +53,18 @@ class CellInfoDto(PartialCellInfoDto):
             id=self.id,
         )
 
+    @staticmethod
+    def get_default_idle_cell(row_index: int, col_index: int):
+        return CellInfoDto(
+            owner=CellOwner.NONE,
+            isMaster=False,
+            rowIndex=row_index,
+            columnIndex=col_index,
+            state=CellState.NONE,
+            transientState=CellTransientState.NONE,
+            id=None,
+        )
+
     def set_idle(self):
         self.owner = CellOwner.NONE
         self.id = None
@@ -97,7 +109,11 @@ class CellInfoDto(PartialCellInfoDto):
         )
 
     def is_hostile_to(self, other_cell: "CellInfoDto"):
-        return other_cell.owner != CellOwner.NONE and other_cell.owner != self.owner
+        return (
+            self.owner != CellOwner.NONE
+            and other_cell.owner != CellOwner.NONE
+            and other_cell.owner != self.owner
+        )
 
     def is_freshly_spawned(self):
         return self.state == CellState.FRESHLY_SPAWNED

@@ -32,7 +32,7 @@ class PlayerEntryWatcherService(ServiceBase):
     def mark_player_as_ready(self, player_id):
         if not player_id in self._players_ready:
             self._logger.error(
-                f"Cannot mark the player {player_id} as ready as it does it not in the dictionary."
+                f"Cannot mark the player {player_id} as ready as it is not present in the dictionary."
             )
             return
 

@@ -325,6 +325,9 @@ class MatchActionsService(ServiceBase):
         Validates the given action and processes it if it is valid.
         """
         if action not in self._possible_actions:
+            self._logger.error(
+                f"The following action was not registered in the possible actions : {action}"
+            )
             self._error_msg = ErrorMessages.INVALID_ACTION
             return
 

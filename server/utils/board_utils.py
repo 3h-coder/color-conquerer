@@ -15,15 +15,7 @@ if TYPE_CHECKING:
 def create_starting_board(board_size: int):
     return [
         [
-            CellInfoDto(
-                owner=CellOwner.NONE,
-                isMaster=False,
-                rowIndex=i,
-                columnIndex=j,
-                state=CellState.NONE,
-                transientState=CellTransientState.NONE,
-                id=None,
-            )
+            CellInfoDto.get_default_idle_cell(row_index=i, col_index=j)
             for j in range(board_size)
         ]
         for i in range(board_size)

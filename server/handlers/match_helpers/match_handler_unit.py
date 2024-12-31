@@ -68,9 +68,19 @@ class MatchHandlerUnit:
         return self.status == MatchStatus.ABORTED
 
     def mark_as_ended(self):
+        """
+        WARNING : To only be used in the match termination service.
+
+        Allows it not to import MatchStatus.
+        """
         self.status = MatchStatus.ENDED
 
     def mark_as_cancelled(self):
+        """
+        WARNING : To only be used in the match termination service.
+
+        Allows it not to import MatchStatus.
+        """
         self.status = MatchStatus.ABORTED
 
     def watch_player_entry(self):
