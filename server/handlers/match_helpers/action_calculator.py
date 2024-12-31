@@ -47,14 +47,13 @@ class ActionCalculator:
             target_cell: CellInfoDto = self._board_array[new_row_index][new_col_index]
 
             # Master cell extra steps
-            if cell.isMaster and not target_cell.is_hostile_to(cell):
+            if cell.isMaster:
                 movements.extend(
                     self._calculate_extra_master_movements(
                         cell, target_cell, player1, transient_board_array
                     )
                 )
 
-            # Ordinary cell steps
             if not target_cell.is_owned():
                 transient_board_cell = transient_board_array[new_row_index][
                     new_col_index
@@ -177,16 +176,20 @@ class ActionCalculator:
 
         • Not out of bounds
 
-        • Not an owned cell, unless cell_to_move is the master cell, in which case we will need further checks.
+        • Not an owned cell if cell_to_move is not the master cell
+
+        • Not an enemy cell if cell_to_move is the master cell
         """
-        return (
-            not _is_out_of_bounds(row_index)
-            and not _is_out_of_bounds(col_index)
-            and (
-                not is_owned(row_index, col_index, self._board_array)
-                or cell_to_move.isMaster
-            )
-        )
+        if _is_out_of_bounds(row_index) or _is_out_of_bounds(col_index):
+            return False
+
+        target_cell: CellInfoDto = self._board_array[row_index][col_index]
+
+        if cell_to_move.isMaster:
+            return not target_cell.is_hostile_to(cell_to_move)
+
+        else:
+            return not target_cell.is_owned()
 
 
 def _is_out_of_bounds(index: int):
