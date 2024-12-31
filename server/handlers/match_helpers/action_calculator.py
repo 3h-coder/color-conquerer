@@ -41,93 +41,38 @@ class ActionCalculator:
             new_row_index = row_index + direction[0]
             new_col_index = column_index + direction[1]
 
-            if (
-                _is_out_of_bounds(new_row_index)
-                or _is_out_of_bounds(new_col_index)
-                or (
-                    is_owned(new_row_index, new_col_index, self._board_array)
-                    and not cell.isMaster
-                )
-            ):
+            if not self._is_valid_movement_target(new_row_index, new_col_index, cell):
                 continue
 
-            corresponding_cell: CellInfoDto = self._board_array[new_row_index][
-                new_col_index
-            ]
-            if cell.isMaster and not corresponding_cell.is_hostile_to(cell):
-                self._logger.debug(
-                    f"Trying to get the additional movements as the cell is master"
-                )
-                additional_movements = self.calculate_possible_movements(
-                    corresponding_cell, player1, transient_board_array
-                )
-                self._logger.debug(
-                    f"Found {len(additional_movements)} additional movements"
-                )
-                for movement in additional_movements:
-                    movements.append(
-                        MatchActionDto.cell_movement(
-                            player1,
-                            cell.id,
-                            row_index,
-                            column_index,
-                            movement.impactedCoords[0].rowIndex,
-                            movement.impactedCoords[0].columnIndex,
-                        )
+            target_cell: CellInfoDto = self._board_array[new_row_index][new_col_index]
+
+            # Master cell extra steps
+            if cell.isMaster and not target_cell.is_hostile_to(cell):
+                movements.extend(
+                    self._calculate_extra_master_movements(
+                        cell, target_cell, player1, transient_board_array
                     )
-
-            if corresponding_cell.is_owned():
-                continue
-
-            transient_board_cell = transient_board_array[new_row_index][new_col_index]
-            transient_board_cell.set_can_be_moved_into()
-
-            movements.append(
-                MatchActionDto.cell_movement(
-                    player1,
-                    cell.id,
-                    row_index,
-                    column_index,
-                    new_row_index,
-                    new_col_index,
                 )
-            )
 
-        self._logger.debug(f"Returning {len(movements)} movements")
+            # Ordinary cell steps
+            if not target_cell.is_owned():
+                transient_board_cell = transient_board_array[new_row_index][
+                    new_col_index
+                ]
+                transient_board_cell.set_can_be_moved_into()
+
+                movements.append(
+                    MatchActionDto.cell_movement(
+                        player1,
+                        cell.id,
+                        row_index,
+                        column_index,
+                        new_row_index,
+                        new_col_index,
+                    )
+                )
+
         return movements
-
-    def _get_extra_movements_if_cell_is_master(
-        self,
-        cell: CellInfoDto,
-        player1: bool,
-        transient_board_array: list[list[CellInfoDto]],
-        movements: list[MatchActionDto],
-        neighbour_cell: CellInfoDto,
-    ):
-        if not cell.isMaster or neighbour_cell.is_hostile_to(cell):
-            return
-
-        additional_movements = self.calculate_possible_movements(
-            neighbour_cell,
-            player1,
-            transient_board_array,
-        )
-        self._logger.debug(
-            f"Found {len(additional_movements)} additonal movements for the corresponding cell"
-            f"at ({neighbour_cell.rowIndex}, {neighbour_cell.columnIndex})"
-        )
-        for movement in additional_movements:
-
-            movements.append(
-                MatchActionDto.cell_movement(
-                    player1,
-                    cell.id,
-                    cell.rowIndex,
-                    cell.columnIndex,
-                    movement.impactedCoords[0].rowIndex,
-                    movement.impactedCoords[0].columnIndex,
-                )
-            )
 
     def calculate_possible_attacks(
         self,
@@ -197,6 +142,51 @@ class ActionCalculator:
                 )
 
         return possible_spawns
+
+    def _calculate_extra_master_movements(
+        self,
+        master_cell: CellInfoDto,
+        target_cell: CellInfoDto,
+        player1: bool,
+        transient_board_array: list[list[CellInfoDto]],
+    ):
+        """
+        Gets the additional movements that a master cell may perform from a primary direction
+        neighbour cell.
+        """
+        additional_movements = self.calculate_possible_movements(
+            target_cell, player1, transient_board_array
+        )
+        return [
+            MatchActionDto.cell_movement(
+                player1,
+                master_cell.id,
+                master_cell.rowIndex,
+                master_cell.columnIndex,
+                move.impactedCoords[0].rowIndex,
+                move.impactedCoords[0].columnIndex,
+            )
+            for move in additional_movements
+        ]
+
+    def _is_valid_movement_target(
+        self, row_index, col_index, cell_to_move: CellInfoDto
+    ):
+        """
+        A valid movement target is :
+
+        • Not out of bounds
+
+        • Not an owned cell, unless cell_to_move is the master cell, in which case we will need further checks.
+        """
+        return (
+            not _is_out_of_bounds(row_index)
+            and not _is_out_of_bounds(col_index)
+            and (
+                not is_owned(row_index, col_index, self._board_array)
+                or cell_to_move.isMaster
+            )
+        )
 
 
 def _is_out_of_bounds(index: int):
