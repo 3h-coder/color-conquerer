@@ -204,9 +204,12 @@ class MatchHandlerUnit:
         player1 = self.match_info.player1
         player2 = self.match_info.player2
         player_ids = [player1.playerId, player2.playerId]
+        self.logger.debug(f"Player ids: {player_ids}")
 
         if player_id not in player_ids:
-            raise ValueError("Could not get the player from the player id")
+            raise ValueError(
+                f"The given player id ({player_id}) is not part of this match"
+            )
 
         return player1 if player_id == player_ids[0] else player2
 

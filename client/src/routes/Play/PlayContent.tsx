@@ -156,7 +156,7 @@ export default function PlayContent() {
   });
 
   function getMatchEndingText(matchClosureDto: MatchClosureDto) {
-    if (!matchClosureDto.winner) return "Draw";
+    if (matchClosureDto.endingReason === EndingReason.DRAW || !matchClosureDto.winner) return "Draw";
 
     const isWinner = matchClosureDto.winner.playerId === playerId;
     if (matchClosureDto.endingReason === EndingReason.PLAYER_LEFT && isWinner)
@@ -209,5 +209,5 @@ function MainInnerContainer(props: ContainerProps) {
 }
 
 function RightSideContainer(props: ContainerProps) {
-  return <div className="right-side-container">{props.children}</div>
+  return <div className="right-side-container">{props.children}</div>;
 }

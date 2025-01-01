@@ -55,5 +55,14 @@ class MatchInfoDto(PartialMatchInfoDto):
             ),
         )
 
-    def player_is_dead(self, player1: bool):
+    def both_players_are_dead(self):
+        return self.player1_is_dead() and self.player2_is_dead()
+
+    def player1_is_dead(self):
+        return self._player_is_dead(True)
+
+    def player2_is_dead(self):
+        return self._player_is_dead(False)
+
+    def _player_is_dead(self, player1: bool):
         return self.get_player_game_info(player1).player_is_dead()

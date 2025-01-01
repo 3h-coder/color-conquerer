@@ -211,7 +211,7 @@
     width: 70%;
     height: 70%;
     background-color: transparent;
-    animation: half-fade-in 1s infinite alternate-reverse;
+    animation: fade-in 1s infinite alternate-reverse;
 }
 
 .cell-clash-indicator {

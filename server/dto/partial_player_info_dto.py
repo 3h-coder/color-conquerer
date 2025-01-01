@@ -14,4 +14,7 @@ class PartialPlayerInfoDto(BaseDto):
 
     @staticmethod
     def from_player_info_dto(player_info_dto: "PlayerInfoDto"):
+        if player_info_dto is None:
+            return None
+
         return PartialPlayerInfoDto(player_info_dto.playerId, player_info_dto.isPlayer1)

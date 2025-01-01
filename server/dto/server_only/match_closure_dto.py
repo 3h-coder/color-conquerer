@@ -15,6 +15,6 @@ class EndingReason(StrEnum):
 @dataclass
 class MatchClosureDto(BaseDto):
     endingReason: str
-    winner: PlayerInfoDto
-    loser: PlayerInfoDto
+    winner: PlayerInfoDto | None  # None if draw or no winner
+    loser: PlayerInfoDto | None
     # TODO: maybe add more stats

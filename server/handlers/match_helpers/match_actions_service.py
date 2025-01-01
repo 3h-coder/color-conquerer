@@ -10,6 +10,7 @@ from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_action_dto import ProcessedActionDto
 from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
+from dto.server_only.match_closure_dto import EndingReason
 from dto.server_only.player_info_dto import PlayerInfoDto
 from handlers.match_helpers.action_calculator import ActionCalculator
 from handlers.match_helpers.action_processor import ActionProcessor
@@ -121,6 +122,20 @@ class MatchActionsService(ServiceBase):
 
         return wrapper
 
+    def _entry_point(func):
+        """
+        Decorator method to mark a mathod as en entry point for the service.
+
+        This implies certain processing afterwards such as checking for the game ending for example.
+        """
+
+        @functools.wraps(func)
+        def wrapper(self: "MatchActionsService", *args, **kwargs):
+            func(self, *args, **kwargs)
+            self._end_match_if_game_over()
+
+        return wrapper
+
     def reset_for_new_turn(self):
         """
         Performs all the cleanup and reset necessary for a fresh new turn.
@@ -133,6 +148,7 @@ class MatchActionsService(ServiceBase):
         self._current_player = self.match.get_current_player()
         self._set_player_to_idle()
 
+    @_entry_point
     def handle_cell_selection(self, cell_row: int, cell_col: int):
         """
         Handles the selection of a cell. This can either trigger an action or return a list of possible actions.
@@ -157,6 +173,7 @@ class MatchActionsService(ServiceBase):
         if self._server_mode == ServerMode.SHOW_PROCESSED_ACTIONS:
             self._set_player_to_idle()
 
+    @_entry_point
     def handle_spawn_toggle(self):
         """
         Handles the spawn/spawn cancellation request of a player.
@@ -354,9 +371,6 @@ class MatchActionsService(ServiceBase):
 
         self._processed_action = processed_action
         self._register_processed_action(processed_action)
-        # TODO : maybe change that ? (spaghetti-ish)
-        # Reset the player mode after action processing before notifying the client
-        self._player_mode = PlayerMode.IDLE
 
     def _register_processed_action(self, action: MatchActionDto):
         """
@@ -374,6 +388,22 @@ class MatchActionsService(ServiceBase):
 
         elif action.type == ActionType.CELL_ATTACK:
             self._turn_attacks.add(cell_id)
+
+    def _end_match_if_game_over(self):
+        """
+        Ends the match if at least one player dies.
+        """
+        player1 = self.match_info.player1
+        player2 = self.match_info.player2
+
+        if self.match_info.both_players_are_dead():
+            self.match.end(EndingReason.DRAW)
+
+        elif self.match_info.player1_is_dead():
+            self.match.end(EndingReason.PLAYER_WON, loser_id=player1.playerId)
+
+        elif self.match_info.player2_is_dead():
+            self.match.end(EndingReason.PLAYER_WON, loser_id=player2.playerId)
 
     @_initialize_transient_board
     def _set_selected_cell(self, cell: CellInfoDto):

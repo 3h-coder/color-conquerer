@@ -86,10 +86,10 @@ class MatchTerminationService(ServiceBase):
         if winner_id is None and loser_id is None and reason != EndingReason.DRAW:
             raise ValueError("No winner id nor loser id provided")
 
-        if winner_id == loser_id:
+        if winner_id == loser_id and winner_id is not None:
             raise ValueError("The provided winner and loser id values were identical")
 
-    def _get_winner_and_loser(self, winner_id, loser_id):
+    def _get_winner_and_loser(self, winner_id: str, loser_id: str):
         player1 = self.match_info.player1
         player2 = self.match_info.player2
         winner = None
@@ -98,7 +98,7 @@ class MatchTerminationService(ServiceBase):
         if winner_id is not None:
             winner = self.match.get_player(winner_id)
             loser = player1 if winner == player2 else player2
-        else:
+        elif loser_id is not None:
             loser = self.match.get_player(loser_id)
             winner = player1 if loser == player2 else player2
         return winner, loser
