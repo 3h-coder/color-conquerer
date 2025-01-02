@@ -170,14 +170,10 @@ svg {
   background-color: rgb(107, 89, 227);
   padding: 1rem;
   border-radius: 0.5rem;
-  min-width: 20vmin;
+  min-width: max(20vmin, 120px);
   max-width: 50vw;
   text-align: center;
-
-  @media (max-width: 760px) {
-    min-width: 60vw;
-    max-width: 60vw;
-  }
+  z-index: 100;
 }
 
 .modal-header {

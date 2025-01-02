@@ -18,6 +18,14 @@ class MatchActionDto(PartialMatchActionDto):
     isDirect: bool
     manaCost: int
 
+    def __str__(self):
+        player_str = "Player 1" if self.player1 else "Player 2"
+        return (
+            f"{player_str} | {self.type.name}\n"
+            f"{self.originatingCellCoords} -> {self.impactedCoords}\n"
+            f"cellId: {self.cellId}, manaCost: {self.manaCost}"
+        )
+
     def __eq__(self, other):
         return (
             isinstance(other, MatchActionDto)

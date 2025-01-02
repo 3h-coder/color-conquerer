@@ -50,7 +50,13 @@ class MatchTerminationService(ServiceBase):
         winner, loser = self._get_winner_and_loser(winner_id, loser_id)
 
         self.match.mark_as_ended()
-        self.match_closure_info = MatchClosureDto(reason, winner, loser)
+        self.match_closure_info = MatchClosureDto(
+            reason,
+            winner,
+            loser,
+            totalTurns=self.match_info.currentTurn,
+            actionsPerTurn=self.match.get_actions_per_turn(),
+        )
 
         # TODO: save the match result into a database
         self._logger.debug(f"Match ended -> {self.match_closure_info}")

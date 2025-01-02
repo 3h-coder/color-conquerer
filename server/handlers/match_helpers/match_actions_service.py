@@ -71,8 +71,8 @@ class MatchActionsService(ServiceBase):
         self._action_processor = ActionProcessor(self.match_info)
 
         # Dictionary storing all of the actions that happened during a match.
-        # Key : turn number | Value : list of actions (type : [TBD])
-        self.actions: dict[int, list] = {}
+        # Key : turn number | Value : list of actions
+        self.actions_per_turn: dict[int, list] = {}
 
         # endregion
 
@@ -142,7 +142,7 @@ class MatchActionsService(ServiceBase):
 
         Meant to be used as a callback for the turn watcher service.
         """
-        self.actions[self.match_info.currentTurn] = []
+        self.actions_per_turn[self.match_info.currentTurn] = []
         self._turn_movements = set()
         self._turn_attacks = set()
         self._current_player = self.match.get_current_player()
@@ -377,10 +377,10 @@ class MatchActionsService(ServiceBase):
         Adds a processed action to the turn and match actions fields.
         """
         current_turn = self.match_info.currentTurn
-        if current_turn not in self.actions:
-            self.actions[current_turn] = []
+        if current_turn not in self.actions_per_turn:
+            self.actions_per_turn[current_turn] = []
 
-        self.actions[current_turn].append(action)
+        self.actions_per_turn[current_turn].append(action)
 
         cell_id = action.cellId
         if action.type == ActionType.CELL_MOVE:

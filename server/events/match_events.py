@@ -2,7 +2,6 @@ from flask import request, session
 from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
-from constants.match_constants import BOARD_SIZE
 from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.message_dto import MessageDto
 from dto.partial_cell_info_dto import PartialCellInfoDto
@@ -13,6 +12,23 @@ from handlers import match_handler, session_cache_handler
 from utils import session_utils
 
 _logger = get_configured_logger(__name__)
+
+
+def only_if_in_match(func):
+    """
+    Decorator that only allows the execution of the decorated function if the
+    player is in a match, uing the session variable IN_MATCH.
+    """
+
+    def wrapper(*args, **kwargs):
+        if not session_utils.is_in_match():
+            _logger.error(
+                f"({request.remote_addr}) | Tried to execute a match event outside of a match"
+            )
+            return
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 def handle_client_ready():
@@ -60,6 +76,7 @@ def handle_client_ready():
             )
 
 
+@only_if_in_match
 def handle_turn_end():
     """
     Sent by the client when a player choose's to end their turn by clicking
@@ -86,6 +103,7 @@ def handle_session_clearing():
     session_utils.clear_match_info()
 
 
+@only_if_in_match
 def handle_cell_hover(data: dict):
     """
     Notifies the room (i.e. the opponent) that a certain cell is being hovered.
@@ -100,6 +118,7 @@ def handle_cell_hover(data: dict):
     )
 
 
+@only_if_in_match
 def handle_cell_hover_end(data: dict):
     """
     Notifies the room (i.e. the opponent) that a certain cell is no longer being hovered.
@@ -114,6 +133,7 @@ def handle_cell_hover_end(data: dict):
     )
 
 
+@only_if_in_match
 def handle_cell_click(data: dict):
     """
     Receives the client cell click, and notifies the client accordingly.
@@ -135,6 +155,7 @@ def handle_cell_click(data: dict):
     match.handle_cell_selection(row, col)
 
 
+@only_if_in_match
 def handle_spawn_button():
     """
     Receives the client's request to spawn a unit.

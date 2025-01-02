@@ -213,6 +213,12 @@ class MatchHandlerUnit:
 
         return player1 if player_id == player_ids[0] else player2
 
+    def get_actions_per_turn(self):
+        """
+        Returns the actions per turn dictionary.
+        """
+        return self._match_actions_service.actions_per_turn
+
     def _get_players_game_info(self):
         """
         Gets the player game info of both players.

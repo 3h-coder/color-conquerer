@@ -21,6 +21,10 @@ def socket_connected():
     return session.get(SOCKET_CONNECTED) is True
 
 
+def is_in_match():
+    return session.get(IN_MATCH) is True
+
+
 def save_into_session(key: str, value):
     session[key] = value
     session.modified = True

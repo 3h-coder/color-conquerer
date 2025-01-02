@@ -114,6 +114,7 @@ export default function PlayContent() {
       });
 
       socket.emit(Events.CLIENT_CLEAR_SESSION);
+      socket.disconnect();
     }
 
     function onError(errorDto: ErrorDto) {
@@ -166,8 +167,8 @@ export default function PlayContent() {
       isWinner
     )
       return "Your opponent did not join the match";
-    else if (isWinner) return "You won!";
-    else return "You lost";
+    else if (isWinner) return "Victory!";
+    else return "Defeat";
   }
 
   return (

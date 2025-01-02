@@ -145,6 +145,13 @@ def trigger_cell_attack(
         attacking_cell.set_idle()
         target_cell.set_idle()
 
+    # The following code is technically not necessary as the game should end if a player's HP reaches 0,
+    # but it's a good practice to keep the board consistent.
+    if attacker_game_info.currentHP <= 0:
+        attacking_cell.set_idle()
+    if target_game_info.currentHP <= 0:
+        target_cell.set_idle()
+
 
 def is_owned(row_index: int, col_index: int, board: list[list[CellInfoDto]]):
     return board[row_index][col_index].is_owned()
