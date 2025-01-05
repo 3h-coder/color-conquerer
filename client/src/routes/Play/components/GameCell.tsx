@@ -1,32 +1,37 @@
 import { useEffect } from "react";
+import { SwordIcon } from "../../../assets/svg";
 import { PartialCellInfoDto } from "../../../dto/PartialCellInfoDto";
+import { CellTransientState } from "../../../enums/cellStates";
 import { Events } from "../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../env";
 import { cellStyle } from "../../../style/constants";
-import { getCellStyle as getCellStyle, isSelectable } from "../../../utils/cellUtils";
-import { CellTransientState } from "../../../enums/cellStates";
-import { SwordIcon } from "../../../assets/svg";
+import {
+    canBeMovedOrSpawnedInto,
+    getCellStyle,
+    isSelectable,
+} from "../../../utils/cellUtils";
 
 interface GameCellProps {
     id: string;
     isPlayer1: boolean;
     cellInfo: PartialCellInfoDto;
     canInteract: boolean;
+    animationAllowed: boolean;
 }
 
 export default function GameCell(props: GameCellProps) {
-    const { id, isPlayer1, cellInfo, canInteract } = props;
+    const { id, isPlayer1, cellInfo, canInteract, animationAllowed } = props;
     const selectable = canInteract && isSelectable(cellInfo);
 
     const selected = cellInfo.transientState === CellTransientState.SELECTED;
-    const attackable = cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
+    const attackable =
+        cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
 
     // If the cell was previously hovered and is being re-rendered
-    // send a HOVER_END event to the server to clear the hover effect 
+    // send a HOVER_END event to the server to clear the hover effect
     // for the opponent client
     useEffect(() => {
-        if (!selectable)
-            socket.emit(Events.CLIENT_CELL_HOVER_END, cellInfo);
+        if (!selectable) socket.emit(Events.CLIENT_CELL_HOVER_END, cellInfo);
     });
 
     function onCellMouseEnter() {
@@ -47,12 +52,19 @@ export default function GameCell(props: GameCellProps) {
         socket.emit(Events.CLIENT_CELL_CLICK, cellInfo);
     }
 
+    const allClassNames = [
+        selectable ? cellStyle.selectableClassName : EMPTY_STRING,
+        animationAllowed && canBeMovedOrSpawnedInto(cellInfo)
+            ? cellStyle.possibleActionClassName
+            : EMPTY_STRING,
+    ];
+    const classes = `${cellStyle.className} ${allClassNames.join(" ")}`.trim();
+
     const computedStyle = getCellStyle(cellInfo, isPlayer1);
-    const className = `${cellStyle.className} ${selectable ? cellStyle.selectableClassName : EMPTY_STRING}`.trim();
 
     return (
         <div
-            className={className}
+            className={classes}
             id={id}
             onMouseEnter={onCellMouseEnter}
             onMouseLeave={onCellMouseLeave}
@@ -68,11 +80,12 @@ export default function GameCell(props: GameCellProps) {
 }
 
 function SelectedIndicator() {
-    return <div className={`selected-indicator ${cellStyle.absPositionClassName}`} />;
+    return (
+        <div className={`selected-indicator ${cellStyle.absPositionClassName}`} />
+    );
 }
 
-
-function AttackableIndicator({ isPlayer1 }: { isPlayer1: boolean }) {
+function AttackableIndicator({ isPlayer1 }: { isPlayer1: boolean; }) {
     const rotateStyle = isPlayer1 ? "rotate(180deg)" : undefined;
 
     return (

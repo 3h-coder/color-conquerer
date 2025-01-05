@@ -4,13 +4,17 @@ import YourTurnImage from "../../../assets/images/Your Turn.png";
 import { ContainerProps } from "../../../components/containers";
 import { useMatchInfo } from "../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
+import { usePlayerMode } from "../../../contexts/PlayerModeContext";
+import { usePlayersGameInfo } from "../../../contexts/PlayersGameInfoContext";
 import { useTurnInfo } from "../../../contexts/TurnContext";
+import { MessageDto } from "../../../dto/MessageDto";
 import { PartialCellInfoDto } from "../../../dto/PartialCellInfoDto";
 import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
 import { ProcessedActionDto } from "../../../dto/ProcessedActionDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
 import { Events } from "../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../env";
+import { animateProcessedAction } from "../../../utils/boardUtils";
 import {
     colorHoveredCell,
     decolorHoveredCell,
@@ -18,12 +22,8 @@ import {
 } from "../../../utils/cellUtils";
 import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
-import TurnSwapImage from "./TurnSwapImage";
 import GameError from "./GameError";
-import { MessageDto } from "../../../dto/MessageDto";
-import { usePlayerMode } from "../../../contexts/PlayerModeContext";
-import { usePlayersGameInfo } from "../../../contexts/PlayersGameInfoContext";
-import { animateProcessedAction } from "../../../utils/boardUtils";
+import TurnSwapImage from "./TurnSwapImage";
 
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
@@ -38,6 +38,13 @@ export default function GameGrid() {
     const [actionErrorMessage, setActionErrorMessage] = useState(EMPTY_STRING);
 
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
+    const [cellAnimationAllowed, setAnimationAllowed] = useState(true);
+
+    /** Used to force cells to restart their animations all together synchronously */
+    function triggerAnimationSync() {
+        setAnimationAllowed(false);
+        setTimeout(() => setAnimationAllowed(true), 100); // Force a reflow
+    }
 
     // Set the isMyTurn variable on turn change
     // Reset the colors on the boardArray variable change
@@ -101,7 +108,7 @@ export default function GameGrid() {
 
             return () => clearTimeout(timeout);
         }
-    }, [actionErrorMessage])
+    }, [actionErrorMessage]);
 
     // Register socket events
     useEffect(() => {
@@ -137,13 +144,18 @@ export default function GameGrid() {
             setPlayerMode(processedActionDto.playerMode);
 
             // Update the player info bundle to display the proper HP/MP values
-            setPlayerGameInfoBundle(processedActionDto.updatedMatchInfo.playerInfoBundle);
+            setPlayerGameInfoBundle(processedActionDto.updatedTurnInfo.playerGameInfoBundle);
 
             // Update the board array with the new cell info
-            setBoardArray(processedActionDto.updatedMatchInfo.boardArray);
+            if (isMyTurn && processedActionDto.overridingTransientBoard) {
+                setBoardArray(processedActionDto.overridingTransientBoard);
+            } else {
+                setBoardArray(processedActionDto.updatedTurnInfo.updatedBoardArray);
+            }
 
             // Trigger animations
-            animateProcessedAction(processedActionDto.processedAction)
+            animateProcessedAction(processedActionDto.processedAction);
+            triggerAnimationSync();
         }
 
         function onServerActionError(errorMessageDto: MessageDto) {
@@ -185,6 +197,7 @@ export default function GameGrid() {
                                 isPlayer1={isPlayer1}
                                 cellInfo={cellInfo}
                                 canInteract={canInteract}
+                                animationAllowed={cellAnimationAllowed}
                             />
                         ))}
                     </GridRow>

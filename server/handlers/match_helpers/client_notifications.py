@@ -28,7 +28,7 @@ def notify_possible_actions(possible_actions: PossibleActionsDto):
     emit(Events.SERVER_POSSIBLE_ACTIONS, possible_actions.to_dict())
 
 
-def notify_processed_actions(processed_actions: ProcessedActionDto, room_id: str):
+def notify_processed_action(processed_actions: ProcessedActionDto, room_id: str):
     _emit(Events.SERVER_PROCESSED_ACTIONS, processed_actions.to_dict(), to=room_id)
 
 

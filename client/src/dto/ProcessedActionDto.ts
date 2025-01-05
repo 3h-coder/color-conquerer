@@ -1,8 +1,10 @@
+import { PartialCellInfoDto } from "./PartialCellInfoDto";
 import { PartialMatchActionDto } from "./PartialMatchActionDto";
-import { PartialMatchInfoDto } from "./PartialMatchInfoDto";
+import { TurnInfoDto } from "./TurnInfoDto";
 
 export interface ProcessedActionDto {
     processedAction: PartialMatchActionDto;
     playerMode: number;
-    updatedMatchInfo: PartialMatchInfoDto;
+    updatedTurnInfo: TurnInfoDto;
+    overridingTransientBoard: PartialCellInfoDto[][] | null;
 }

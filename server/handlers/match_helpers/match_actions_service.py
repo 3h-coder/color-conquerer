@@ -17,7 +17,7 @@ from handlers.match_helpers.action_processor import ActionProcessor
 from handlers.match_helpers.client_notifications import (
     notify_action_error,
     notify_possible_actions,
-    notify_processed_actions,
+    notify_processed_action,
 )
 from handlers.match_helpers.service_base import ServiceBase
 from utils.board_utils import copy_board, to_client_board_dto
@@ -40,8 +40,11 @@ class PlayerMode(IntEnum):
 class ServerMode(IntEnum):
     # The server intends to show the possible actions to the player whose turn it is
     SHOW_POSSIBLE_ACTIONS = 0
-    # The server intends to show the processed actions to both players
-    SHOW_PROCESSED_ACTIONS = 1
+    # The server intends to show the processed action to both players
+    SHOW_PROCESSED_ACTION = 1
+    # The server intends to show the processed action and the resulting possible actions from it simultaneously
+    # (example: all possible spawns after spawning a new cell)
+    SHOW_PROCESSED_AND_POSSIBLE_ACTIONS = 2
 
 
 class ErrorMessages(StrEnum):
@@ -183,7 +186,7 @@ class MatchActionsService(ServiceBase):
 
         self._send_response()
 
-        if self._server_mode == ServerMode.SHOW_PROCESSED_ACTIONS:
+        if self._server_mode == ServerMode.SHOW_PROCESSED_ACTION:
             self._set_player_to_idle()
 
     @_entry_point
@@ -286,7 +289,9 @@ class MatchActionsService(ServiceBase):
 
         elif self._player_mode == PlayerMode.CELL_SPAWN:
             spawn = MatchActionDto.cell_spawn(player1, cell.rowIndex, cell.columnIndex)
-            self._validate_and_process_action(spawn)
+            self._validate_and_process_action(
+                spawn, server_mode=ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
+            )
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
             pass  # nothing for now
@@ -306,35 +311,49 @@ class MatchActionsService(ServiceBase):
             return
 
         if self._server_mode == ServerMode.SHOW_POSSIBLE_ACTIONS:
-            transient_board_array = (
-                to_client_board_dto(self._transient_board_array)
-                if self._transient_board_array
-                else to_client_board_dto(self._board_array)
-            )
             notify_possible_actions(
                 PossibleActionsDto(
                     self._player_mode,
-                    transient_board_array,
+                    self._get_client_friendly_transient_board(),
                 )
             )
-        elif self._server_mode == ServerMode.SHOW_PROCESSED_ACTIONS:
-            notify_processed_actions(
-                ProcessedActionDto(
-                    PartialMatchActionDto.from_match_action_dto(self._processed_action),
-                    self._player_mode,
-                    PartialMatchInfoDto.from_match_info_dto(self.match_info),
-                ),
+            return
+
+        processed_action_dto = ProcessedActionDto(
+            PartialMatchActionDto.from_match_action_dto(self._processed_action),
+            self._player_mode,
+            self.match.get_turn_info(),
+            None,
+        )
+        if self._server_mode == ServerMode.SHOW_PROCESSED_ACTION:
+            notify_processed_action(
+                processed_action_dto,
                 self.room_id,
             )
 
-    def _set_possible_actions(self, actions: set[MatchActionDto]):
+        elif self._server_mode == ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
+            processed_action_dto.overridingTransientBoard = (
+                self._get_client_friendly_transient_board()
+            )
+
+            notify_processed_action(
+                processed_action_dto,
+                self.room_id,
+            )
+
+    def _set_possible_actions(
+        self, actions: set[MatchActionDto], update_server_mode=True
+    ):
         """
         Stores all of the possible actions and sets the server mode accordingly.
         """
-        self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
+        if update_server_mode:
+            self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         self._possible_actions = actions
 
-    def _validate_and_process_action(self, action: MatchActionDto):
+    def _validate_and_process_action(
+        self, action: MatchActionDto, server_mode=ServerMode.SHOW_PROCESSED_ACTION
+    ):
         """
         Validates the given action and processes it if it is valid.
         """
@@ -349,25 +368,35 @@ class MatchActionsService(ServiceBase):
             self._error_msg = ErrorMessages.NOT_ENOUGH_MANA
             return
 
-        self._process_action(action)
+        self._process_action(action, server_mode)
 
-    def _process_action(self, action: MatchActionDto):
+    def _process_action(
+        self,
+        action: MatchActionDto,
+        server_mode=ServerMode.SHOW_PROCESSED_ACTION,
+    ):
         """
         Processes all of the given actions, setting the associate fields along the way.
 
         Note : Action validation should be done before calling this method.
         """
-        # Reset the error message as it is no longer relevant
-        self._error_msg = ""
-        self._server_mode = ServerMode.SHOW_PROCESSED_ACTIONS
+        self._server_mode = (
+            server_mode
+            if server_mode != ServerMode.SHOW_POSSIBLE_ACTIONS
+            else ServerMode.SHOW_PROCESSED_ACTION
+        )
         processed_action = self._action_processor.process_action(action)
         if processed_action is None:
+            self._set_player_to_idle()
             self._error_msg = ErrorMessages.INVALID_ACTION
-            self._player_mode = PlayerMode.IDLE
             return
+
+        # Reset the error message as it is no longer relevant
+        self._error_msg = ""
 
         self._processed_action = processed_action
         self._register_processed_action(processed_action)
+        self._calculate_post_processing_possible_actions()
 
     def _register_processed_action(self, action: MatchActionDto):
         """
@@ -385,6 +414,18 @@ class MatchActionsService(ServiceBase):
 
         elif action.type == ActionType.CELL_ATTACK:
             self._turn_attacks.add(cell_id)
+
+    def _calculate_post_processing_possible_actions(self):
+        """
+        Meant to be called right after action processing.
+        """
+        self._transient_board_array = None
+
+        if self._server_mode != ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
+            return
+
+        if self._player_mode == PlayerMode.CELL_SPAWN:
+            self._find_possible_spawns(update_server_mode=False)
 
     def _end_match_if_game_over(self):
         """
@@ -413,18 +454,17 @@ class MatchActionsService(ServiceBase):
         transient_cell.set_selected()
 
     @_initialize_transient_board
-    def _find_possible_spawns(self):
+    def _find_possible_spawns(self, update_server_mode=True):
         """
         Sets the player mode to CELL_SPAWN and fills the possible actions field with
         the potential spawns.
         """
-        self._player_mode = PlayerMode.CELL_SPAWN
         player = self._current_player
-        self._set_possible_actions(
-            self._action_calculator.calculate_possible_spawns(
-                player.isPlayer1, self._transient_board_array
-            )
+        possible_spawns = self._action_calculator.calculate_possible_spawns(
+            player.isPlayer1, self._transient_board_array
         )
+        self._player_mode = PlayerMode.CELL_SPAWN
+        self._set_possible_actions(possible_spawns, update_server_mode)
 
     @_initialize_transient_board
     def _get_possible_movements_and_attacks(self, player1: bool):
@@ -461,4 +501,11 @@ class MatchActionsService(ServiceBase):
         return (
             self._selected_cell is not None
             and self._selected_cell.id in self._turn_attacks
+        )
+
+    def _get_client_friendly_transient_board(self):
+        return (
+            to_client_board_dto(self._transient_board_array)
+            if self._transient_board_array
+            else to_client_board_dto(self._board_array)
         )

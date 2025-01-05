@@ -183,6 +183,11 @@
     border: 0.1rem solid blue;
 }
 
+/* Meant to be used on idle cells */
+.possible-action {
+    animation: half-fade-in 1s infinite alternate-reverse;
+}
+
 .hovered {
     border: 0.1rem solid red;
 }

@@ -16,6 +16,7 @@ export const cellStyle = {
     selectableClassName: "selectable",
     selectedClassName: "selected",
     hoveredClassName: "hovered",
+    possibleActionClassName: "possible-action",
     absPositionClassName: "absolute-positioning-centered"
 }
 

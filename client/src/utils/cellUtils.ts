@@ -10,22 +10,12 @@ export function isOwned(cell: PartialCellInfoDto) {
 export function getCellStyle(cell: PartialCellInfoDto, isPlayer1: boolean) {
   const style: React.CSSProperties = {};
 
-  if (
-    cell.transientState === CellTransientState.CAN_BE_MOVED_INTO ||
-    cell.transientState === CellTransientState.CAN_BE_SPAWNED_INTO
-  ) {
-
+  if (canBeMovedOrSpawnedInto(cell)) {
     style.backgroundColor = colors.cell.ownCellActionPossible;
-    style.animation = "half-fade-in 1s infinite alternate-reverse";
-
   } else if (cell.state === CellState.FRESHLY_SPAWNED) {
-
     style.backgroundColor = getFreshlySpawnedCellColor(cell, isPlayer1);
-    style.animation = undefined;
-
   } else {
     style.backgroundColor = getCellColor(cell, isPlayer1);
-    style.animation = undefined;
   }
 
   return style;
@@ -98,6 +88,13 @@ export function getHtmlCell(rowIndex: number, columnIndex: number) {
 
 export function isSelectable(cell: PartialCellInfoDto) {
   return cell.owner !== 0 || cell.transientState !== CellTransientState.NONE;
+}
+
+export function canBeMovedOrSpawnedInto(cell: PartialCellInfoDto) {
+  return (
+    cell.transientState === CellTransientState.CAN_BE_MOVED_INTO ||
+    cell.transientState === CellTransientState.CAN_BE_SPAWNED_INTO
+  );
 }
 
 export function getCellId(rowIndex: number, colIndex: number) {
