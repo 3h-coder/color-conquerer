@@ -1,5 +1,5 @@
-from enum import IntEnum, StrEnum
 import functools
+from enum import IntEnum, StrEnum
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
@@ -20,10 +20,7 @@ from handlers.match_helpers.client_notifications import (
     notify_processed_actions,
 )
 from handlers.match_helpers.service_base import ServiceBase
-from utils.board_utils import (
-    copy_board,
-    to_client_board_dto,
-)
+from utils.board_utils import copy_board, to_client_board_dto
 
 if TYPE_CHECKING:
     from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
@@ -147,6 +144,22 @@ class MatchActionsService(ServiceBase):
         self._turn_attacks = set()
         self._current_player = self.match.get_current_player()
         self._set_player_to_idle()
+
+    def _set_player_to_idle(self):
+        """
+        Resets all the temporary fields used to store the state of the current player's action.
+
+        This is an effective reset of a player's action state.
+
+        Note : This will also reset any error message.
+        """
+        self._player_mode = PlayerMode.IDLE
+        self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
+        self._possible_actions = set()
+        self._processed_action = None
+        self._transient_board_array = None
+        self._selected_cell = None
+        self._error_msg = ""
 
     @_entry_point
     def handle_cell_selection(self, cell_row: int, cell_col: int):
@@ -314,22 +327,6 @@ class MatchActionsService(ServiceBase):
                 self.room_id,
             )
 
-    def _set_player_to_idle(self):
-        """
-        Resets all the temporary fields used to store the state of the current player's action.
-
-        This is an effective reset of a player's action state.
-
-        Note : This will also reset any error message.
-        """
-        self._player_mode = PlayerMode.IDLE
-        self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
-        self._possible_actions = set()
-        self._processed_action = None
-        self._transient_board_array = None
-        self._selected_cell = None
-        self._error_msg = ""
-
     def _set_possible_actions(self, actions: set[MatchActionDto]):
         """
         Stores all of the possible actions and sets the server mode accordingly.
@@ -415,20 +412,12 @@ class MatchActionsService(ServiceBase):
         transient_cell = self._transient_board_array[cell.rowIndex][cell.columnIndex]
         transient_cell.set_selected()
 
-    def _selected_cell_has_already_moved_this_turn(self):
-        return (
-            self._selected_cell is not None
-            and self._selected_cell.id in self._turn_movements
-        )
-
-    def _selected_cell_has_already_attacked_this_turn(self):
-        return (
-            self._selected_cell is not None
-            and self._selected_cell.id in self._turn_attacks
-        )
-
     @_initialize_transient_board
     def _find_possible_spawns(self):
+        """
+        Sets the player mode to CELL_SPAWN and fills the possible actions field with
+        the potential spawns.
+        """
         self._player_mode = PlayerMode.CELL_SPAWN
         player = self._current_player
         self._set_possible_actions(
@@ -461,3 +450,15 @@ class MatchActionsService(ServiceBase):
             )
 
         return movements + attacks
+
+    def _selected_cell_has_already_moved_this_turn(self):
+        return (
+            self._selected_cell is not None
+            and self._selected_cell.id in self._turn_movements
+        )
+
+    def _selected_cell_has_already_attacked_this_turn(self):
+        return (
+            self._selected_cell is not None
+            and self._selected_cell.id in self._turn_attacks
+        )
