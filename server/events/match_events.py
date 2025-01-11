@@ -150,7 +150,9 @@ def handle_cell_click(data: dict):
         return
 
     partial_cell_info = PartialCellInfoDto.from_dict(data)
-    _logger.info(f"Received cell click event -> {partial_cell_info}")
+    _logger.info(
+        f"({request.remote_addr}) | Received cell click event -> {partial_cell_info}"
+    )
     row, col = partial_cell_info.rowIndex, partial_cell_info.columnIndex
     match.handle_cell_selection(row, col)
 
@@ -160,6 +162,7 @@ def handle_spawn_button():
     """
     Receives the client's request to spawn a unit.
     """
+    _logger.info(f"({request.remote_addr}) | Received cell spawn button toggle event")
     room_id = _get_session_variable(ROOM_ID)
     player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
     match = match_handler.get_unit(room_id)

@@ -277,7 +277,7 @@
     align-items: center;
     gap: max(5px, 0.5vmin);
     background-color: rgba(103, 48, 185, 1);
-    box-shadow: 0 0 0.8rem 0.1rem rgb(0, 0, 0, 0.2);
+    box-shadow: 0 0 0.8rem 0.08rem rgb(0, 0, 0, 0.2);
 }
 
 /* #endregion */
