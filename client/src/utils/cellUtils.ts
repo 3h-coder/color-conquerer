@@ -53,6 +53,13 @@ function getCellColor(cell: PartialCellInfoDto, isPlayer1: boolean) {
   return cell.isMaster ? colors.cell.opponentMaster : colors.cell.opponent;
 }
 
+export function getOwnedCellColor(isMaster: boolean, ownCell: boolean) {
+  if (ownCell)
+    return isMaster ? colors.cell.ownMaster : colors.cell.own;
+
+  return isMaster ? colors.cell.opponentMaster : colors.cell.opponent;
+}
+
 function getFreshlySpawnedCellColor(
   cell: PartialCellInfoDto,
   isPlayer1: boolean

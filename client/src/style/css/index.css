@@ -325,12 +325,12 @@ svg {
   }
 }
 
-@keyframes shadow-explosion {
+@keyframes shadow-expansion-fade {
   0% {
-    box-shadow: 0 0 0 var(--explosion-color);
+    box-shadow: 0 0 0 var(--expansion-color);
   }
   50% {
-    box-shadow: 0 0 2rem 0.1rem var(--explosion-color);
+    box-shadow: 0 0 2rem 0.1rem var(--expansion-color);
   }
   100% {
     box-shadow: 0 0 3rem 0.2rem rgb(0, 0, 0, 0);

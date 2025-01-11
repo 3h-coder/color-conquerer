@@ -16,11 +16,11 @@ interface GameCellProps {
     isPlayer1: boolean;
     cellInfo: PartialCellInfoDto;
     canInteract: boolean;
-    animationAllowed: boolean;
+    canDisplayPossibleActions: boolean;
 }
 
 export default function GameCell(props: GameCellProps) {
-    const { id, isPlayer1, cellInfo, canInteract, animationAllowed } = props;
+    const { id, isPlayer1, cellInfo, canInteract, canDisplayPossibleActions } = props;
     const selectable = canInteract && isSelectable(cellInfo);
 
     const selected = cellInfo.transientState === CellTransientState.SELECTED;
@@ -54,7 +54,7 @@ export default function GameCell(props: GameCellProps) {
 
     const allClassNames = [
         selectable ? cellStyle.selectableClassName : EMPTY_STRING,
-        animationAllowed && canBeMovedOrSpawnedInto(cellInfo)
+        canDisplayPossibleActions && canBeMovedOrSpawnedInto(cellInfo)
             ? cellStyle.possibleActionClassName
             : EMPTY_STRING,
     ];

@@ -38,12 +38,12 @@ export default function GameGrid() {
     const [actionErrorMessage, setActionErrorMessage] = useState(EMPTY_STRING);
 
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
-    const [cellAnimationAllowed, setAnimationAllowed] = useState(true);
+    const [canDisplayPossibleActions, setCanDisplayPossibleActions] = useState(true);
 
     /** Used to force cells to restart their animations all together synchronously */
-    function triggerAnimationSync() {
-        setAnimationAllowed(false);
-        setTimeout(() => setAnimationAllowed(true), 100); // Force a reflow
+    function triggerPossibleActionsAnimationSync() {
+        setCanDisplayPossibleActions(false);
+        setTimeout(() => setCanDisplayPossibleActions(true), 100); // Force a reflow
     }
 
     // Set the isMyTurn variable on turn change
@@ -149,13 +149,13 @@ export default function GameGrid() {
             // Update the board array with the new cell info
             if (isMyTurn && processedActionDto.overridingTransientBoard) {
                 setBoardArray(processedActionDto.overridingTransientBoard);
+                triggerPossibleActionsAnimationSync();
             } else {
                 setBoardArray(processedActionDto.updatedTurnInfo.updatedBoardArray);
             }
 
             // Trigger animations
-            animateProcessedAction(processedActionDto.processedAction);
-            triggerAnimationSync();
+            animateProcessedAction(processedActionDto.processedAction, isPlayer1);
         }
 
         function onServerActionError(errorMessageDto: MessageDto) {
@@ -197,7 +197,7 @@ export default function GameGrid() {
                                 isPlayer1={isPlayer1}
                                 cellInfo={cellInfo}
                                 canInteract={canInteract}
-                                animationAllowed={cellAnimationAllowed}
+                                canDisplayPossibleActions={canDisplayPossibleActions}
                             />
                         ))}
                     </GridRow>

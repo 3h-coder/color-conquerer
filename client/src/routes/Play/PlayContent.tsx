@@ -5,6 +5,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { useMatchInfo } from "../../contexts/MatchContext";
 import { usePlayerInfo } from "../../contexts/PlayerContext";
+import { usePlayerMode } from "../../contexts/PlayerModeContext";
 import { useTurnInfo } from "../../contexts/TurnContext";
 import { ErrorDto } from "../../dto/ErrorDto";
 import { EndingReason, MatchClosureDto } from "../../dto/MatchClosureDto";
@@ -12,16 +13,15 @@ import { MessageDto } from "../../dto/MessageDto";
 import { TurnInfoDto } from "../../dto/TurnInfoDto";
 import { Events } from "../../enums/events";
 import { ModalIcon } from "../../enums/modalIcons";
+import { PlayerMode } from "../../enums/playerMode";
 import { constants, EMPTY_STRING, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
+import ActionBoard from "./components/action_board/ActionBoard";
 import GameGrid from "./components/GameGrid";
 import GameTopInfo from "./components/GameTopInfo";
 import MyPlayerInfo from "./components/MyPlayerInfo";
 import OpponentInfo from "./components/OpponentInfo";
 import RightSideControls from "./components/RightSideControls";
-import ActionBoard from "./components/action_board/ActionBoard";
-import { usePlayerMode } from "../../contexts/PlayerModeContext";
-import { PlayerMode } from "../../enums/playerMode";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -76,6 +76,7 @@ export default function PlayContent() {
     function resetPlayerModeOnNewTurn() {
       setPlayerMode(PlayerMode.IDLE);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [turnInfo]);
 
   // Socket events
