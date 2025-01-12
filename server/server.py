@@ -1,4 +1,5 @@
 import traceback
+from typing import Callable
 
 from flask import Flask
 from flask_socketio import SocketIO, emit
@@ -23,7 +24,7 @@ from exceptions.custom_exception import CustomException
 
 class Server:
     """
-    Socket server wrapper around a flask application to handle real time updates between with the client.
+    Socket server wrapper around a flask application to handle real time updates with the client.
 
     Docs : https://flask-socketio.readthedocs.io/en/latest/
     Simple chat app example : https://github.com/miguelgrinberg/Flask-SocketIO-Chat
@@ -35,25 +36,30 @@ class Server:
         self.app = app
         # TODO: add the proper origins
         self.socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
+        self.event_listeners: dict[str, Callable] = {}
         self._add_listeners()
 
     def _add_listeners(self):
-        self.socketio.on_event("connect", handle_connection)
-        self.socketio.on_event("disconnect", handle_disconnection)
-        self.socketio.on_event(Events.CLIENT_QUEUE_REGISTER, handle_queue_registration)
-        self.socketio.on_event(Events.CLIENT_READY, handle_client_ready)
-        self.socketio.on_event(Events.CLIENT_TURN_END, handle_turn_end)
-        self.socketio.on_event(Events.CLIENT_CELL_HOVER, handle_cell_hover)
-        self.socketio.on_event(Events.CLIENT_CELL_HOVER_END, handle_cell_hover_end)
-        self.socketio.on_event(Events.CLIENT_CELL_CLICK, handle_cell_click)
-        self.socketio.on_event(Events.CLIENT_SPAWN_BUTTON, handle_spawn_button)
-        self.socketio.on_event(Events.CLIENT_CLEAR_SESSION, handle_session_clearing)
+        self._add_listener("connect", handle_connection)
+        self._add_listener("disconnect", handle_disconnection)
+        self._add_listener(Events.CLIENT_QUEUE_REGISTER, handle_queue_registration)
+        self._add_listener(Events.CLIENT_READY, handle_client_ready)
+        self._add_listener(Events.CLIENT_TURN_END, handle_turn_end)
+        self._add_listener(Events.CLIENT_CELL_HOVER, handle_cell_hover)
+        self._add_listener(Events.CLIENT_CELL_HOVER_END, handle_cell_hover_end)
+        self._add_listener(Events.CLIENT_CELL_CLICK, handle_cell_click)
+        self._add_listener(Events.CLIENT_SPAWN_BUTTON, handle_spawn_button)
+        self._add_listener(Events.CLIENT_CLEAR_SESSION, handle_session_clearing)
 
         @self.socketio.on_error()
         def _(ex: Exception):
             if not isinstance(ex, CustomException):
                 self.logger.error(f"A socket error occured : {traceback.format_exc()}")
             emit(Events.SERVER_ERROR, ErrorDto.from_exception(ex).to_dict())
+
+    def _add_listener(self, event_name: str, listener: Callable):
+        self.socketio.on_event(event_name, listener)
+        self.event_listeners[event_name] = listener
 
     def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):
         self.socketio.run(

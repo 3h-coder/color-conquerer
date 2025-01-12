@@ -18,14 +18,19 @@ class Application(Flask):
     Custom implementation of a flask application.
     """
 
-    def __init__(self, import_name, **kwargs):
+    def __init__(self, import_name, test_instance: bool = False, **kwargs):
+        if test_instance:
+            super().__init__(import_name, **kwargs)
+            self._initialize_test_instance()
+            return
+
         self.logger = get_configured_logger(__name__)
         self.global_config = get_global_config()
         self.logger.debug("Initializing application")
         super().__init__(import_name, **kwargs)
-        self.initialize()
+        self._initialize()
 
-    def initialize(self):
+    def _initialize(self):
         self._clean_up()
         self._set_config()
         self._register_middlewares()
@@ -90,3 +95,6 @@ class Application(Flask):
 
     def _get_from_config_or_default_config(self, variable: str):
         return self.global_config.get(variable, default_config[variable])
+
+    def _initialize_test_instance(self):
+        self.config["SECRET_KEY"] = "test_secret"
