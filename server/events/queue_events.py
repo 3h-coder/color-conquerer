@@ -9,9 +9,10 @@ from dto.server_only.error_dto import ErrorDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from exceptions.queue_error import QueueError
-from handlers import match_handler, room_handler, session_cache_handler
+from handlers import match_handler, session_cache_handler
 from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
-from server_gate import get_server
+from handlers.room_handler import RoomHandler
+from server_gate import get_room_handler
 from utils.id_generation_utils import generate_id
 
 _logger = get_configured_logger(__name__)
@@ -23,7 +24,8 @@ def handle_queue_registration(data: dict):
 
     Is in charge of creating the room up to creating the match.
     """
-    _raise_possible_errors()
+    room_handler = get_room_handler()
+    _raise_possible_errors(room_handler)
 
     queue_player_dto = QueuePlayerDto.from_dict(data)
     player_id = _set_player_id(queue_player_dto)
@@ -32,7 +34,7 @@ def handle_queue_registration(data: dict):
         f"({request.remote_addr}) | {Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
     )
 
-    (room_id, closed) = _make_enter_in_room(queue_player_dto)
+    (room_id, closed) = _make_enter_in_room(queue_player_dto, room_handler)
     player_info = PlayerInfoDto(
         player_id, isPlayer1=not closed, user=queue_player_dto.user, playerGameInfo=None
     )
@@ -43,10 +45,10 @@ def handle_queue_registration(data: dict):
     if closed:
         # Notify the clients so they can go to the play room
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND, to=room_id, broadcast=True)
-        _try_to_launch_match(room_id)
+        _try_to_launch_match(room_id, room_handler)
 
 
-def _raise_possible_errors():
+def _raise_possible_errors(room_handler: RoomHandler):
     """
     Checks if registration is possible, and if not, raises the adequate error.
     """
@@ -56,7 +58,7 @@ def _raise_possible_errors():
             f"({request.remote_addr}) | Attempting to register with no initiated session, denying"
         )
         raise QueueError(
-            "Something went wrong, please refresh the page and try again",
+            QueueError.NO_SESSION_ERROR_MSG,
             socket_connection_killer=True,
         )
 
@@ -65,7 +67,7 @@ def _raise_possible_errors():
             f"({request.remote_addr}) | Already in a room, ignoring registration request"
         )
         raise QueueError(
-            "You are already registered in the queue", socket_connection_killer=True
+            QueueError.ALREADY_REGISTERED_ERROR_MSG, socket_connection_killer=True
         )
 
     if room_handler.at_capacity():
@@ -73,12 +75,12 @@ def _raise_possible_errors():
             f"({request.remote_addr}) | Room handler at maximum capacity, denying queue registration"
         )
         raise QueueError(
-            "The server has reached its maximum capacity, please try again later",
+            QueueError.MAX_CAPACITY_ERROR_MSG,
             socket_connection_killer=True,
         )
 
 
-def _try_to_launch_match(room_id):
+def _try_to_launch_match(room_id, room_handler: RoomHandler):
     """
     Tries to launch a match, saving the second player's session information at the same time.
     """
@@ -116,7 +118,7 @@ def _set_player_id(queue_player_dto: QueuePlayerDto):
     return player_id
 
 
-def _make_enter_in_room(queue_player_dto: QueuePlayerDto):
+def _make_enter_in_room(queue_player_dto: QueuePlayerDto, room_handler: RoomHandler):
     """
     Set the session's room id and notifies the client that the player is registered in a room.
     """

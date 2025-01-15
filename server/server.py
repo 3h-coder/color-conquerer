@@ -20,6 +20,8 @@ from events.match_events import (
 )
 from events.queue_events import handle_queue_registration
 from exceptions.custom_exception import CustomException
+from handlers.room_handler import RoomHandler
+from server_gate import set_server
 
 
 class Server:
@@ -36,10 +38,14 @@ class Server:
         self.app = app
         # TODO: add the proper origins
         self.socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
+        self.room_handler = RoomHandler()
         self.event_listeners: dict[str, Callable] = {}
-        self._add_listeners()
+        self._add_event_listeners()
 
-    def _add_listeners(self):
+        # Allow the instance to be available everywhere
+        set_server(self)
+
+    def _add_event_listeners(self):
         self._add_listener("connect", handle_connection)
         self._add_listener("disconnect", handle_disconnection)
         self._add_listener(Events.CLIENT_QUEUE_REGISTER, handle_queue_registration)

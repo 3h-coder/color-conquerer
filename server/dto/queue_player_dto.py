@@ -8,3 +8,8 @@ from dto.user_dto import UserDto
 class QueuePlayerDto(BaseDto):
     user: UserDto
     playerId: str
+
+    @classmethod
+    def from_dict(cls, data):
+        data["user"] = UserDto.from_dict(data["user"])
+        return super().from_dict(data)

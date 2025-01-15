@@ -2,18 +2,18 @@ import sys
 import traceback
 
 import werkzeug.exceptions
-from flask import jsonify, current_app
+from flask import current_app, jsonify
 
 from dto.server_only.error_dto import ErrorDto
 from exceptions.custom_exception import CustomException
 
 
 def handle_error(ex: Exception):
-    code = get_status_code(ex)
+    code = _get_status_code(ex)
     return jsonify(ErrorDto.from_exception(ex)), code
 
 
-def get_status_code(exception: Exception) -> int:
+def _get_status_code(exception: Exception) -> int:
     """Returns the response status code associated to the given exception (between 400 and 500)"""
 
     if isinstance(exception, CustomException) or isinstance(

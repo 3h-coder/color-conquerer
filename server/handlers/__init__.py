@@ -4,6 +4,5 @@ from handlers.room_handler import RoomHandler
 from handlers.session_cache_handler import SessionCacheHandler
 
 connection_handler = ConnectionHandler()
-room_handler = RoomHandler()
 match_handler = MatchHandler()
 session_cache_handler = SessionCacheHandler()

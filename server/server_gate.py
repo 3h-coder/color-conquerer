@@ -15,5 +15,12 @@ def set_server(server_ref: "Server"):
     _server = server_ref
 
 
-def get_server() -> "Server":
+def get_server():
     return _server
+
+
+def get_room_handler():
+    if _server is None:
+        return None
+
+    return _server.room_handler

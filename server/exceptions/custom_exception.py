@@ -2,7 +2,7 @@ class CustomException(Exception):
     """
     Extends the native Exception class. Mother class of all of our custom exceptions.
 
-    Custom exception's messages are meant to be shown to the client (user).
+    INFO : Custom exception's messages are meant to be shown to the client (user).
     """
 
     def __init__(

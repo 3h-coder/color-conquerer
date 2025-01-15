@@ -9,10 +9,17 @@ from server import Server
 
 
 def mock_app():
+    """
+    Not an actual mock but a real Application instance initialized with
+    minimal configuration strictly necessary for tests.
+    """
     return Application(__name__, test_instance=True)
 
 
 def mock_server(app: Application):
+    """
+    Not an actual mock but a real Server instance for testing purposes.
+    """
     return Server(app)
 
 
