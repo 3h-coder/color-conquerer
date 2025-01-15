@@ -20,7 +20,9 @@ from events.match_events import (
 )
 from events.queue_events import handle_queue_registration
 from exceptions.custom_exception import CustomException
+from handlers.connection_handler import ConnectionHandler
 from handlers.room_handler import RoomHandler
+from handlers.session_cache_handler import SessionCacheHandler
 from server_gate import set_server
 
 
@@ -38,7 +40,9 @@ class Server:
         self.app = app
         # TODO: add the proper origins
         self.socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
+        self.connection_handler = ConnectionHandler()
         self.room_handler = RoomHandler()
+        self.session_cache_handler = SessionCacheHandler()
         self.event_listeners: dict[str, Callable] = {}
         self._add_event_listeners()
 

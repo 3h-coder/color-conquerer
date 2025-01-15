@@ -7,3 +7,5 @@ from dto.base_dto import BaseDto
 class UserDto(BaseDto):
     id: str
     username: str
+    isAuthenticating: bool
+    isAuthenticated: bool

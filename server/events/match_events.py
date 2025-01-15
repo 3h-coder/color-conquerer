@@ -8,7 +8,8 @@ from dto.partial_cell_info_dto import PartialCellInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from exceptions.server_error import ServerError
-from handlers import match_handler, session_cache_handler
+from handlers import match_handler
+from server_gate import get_session_cache_handler
 from utils import session_utils
 
 _logger = get_configured_logger(__name__)
@@ -183,7 +184,9 @@ def _get_session_variable(variable_name: str):
         _logger.error(
             f"({request.remote_addr}) | {variable_name} was None, resorting to session cache"
         )
-        session_cache = session_cache_handler.get_cache_for_session(session[SESSION_ID])
+        session_cache = get_session_cache_handler().get_cache_for_session(
+            session[SESSION_ID]
+        )
         value = session_cache.get(variable_name)
 
     return value

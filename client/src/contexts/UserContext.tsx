@@ -5,6 +5,7 @@ import UserDto from "../dto/UserDto";
 
 
 export const guestUser: UserDto = {
+    id: "undefined",
     username: "guest",
     isAuthenticating: true,
     isAuthenticated: false
@@ -26,11 +27,7 @@ export default function UserContextProvider(props: UserContextProviderProps) {
         initiateSession();
 
         // TODO: Change that when implementing user accounts
-        setUser({
-            username: "guest",
-            isAuthenticating: false,
-            isAuthenticated: false
-        });
+        setUser({ ...guestUser, isAuthenticating: false });
     }, []);
 
     async function initiateSession() {

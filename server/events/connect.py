@@ -6,8 +6,8 @@ from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from dto.message_dto import MessageDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
-from exceptions.server_error import ServerError
-from handlers import connection_handler, match_handler
+from handlers import match_handler
+from server_gate import get_connection_handler
 
 _logger = get_configured_logger(__name__)
 
@@ -18,6 +18,8 @@ def handle_connection(_):
 
     Does nothing if the socket connection is multiple.
     """
+    connection_handler = get_connection_handler()
+
     connection_handler.register_connection(request.remote_addr)
     session[SOCKET_CONNECTED] = True
 

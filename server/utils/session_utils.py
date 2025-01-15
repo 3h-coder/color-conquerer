@@ -7,6 +7,7 @@ from constants.session_variables import (
     SESSION_ID,
     SOCKET_CONNECTED,
 )
+from server_gate import get_session_cache_handler
 
 
 def get_session_data():
@@ -40,9 +41,9 @@ def clear_match_info():
     safe_delete(PLAYER_INFO)
     session[IN_MATCH] = False
 
-    from handlers import session_cache_handler
-
-    session_cache = session_cache_handler.get_cache_for_session(session[SESSION_ID])
+    session_cache = get_session_cache_handler().get_cache_for_session(
+        session[SESSION_ID]
+    )
     if not session_cache:
         return
     _safe_delete_from_dict(session_cache, ROOM_ID)

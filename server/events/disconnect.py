@@ -4,9 +4,9 @@ from flask_socketio import leave_room
 from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from dto.server_only.player_info_dto import PlayerInfoDto
-from handlers import connection_handler, match_handler
+from handlers import match_handler
 from handlers.room_handler import RoomHandler
-from server_gate import get_room_handler
+from server_gate import get_connection_handler, get_room_handler
 from utils import session_utils
 
 _logger = get_configured_logger(__name__)
@@ -20,7 +20,9 @@ def handle_disconnection():
 
     Does nothing if there still is at least one socket connection.
     """
+    connection_handler = get_connection_handler()
     room_handler = get_room_handler()
+
     connection_handler.register_disconnection(request.remote_addr)
     if not connection_handler.no_connection():
         return

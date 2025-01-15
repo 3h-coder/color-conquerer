@@ -19,8 +19,13 @@ def get_server():
     return _server
 
 
-def get_room_handler():
-    if _server is None:
-        return None
+def get_connection_handler():
+    return None if _server is None else _server.connection_handler
 
-    return _server.room_handler
+
+def get_room_handler():
+    return None if _server is None else _server.room_handler
+
+
+def get_session_cache_handler():
+    return None if _server is None else _server.session_cache_handler

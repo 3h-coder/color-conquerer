@@ -9,10 +9,11 @@ from dto.server_only.error_dto import ErrorDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from exceptions.queue_error import QueueError
-from handlers import match_handler, session_cache_handler
+from handlers import match_handler
 from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
 from handlers.room_handler import RoomHandler
-from server_gate import get_room_handler
+from handlers.session_cache_handler import SessionCacheHandler
+from server_gate import get_room_handler, get_session_cache_handler
 from utils.id_generation_utils import generate_id
 
 _logger = get_configured_logger(__name__)
@@ -25,6 +26,8 @@ def handle_queue_registration(data: dict):
     Is in charge of creating the room up to creating the match.
     """
     room_handler = get_room_handler()
+    session_cache_handler = get_session_cache_handler()
+
     _raise_possible_errors(room_handler)
 
     queue_player_dto = QueuePlayerDto.from_dict(data)
@@ -38,7 +41,7 @@ def handle_queue_registration(data: dict):
     player_info = PlayerInfoDto(
         player_id, isPlayer1=not closed, user=queue_player_dto.user, playerGameInfo=None
     )
-    _save_into_session(room_id, player_info)
+    _save_into_session(room_id, player_info, session_cache_handler)
 
     # If the room is closed, then it already had a player waiting.
     # In that case, notify both clients that an opponent was found and initiate the match.
@@ -139,7 +142,9 @@ def _make_enter_in_room(queue_player_dto: QueuePlayerDto, room_handler: RoomHand
     return room_id, closed
 
 
-def _save_into_session(room_id: str, player_info: PlayerInfoDto):
+def _save_into_session(
+    room_id: str, player_info: PlayerInfoDto, session_cache_handler: SessionCacheHandler
+):
     """
     Saves the player information into the session.
     """
