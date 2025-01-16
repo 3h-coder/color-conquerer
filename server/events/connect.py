@@ -6,8 +6,7 @@ from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from dto.message_dto import MessageDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
-from handlers import match_handler
-from server_gate import get_connection_handler
+from server_gate import get_connection_handler, get_match_handler
 
 _logger = get_configured_logger(__name__)
 
@@ -29,6 +28,8 @@ def handle_connection(_):
     room_id = session.get(ROOM_ID)
     if not room_id:
         return
+
+    match_handler = get_match_handler()
 
     match = match_handler.get_unit(room_id)
     if match is None:

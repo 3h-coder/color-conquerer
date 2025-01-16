@@ -4,9 +4,8 @@ from flask import Blueprint, current_app, jsonify, request, session
 
 from constants.session_variables import ROOM_ID, SESSION_ID
 from dto.boolean_dto import BooleanDto
-from handlers import match_handler
 from middlewares.error_handler import handle_error
-from server_gate import get_session_cache_handler
+from server_gate import get_match_handler, get_session_cache_handler
 from utils import session_utils
 
 session_bp = Blueprint("session", __name__)
@@ -31,6 +30,7 @@ def is_in_match():
         return BooleanDto(False).to_dict(), 200
 
     current_app.logger.info(f"({request.remote_addr}) is in a match")
+    match_handler = get_match_handler()
     match = match_handler.get_unit(room_id)
     if match is None:
         return BooleanDto(False).to_dict(), 200

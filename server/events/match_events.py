@@ -8,8 +8,7 @@ from dto.partial_cell_info_dto import PartialCellInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from exceptions.server_error import ServerError
-from handlers import match_handler
-from server_gate import get_session_cache_handler
+from server_gate import get_match_handler, get_session_cache_handler
 from utils import session_utils
 
 _logger = get_configured_logger(__name__)
@@ -53,6 +52,8 @@ def handle_client_ready():
             socket_connection_killer=True,
         )
 
+    match_handler = get_match_handler()
+
     join_room(room_id)
     match = match_handler.get_unit(room_id)
     session[IN_MATCH] = True
@@ -86,6 +87,8 @@ def handle_turn_end():
     room_id = _get_session_variable(ROOM_ID)
     player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
     _logger.info(f"({request.remote_addr}) | Turn swap requested")
+
+    match_handler = get_match_handler()
 
     match = match_handler.get_unit(room_id)
     if not match.get_current_player().playerId == player_info.playerId:
@@ -141,7 +144,7 @@ def handle_cell_click(data: dict):
     """
     room_id = _get_session_variable(ROOM_ID)
     player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
-    match = match_handler.get_unit(room_id)
+    match = get_match_handler().get_unit(room_id)
 
     player_id = player_info.playerId
     if not match.get_current_player().playerId == player_id:
@@ -166,7 +169,7 @@ def handle_spawn_button():
     _logger.info(f"({request.remote_addr}) | Received cell spawn button toggle event")
     room_id = _get_session_variable(ROOM_ID)
     player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
-    match = match_handler.get_unit(room_id)
+    match = get_match_handler().get_unit(room_id)
 
     player_id = player_info.playerId
     if not match.get_current_player().playerId == player_id:

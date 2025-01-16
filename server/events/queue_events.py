@@ -9,11 +9,11 @@ from dto.server_only.error_dto import ErrorDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from exceptions.queue_error import QueueError
-from handlers import match_handler
+from handlers.match_handler import MatchHandler
 from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
 from handlers.room_handler import RoomHandler
 from handlers.session_cache_handler import SessionCacheHandler
-from server_gate import get_room_handler, get_session_cache_handler
+from server_gate import get_match_handler, get_room_handler, get_session_cache_handler
 from utils.id_generation_utils import generate_id
 
 _logger = get_configured_logger(__name__)
@@ -46,9 +46,10 @@ def handle_queue_registration(data: dict):
     # If the room is closed, then it already had a player waiting.
     # In that case, notify both clients that an opponent was found and initiate the match.
     if closed:
+        match_handler = get_match_handler()
         # Notify the clients so they can go to the play room
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND, to=room_id, broadcast=True)
-        _try_to_launch_match(room_id, room_handler)
+        _try_to_launch_match(room_id, room_handler, match_handler)
 
 
 def _raise_possible_errors(room_handler: RoomHandler):
@@ -83,7 +84,9 @@ def _raise_possible_errors(room_handler: RoomHandler):
         )
 
 
-def _try_to_launch_match(room_id, room_handler: RoomHandler):
+def _try_to_launch_match(
+    room_id, room_handler: RoomHandler, match_handler: MatchHandler
+):
     """
     Tries to launch a match, saving the second player's session information at the same time.
     """

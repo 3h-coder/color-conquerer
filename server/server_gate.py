@@ -19,6 +19,10 @@ def get_server():
     return _server
 
 
+def get_match_handler():
+    return None if _server is None else _server.match_handler
+
+
 def get_connection_handler():
     return None if _server is None else _server.connection_handler
 

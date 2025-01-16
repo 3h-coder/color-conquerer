@@ -4,10 +4,9 @@ from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.partial_player_info_dto import PartialPlayerInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from exceptions.unauthorized_error import UnauthorizedError
-from handlers import match_handler
 from handlers.session_cache_handler import SessionCacheHandler
 from middlewares.error_handler import handle_error
-from server_gate import get_session_cache_handler
+from server_gate import get_match_handler, get_session_cache_handler
 from utils import session_utils
 
 play_bp = Blueprint("play", __name__)
@@ -18,6 +17,8 @@ play_bp.register_error_handler(Exception, handle_error)
 def get_match_info():
     session_cache_handler = get_session_cache_handler()
     room_id = _get_room_id_or_raise_error(session_cache_handler)
+
+    match_handler = get_match_handler()
 
     partial_match_info = match_handler.get_match_info(room_id, partial=True)
     return jsonify(partial_match_info.to_dict()), 200

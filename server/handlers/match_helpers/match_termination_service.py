@@ -6,7 +6,6 @@ from dto.partial_match_closure_dto import PartialMatchClosureDto
 from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from handlers.match_helpers.client_notifications import notify_match_ending
 from handlers.match_helpers.service_base import ServiceBase
-from server_gate import get_room_handler
 
 if TYPE_CHECKING:
     from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
@@ -23,7 +22,6 @@ class MatchTerminationService(ServiceBase):
         self._logger = get_configured_logger(__name__)
         # Dto which we use to share/save the final match data before disposing the handler unit
         self.match_closure_info = None
-        self._room_handler = get_room_handler()
 
     def end_match(
         self,
@@ -120,7 +118,7 @@ class MatchTerminationService(ServiceBase):
     def _close_rooms(self):
         self.match.server.socketio.close_room(self.match_info.roomId)
 
-        self._room_handler.remove_closed_room(self.match_info.roomId)
+        self._server.room_handler.remove_closed_room(self.match_info.roomId)
 
     def _schedule_garbage_collection(self):
         """
@@ -136,10 +134,11 @@ class MatchTerminationService(ServiceBase):
         room_id = self.match_info.roomId
         self._logger.debug(f"Deleting the match handler unit for the room {room_id}")
 
-        from handlers import match_handler
+        room_handler = self._server.room_handler
+        match_handler = self._server.match_handler
 
-        if room_id in self._room_handler.closed_rooms:
-            self._room_handler.remove_closed_room(room_id)
+        if room_id in room_handler.closed_rooms:
+            room_handler.remove_closed_room(room_id)
 
         if room_id not in match_handler.units:
             self._logger.warning(
