@@ -23,8 +23,13 @@ def mock_server(app: Application):
     return Server(app)
 
 
-def mock_user_dto(id: str = "mock_user_id", username: str = "mock user"):
-    return UserDto(id, username)
+def mock_user_dto(
+    id: str = "mock_user_id",
+    username: str = "mock user",
+    is_authenticating=False,
+    is_authenticated=False,
+):
+    return UserDto(id, username, is_authenticating, is_authenticated)
 
 
 def mock_queue_player_dto(user: UserDto = None, playerId: str = "mock_player_id"):
