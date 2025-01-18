@@ -46,12 +46,11 @@ export default function GameGrid() {
         setTimeout(() => setCanDisplayPossibleActions(true), 100); // Force a reflow
     }
 
-    // Set the isMyTurn variable on turn change
-    // Reset the colors on the boardArray variable change
+    // React to a turnInfo update (from either a turn change or a page refresh)
     useEffect(() => {
-        handleTurnChange();
+        handleTurnInfoUpdate();
 
-        function handleTurnChange() {
+        function handleTurnInfoUpdate() {
             setBoardArray(turnInfo.updatedBoardArray);
             setPlayerGameInfoBundle(turnInfo.playerGameInfoBundle);
             setActionErrorMessage(EMPTY_STRING);
@@ -73,7 +72,7 @@ export default function GameGrid() {
             setCanInteract(false);
 
             // If not a turn change, the user may interact immediately
-            // if it's theiur turn (typically after a page refresh)
+            // if it's their turn (typically after a page refresh)
             if (!turnInfo.notifyTurnChange) {
                 setCanInteract(isMyTurn);
                 return;

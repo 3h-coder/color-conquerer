@@ -146,9 +146,9 @@ class MatchActionsService(ServiceBase):
         self._turn_movements = set()
         self._turn_attacks = set()
         self._current_player = self.match.get_current_player()
-        self._set_player_to_idle()
+        self.set_player_as_idle()
 
-    def _set_player_to_idle(self):
+    def set_player_as_idle(self):
         """
         Resets all the temporary fields used to store the state of the current player's action.
 
@@ -187,7 +187,7 @@ class MatchActionsService(ServiceBase):
         self._send_response()
 
         if self._server_mode == ServerMode.SHOW_PROCESSED_ACTION:
-            self._set_player_to_idle()
+            self.set_player_as_idle()
 
     @_entry_point
     def handle_spawn_toggle(self):
@@ -200,11 +200,11 @@ class MatchActionsService(ServiceBase):
             self._find_possible_spawns()
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
-            self._set_player_to_idle()
+            self.set_player_as_idle()
             self._find_possible_spawns()
 
         elif self._player_mode == PlayerMode.CELL_SPAWN:
-            self._set_player_to_idle()
+            self.set_player_as_idle()
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
             pass  # nothing for now
@@ -224,12 +224,12 @@ class MatchActionsService(ServiceBase):
             if possible_actions:
                 self._set_possible_actions(set(possible_actions))
             else:
-                self._set_player_to_idle()
+                self.set_player_as_idle()
 
         elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
 
             if self._selected_cell == cell:
-                self._set_player_to_idle()
+                self.set_player_as_idle()
 
             elif cell.is_owned():
                 self._error_msg = ErrorMessages.CANNOT_MOVE_TO_NOR_ATTACK
@@ -387,7 +387,7 @@ class MatchActionsService(ServiceBase):
         )
         processed_action = self._action_processor.process_action(action)
         if processed_action is None:
-            self._set_player_to_idle()
+            self.set_player_as_idle()
             self._error_msg = ErrorMessages.INVALID_ACTION
             return
 

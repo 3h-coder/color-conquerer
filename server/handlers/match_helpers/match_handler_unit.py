@@ -158,6 +158,15 @@ class MatchHandlerUnit:
             updatedBoardArray=to_client_board_dto(self.match_info.boardArray),
         )
 
+    def set_player_as_idle(self, player_id: str):
+        """
+        Sets the server side player mode to idle.
+        """
+        if self.get_current_player().playerId != player_id:
+            return
+
+        self._match_actions_service.set_player_as_idle()
+
     def handle_cell_selection(self, cell_row: int, cell_col: int):
         """
         Triggers all of the processing relative to a cell selection.

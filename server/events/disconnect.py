@@ -51,9 +51,9 @@ def handle_disconnection():
     player_id = player_info.playerId
     match = match_handler.get_unit(room_id)
 
-    # If the match is on going, wait a period of time before considering the player gone
     if match is not None and match.is_ongoing():
         match.watch_player_exit(player_id)
+        match.set_player_as_idle(player_id)
 
 
 def _handle_disconnection_in_queue(room_id, room_handler: RoomHandler):

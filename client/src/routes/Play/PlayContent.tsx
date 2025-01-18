@@ -48,6 +48,8 @@ export default function PlayContent() {
     return () => setModalVisible(false);
   });
 
+  // Connect to the server on mount/rendering
+  // If the connection fails, redirects to the home page
   useEffect(() => {
     connectToServer();
 
@@ -70,10 +72,11 @@ export default function PlayContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchInfo, matchInfoLoading, playerId, playerInfoLoading]);
 
+  // React to a turnInfo update
   useEffect(() => {
-    resetPlayerModeOnNewTurn();
+    resetPlayerModeOnTurnInfoUpdate();
 
-    function resetPlayerModeOnNewTurn() {
+    function resetPlayerModeOnTurnInfoUpdate() {
       setPlayerMode(PlayerMode.IDLE);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -93,13 +96,13 @@ export default function PlayContent() {
       setCanRenderContent(true);
       setTurnInfo(turnInfoDto);
       developmentLog(
-        `The match started! \nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds`
+        `The match is ongoing.\nThere are ${turnInfoDto.durationInS} seconds left in the turn`
       );
     }
 
     function onTurnSwap(turnInfoDto: TurnInfoDto) {
       developmentLog(
-        `Turn swap!\nHow much time is there left ? -> ${turnInfoDto.durationInS} seconds `
+        `Turn swap!\nThe new turn lasts ${turnInfoDto.durationInS} seconds `
       );
       setTurnInfo(turnInfoDto);
     }
