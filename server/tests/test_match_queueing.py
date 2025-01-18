@@ -8,6 +8,7 @@ from dto.queue_player_dto import QueuePlayerDto
 from events.events import Events
 from exceptions.queue_error import QueueError
 from server import Server
+from tests.utilities import initialize_session
 
 
 def test_registration_not_allowed_without_initialized_session(
@@ -71,13 +72,12 @@ def test_successful_registration_puts_queuer_in_an_open_room(
     """
     # Arrange
     room_handler = server.room_handler
-    flask_test_client = server.app.test_client()
+    client = server.app.test_client()
 
-    response = flask_test_client.get("/session")
-    assert response.status_code == 200
+    initialize_session(client)
 
     socketio_test_client = server.socketio.test_client(
-        server.app, flask_test_client=flask_test_client
+        server.app, flask_test_client=client
     )
 
     # Act
@@ -89,3 +89,43 @@ def test_successful_registration_puts_queuer_in_an_open_room(
 
     open_room_dto = next(iter(room_handler.open_rooms.values()))
     assert queue_player_dto.user == open_room_dto.player1.user
+
+
+def test_two_players_queueing_starts_a_match(
+    server: Server, queue_player_dto: QueuePlayerDto
+):
+    """
+    Makes sure that a match is launched when 2 players successfully
+    register in the queue.
+    """
+    # Arrange
+    room_handler = server.room_handler
+    match_handler = server.match_handler
+
+    client1 = server.app.test_client()
+    client2 = server.app.test_client()
+
+    initialize_session(client1)
+    initialize_session(client2)
+
+    socketio_client1 = server.socketio.test_client(
+        server.app, flask_test_client=client1
+    )
+    socketio_client2 = server.socketio.test_client(
+        server.app, flask_test_client=client2
+    )
+
+    # Act
+    socketio_client1.emit(Events.CLIENT_QUEUE_REGISTER, queue_player_dto.to_dict())
+    socketio_client2.emit(Events.CLIENT_QUEUE_REGISTER, queue_player_dto.to_dict())
+
+    # Assert
+    assert len(room_handler.open_rooms) == 0
+    assert len(room_handler.closed_rooms) == 1
+    assert len(match_handler.units) == 1
+
+    closed_room = next(iter(room_handler.closed_rooms.values()))
+    match = match_handler.get_unit(closed_room.id)
+
+    assert match is not None
+    assert match.is_waiting_to_start()
