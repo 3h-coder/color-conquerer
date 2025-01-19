@@ -1,5 +1,6 @@
 from config.logging import get_configured_logger
 from dto.player_game_info_dto import PlayerGameInfoDto
+from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from utils.board_utils import move_cell, spawn_cell, trigger_cell_attack
@@ -33,6 +34,9 @@ class ActionProcessor:
             if action_type == ActionType.CELL_MOVE:
                 original_coords = action.originatingCellCoords
                 new_coords = action.impactedCoords[0]
+                self._check_for_mana_bubble(
+                    player_game_info, new_coords.rowIndex, new_coords.columnIndex
+                )
                 move_cell(
                     original_coords.rowIndex,
                     original_coords.columnIndex,
@@ -54,6 +58,9 @@ class ActionProcessor:
 
             elif action_type == ActionType.CELL_SPAWN:
                 coords = action.impactedCoords[0]
+                self._check_for_mana_bubble(
+                    player_game_info, coords.rowIndex, coords.columnIndex
+                )
                 spawn_cell(
                     coords.rowIndex,
                     coords.columnIndex,
@@ -83,3 +90,13 @@ class ActionProcessor:
             )
 
         player_game_info.currentMP -= action.manaCost
+
+    def _check_for_mana_bubble(
+        self, player_game_info: PlayerGameInfoDto, row_index: int, col_index: int
+    ):
+        """
+        Increases the player's mana by one if the target cell is a mana bubble.
+        """
+        cell: CellInfoDto = self._board_array[row_index][col_index]
+        if cell.is_mana_bubble():
+            player_game_info.currentMP += 1

@@ -121,6 +121,9 @@ class CellInfoDto(PartialCellInfoDto):
     def is_freshly_spawned(self):
         return self.state == CellState.FRESHLY_SPAWNED
 
+    def is_mana_bubble(self):
+        return self.state == CellState.MANA_BUBBLE
+
     def clear_state(self):
         self.state = CellState.NONE
 

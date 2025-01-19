@@ -1,9 +1,20 @@
+import { PartialCellInfoDto } from "../dto/PartialCellInfoDto";
 import { PartialMatchActionDto } from "../dto/PartialMatchActionDto";
 import { ActionType } from "../enums/actionType";
+import { CellState } from "../enums/cellStates";
 import { getHtmlCell, getOwnedCellColor } from "./cellUtils";
 
-export function animateProcessedAction(action: PartialMatchActionDto, isPlayer1: boolean) {
+export function animateProcessedAction(action: PartialMatchActionDto, isPlayer1: boolean, boardArray: PartialCellInfoDto[][]) {
   switch (action.type) {
+    case ActionType.CELL_MOVE: {
+      const targetCoords = action.impactedCoords[0];
+      const targetCell = boardArray[targetCoords.rowIndex][targetCoords.columnIndex];
+      if (targetCell.state == CellState.MANA_BUBBLE)
+        animateCellSpawn(targetCoords.rowIndex, targetCoords.columnIndex, true);
+      break;
+    }
+
+
     case ActionType.CELL_ATTACK: {
       const attackerCoords = action.originatingCellCoords;
       if (!attackerCoords) return;

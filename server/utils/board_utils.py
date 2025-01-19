@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from dto.partial_cell_info_dto import PartialCellInfoDto
 from dto.server_only.cell_info_dto import (
     CellInfoDto,
@@ -5,8 +7,6 @@ from dto.server_only.cell_info_dto import (
     CellState,
     CellTransientState,
 )
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from dto.server_only.match_info_dto import MatchInfoDto
@@ -83,6 +83,7 @@ def move_cell(
         cell_new_coords.isMaster = is_master
 
     cell_original_coords.set_idle()
+    cell_new_coords.clear_state()
 
 
 def spawn_cell(

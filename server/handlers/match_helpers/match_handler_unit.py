@@ -1,17 +1,12 @@
 from enum import Enum
 
 from config.logging import get_configured_logger
-from constants.match_constants import (
-    BOARD_SIZE,
-    TURN_DURATION_IN_S,
-)
+from constants.match_constants import BOARD_SIZE, TURN_DURATION_IN_S
 from dto.server_only.match_closure_dto import EndingReason
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
 from dto.turn_info_dto import TurnInfoDto
-from handlers.match_helpers.client_notifications import (
-    notify_match_start,
-)
+from handlers.match_helpers.client_notifications import notify_match_start
 from handlers.match_helpers.match_actions_service import MatchActionsService
 from handlers.match_helpers.match_termination_service import MatchTerminationService
 from handlers.match_helpers.player_entry_watcher_service import (
@@ -268,6 +263,8 @@ class MatchHandlerUnit:
 
         # Initialize mana bubbles
         board[6][5].set_as_mana_bubble()
+        board[5][1].set_as_mana_bubble()
+        board[5][9].set_as_mana_bubble()
 
         return board
 

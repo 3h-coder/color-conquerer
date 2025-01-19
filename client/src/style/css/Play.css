@@ -251,6 +251,7 @@
     width: 80%;
     opacity: 0;
     animation: appear-growing-long 1s ease-in-out 2 alternate;
+    z-index: 2;
 }
 
 .turn-swap-image {

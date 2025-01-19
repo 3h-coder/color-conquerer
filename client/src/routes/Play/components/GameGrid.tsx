@@ -145,6 +145,9 @@ export default function GameGrid() {
             // Update the player info bundle to display the proper HP/MP values
             setPlayerGameInfoBundle(processedActionDto.updatedTurnInfo.playerGameInfoBundle);
 
+            // Trigger animations
+            animateProcessedAction(processedActionDto.processedAction, isPlayer1, boardArray);
+
             // Update the board array with the new cell info
             if (isMyTurn && processedActionDto.overridingTransientBoard) {
                 setBoardArray(processedActionDto.overridingTransientBoard);
@@ -152,9 +155,6 @@ export default function GameGrid() {
             } else {
                 setBoardArray(processedActionDto.updatedTurnInfo.updatedBoardArray);
             }
-
-            // Trigger animations
-            animateProcessedAction(processedActionDto.processedAction, isPlayer1);
         }
 
         function onServerActionError(errorMessageDto: MessageDto) {
