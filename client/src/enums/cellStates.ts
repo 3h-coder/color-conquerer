@@ -8,5 +8,6 @@ export enum CellTransientState {
 
 export enum CellState {
     NONE = 0,
-    FRESHLY_SPAWNED = 1
+    FRESHLY_SPAWNED = 1,
+    MANA_BUBBLE = 2
 }

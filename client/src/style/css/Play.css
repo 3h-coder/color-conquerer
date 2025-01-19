@@ -230,6 +230,18 @@
     animation: shadow-expansion-fade 0.8s;
 }
 
+.mana-bubble {
+    width: 75%;
+    height: 75%;
+    border-radius: 50%;
+    background: linear-gradient(
+        180deg,
+    rgb(0, 255, 255),
+    rgb(105, 193, 225),
+    rgb(123, 205, 240)
+    );
+}
+
 /* #endregion */
 
 .turn-swap-image-container {

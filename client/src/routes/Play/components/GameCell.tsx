@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { SwordIcon } from "../../../assets/svg";
 import { PartialCellInfoDto } from "../../../dto/PartialCellInfoDto";
-import { CellTransientState } from "../../../enums/cellStates";
+import { CellState, CellTransientState } from "../../../enums/cellStates";
 import { Events } from "../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../env";
 import { cellStyle } from "../../../style/constants";
@@ -24,8 +24,8 @@ export default function GameCell(props: GameCellProps) {
     const selectable = canInteract && isSelectable(cellInfo);
 
     const selected = cellInfo.transientState === CellTransientState.SELECTED;
-    const attackable =
-        cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
+    const attackable = cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
+    const isManaBubble = cellInfo.state == CellState.MANA_BUBBLE;
 
     // If the cell was previously hovered and is being re-rendered
     // send a HOVER_END event to the server to clear the hover effect
@@ -75,6 +75,7 @@ export default function GameCell(props: GameCellProps) {
             {/* <span style={{ position: "absolute", fontSize: "px", color: "black" }}>{`[${rowIndex}, ${columnIndex}]`}</span> */}
             {selected && <SelectedIndicator />}
             {attackable && <AttackableIndicator isPlayer1={isPlayer1} />}
+            {isManaBubble && <ManaBubble />}
         </div>
     );
 }
@@ -92,5 +93,11 @@ function AttackableIndicator({ isPlayer1 }: { isPlayer1: boolean; }) {
         <div className={`attackable-indicator ${cellStyle.absPositionClassName}`}>
             <SwordIcon style={{ transform: rotateStyle }} />
         </div>
+    );
+}
+
+function ManaBubble() {
+    return (
+        <div className="mana-bubble absolute-positioning-centered" />
     );
 }

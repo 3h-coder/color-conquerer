@@ -266,6 +266,9 @@ class MatchHandlerUnit:
         player2_master_cell.set_owned_by_player2()
         player2_master_cell.isMaster = True
 
+        # Initialize mana bubbles
+        board[6][5].set_as_mana_bubble()
+
         return board
 
 

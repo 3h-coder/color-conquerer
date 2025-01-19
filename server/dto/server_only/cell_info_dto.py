@@ -18,7 +18,10 @@ class CellTransientState(IntEnum):
 
 class CellState(IntEnum):
     NONE = 0
+    # A cell that was just spawned and shouldn't be able to move nor attack
     FRESHLY_SPAWNED = 1
+    # For idle cells, whenever you spawn on it, the player gets 1 mana point
+    MANA_BUBBLE = 2
 
 
 class CellOwner(IntEnum):
@@ -135,3 +138,6 @@ class CellInfoDto(PartialCellInfoDto):
 
     def set_freshly_spawned(self):
         self.state = CellState.FRESHLY_SPAWNED
+
+    def set_as_mana_bubble(self):
+        self.state = CellState.MANA_BUBBLE
