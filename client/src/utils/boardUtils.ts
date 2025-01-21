@@ -10,7 +10,7 @@ export function animateProcessedAction(action: PartialMatchActionDto, isPlayer1:
       const targetCoords = action.impactedCoords[0];
       const targetCell = boardArray[targetCoords.rowIndex][targetCoords.columnIndex];
       if (targetCell.state == CellState.MANA_BUBBLE)
-        animateCellSpawn(targetCoords.rowIndex, targetCoords.columnIndex, true);
+        animateManaBubblePop(targetCoords.rowIndex, targetCoords.columnIndex);
       break;
     }
 
@@ -90,6 +90,22 @@ function animateCellSpawn(rowIndex: number, colIndex: number, ownCell: boolean) 
   htmlCell.appendChild(expansion);
 
   cleanup(expansion, cleanupDelayInMs);
+}
+
+function animateManaBubblePop(rowIndex: number, colIndex: number) {
+  const styleClasses = ["mana-bubble-pop", "absolute-positioning-centered"];
+  const cleanupDelayInMs = 650;
+
+  const htmlCell = getHtmlCell(rowIndex, colIndex);
+
+  if (!htmlCell)
+    return;
+
+  const bubble = document.createElement("div");
+  bubble.classList.add(...styleClasses);
+
+  htmlCell.appendChild(bubble);
+  cleanup(bubble, cleanupDelayInMs);
 }
 
 /**
