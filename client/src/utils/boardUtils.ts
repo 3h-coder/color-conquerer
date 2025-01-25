@@ -9,11 +9,10 @@ export function animateProcessedAction(action: PartialMatchActionDto, isPlayer1:
     case ActionType.CELL_MOVE: {
       const targetCoords = action.impactedCoords[0];
       const targetCell = boardArray[targetCoords.rowIndex][targetCoords.columnIndex];
-      if (targetCell.state == CellState.MANA_BUBBLE)
+      if (targetCell.state === CellState.MANA_BUBBLE)
         animateManaBubblePop(targetCoords.rowIndex, targetCoords.columnIndex);
       break;
     }
-
 
     case ActionType.CELL_ATTACK: {
       const attackerCoords = action.originatingCellCoords;
@@ -31,9 +30,12 @@ export function animateProcessedAction(action: PartialMatchActionDto, isPlayer1:
     }
 
     case ActionType.CELL_SPAWN: {
-      const newCell = action.impactedCoords[0];
+      const newCellCoordinates = action.impactedCoords[0];
+      const targetCell = boardArray[newCellCoordinates.rowIndex][newCellCoordinates.columnIndex];
       const cellOfMine = isPlayer1 === action.player1;
-      animateCellSpawn(newCell.rowIndex, newCell.columnIndex, cellOfMine);
+      animateCellSpawn(newCellCoordinates.rowIndex, newCellCoordinates.columnIndex, cellOfMine);
+      if (targetCell.state === CellState.MANA_BUBBLE)
+        animateManaBubblePop(newCellCoordinates.rowIndex, newCellCoordinates.columnIndex);
       break;
     }
 
