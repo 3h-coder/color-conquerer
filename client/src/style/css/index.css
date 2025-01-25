@@ -1,20 +1,14 @@
 /* Global styles for the whole web app*/
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-  background: linear-gradient(
-    180deg,
-    rgba(97, 59, 154, 1) 0%,
-    rgba(103, 48, 185, 1) 50%,
-    rgba(98, 12, 226, 1) 100%
-  );
-}
-
 :root {
+  --primary-purple1: rgba(97, 59, 154, 1);
+  --primary-purple2: rgba(103, 48, 185, 1);
+  --primary-purple3: rgba(98, 12, 226, 1);
+  --primary-pink1: rgb(188, 89, 227);
+  --primary-grey1: rgb(200, 200, 200);
+  --primary-grey2: rgb(193, 187, 235);
+  --greyish-purple: rgb(93, 83, 151);
+  
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-size: max(16px, calc(0.5rem + 1vmin));
   line-height: 1.5;
@@ -27,6 +21,20 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background: linear-gradient(
+    180deg,
+    var(--primary-purple1) 0%,
+    var(--primary-purple2) 50%,
+    var(--primary-purple3) 100%
+  );
 }
 
 #root {
@@ -167,7 +175,7 @@ svg {
 .modal-container {
   display: flex;
   flex-direction: column;
-  background-color: rgb(107, 89, 227);
+  background-color: var(--primary-purple2);
   padding: 1rem;
   border-radius: 0.5rem;
   min-width: max(20vmin, 120px);
@@ -288,13 +296,13 @@ svg {
 
 @keyframes glow {
   0% {
-    box-shadow: 0 0 1vmin rgb(188, 89, 227);
+    box-shadow: 0 0 1vmin var(--primary-pink1);
   }
   50% {
-    box-shadow: 0 0 2vmin rgb(188, 89, 227);
+    box-shadow: 0 0 2vmin var(--primary-pink1);
   }
   100% {
-    box-shadow: 0 0 3vmin rgb(188, 89, 227);
+    box-shadow: 0 0 3vmin var(--primary-pink1);
   }
 }
 
@@ -333,7 +341,7 @@ svg {
     box-shadow: 0 0 3rem 0.1rem var(--expansion-color);
   }
   100% {
-    box-shadow: 0 0 4rem 0.2rem rgb(0, 0, 0, 0);
+    box-shadow: 0 0 4rem 0.2rem black;
   }
 }
 

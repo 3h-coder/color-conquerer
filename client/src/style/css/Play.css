@@ -13,7 +13,7 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    background-color: rgb(93, 83, 151);
+    background-color: var(--greyish-purple);
     padding: max(10px, 4vmin);
     border-radius: 1rem;
     box-shadow: 0 0 3vmin 0.25vmin rgba(0, 0, 0, 0.2);
@@ -76,7 +76,7 @@
 
 .countdown-bar-inner {
     border: 0.15rem solid transparent;
-    background-color: rgb(193, 187, 235);
+    background-color: var(--primary-grey2);
     height: 100%;
     box-sizing: border-box;
     transition: all 0.1s ease-in-out;
@@ -168,7 +168,7 @@
 
 .cell {
     background-color: white;
-    border: 0.1rem solid rgb(200, 200, 200);
+    border: 0.1rem solid var(--primary-grey1);
     width: max(25px, 4vmin);
     height: max(25px, 4vmin);
     transition: background-color 0.1s;
@@ -278,7 +278,7 @@
     text-align: center;
     color: blanchedalmond;
     user-select: none;
-    text-shadow: 1px 1px 2px purple;
+    text-shadow: 1px 1px 2px var(--primary-purple3);
     animation: fade-out 1.5s ease-in-out;
 }
 
@@ -300,7 +300,7 @@
     justify-content: center;
     align-items: center;
     gap: max(5px, 0.5vmin);
-    background-color: rgba(103, 48, 185, 1);
+    background-color: var(--primary-purple2);
     box-shadow: 0 0 0.8rem 0.08rem rgb(0, 0, 0, 0.2);
 }
 
@@ -309,7 +309,7 @@
     justify-content: center;
     align-items: center;
     gap: max(5px, 0.5vmin);
-    background-color: rgb(89, 48, 185);
+    background-color: var(--primary-purple3);
     box-shadow: 0 0 0.8rem 0.08rem rgb(0, 0, 0, 0.2);
 }
 
