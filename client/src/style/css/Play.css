@@ -304,6 +304,19 @@
     box-shadow: 0 0 0.8rem 0.08rem rgb(0, 0, 0, 0.2);
 }
 
+#spell-toggle-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: max(5px, 0.5vmin);
+    background-color: rgb(89, 48, 185);
+    box-shadow: 0 0 0.8rem 0.08rem rgb(0, 0, 0, 0.2);
+}
+
+#spell-toggle-button div {
+    transition: transform 0.3s ease;
+}
+
 /* #endregion */
 
 /* #endregion */
