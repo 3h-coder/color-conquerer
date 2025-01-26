@@ -8,6 +8,7 @@ from game_engine.spells.spell_base import SpellBase
 @dataclass
 class SpellDto(BaseDto):
     id: int
+    name: str
     description: str
     manaCost: int
     count: int
@@ -16,6 +17,7 @@ class SpellDto(BaseDto):
     def from_spell(spell: SpellBase, count: int):
         return SpellDto(
             id=spell.id,
+            name=spell.name,
             description=spell.description,
             manaCost=spell.mana_cost,
             count=count,

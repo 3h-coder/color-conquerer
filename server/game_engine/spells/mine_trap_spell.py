@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 
 class MineTrapSpell(SpellBase):
+    NAME = "Mine Trap"
     DESCRIPTION = (
         "Places a mine trap on a non-occupied cell."
         "When an enemy cell steps or spawns on it, it explodes, "
@@ -19,6 +20,7 @@ class MineTrapSpell(SpellBase):
     def __init__(self):
         super().__init__(
             id=Spell_ID.MINE_TRAP,
+            name=self.NAME,
             description=self.DESCRIPTION,
             mana_cost=self.MANA_COST,
         )

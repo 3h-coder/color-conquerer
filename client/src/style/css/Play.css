@@ -97,7 +97,7 @@
 .hp-circle-container-outer {
     width: max(25px, 4vmin);
     height: max(25px, 4vmin);
-    border: 0.09rem solid white;
+    border: max(0.09rem, 2px) solid white;
     border-radius: 50%;
     overflow: hidden;
     box-sizing: border-box;
@@ -301,7 +301,7 @@
     align-items: center;
     gap: max(5px, 0.5vmin);
     background-color: var(--primary-purple2);
-    box-shadow: 0 0 0.8rem 0.08rem rgb(0, 0, 0, 0.2);
+    box-shadow: 0 0 0.5rem 0.08rem rgb(0, 0, 0, 0.1);
 }
 
 #spell-toggle-button {
@@ -310,11 +310,31 @@
     align-items: center;
     gap: max(5px, 0.5vmin);
     background-color: var(--primary-purple3);
-    box-shadow: 0 0 0.8rem 0.08rem rgb(0, 0, 0, 0.2);
+    box-shadow: 0 0 0.5rem 0.08rem rgb(0, 0, 0, 0.1);
 }
 
 #spell-toggle-button div {
     transition: transform 0.3s ease;
+}
+
+.spell-deck {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: max(5px, 0.5vmin);
+    margin-top: var(--spacing-small2);
+}
+
+.spell-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-small2);
+    min-height: max(25px, 3vmin);
+    background-color: var(--deep-blue);
+    width: max(40px, 12vmin);
+    box-shadow: 0 0 0.5rem 0.08rem rgb(0, 0, 0, 0.1);
 }
 
 /* #endregion */

@@ -12,8 +12,9 @@ class SpellBase:
     Base class for all spells.
     """
 
-    def __init__(self, id: Spell_ID, description: str, mana_cost: int):
+    def __init__(self, id: Spell_ID, name: str, description: str, mana_cost: int):
         self.id = id
+        self.name = name
         self.description = description
         self.mana_cost = mana_cost
 

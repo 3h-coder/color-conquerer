@@ -1,13 +1,19 @@
 /* Global styles for the whole web app*/
 
 :root {
-  --primary-purple1: rgba(97, 59, 154, 1);
-  --primary-purple2: rgba(103, 48, 185, 1);
-  --primary-purple3: rgba(98, 12, 226, 1);
+  /* colors */
+  --primary-purple1: rgba(97, 59, 154);
+  --primary-purple2: rgba(103, 48, 185);
+  --primary-purple3: rgba(98, 12, 226);
   --primary-pink1: rgb(188, 89, 227);
   --primary-grey1: rgb(200, 200, 200);
   --primary-grey2: rgb(193, 187, 235);
   --greyish-purple: rgb(93, 83, 151);
+  --deep-blue: rgb(0, 0, 128);
+
+  /*spacing*/
+  --spacing-small1: max(4px, 0.5vmin);
+  --spacing-small2: max(8px, 1vmin);
   
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-size: max(16px, calc(0.5rem + 1vmin));
