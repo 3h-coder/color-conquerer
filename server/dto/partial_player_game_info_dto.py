@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from dto.base_dto import BaseDto
+from dto.spell_dto import SpellDto
 
 if TYPE_CHECKING:
     from dto.server_only.player_game_info_dto import PlayerGameInfoDto
@@ -19,6 +20,9 @@ class PartialPlayerGameInfoDto(BaseDto):
     currentHP: int
     maxMP: int
     currentMP: int
+    # WARNING : player2 spells must not be sent to player1 and vice versa
+    # in which case the list must be empty
+    spells: list[SpellDto]
 
     @staticmethod
     def from_player_game_info(player_game_info: "PlayerGameInfoDto"):
@@ -31,4 +35,5 @@ class PartialPlayerGameInfoDto(BaseDto):
             player_game_info.currentHP,
             player_game_info.maxMP,
             player_game_info.currentMP,
+            player_game_info.spells,
         )

@@ -47,6 +47,8 @@ export default function GameGrid() {
     }
 
     // React to a turnInfo update (from either a turn change or a page refresh)
+    // - Set the board array
+    // - Set the players game infos (HP/MP)
     useEffect(() => {
         handleTurnInfoUpdate();
 

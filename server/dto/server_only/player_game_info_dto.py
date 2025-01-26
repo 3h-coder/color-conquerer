@@ -11,8 +11,6 @@ class PlayerGameInfoDto(PartialPlayerGameInfoDto):
     such as their HP, MP and abilities.
     """
 
-    # TODO : add stuff here
-
     @staticmethod
     def get_initial_player_game_info(is_player_1: bool):
         return PlayerGameInfoDto(
