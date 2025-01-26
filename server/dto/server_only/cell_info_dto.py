@@ -22,6 +22,8 @@ class CellState(IntEnum):
     FRESHLY_SPAWNED = 1
     # For idle cells, whenever you spawn on it, the player gets 1 mana point
     MANA_BUBBLE = 2
+    # Will explode when spwaned upon or moved into
+    MINE_TRAP = 3
 
 
 class CellOwner(IntEnum):
@@ -144,3 +146,6 @@ class CellInfoDto(PartialCellInfoDto):
 
     def set_as_mana_bubble(self):
         self.state = CellState.MANA_BUBBLE
+
+    def set_as_mine_trap(self):
+        self.state = CellState.MINE_TRAP

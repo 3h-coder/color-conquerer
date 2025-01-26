@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from dto.base_dto import BaseDto
 
 if TYPE_CHECKING:
-    from dto.player_game_info_dto import PlayerGameInfoDto
+    from dto.server_only.player_game_info_dto import PlayerGameInfoDto
 
 
 @dataclass

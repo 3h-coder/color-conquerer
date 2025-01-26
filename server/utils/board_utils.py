@@ -1,3 +1,7 @@
+"""
+Contains all utility methods relative to the game board, including cell manipulation.
+"""
+
 from typing import TYPE_CHECKING
 
 from dto.partial_cell_info_dto import PartialCellInfoDto
@@ -20,6 +24,10 @@ def create_starting_board(board_size: int):
         ]
         for i in range(board_size)
     ]
+
+
+def get_idle_cells(board: list[list[CellInfoDto]]):
+    return [cell for row in board for cell in row if not cell.is_owned()]
 
 
 def copy_board(board: list[list[CellInfoDto]]):
