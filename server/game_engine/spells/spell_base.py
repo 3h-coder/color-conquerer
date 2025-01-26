@@ -1,7 +1,7 @@
-from dto.coordinates_dto import CoordinatesDto
-from game_spells.spell_id import Spell_ID
-
 from typing import TYPE_CHECKING
+
+from dto.coordinates_dto import CoordinatesDto
+from game_engine.spells.spell_id import Spell_ID
 
 if TYPE_CHECKING:
     from dto.server_only.cell_info_dto import CellInfoDto

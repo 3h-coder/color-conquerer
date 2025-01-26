@@ -1,8 +1,11 @@
+from typing import TYPE_CHECKING
+
 from dto.coordinates_dto import CoordinatesDto
-from dto.server_only.cell_info_dto import CellInfoDto
-from game_spells.spell_base import SpellBase
-from game_spells.spell_id import Spell_ID
-from utils.board_utils import get_idle_cells
+from game_engine.spells.spell_base import SpellBase
+from game_engine.spells.spell_id import Spell_ID
+
+if TYPE_CHECKING:
+    from dto.server_only.cell_info_dto import CellInfoDto
 
 
 class MineTrapSpell(SpellBase):
@@ -20,10 +23,10 @@ class MineTrapSpell(SpellBase):
             mana_cost=self.MANA_COST,
         )
 
-    def get_possible_targets(self, board: list[list[CellInfoDto]]):
-        return get_idle_cells(board)
+    def get_possible_targets(self, board: list[list["CellInfoDto"]]):
+        return [cell for row in board for cell in row if not cell.is_owned()]
 
-    def invoke(self, coordinates: CoordinatesDto, board: list[list[CellInfoDto]]):
+    def invoke(self, coordinates: CoordinatesDto, board: list[list["CellInfoDto"]]):
         cell = board[coordinates.rowIndex][coordinates.columnIndex]
         cell.set_as_mine_trap()
         return board

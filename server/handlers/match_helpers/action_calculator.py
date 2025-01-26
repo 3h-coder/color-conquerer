@@ -1,15 +1,12 @@
-import functools
 from config.logging import get_configured_logger
 from constants.match_constants import BOARD_SIZE
 from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from utils.board_utils import (
-    copy_board,
     get_cells_owned_by_player,
     get_neighbours,
     is_out_of_bounds,
-    is_owned,
 )
 
 

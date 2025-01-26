@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from constants.match_constants import MAX_HP_VALUE, MAX_MP_VALUE
 from dto.partial_player_game_info_dto import PartialPlayerGameInfoDto
+from dto.spell_dto import SpellDto
 
 
 @dataclass
@@ -19,6 +20,7 @@ class PlayerGameInfoDto(PartialPlayerGameInfoDto):
             currentHP=MAX_HP_VALUE,
             maxMP=MAX_MP_VALUE,
             currentMP=1 if is_player_1 else 0,
+            spells=SpellDto.get_initial_deck(),
         )
 
     def player_is_dead(self):
