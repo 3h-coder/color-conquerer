@@ -18,3 +18,4 @@ export const constants = {
 };
 
 export const EMPTY_STRING = "";
+export const WHITE_SPACE = " ";

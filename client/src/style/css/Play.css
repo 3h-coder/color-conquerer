@@ -135,7 +135,7 @@
 
 /* Meant to be used for mana points */
 .active {
-    background-color: aqua;
+    background-color: var(--mana-blue);
 }
 
 .whose-turn-label {
@@ -227,7 +227,7 @@
     background-color: transparent;
     z-index: 1;
 
-    animation: shadow-expansion-fade 1s;
+    animation: shadow-expansion-fade 0.6s ease-in-out;
 }
 
 .mana-bubble {
@@ -236,21 +236,21 @@
     border-radius: 50%;
     background: linear-gradient(
         180deg,
-    rgb(0, 255, 255),
-    rgb(105, 193, 225),
-    rgb(123, 205, 240)
+    var(--mana-blue),
+    var(--sky-blue1),
+    var(--sky-blue2)
     );
 }
 
 .mana-bubble-pop {
     width: 100%;
     height: 100%;
-    background-color: aqua;
+    background-color: var(--mana-blue);
     border-radius: 50%;
     opacity: 0.5;
-    box-shadow: 0 0 1rem 0 aqua;
+    box-shadow: 0 0 1rem 0 var(--mana-blue);
 
-    animation: pulse-up-fade 0.7s ease-out;
+    animation: pulse-up-fade 0.7s ease-in-out;
 }
 
 /* #endregion */
@@ -322,10 +322,11 @@
     justify-content: center;
     align-items: center;
     gap: max(5px, 0.5vmin);
-    margin-top: var(--spacing-small2);
+    margin-top: var(--spacing-medium1);
 }
 
 .spell-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -335,6 +336,51 @@
     background-color: var(--deep-blue);
     width: max(40px, 12vmin);
     box-shadow: 0 0 0.5rem 0.08rem rgb(0, 0, 0, 0.1);
+}
+
+.spell-mana-cost {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: var(--spacing-small1);
+    border: 0.1rem solid transparent;
+    border-radius: 50%;
+    background: linear-gradient(
+        180deg,
+    var(--mana-blue),
+    var(--sky-blue1),
+    var(--sky-blue2)
+    );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: var(--spacing-medium1);
+    height: var(--spacing-medium1);
+
+    transform: translate(30%, -30%);
+    transition: all 0.25s ease;
+}
+
+.spell-card:disabled .spell-mana-cost{
+    background: none;
+    background-color: var(--greyish-blue);
+}
+
+.spell-card:hovered .spell-mana-cost {
+    border: 0.1rem solid white;
+}
+
+.spell-description {
+    --end-opacity: 0.9;
+    position: absolute;
+    left: 4%;
+    bottom: 20%;
+    width: 50%;
+    background-color: var(--deep-blue);
+    padding: var(--spacing-small2);
+    border-radius: 0.5rem;
+
+    animation: fade-in 0.3s ease-in-out forwards;
 }
 
 /* #endregion */

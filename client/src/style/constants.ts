@@ -19,10 +19,3 @@ export const cellStyle = {
     possibleActionClassName: "possible-action",
     absPositionClassName: "absolute-positioning-centered"
 };
-
-export const animations = {
-    grid: {
-        cellAnimationTimeInMs: 500,
-        cellAnimationDelayFactor: 3,
-    }
-};

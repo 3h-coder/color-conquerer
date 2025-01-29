@@ -9,11 +9,17 @@
   --primary-grey1: rgb(200, 200, 200);
   --primary-grey2: rgb(193, 187, 235);
   --greyish-purple: rgb(93, 83, 151);
-  --deep-blue: rgb(0, 0, 128);
+  --greyish-blue: rgb(106, 154, 175);
+  --deep-blue: rgb(0, 60, 128);
+  --mana-blue: aqua;
+  --sky-blue1: rgb(87, 193, 231);
+  --sky-blue2: rgb(136, 208, 240);
 
   /*spacing*/
   --spacing-small1: max(4px, 0.5vmin);
   --spacing-small2: max(8px, 1vmin);
+  --spacing-medium1: max(12px, 1.5vmin);
+  --spacing-medium2: max(16px, 2vmin);
   
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-size: max(16px, calc(0.5rem + 1vmin));
@@ -317,7 +323,7 @@ svg {
     opacity: 0;
   }
   100% {
-    opacity: 1;
+    opacity: var(--end-opacity, 1);
   }
 }
 
@@ -347,7 +353,7 @@ svg {
     box-shadow: 0 0 3rem 0.1rem var(--expansion-color);
   }
   100% {
-    box-shadow: 0 0 4rem 0.2rem black;
+    box-shadow: 0 0 4rem 0.2rem var(--expansion-color);
   }
 }
 

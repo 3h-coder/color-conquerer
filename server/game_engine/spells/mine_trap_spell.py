@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class MineTrapSpell(SpellBase):
     NAME = "Mine Trap"
     DESCRIPTION = (
-        "Places a mine trap on a non-occupied cell."
+        "Places a mine trap on a non-occupied cell. "
         "When an enemy cell steps or spawns on it, it explodes, "
         "dealing 1 damage to all adjacent units."
     )
