@@ -1,11 +1,11 @@
-from typing import TYPE_CHECKING
-
 from dto.coordinates_dto import CoordinatesDto
 from game_engine.spells.spell_base import SpellBase
 from game_engine.spells.spell_id import Spell_ID
 
+from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from dto.server_only.cell_info_dto import CellInfoDto
+    from game_engine.models.cell import Cell
 
 
 class MineTrapSpell(SpellBase):
@@ -26,7 +26,7 @@ class MineTrapSpell(SpellBase):
             mana_cost=self.MANA_COST,
         )
 
-    def get_possible_targets(self, board: list[list["CellInfoDto"]]):
+    def get_possible_targets(self, board: list[list["Cell"]]):
         possible_targets = []
 
         for row in board:
@@ -39,7 +39,7 @@ class MineTrapSpell(SpellBase):
 
         return possible_targets
 
-    def invoke(self, coordinates: CoordinatesDto, board: list[list["CellInfoDto"]]):
+    def invoke(self, coordinates: CoordinatesDto, board: list[list["Cell"]]):
         cell = board[coordinates.rowIndex][coordinates.columnIndex]
         cell.set_as_mine_trap()
         return board

@@ -1,9 +1,9 @@
 from config.logging import get_configured_logger
-from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.player_game_info_dto import PlayerGameInfoDto
 from game_engine.cell_actions import move_cell, spawn_cell, trigger_cell_attack
+from game_engine.models.cell import Cell
 from game_engine.spells.spell_factory import get_spell
 
 
@@ -100,6 +100,6 @@ class ActionProcessor:
         """
         Increases the player's mana by one if the target cell is a mana bubble.
         """
-        cell: CellInfoDto = self._board_array[row_index][col_index]
+        cell: Cell = self._board_array[row_index][col_index]
         if cell.is_mana_bubble():
             player_game_info.currentMP += 1

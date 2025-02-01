@@ -3,39 +3,38 @@ Contains all utility methods relative to the game board, excluding game engine m
 and cell manipulation.
 """
 
-from dto.partial_cell_info_dto import PartialCellInfoDto
-from dto.server_only.cell_info_dto import CellInfoDto
+from dto.cell_info_dto import Cell, CellInfoDto
 
 
 def create_starting_board(board_size: int):
     return [
         [
-            CellInfoDto.get_default_idle_cell(row_index=i, col_index=j)
+            Cell.get_default_idle_cell(row_index=i, col_index=j)
             for j in range(board_size)
         ]
         for i in range(board_size)
     ]
 
 
-def copy_board(board: list[list[CellInfoDto]]):
+def copy_board(board: list[list[Cell]]):
     return [[cell.clone() for cell in row] for row in board]
 
 
-def to_client_board_dto(board: list[list[CellInfoDto]]):
+def to_client_board_dto(board: list[list[Cell]]):
     """
-    Converts a board of CellInfoDto objects to PartialCellInfoDto to be sent to the client.
+    Converts a board of Cell objects to PartialCell to be sent to the client.
     """
-    result: list[list[PartialCellInfoDto]] = []
+    result: list[list[Cell]] = []
     for row in board:
         new_row = []
         for cell in row:
-            new_row.append(PartialCellInfoDto.from_cell_info_dto(cell))
+            new_row.append(CellInfoDto.from_cell(cell))
         result.append(new_row)
 
     return result
 
 
-def get_cells_owned_by_player(player1: bool, board: list[list[CellInfoDto]]):
+def get_cells_owned_by_player(player1: bool, board: list[list[Cell]]):
     """
     Returns a list of cells owned by the given player.
     """
@@ -48,7 +47,7 @@ def get_cells_owned_by_player(player1: bool, board: list[list[CellInfoDto]]):
     ]
 
 
-def is_owned(row_index: int, col_index: int, board: list[list[CellInfoDto]]):
+def is_owned(row_index: int, col_index: int, board: list[list[Cell]]):
     return board[row_index][col_index].is_owned()
 
 

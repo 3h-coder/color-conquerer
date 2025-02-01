@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from enum import IntEnum
 
-from dto.partial_cell_info_dto import PartialCellInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 
 
@@ -34,12 +33,18 @@ class CellOwner(IntEnum):
 
 
 @dataclass
-class CellInfoDto(PartialCellInfoDto):
+class Cell:
+    owner: CellOwner
+    isMaster: bool
+    rowIndex: int
+    columnIndex: int
+    state: CellState
+    transientState: CellTransientState
     id: str
 
     def __eq__(self, other_cell):
         return (
-            isinstance(other_cell, CellInfoDto)
+            isinstance(other_cell, Cell)
             and self.rowIndex == other_cell.rowIndex
             and self.columnIndex == other_cell.columnIndex
             and self.id == other_cell.id
@@ -49,7 +54,7 @@ class CellInfoDto(PartialCellInfoDto):
         return hash(self.rowIndex, self.columnIndex, self.id)
 
     def clone(self):
-        return CellInfoDto(
+        return Cell(
             owner=self.owner,
             isMaster=self.isMaster,
             rowIndex=self.rowIndex,
@@ -61,7 +66,7 @@ class CellInfoDto(PartialCellInfoDto):
 
     @staticmethod
     def get_default_idle_cell(row_index: int, col_index: int):
-        return CellInfoDto(
+        return Cell(
             owner=CellOwner.NONE,
             isMaster=False,
             rowIndex=row_index,
@@ -85,7 +90,7 @@ class CellInfoDto(PartialCellInfoDto):
         from utils.id_generation_utils import generate_id
 
         self.owner = CellOwner.PLAYER_1
-        self.id = id if id else generate_id(CellInfoDto)
+        self.id = id if id else generate_id(Cell)
         self.isMaster = False
 
     def set_owned_by_player2(self, id: str = None):
@@ -95,7 +100,7 @@ class CellInfoDto(PartialCellInfoDto):
         from utils.id_generation_utils import generate_id
 
         self.owner = CellOwner.PLAYER_2
-        self.id = id if id else generate_id(CellInfoDto)
+        self.id = id if id else generate_id(Cell)
         self.isMaster = False
 
     def is_owned(self):
@@ -114,7 +119,7 @@ class CellInfoDto(PartialCellInfoDto):
             else self.owner == CellOwner.PLAYER_2
         )
 
-    def is_hostile_to(self, other_cell: "CellInfoDto"):
+    def is_hostile_to(self, other_cell: "Cell"):
         return (
             self.owner != CellOwner.NONE
             and other_cell.owner != CellOwner.NONE

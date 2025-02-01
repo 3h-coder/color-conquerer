@@ -1,8 +1,8 @@
 import uuid
 from enum import StrEnum
 
+from dto.cell_info_dto import CellInfoDto
 from dto.queue_player_dto import QueuePlayerDto
-from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
 from dto.user_dto import UserDto

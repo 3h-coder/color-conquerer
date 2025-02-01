@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
-from dto.partial_cell_info_dto import PartialCellInfoDto
+from dto.cell_info_dto import CellInfoDto
 from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
 
 
@@ -13,4 +13,4 @@ class TurnInfoDto(BaseDto):
     totalTurnDurationInS: int
     notifyTurnChange: bool
     playerGameInfoBundle: PlayerGameInfoBundleDto
-    updatedBoardArray: list[list[PartialCellInfoDto]]
+    updatedBoardArray: list[list[CellInfoDto]]

@@ -8,10 +8,10 @@ from dto.partial_match_action_dto import PartialMatchActionDto
 from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_action_dto import ProcessedActionDto
-from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_closure_dto import EndingReason
 from dto.server_only.player_info_dto import PlayerInfoDto
+from game_engine.models.cell import Cell
 from game_engine.spells.spell_base import SpellBase
 from game_engine.spells.spell_factory import get_spell
 from handlers.match_helpers.action_calculator import ActionCalculator
@@ -101,9 +101,9 @@ class MatchActionsService(ServiceBase):
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         # Board copy to save and send to the client the transient states
         # resulting from the possible actions.
-        self._transient_board_array: list[list[CellInfoDto]] = None
+        self._transient_board_array: list[list[Cell]] = None
         # Applicable when the player mode is OWN_CELL_SELECTED
-        self._selected_cell: CellInfoDto = None
+        self._selected_cell: Cell = None
         # Applicable when the player mode is SPELL_SELECTED
         self._selected_spell: SpellBase = None
         # Message to the player when their request is invalid
@@ -177,7 +177,7 @@ class MatchActionsService(ServiceBase):
         """
         player = self._current_player
         is_player_1 = player.isPlayer1
-        cell: CellInfoDto = self._board_array[cell_row][cell_col]
+        cell: Cell = self._board_array[cell_row][cell_col]
 
         if cell.belongs_to(player):
             self._handle_own_cell_selection(cell, is_player_1)
@@ -230,7 +230,7 @@ class MatchActionsService(ServiceBase):
 
         self._send_response()
 
-    def _handle_own_cell_selection(self, cell: CellInfoDto, player1: bool):
+    def _handle_own_cell_selection(self, cell: Cell, player1: bool):
         """
         Handles all possible cases resulting from a player selecting a cell of their own.
 
@@ -266,7 +266,7 @@ class MatchActionsService(ServiceBase):
 
             self._validate_and_process_action(spell_action)
 
-    def _handle_opponent_cell_selection(self, cell: CellInfoDto, player1: bool):
+    def _handle_opponent_cell_selection(self, cell: Cell, player1: bool):
         """
         Handles all possible cases resulting from a player selecting an enemy cell of their own.
 
@@ -300,7 +300,7 @@ class MatchActionsService(ServiceBase):
 
             self._validate_and_process_action(spell_action)
 
-    def _handle_idle_cell_selection(self, cell: CellInfoDto, player1: bool):
+    def _handle_idle_cell_selection(self, cell: Cell, player1: bool):
         """
         Handles all possible cases resulting from a player selecting an idle cell.
 
@@ -484,7 +484,7 @@ class MatchActionsService(ServiceBase):
             self.match.end(EndingReason.PLAYER_WON, loser_id=player2.playerId)
 
     @_initialize_transient_board
-    def _set_selected_cell(self, cell: CellInfoDto):
+    def _set_selected_cell(self, cell: Cell):
         """
         Sets the player mode and selected cell fields accordingly.
         """

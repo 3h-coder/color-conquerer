@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 
-from constants.match_constants import TURN_DURATION_IN_S
+from dto.cell_info_dto import CellInfoDto
 from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.server_only.player_game_info_dto import PlayerGameInfoDto
 from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
-from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from dto.server_only.room_dto import RoomDto
 

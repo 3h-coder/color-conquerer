@@ -2,8 +2,8 @@
 Contains the core cell mechanics methods, such as moving a cell, spawning a cell, and triggering a cell attack.
 """
 
-from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_info_dto import MatchInfoDto
+from game_engine.models.cell import Cell
 
 
 def move_cell(
@@ -11,7 +11,7 @@ def move_cell(
     col_index: int,
     new_row_index: int,
     new_col_index: int,
-    board: list[list[CellInfoDto]],
+    board: list[list[Cell]],
 ):
     """
     Moves a cell from the given original coordinates to the given new coordinates.
@@ -39,9 +39,7 @@ def move_cell(
     cell_new_coords.clear_state()
 
 
-def spawn_cell(
-    row_index: int, col_index: int, player1: bool, board: list[list[CellInfoDto]]
-):
+def spawn_cell(row_index: int, col_index: int, player1: bool, board: list[list[Cell]]):
     """
     Spawns a cell at the given coordinates for the given player.
     """
@@ -64,9 +62,9 @@ def trigger_cell_attack(
     """
     Triggers an attack between two cells on the board.
     """
-    board: list[list[CellInfoDto]] = match_info.boardArray
-    attacking_cell: CellInfoDto = board[attacking_row_index][attacking_col_index]
-    target_cell: CellInfoDto = board[target_row_index][target_col_index]
+    board: list[list[Cell]] = match_info.boardArray
+    attacking_cell: Cell = board[attacking_row_index][attacking_col_index]
+    target_cell: Cell = board[target_row_index][target_col_index]
 
     if attacking_cell.owner == target_cell.owner:
         return

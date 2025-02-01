@@ -1,8 +1,8 @@
 from config.logging import get_configured_logger
 from constants.match_constants import BOARD_SIZE
-from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
+from game_engine.models.cell import Cell
 from game_engine.spells.spell_base import SpellBase
 from game_engine.spells.spell_factory import get_spell
 from utils.board_utils import (
@@ -25,9 +25,9 @@ class ActionCalculator:
 
     def calculate_possible_movements(
         self,
-        cell: CellInfoDto,
+        cell: Cell,
         player1: bool,
-        transient_board_array: list[list[CellInfoDto]],
+        transient_board_array: list[list[Cell]],
     ):
         """
         Returns the list of movements that an owned cell can perform.
@@ -43,7 +43,7 @@ class ActionCalculator:
             if not self._is_valid_movement_target(new_row_index, new_col_index, cell):
                 continue
 
-            target_cell: CellInfoDto = self._board_array[new_row_index][new_col_index]
+            target_cell: Cell = self._board_array[new_row_index][new_col_index]
 
             # Master cell extra steps
             if cell.isMaster:
@@ -74,9 +74,9 @@ class ActionCalculator:
 
     def calculate_possible_attacks(
         self,
-        cell: CellInfoDto,
+        cell: Cell,
         player1: bool,
-        transient_board_array: list[list[CellInfoDto]],
+        transient_board_array: list[list[Cell]],
     ):
         """
         Returns the list of attacks that an owned cell can perform.
@@ -84,7 +84,7 @@ class ActionCalculator:
         row_index, column_index = cell.rowIndex, cell.columnIndex
 
         attacks: list[MatchActionDto] = []
-        neighbours: list[CellInfoDto] = get_neighbours(
+        neighbours: list[Cell] = get_neighbours(
             cell.rowIndex, cell.columnIndex, self._board_array
         )
         for neighbour in neighbours:
@@ -109,7 +109,7 @@ class ActionCalculator:
         return attacks
 
     def calculate_possible_spawns(
-        self, player1: bool, transient_board_array: list[list[CellInfoDto]]
+        self, player1: bool, transient_board_array: list[list[Cell]]
     ):
         """
         Returns a set of spawns that a player can perform.
@@ -119,7 +119,7 @@ class ActionCalculator:
         owned_cells = get_cells_owned_by_player(player1, self._board_array)
         for cell in owned_cells:
             row_index, column_index = cell.rowIndex, cell.columnIndex
-            neighbours: list[CellInfoDto] = get_neighbours(
+            neighbours: list[Cell] = get_neighbours(
                 row_index, column_index, self._board_array
             )
             for neighbour in neighbours:
@@ -145,7 +145,7 @@ class ActionCalculator:
         self,
         spell: SpellBase,
         player1: bool,  # not used for now
-        transient_board_array: list[list[CellInfoDto]],
+        transient_board_array: list[list[Cell]],
     ):
         """
         Returns the list of cells that can be targeted by a spell.
@@ -168,10 +168,10 @@ class ActionCalculator:
 
     def _calculate_extra_master_movements(
         self,
-        master_cell: CellInfoDto,
-        target_cell: CellInfoDto,
+        master_cell: Cell,
+        target_cell: Cell,
         player1: bool,
-        transient_board_array: list[list[CellInfoDto]],
+        transient_board_array: list[list[Cell]],
     ):
         """
         Gets the additional movements that a master cell may perform from a primary direction
@@ -192,9 +192,7 @@ class ActionCalculator:
             for move in additional_movements
         ]
 
-    def _is_valid_movement_target(
-        self, row_index, col_index, cell_to_move: CellInfoDto
-    ):
+    def _is_valid_movement_target(self, row_index, col_index, cell_to_move: Cell):
         """
         A valid movement target is :
 
@@ -207,7 +205,7 @@ class ActionCalculator:
         if _is_out_of_bounds(row_index) or _is_out_of_bounds(col_index):
             return False
 
-        target_cell: CellInfoDto = self._board_array[row_index][col_index]
+        target_cell: Cell = self._board_array[row_index][col_index]
 
         if cell_to_move.isMaster:
             return not target_cell.is_hostile_to(cell_to_move)
