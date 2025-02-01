@@ -3,7 +3,7 @@ from constants.match_constants import BOARD_SIZE
 from dto.server_only.match_action_dto import MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from game_engine.models.cell import Cell
-from game_engine.spells.spell_base import SpellBase
+from game_engine.spells.spell import Spell
 from game_engine.spells.spell_factory import get_spell
 from utils.board_utils import (
     get_cells_owned_by_player,
@@ -143,7 +143,7 @@ class ActionCalculator:
 
     def calculate_possible_spell_targets(
         self,
-        spell: SpellBase,
+        spell: Spell,
         player1: bool,  # not used for now
         transient_board_array: list[list[Cell]],
     ):

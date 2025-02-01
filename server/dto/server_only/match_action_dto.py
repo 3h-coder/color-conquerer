@@ -3,7 +3,7 @@ from enum import IntEnum
 
 from dto.coordinates_dto import CoordinatesDto
 from dto.partial_match_action_dto import PartialMatchActionDto
-from game_engine.spells.spell_base import SpellBase
+from game_engine.spells.spell import Spell
 
 
 class ActionType(IntEnum):
@@ -109,7 +109,7 @@ class MatchActionDto(PartialMatchActionDto):
         )
 
     @staticmethod
-    def spell(player1, spell: SpellBase, row_index, column_index):
+    def spell(player1, spell: Spell, row_index, column_index):
         return MatchActionDto(
             player1=player1,
             isDirect=True,

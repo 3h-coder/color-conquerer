@@ -1,5 +1,5 @@
 from dto.coordinates_dto import CoordinatesDto
-from game_engine.spells.spell_base import SpellBase
+from game_engine.spells.spell import Spell
 from game_engine.spells.spell_id import Spell_ID
 
 from typing import TYPE_CHECKING
@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from game_engine.models.cell import Cell
 
 
-class MineTrapSpell(SpellBase):
+class MineTrapSpell(Spell):
     ID = Spell_ID.MINE_TRAP
     NAME = "Mine Trap"
     DESCRIPTION = (

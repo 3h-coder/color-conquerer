@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from game_engine.models.cell import Cell
 
 
-class SpellBase:
+class Spell:
     """
     Base class for all spells.
     """

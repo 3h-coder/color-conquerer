@@ -12,7 +12,7 @@ from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_closure_dto import EndingReason
 from dto.server_only.player_info_dto import PlayerInfoDto
 from game_engine.models.cell import Cell
-from game_engine.spells.spell_base import SpellBase
+from game_engine.spells.spell import Spell
 from game_engine.spells.spell_factory import get_spell
 from handlers.match_helpers.action_calculator import ActionCalculator
 from handlers.match_helpers.action_processor import ActionProcessor
@@ -105,7 +105,7 @@ class MatchActionsService(ServiceBase):
         # Applicable when the player mode is OWN_CELL_SELECTED
         self._selected_cell: Cell = None
         # Applicable when the player mode is SPELL_SELECTED
-        self._selected_spell: SpellBase = None
+        self._selected_spell: Spell = None
         # Message to the player when their request is invalid
         self._error_msg: str = ""
 
