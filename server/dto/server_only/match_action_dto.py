@@ -3,6 +3,7 @@ from enum import IntEnum
 
 from dto.coordinates_dto import CoordinatesDto
 from dto.partial_match_action_dto import PartialMatchActionDto
+from game_engine.spells.spell_base import SpellBase
 
 
 class ActionType(IntEnum):
@@ -33,6 +34,7 @@ class MatchActionDto(PartialMatchActionDto):
             and self.type == other.type
             and self.originatingCellCoords == other.originatingCellCoords
             and self.impactedCoords == other.impactedCoords
+            and self.spellId == other.spellId
             and self.cellId == other.cellId
             and self.isDirect == other.isDirect
             and self.manaCost == other.manaCost
@@ -46,8 +48,9 @@ class MatchActionDto(PartialMatchActionDto):
                 self.type,
                 self.originatingCellCoords,
                 self.impactedCoords,
-                self.isDirect,
+                self.spellId,
                 self.cellId,
+                self.isDirect,
                 self.manaCost,
             )
         )
@@ -67,6 +70,7 @@ class MatchActionDto(PartialMatchActionDto):
             type=ActionType.CELL_MOVE,
             originatingCellCoords=CoordinatesDto(row_index, column_index),
             impactedCoords=CoordinatesDto(new_row_index, new_column_index),
+            spellId=None,
             cellId=cell_id,
             manaCost=0,
         )
@@ -86,6 +90,7 @@ class MatchActionDto(PartialMatchActionDto):
             type=ActionType.CELL_ATTACK,
             originatingCellCoords=CoordinatesDto(row_index, column_index),
             impactedCoords=CoordinatesDto(attack_row_index, attack_column_index),
+            spellId=None,
             cellId=cell_id,
             manaCost=0,
         )
@@ -98,6 +103,20 @@ class MatchActionDto(PartialMatchActionDto):
             type=ActionType.CELL_SPAWN,
             originatingCellCoords=None,
             impactedCoords=CoordinatesDto(row_index, column_index),
+            spellId=None,
             cellId=None,
             manaCost=1,
+        )
+
+    @staticmethod
+    def spell(player1, spell: SpellBase, row_index, column_index):
+        return MatchActionDto(
+            player1=player1,
+            isDirect=True,
+            type=ActionType.PLAYER_SPELL,
+            originatingCellCoords=None,
+            impactedCoords=CoordinatesDto(row_index, column_index),
+            spellId=spell.id,
+            cellId=None,
+            manaCost=spell.mana_cost,
         )

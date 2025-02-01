@@ -6,4 +6,5 @@ export interface PartialMatchActionDto {
     type: ActionType;
     originatingCellCoords?: CoordinatesDto;
     impactedCoords: CoordinatesDto;
+    spellId: number;
 }

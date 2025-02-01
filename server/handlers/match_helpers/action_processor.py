@@ -4,6 +4,7 @@ from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.player_game_info_dto import PlayerGameInfoDto
 from game_engine.cell_actions import move_cell, spawn_cell, trigger_cell_attack
+from game_engine.spells.spell_factory import get_spell
 
 
 class ActionProcessor:
@@ -69,7 +70,9 @@ class ActionProcessor:
                 )
 
             elif action_type == ActionType.PLAYER_SPELL:
-                pass  # nothing for now
+                spell = get_spell(action.spellId)
+                coords = action.impactedCoords
+                spell.invoke(coords, self._board_array)
 
             return action
         except Exception:

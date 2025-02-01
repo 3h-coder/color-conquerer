@@ -33,8 +33,8 @@ class MineTrapSpell(SpellBase):
             for cell in row:
                 if cell.is_owned():
                     continue
-                # TODO : change for can_be_spell_targetted
-                cell.set_can_be_moved_into()
+
+                cell.set_can_be_spell_targetted()
                 possible_targets.append(cell)
 
         return possible_targets

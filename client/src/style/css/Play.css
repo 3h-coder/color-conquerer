@@ -253,6 +253,12 @@
     animation: pulse-up-fade 0.7s ease-in-out;
 }
 
+.land-mine {
+    width: 90%;
+    height: 90%;
+    z-index: 1;
+}
+
 /* #endregion */
 
 .turn-swap-image-container {

@@ -14,6 +14,7 @@ class CellTransientState(IntEnum):
     CAN_BE_MOVED_INTO = 2
     CAN_BE_SPAWNED_INTO = 3
     CAN_BE_ATTACKED = 4
+    CAN_BE_SPELL_TARGETTED = 5
 
 
 class CellState(IntEnum):
@@ -140,6 +141,9 @@ class CellInfoDto(PartialCellInfoDto):
 
     def set_can_be_attacked(self):
         self.transientState = CellTransientState.CAN_BE_ATTACKED
+
+    def set_can_be_spell_targetted(self):
+        self.transientState = CellTransientState.CAN_BE_SPELL_TARGETTED
 
     def set_freshly_spawned(self):
         self.state = CellState.FRESHLY_SPAWNED

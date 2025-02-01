@@ -12,6 +12,7 @@ from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_closure_dto import EndingReason
 from dto.server_only.player_info_dto import PlayerInfoDto
+from game_engine.spells.spell_base import SpellBase
 from game_engine.spells.spell_factory import get_spell
 from handlers.match_helpers.action_calculator import ActionCalculator
 from handlers.match_helpers.action_processor import ActionProcessor
@@ -103,6 +104,8 @@ class MatchActionsService(ServiceBase):
         self._transient_board_array: list[list[CellInfoDto]] = None
         # Applicable when the player mode is OWN_CELL_SELECTED
         self._selected_cell: CellInfoDto = None
+        # Applicable when the player mode is SPELL_SELECTED
+        self._selected_spell: SpellBase = None
         # Message to the player when their request is invalid
         self._error_msg: str = ""
 
@@ -132,6 +135,7 @@ class MatchActionsService(ServiceBase):
 
         @functools.wraps(func)
         def wrapper(self: "MatchActionsService", *args, **kwargs):
+            self._current_player = self.match.get_current_player()
             func(self, *args, **kwargs)
             self._end_match_if_game_over()
 
@@ -163,6 +167,7 @@ class MatchActionsService(ServiceBase):
         self._processed_action = None
         self._transient_board_array = None
         self._selected_cell = None
+        self._selected_spell = None
         self._error_msg = ""
 
     @_entry_point
@@ -170,7 +175,7 @@ class MatchActionsService(ServiceBase):
         """
         Handles the selection of a cell. This can either trigger an action or return a list of possible actions.
         """
-        player = self._current_player = self.match.get_current_player()
+        player = self._current_player
         is_player_1 = player.isPlayer1
         cell: CellInfoDto = self._board_array[cell_row][cell_col]
 
@@ -195,8 +200,6 @@ class MatchActionsService(ServiceBase):
         """
         Handles the spawn/spawn cancellation request of a player.
         """
-        self._current_player = self.match.get_current_player()
-
         if self._player_mode == PlayerMode.IDLE:
             self._find_possible_spawns()
 
@@ -208,7 +211,8 @@ class MatchActionsService(ServiceBase):
             self.set_player_as_idle()
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
-            pass  # nothing for now
+            self.set_player_as_idle()
+            self._find_possible_spawns()
 
         self._send_response()
 
@@ -217,10 +221,14 @@ class MatchActionsService(ServiceBase):
         """
         Handles the spell request of a player.
         """
-        self._current_player = self.match.get_current_player()
-
         if self._player_mode == PlayerMode.IDLE:
-            pass
+            self._find_spell_possible_targets(spell_id)
+
+        else:
+            self.set_player_as_idle()
+            self._find_spell_possible_targets(spell_id)
+
+        self._send_response()
 
     def _handle_own_cell_selection(self, cell: CellInfoDto, player1: bool):
         """
@@ -249,7 +257,14 @@ class MatchActionsService(ServiceBase):
             self._error_msg = ErrorMessages.SELECT_IDLE_CELL
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
-            pass  # nothing for now
+            spell_action = MatchActionDto.spell(
+                self._current_player.isPlayer1,
+                self._selected_spell,
+                cell.rowIndex,
+                cell.columnIndex,
+            )
+
+            self._validate_and_process_action(spell_action)
 
     def _handle_opponent_cell_selection(self, cell: CellInfoDto, player1: bool):
         """
@@ -276,7 +291,14 @@ class MatchActionsService(ServiceBase):
             self._error_msg = ErrorMessages.SELECT_IDLE_CELL
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
-            pass  # nothing for now
+            spell_action = MatchActionDto.spell(
+                self._current_player.isPlayer1,
+                self._selected_spell,
+                cell.rowIndex,
+                cell.columnIndex,
+            )
+
+            self._validate_and_process_action(spell_action)
 
     def _handle_idle_cell_selection(self, cell: CellInfoDto, player1: bool):
         """
@@ -305,7 +327,14 @@ class MatchActionsService(ServiceBase):
             )
 
         elif self._player_mode == PlayerMode.SPELL_SELECTED:
-            pass  # nothing for now
+            spell_action = MatchActionDto.spell(
+                self._current_player.isPlayer1,
+                self._selected_spell,
+                cell.rowIndex,
+                cell.columnIndex,
+            )
+
+            self._validate_and_process_action(spell_action)
 
     def _send_response(self):
         """
@@ -508,8 +537,16 @@ class MatchActionsService(ServiceBase):
         Sets the player mode to SPELL_SELECTED and fills the possible actions field with
         the potential targets of the spell.
         """
+        player = self._current_player
         spell = get_spell(spell_id)
+        possible_spell_invocations = (
+            self._action_calculator.calculate_possible_spell_targets(
+                spell, player.isPlayer1, self._transient_board_array
+            )
+        )
         self._player_mode = PlayerMode.SPELL_SELECTED
+        self._selected_spell = spell
+        self._set_possible_actions(possible_spell_invocations)
 
     def _selected_cell_has_already_moved_this_turn(self):
         return (

@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { SwordIcon } from "../../../assets/svg";
+import { LandMineIcon, SwordIcon } from "../../../assets/svg";
 import { PartialCellInfoDto } from "../../../dto/PartialCellInfoDto";
 import { CellState, CellTransientState } from "../../../enums/cellStates";
 import { Events } from "../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../env";
 import { cellStyle } from "../../../style/constants";
 import {
-    canBeMovedOrSpawnedInto,
+    canBeTargetted,
     getCellStyle,
     isSelectable,
 } from "../../../utils/cellUtils";
@@ -26,6 +26,7 @@ export default function GameCell(props: GameCellProps) {
     const selected = cellInfo.transientState === CellTransientState.SELECTED;
     const attackable = cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
     const isManaBubble = cellInfo.state == CellState.MANA_BUBBLE;
+    const isMineTrap = cellInfo.state == CellState.MINE_TRAP;
 
     // If the cell was previously hovered and is being re-rendered
     // send a HOVER_END event to the server to clear the hover effect
@@ -54,7 +55,7 @@ export default function GameCell(props: GameCellProps) {
 
     const allClassNames = [
         selectable ? cellStyle.selectableClassName : EMPTY_STRING,
-        canDisplayPossibleActions && canBeMovedOrSpawnedInto(cellInfo)
+        canDisplayPossibleActions && canBeTargetted(cellInfo)
             ? cellStyle.possibleActionClassName
             : EMPTY_STRING,
     ];
@@ -76,6 +77,7 @@ export default function GameCell(props: GameCellProps) {
             {selected && <SelectedIndicator />}
             {attackable && <AttackableIndicator isPlayer1={isPlayer1} />}
             {isManaBubble && <ManaBubble />}
+            {isMineTrap && <LandMine isPlayer1={isPlayer1} />}
         </div>
     );
 }
@@ -99,5 +101,13 @@ function AttackableIndicator({ isPlayer1 }: { isPlayer1: boolean; }) {
 function ManaBubble() {
     return (
         <div className="mana-bubble absolute-positioning-centered" />
+    );
+}
+
+function LandMine({ isPlayer1 }: { isPlayer1: boolean; }) {
+    return (
+        <div className="land-mine absolute-positioning-centered">
+            <LandMineIcon style={{ fill: "black", transform: isPlayer1 ? "rotate(180deg)" : undefined }} />
+        </div>
     );
 }

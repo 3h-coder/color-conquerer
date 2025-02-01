@@ -14,6 +14,8 @@ class PartialMatchActionDto(BaseDto):
     type: "ActionType"
     originatingCellCoords: CoordinatesDto
     impactedCoords: CoordinatesDto
+    # TODO : remove this
+    spellId: int
 
     @staticmethod
     def from_match_action_dto(match_action_dto: "MatchActionDto"):
@@ -25,4 +27,5 @@ class PartialMatchActionDto(BaseDto):
             match_action_dto.type,
             match_action_dto.originatingCellCoords,
             match_action_dto.impactedCoords,
+            match_action_dto.spellId,
         )

@@ -136,6 +136,8 @@ export default function GameGrid() {
 
             // Apply the new coloring and selectable cells
             setBoardArray(possibleActions.transientBoardArray);
+
+            triggerPossibleActionsAnimationSync();
         }
 
         function onServerProcessedActions(processedActionDto: ProcessedActionDto) {

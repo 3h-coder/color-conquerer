@@ -10,7 +10,7 @@ export function isOwned(cell: PartialCellInfoDto) {
 export function getCellStyle(cell: PartialCellInfoDto, isPlayer1: boolean) {
   const style: React.CSSProperties = {};
 
-  if (canBeMovedOrSpawnedInto(cell)) {
+  if (canBeTargetted(cell)) {
     style.backgroundColor = colors.cell.ownCellActionPossible;
   } else if (cell.state === CellState.FRESHLY_SPAWNED) {
     style.backgroundColor = getFreshlySpawnedCellColor(cell, isPlayer1);
@@ -97,10 +97,14 @@ export function isSelectable(cell: PartialCellInfoDto) {
   return cell.owner !== 0 || cell.transientState !== CellTransientState.NONE;
 }
 
-export function canBeMovedOrSpawnedInto(cell: PartialCellInfoDto) {
+/**
+ * Returns true if the cell can be targetted by a spell, a spawn or a move.
+ */
+export function canBeTargetted(cell: PartialCellInfoDto) {
   return (
     cell.transientState === CellTransientState.CAN_BE_MOVED_INTO ||
-    cell.transientState === CellTransientState.CAN_BE_SPAWNED_INTO
+    cell.transientState === CellTransientState.CAN_BE_SPAWNED_INTO ||
+    cell.transientState === CellTransientState.CAN_BE_SPELL_TARGETTED
   );
 }
 
