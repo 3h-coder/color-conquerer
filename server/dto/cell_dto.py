@@ -19,9 +19,9 @@ class CellDto(BaseDto):
     def from_cell(cell: Cell):
         return CellDto(
             cell.owner,
-            cell.isMaster,
-            cell.rowIndex,
-            cell.columnIndex,
+            cell.is_master,
+            cell.row_index,
+            cell.column_index,
             cell.state,
-            cell.transientState,
+            cell.transient_state,
         )

@@ -8,7 +8,7 @@ import { usePlayerMode } from "../../../contexts/PlayerModeContext";
 import { usePlayersGameInfo } from "../../../contexts/PlayersGameInfoContext";
 import { useTurnInfo } from "../../../contexts/TurnContext";
 import { MessageDto } from "../../../dto/MessageDto";
-import { CellDto } from "../../../dto/PartialCellInfoDto";
+import { CellDto } from "../../../dto/CellDto";
 import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
 import { ProcessedActionDto } from "../../../dto/ProcessedActionDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";

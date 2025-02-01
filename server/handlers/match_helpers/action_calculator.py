@@ -32,7 +32,7 @@ class ActionCalculator:
         """
         Returns the list of movements that an owned cell can perform.
         """
-        row_index, column_index = cell.rowIndex, cell.columnIndex
+        row_index, column_index = cell.row_index, cell.column_index
 
         movements: list[MatchActionDto] = []
         primary_directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # down, up, left, right
@@ -46,7 +46,7 @@ class ActionCalculator:
             target_cell: Cell = self._board_array[new_row_index][new_col_index]
 
             # Master cell extra steps
-            if cell.isMaster:
+            if cell.is_master:
                 movements.extend(
                     self._calculate_extra_master_movements(
                         cell, target_cell, player1, transient_board_array
@@ -81,18 +81,18 @@ class ActionCalculator:
         """
         Returns the list of attacks that an owned cell can perform.
         """
-        row_index, column_index = cell.rowIndex, cell.columnIndex
+        row_index, column_index = cell.row_index, cell.column_index
 
         attacks: list[MatchActionDto] = []
         neighbours: list[Cell] = get_neighbours(
-            cell.rowIndex, cell.columnIndex, self._board_array
+            cell.row_index, cell.column_index, self._board_array
         )
         for neighbour in neighbours:
             if not cell.is_hostile_to(neighbour):
                 continue
 
-            transient_board_cell = transient_board_array[neighbour.rowIndex][
-                neighbour.columnIndex
+            transient_board_cell = transient_board_array[neighbour.row_index][
+                neighbour.column_index
             ]
             transient_board_cell.set_can_be_attacked()
 
@@ -102,8 +102,8 @@ class ActionCalculator:
                     cell.id,
                     row_index,
                     column_index,
-                    neighbour.rowIndex,
-                    neighbour.columnIndex,
+                    neighbour.row_index,
+                    neighbour.column_index,
                 )
             )
         return attacks
@@ -118,7 +118,7 @@ class ActionCalculator:
 
         owned_cells = get_cells_owned_by_player(player1, self._board_array)
         for cell in owned_cells:
-            row_index, column_index = cell.rowIndex, cell.columnIndex
+            row_index, column_index = cell.row_index, cell.column_index
             neighbours: list[Cell] = get_neighbours(
                 row_index, column_index, self._board_array
             )
@@ -126,16 +126,16 @@ class ActionCalculator:
                 if neighbour.is_owned():
                     continue
 
-                transient_board_cell = transient_board_array[neighbour.rowIndex][
-                    neighbour.columnIndex
+                transient_board_cell = transient_board_array[neighbour.row_index][
+                    neighbour.column_index
                 ]
                 transient_board_cell.set_can_be_spawned_into()
 
                 possible_spawns.add(
                     MatchActionDto.cell_spawn(
                         player1,
-                        neighbour.rowIndex,
-                        neighbour.columnIndex,
+                        neighbour.row_index,
+                        neighbour.column_index,
                     )
                 )
 
@@ -159,8 +159,8 @@ class ActionCalculator:
                 MatchActionDto.spell(
                     player1,
                     spell,
-                    target.rowIndex,
-                    target.columnIndex,
+                    target.row_index,
+                    target.column_index,
                 )
             )
 
@@ -184,8 +184,8 @@ class ActionCalculator:
             MatchActionDto.cell_movement(
                 player1,
                 master_cell.id,
-                master_cell.rowIndex,
-                master_cell.columnIndex,
+                master_cell.row_index,
+                master_cell.column_index,
                 move.impactedCoords.rowIndex,
                 move.impactedCoords.columnIndex,
             )
@@ -207,7 +207,7 @@ class ActionCalculator:
 
         target_cell: Cell = self._board_array[row_index][col_index]
 
-        if cell_to_move.isMaster:
+        if cell_to_move.is_master:
             return not target_cell.is_hostile_to(cell_to_move)
 
         else:

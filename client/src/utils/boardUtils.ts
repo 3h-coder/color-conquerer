@@ -1,4 +1,4 @@
-import { CellDto } from "../dto/PartialCellInfoDto";
+import { CellDto } from "../dto/CellDto";
 import { PartialMatchActionDto } from "../dto/PartialMatchActionDto";
 import { ActionType } from "../enums/actionType";
 import { CellState } from "../enums/cellStates";

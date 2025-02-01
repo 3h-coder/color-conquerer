@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dto.cell_info_dto import CellDto
+from dto.cell_dto import CellDto
 from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.server_only.player_game_info_dto import PlayerGameInfoDto
 from dto.player_info_bundle_dto import PlayerGameInfoBundleDto

@@ -1,5 +1,5 @@
 import { EMPTY_STRING } from "../env";
-import { CellDto } from "./PartialCellInfoDto";
+import { CellDto } from "./CellDto";
 import { PlayerGameInfoBundleDto, undefinedPlayerInfoBundleDto } from "./PlayerInfoBundleDto";
 
 export interface TurnInfoDto {

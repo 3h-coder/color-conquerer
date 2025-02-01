@@ -1,4 +1,4 @@
-import { CellDto } from "./PartialCellInfoDto";
+import { CellDto } from "./CellDto";
 
 export interface PossibleActionsDto {
     playerMode: number;

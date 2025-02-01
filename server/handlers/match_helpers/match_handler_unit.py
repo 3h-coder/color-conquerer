@@ -262,10 +262,10 @@ class MatchHandlerUnit:
         player2_master_cell = board[9][5]
 
         player1_master_cell.set_owned_by_player1()
-        player1_master_cell.isMaster = True
+        player1_master_cell.is_master = True
 
         player2_master_cell.set_owned_by_player2()
-        player2_master_cell.isMaster = True
+        player2_master_cell.is_master = True
 
         # Initialize mana bubbles
         board[6][5].set_as_mana_bubble()

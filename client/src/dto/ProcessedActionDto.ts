@@ -1,4 +1,4 @@
-import { CellDto } from "./PartialCellInfoDto";
+import { CellDto } from "./CellDto";
 import { PartialMatchActionDto } from "./PartialMatchActionDto";
 import { TurnInfoDto } from "./TurnInfoDto";
 

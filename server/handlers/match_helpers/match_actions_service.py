@@ -260,8 +260,8 @@ class MatchActionsService(ServiceBase):
             spell_action = MatchActionDto.spell(
                 self._current_player.isPlayer1,
                 self._selected_spell,
-                cell.rowIndex,
-                cell.columnIndex,
+                cell.row_index,
+                cell.column_index,
             )
 
             self._validate_and_process_action(spell_action)
@@ -280,10 +280,10 @@ class MatchActionsService(ServiceBase):
             attack = MatchActionDto.cell_attack(
                 player1,
                 self._selected_cell.id,
-                self._selected_cell.rowIndex,
-                self._selected_cell.columnIndex,
-                cell.rowIndex,
-                cell.columnIndex,
+                self._selected_cell.row_index,
+                self._selected_cell.column_index,
+                cell.row_index,
+                cell.column_index,
             )
             self._validate_and_process_action(attack)
 
@@ -294,8 +294,8 @@ class MatchActionsService(ServiceBase):
             spell_action = MatchActionDto.spell(
                 self._current_player.isPlayer1,
                 self._selected_spell,
-                cell.rowIndex,
-                cell.columnIndex,
+                cell.row_index,
+                cell.column_index,
             )
 
             self._validate_and_process_action(spell_action)
@@ -313,15 +313,17 @@ class MatchActionsService(ServiceBase):
             movement = MatchActionDto.cell_movement(
                 player1,
                 self._selected_cell.id,
-                self._selected_cell.rowIndex,
-                self._selected_cell.columnIndex,
-                cell.rowIndex,
-                cell.columnIndex,
+                self._selected_cell.row_index,
+                self._selected_cell.column_index,
+                cell.row_index,
+                cell.column_index,
             )
             self._validate_and_process_action(movement)
 
         elif self._player_mode == PlayerMode.CELL_SPAWN:
-            spawn = MatchActionDto.cell_spawn(player1, cell.rowIndex, cell.columnIndex)
+            spawn = MatchActionDto.cell_spawn(
+                player1, cell.row_index, cell.column_index
+            )
             self._validate_and_process_action(
                 spawn, server_mode=ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
             )
@@ -330,8 +332,8 @@ class MatchActionsService(ServiceBase):
             spell_action = MatchActionDto.spell(
                 self._current_player.isPlayer1,
                 self._selected_spell,
-                cell.rowIndex,
-                cell.columnIndex,
+                cell.row_index,
+                cell.column_index,
             )
 
             self._validate_and_process_action(spell_action)
@@ -490,7 +492,7 @@ class MatchActionsService(ServiceBase):
         """
         self._player_mode = PlayerMode.OWN_CELL_SELECTED
         self._selected_cell = cell
-        transient_cell = self._transient_board_array[cell.rowIndex][cell.columnIndex]
+        transient_cell = self._transient_board_array[cell.row_index][cell.column_index]
         transient_cell.set_selected()
 
     @_initialize_transient_board

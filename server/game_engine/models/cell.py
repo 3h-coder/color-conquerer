@@ -35,32 +35,32 @@ class CellOwner(IntEnum):
 @dataclass
 class Cell:
     owner: CellOwner
-    isMaster: bool
-    rowIndex: int
-    columnIndex: int
+    is_master: bool
+    row_index: int
+    column_index: int
     state: CellState
-    transientState: CellTransientState
+    transient_state: CellTransientState
     id: str
 
     def __eq__(self, other_cell):
         return (
             isinstance(other_cell, Cell)
-            and self.rowIndex == other_cell.rowIndex
-            and self.columnIndex == other_cell.columnIndex
+            and self.row_index == other_cell.row_index
+            and self.column_index == other_cell.column_index
             and self.id == other_cell.id
         )
 
     def __hash__(self):
-        return hash(self.rowIndex, self.columnIndex, self.id)
+        return hash(self.row_index, self.column_index, self.id)
 
     def clone(self):
         return Cell(
             owner=self.owner,
-            isMaster=self.isMaster,
-            rowIndex=self.rowIndex,
-            columnIndex=self.columnIndex,
+            is_master=self.is_master,
+            row_index=self.row_index,
+            column_index=self.column_index,
             state=self.state,
-            transientState=self.transientState,
+            transient_state=self.transient_state,
             id=self.id,
         )
 
@@ -68,20 +68,20 @@ class Cell:
     def get_default_idle_cell(row_index: int, col_index: int):
         return Cell(
             owner=CellOwner.NONE,
-            isMaster=False,
-            rowIndex=row_index,
-            columnIndex=col_index,
+            is_master=False,
+            row_index=row_index,
+            column_index=col_index,
             state=CellState.NONE,
-            transientState=CellTransientState.NONE,
+            transient_state=CellTransientState.NONE,
             id=None,
         )
 
     def set_idle(self):
         self.owner = CellOwner.NONE
         self.id = None
-        self.isMaster = False
+        self.is_master = False
         self.state = CellState.NONE
-        self.transientState = CellTransientState.NONE
+        self.transient_state = CellTransientState.NONE
 
     def set_owned_by_player1(self, id: str = None):
         if self.owner == CellOwner.PLAYER_1:
@@ -91,7 +91,7 @@ class Cell:
 
         self.owner = CellOwner.PLAYER_1
         self.id = id if id else generate_id(Cell)
-        self.isMaster = False
+        self.is_master = False
 
     def set_owned_by_player2(self, id: str = None):
         if self.owner == CellOwner.PLAYER_2:
@@ -101,7 +101,7 @@ class Cell:
 
         self.owner = CellOwner.PLAYER_2
         self.id = id if id else generate_id(Cell)
-        self.isMaster = False
+        self.is_master = False
 
     def is_owned(self):
         return self.owner != CellOwner.NONE
@@ -136,19 +136,19 @@ class Cell:
         self.state = CellState.NONE
 
     def set_selected(self):
-        self.transientState = CellTransientState.SELECTED
+        self.transient_state = CellTransientState.SELECTED
 
     def set_can_be_moved_into(self):
-        self.transientState = CellTransientState.CAN_BE_MOVED_INTO
+        self.transient_state = CellTransientState.CAN_BE_MOVED_INTO
 
     def set_can_be_spawned_into(self):
-        self.transientState = CellTransientState.CAN_BE_SPAWNED_INTO
+        self.transient_state = CellTransientState.CAN_BE_SPAWNED_INTO
 
     def set_can_be_attacked(self):
-        self.transientState = CellTransientState.CAN_BE_ATTACKED
+        self.transient_state = CellTransientState.CAN_BE_ATTACKED
 
     def set_can_be_spell_targetted(self):
-        self.transientState = CellTransientState.CAN_BE_SPELL_TARGETTED
+        self.transient_state = CellTransientState.CAN_BE_SPELL_TARGETTED
 
     def set_freshly_spawned(self):
         self.state = CellState.FRESHLY_SPAWNED

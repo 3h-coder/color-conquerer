@@ -1,4 +1,4 @@
-import { CellDto } from "../dto/PartialCellInfoDto";
+import { CellDto } from "../dto/CellDto";
 import { CellState, CellTransientState } from "../enums/cellStates";
 import { EMPTY_STRING } from "../env";
 import { cellStyle, colors } from "../style/constants";

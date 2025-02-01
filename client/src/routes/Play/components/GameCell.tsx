@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { LandMineIcon, SwordIcon } from "../../../assets/svg";
-import { CellDto } from "../../../dto/PartialCellInfoDto";
+import { CellDto } from "../../../dto/CellDto";
 import { CellState, CellTransientState } from "../../../enums/cellStates";
 import { Events } from "../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../env";

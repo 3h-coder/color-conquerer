@@ -1,7 +1,7 @@
 import uuid
 from enum import StrEnum
 
-from dto.cell_info_dto import CellDto
+from dto.cell_dto import CellDto
 from dto.queue_player_dto import QueuePlayerDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto

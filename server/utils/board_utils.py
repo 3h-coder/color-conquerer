@@ -3,7 +3,7 @@ Contains all utility methods relative to the game board, excluding game engine m
 and cell manipulation.
 """
 
-from dto.cell_info_dto import Cell, CellDto
+from dto.cell_dto import Cell, CellDto
 
 
 def create_starting_board(board_size: int):

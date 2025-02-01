@@ -25,15 +25,15 @@ def move_cell(
 
     cell_new_coords = board[new_row_index][new_col_index]
     cell_id = cell_original_coords.id
-    is_master = cell_original_coords.isMaster
+    is_master = cell_original_coords.is_master
 
     if cell_original_coords.belongs_to_player_1():
         cell_new_coords.set_owned_by_player1(cell_id)
-        cell_new_coords.isMaster = is_master
+        cell_new_coords.is_master = is_master
 
     elif cell_original_coords.belongs_to_player_2():
         cell_new_coords.set_owned_by_player2(cell_id)
-        cell_new_coords.isMaster = is_master
+        cell_new_coords.is_master = is_master
 
     cell_original_coords.set_idle()
     cell_new_coords.clear_state()
@@ -69,8 +69,8 @@ def trigger_cell_attack(
     if attacking_cell.owner == target_cell.owner:
         return
 
-    attacking_is_master = attacking_cell.isMaster
-    target_is_master = target_cell.isMaster
+    attacking_is_master = attacking_cell.is_master
+    target_is_master = target_cell.is_master
 
     player1_game_info = match_info.get_player_game_info(player1=True)
     player2_game_info = match_info.get_player_game_info(player1=False)
