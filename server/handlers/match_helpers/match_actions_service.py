@@ -224,6 +224,12 @@ class MatchActionsService(ServiceBase):
         if self._player_mode == PlayerMode.IDLE:
             self._find_spell_possible_targets(spell_id)
 
+        elif self._player_mode == PlayerMode.SPELL_SELECTED:
+            if spell_id == self._selected_spell.id:
+                self.set_player_as_idle()
+            else:
+                self._find_spell_possible_targets(spell_id)
+
         else:
             self.set_player_as_idle()
             self._find_spell_possible_targets(spell_id)

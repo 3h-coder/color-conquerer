@@ -4,6 +4,8 @@ import { useTurnInfo } from "../../../../contexts/TurnContext";
 import { SpellDto } from "../../../../dto/SpellDto";
 import { socket, WHITE_SPACE } from "../../../../env";
 import { Events } from "../../../../enums/events";
+import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
+import { PlayerMode } from "../../../../enums/playerMode";
 
 interface SpellCardProps {
     spell: SpellDto;
@@ -12,6 +14,7 @@ interface SpellCardProps {
 export default function SpellCard(props: SpellCardProps) {
     const { spell } = props;
     const { canInteract } = useTurnInfo();
+    const { playerMode } = usePlayerMode();
     const [showDescription, setShowDescription] = useState(false);
     const isBeingTouched = useRef(false);
     const touchTimeout = useRef<NodeJS.Timeout | null>(null); // Store timeout reference
@@ -61,6 +64,23 @@ export default function SpellCard(props: SpellCardProps) {
     function onClick() {
         socket.emit(Events.CLIENT_SPELL_BUTTON, spell.id);
     }
+
+    // Use the escape key to cancel the spell selection
+    useEffect(() => {
+        function handleKeyPress(event: KeyboardEvent) {
+            if (!canInteract)
+                return;
+
+            else if (event.key === "Escape" && playerMode === PlayerMode.SPELL_SELECTED)
+                onClick();
+        }
+
+        window.addEventListener("keydown", handleKeyPress);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [playerMode, canInteract]);
 
     return (
         <>
