@@ -33,7 +33,7 @@ class ActionProcessor:
 
             if action_type == ActionType.CELL_MOVE:
                 original_coords = action.originatingCellCoords
-                new_coords = action.impactedCoords[0]
+                new_coords = action.impactedCoords
                 self._check_for_mana_bubble(
                     player_game_info, new_coords.rowIndex, new_coords.columnIndex
                 )
@@ -47,7 +47,7 @@ class ActionProcessor:
 
             elif action_type == ActionType.CELL_ATTACK:
                 attacking_coords = action.originatingCellCoords
-                target_coords = action.impactedCoords[0]
+                target_coords = action.impactedCoords
                 trigger_cell_attack(
                     attacking_coords.rowIndex,
                     attacking_coords.columnIndex,
@@ -57,7 +57,7 @@ class ActionProcessor:
                 )
 
             elif action_type == ActionType.CELL_SPAWN:
-                coords = action.impactedCoords[0]
+                coords = action.impactedCoords
                 self._check_for_mana_bubble(
                     player_game_info, coords.rowIndex, coords.columnIndex
                 )

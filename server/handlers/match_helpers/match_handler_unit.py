@@ -174,6 +174,12 @@ class MatchHandlerUnit:
         """
         self._match_actions_service.handle_spawn_toggle()
 
+    def handle_spell_button(self, spell_id: int):
+        """
+        Triggers all of the processing relative to a spell request.
+        """
+        self._match_actions_service.handle_spell_request(spell_id)
+
     def force_turn_swap(self):
         """
         Forcefully triggers a turn swap.

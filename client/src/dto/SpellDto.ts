@@ -4,4 +4,5 @@ export interface SpellDto {
     description: string;
     manaCost: number;
     count: number;
+    maxCount: number;
 }

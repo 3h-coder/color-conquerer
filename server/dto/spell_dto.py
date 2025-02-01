@@ -12,15 +12,17 @@ class SpellDto(BaseDto):
     description: str
     manaCost: int
     count: int
+    maxCount: int
 
     @staticmethod
-    def from_spell(spell: SpellBase, count: int):
+    def from_spell(spell: SpellBase, max_count: int):
         return SpellDto(
             id=spell.id,
             name=spell.name,
             description=spell.description,
             manaCost=spell.mana_cost,
-            count=count,
+            count=max_count,
+            maxCount=max_count,
         )
 
     @staticmethod

@@ -13,7 +13,7 @@ class PartialMatchActionDto(BaseDto):
     player1: bool
     type: "ActionType"
     originatingCellCoords: CoordinatesDto
-    impactedCoords: tuple[CoordinatesDto]
+    impactedCoords: CoordinatesDto
 
     @staticmethod
     def from_match_action_dto(match_action_dto: "MatchActionDto"):

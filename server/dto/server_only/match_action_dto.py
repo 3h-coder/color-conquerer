@@ -66,7 +66,7 @@ class MatchActionDto(PartialMatchActionDto):
             isDirect=True,
             type=ActionType.CELL_MOVE,
             originatingCellCoords=CoordinatesDto(row_index, column_index),
-            impactedCoords=(CoordinatesDto(new_row_index, new_column_index),),
+            impactedCoords=CoordinatesDto(new_row_index, new_column_index),
             cellId=cell_id,
             manaCost=0,
         )
@@ -85,7 +85,7 @@ class MatchActionDto(PartialMatchActionDto):
             isDirect=True,
             type=ActionType.CELL_ATTACK,
             originatingCellCoords=CoordinatesDto(row_index, column_index),
-            impactedCoords=(CoordinatesDto(attack_row_index, attack_column_index),),
+            impactedCoords=CoordinatesDto(attack_row_index, attack_column_index),
             cellId=cell_id,
             manaCost=0,
         )
@@ -97,7 +97,7 @@ class MatchActionDto(PartialMatchActionDto):
             isDirect=True,
             type=ActionType.CELL_SPAWN,
             originatingCellCoords=None,
-            impactedCoords=(CoordinatesDto(row_index, column_index),),
+            impactedCoords=CoordinatesDto(row_index, column_index),
             cellId=None,
             manaCost=1,
         )

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { InfoIcon } from "../../../../assets/svg";
 import { useTurnInfo } from "../../../../contexts/TurnContext";
 import { SpellDto } from "../../../../dto/SpellDto";
-import { WHITE_SPACE } from "../../../../env";
+import { socket, WHITE_SPACE } from "../../../../env";
+import { Events } from "../../../../enums/events";
 
 interface SpellCardProps {
     spell: SpellDto;
@@ -57,6 +58,10 @@ export default function SpellCard(props: SpellCardProps) {
         setShowDescription(false);
     }
 
+    function onClick() {
+        socket.emit(Events.CLIENT_SPELL_BUTTON, spell.id);
+    }
+
     return (
         <>
             <button
@@ -66,9 +71,10 @@ export default function SpellCard(props: SpellCardProps) {
                 onMouseLeave={onMouseLeave}
                 onTouchStart={onTouchStart}
                 onTouchEnd={onTouchEnd}
+                onClick={onClick}
             >
                 <div className="spell-mana-cost">{spell.manaCost}</div>
-                <div>{spell.name}</div>
+                <div>{spell.name} ({spell.count}/{spell.maxCount})</div>
             </button>
             {showDescription &&
                 <div className="spell-description">

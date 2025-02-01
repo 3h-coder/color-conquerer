@@ -181,6 +181,26 @@ def handle_spawn_button():
     match.handle_spawn_button()
 
 
+@only_if_in_match
+def handle_spell_button(spell_id: int):
+    """
+    Receives the client's request to use a spell.
+    """
+    _logger.info(f"({request.remote_addr}) | Received spell button toggle event")
+    room_id = _get_session_variable(ROOM_ID)
+    player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
+    match = get_match_handler().get_unit(room_id)
+
+    player_id = player_info.playerId
+    if not match.get_current_player().playerId == player_id:
+        _logger.error(
+            f"Cannot process the spell request of the player {player_id} as it is the turn of their opponent"
+        )
+        return
+
+    match.handle_spell_button(spell_id)
+
+
 def _get_session_variable(variable_name: str):
     value = session.get(variable_name)
     if value is None:

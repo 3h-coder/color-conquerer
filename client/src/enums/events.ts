@@ -20,6 +20,7 @@ export enum Events {
     CLIENT_CELL_CLICK = "client-cell-click",
     CLIENT_SPAWN_BUTTON = "client-spawn-button",
     SERVER_SPAWN_ACTIVATED = "server-spawn-activated",
+    CLIENT_SPELL_BUTTON = "client-spell-button",
     SERVER_POSSIBLE_ACTIONS = "server-possibleActions",
     SERVER_PROCESSED_ACTIONS = "server-processedActions",
     SERVER_ACTION_ERROR = "server-actionError",

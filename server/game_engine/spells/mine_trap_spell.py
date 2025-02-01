@@ -9,24 +9,35 @@ if TYPE_CHECKING:
 
 
 class MineTrapSpell(SpellBase):
+    ID = Spell_ID.MINE_TRAP
     NAME = "Mine Trap"
     DESCRIPTION = (
         "Places a mine trap on a non-occupied cell. "
         "When an enemy cell steps or spawns on it, it explodes, "
-        "dealing 1 damage to all adjacent units."
+        "dealing 1 damage to all adjacent cells."
     )
     MANA_COST = 2
 
     def __init__(self):
         super().__init__(
-            id=Spell_ID.MINE_TRAP,
+            id=self.ID,
             name=self.NAME,
             description=self.DESCRIPTION,
             mana_cost=self.MANA_COST,
         )
 
     def get_possible_targets(self, board: list[list["CellInfoDto"]]):
-        return [cell for row in board for cell in row if not cell.is_owned()]
+        possible_targets = []
+
+        for row in board:
+            for cell in row:
+                if cell.is_owned():
+                    continue
+                # TODO : change for can_be_spell_targetted
+                cell.set_can_be_moved_into()
+                possible_targets.append(cell)
+
+        return possible_targets
 
     def invoke(self, coordinates: CoordinatesDto, board: list[list["CellInfoDto"]]):
         cell = board[coordinates.rowIndex][coordinates.columnIndex]

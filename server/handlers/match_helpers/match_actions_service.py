@@ -12,6 +12,7 @@ from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_closure_dto import EndingReason
 from dto.server_only.player_info_dto import PlayerInfoDto
+from game_engine.spells.spell_factory import get_spell
 from handlers.match_helpers.action_calculator import ActionCalculator
 from handlers.match_helpers.action_processor import ActionProcessor
 from handlers.match_helpers.client_notifications import (
@@ -210,6 +211,16 @@ class MatchActionsService(ServiceBase):
             pass  # nothing for now
 
         self._send_response()
+
+    @_entry_point
+    def handle_spell_request(self, spell_id: int):
+        """
+        Handles the spell request of a player.
+        """
+        self._current_player = self.match.get_current_player()
+
+        if self._player_mode == PlayerMode.IDLE:
+            pass
 
     def _handle_own_cell_selection(self, cell: CellInfoDto, player1: bool):
         """
@@ -454,19 +465,6 @@ class MatchActionsService(ServiceBase):
         transient_cell.set_selected()
 
     @_initialize_transient_board
-    def _find_possible_spawns(self, update_server_mode=True):
-        """
-        Sets the player mode to CELL_SPAWN and fills the possible actions field with
-        the potential spawns.
-        """
-        player = self._current_player
-        possible_spawns = self._action_calculator.calculate_possible_spawns(
-            player.isPlayer1, self._transient_board_array
-        )
-        self._player_mode = PlayerMode.CELL_SPAWN
-        self._set_possible_actions(possible_spawns, update_server_mode)
-
-    @_initialize_transient_board
     def _get_possible_movements_and_attacks(self, player1: bool):
         """
         Returns the concatenated possible movements and attacks a cell may perform.
@@ -490,6 +488,28 @@ class MatchActionsService(ServiceBase):
             )
 
         return movements + attacks
+
+    @_initialize_transient_board
+    def _find_possible_spawns(self, update_server_mode=True):
+        """
+        Sets the player mode to CELL_SPAWN and fills the possible actions field with
+        the potential spawns.
+        """
+        player = self._current_player
+        possible_spawns = self._action_calculator.calculate_possible_spawns(
+            player.isPlayer1, self._transient_board_array
+        )
+        self._player_mode = PlayerMode.CELL_SPAWN
+        self._set_possible_actions(possible_spawns, update_server_mode)
+
+    @_initialize_transient_board
+    def _find_spell_possible_targets(self, spell_id: int):
+        """
+        Sets the player mode to SPELL_SELECTED and fills the possible actions field with
+        the potential targets of the spell.
+        """
+        spell = get_spell(spell_id)
+        self._player_mode = PlayerMode.SPELL_SELECTED
 
     def _selected_cell_has_already_moved_this_turn(self):
         return (

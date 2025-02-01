@@ -3,6 +3,7 @@ from constants.match_constants import BOARD_SIZE
 from dto.server_only.cell_info_dto import CellInfoDto
 from dto.server_only.match_action_dto import MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
+from game_engine.spells.spell_factory import get_spell
 from utils.board_utils import (
     get_cells_owned_by_player,
     get_neighbours,
@@ -139,6 +140,19 @@ class ActionCalculator:
 
         return possible_spawns
 
+    def calculate_possible_spell_targets(
+        self,
+        spell_id: int,
+        player1: bool,  # not used for now
+        transient_board_array: list[list[CellInfoDto]],
+    ):
+        """
+        Returns the list of cells that can be targeted by a spell.
+        """
+        possible_spell_targets: set[MatchActionDto] = set()
+        spell = get_spell(spell_id)
+        possible_targets = spell.get_possible_targets(transient_board_array)
+
     def _calculate_extra_master_movements(
         self,
         master_cell: CellInfoDto,
@@ -159,8 +173,8 @@ class ActionCalculator:
                 master_cell.id,
                 master_cell.rowIndex,
                 master_cell.columnIndex,
-                move.impactedCoords[0].rowIndex,
-                move.impactedCoords[0].columnIndex,
+                move.impactedCoords.rowIndex,
+                move.impactedCoords.columnIndex,
             )
             for move in additional_movements
         ]

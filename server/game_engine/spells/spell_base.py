@@ -18,7 +18,9 @@ class SpellBase:
         self.description = description
         self.mana_cost = mana_cost
 
-    def get_possible_targets(self, board: list[list["CellInfoDto"]]):
+    def get_possible_targets(
+        self, board: list[list["CellInfoDto"]]
+    ) -> list["CellInfoDto"]:
         raise NotImplementedError
 
     def invoke(self, coordinates: CoordinatesDto, board: list[list["CellInfoDto"]]):

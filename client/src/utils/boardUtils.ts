@@ -7,7 +7,7 @@ import { getHtmlCell, getOwnedCellColor } from "./cellUtils";
 export function animateProcessedAction(action: PartialMatchActionDto, isPlayer1: boolean, boardArray: PartialCellInfoDto[][]) {
   switch (action.type) {
     case ActionType.CELL_MOVE: {
-      const targetCoords = action.impactedCoords[0];
+      const targetCoords = action.impactedCoords;
       const targetCell = boardArray[targetCoords.rowIndex][targetCoords.columnIndex];
       if (targetCell.state === CellState.MANA_BUBBLE)
         animateManaBubblePop(targetCoords.rowIndex, targetCoords.columnIndex);
@@ -18,7 +18,7 @@ export function animateProcessedAction(action: PartialMatchActionDto, isPlayer1:
       const attackerCoords = action.originatingCellCoords;
       if (!attackerCoords) return;
 
-      const targetCoords = action.impactedCoords[0];
+      const targetCoords = action.impactedCoords;
 
       animateCellClash(
         attackerCoords.rowIndex,
@@ -30,7 +30,7 @@ export function animateProcessedAction(action: PartialMatchActionDto, isPlayer1:
     }
 
     case ActionType.CELL_SPAWN: {
-      const newCellCoordinates = action.impactedCoords[0];
+      const newCellCoordinates = action.impactedCoords;
       const targetCell = boardArray[newCellCoordinates.rowIndex][newCellCoordinates.columnIndex];
       const cellOfMine = isPlayer1 === action.player1;
       animateCellSpawn(newCellCoordinates.rowIndex, newCellCoordinates.columnIndex, cellOfMine);

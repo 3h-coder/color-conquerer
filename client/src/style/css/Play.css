@@ -334,7 +334,6 @@
     padding: var(--spacing-small2);
     min-height: max(25px, 3vmin);
     background-color: var(--deep-blue);
-    width: max(40px, 12vmin);
     box-shadow: 0 0 0.5rem 0.08rem rgb(0, 0, 0, 0.1);
 }
 
@@ -379,6 +378,7 @@
     background-color: var(--deep-blue);
     padding: var(--spacing-small2);
     border-radius: 0.5rem;
+    z-index: 1;
 
     animation: fade-in 0.3s ease-in-out forwards;
 }
