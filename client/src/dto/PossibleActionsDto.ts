@@ -1,6 +1,6 @@
-import { PartialCellInfoDto } from "./PartialCellInfoDto";
+import { CellDto } from "./PartialCellInfoDto";
 
 export interface PossibleActionsDto {
     playerMode: number;
-    transientBoardArray: PartialCellInfoDto[][];
+    transientBoardArray: CellDto[][];
 }

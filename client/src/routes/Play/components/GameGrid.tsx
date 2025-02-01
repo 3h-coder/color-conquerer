@@ -8,7 +8,7 @@ import { usePlayerMode } from "../../../contexts/PlayerModeContext";
 import { usePlayersGameInfo } from "../../../contexts/PlayersGameInfoContext";
 import { useTurnInfo } from "../../../contexts/TurnContext";
 import { MessageDto } from "../../../dto/MessageDto";
-import { PartialCellInfoDto } from "../../../dto/PartialCellInfoDto";
+import { CellDto } from "../../../dto/PartialCellInfoDto";
 import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
 import { ProcessedActionDto } from "../../../dto/ProcessedActionDto";
 import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
@@ -115,14 +115,14 @@ export default function GameGrid() {
     useEffect(() => {
         // To let the player know that the opponent has their cursor
         // over a specific cell (by coloring the cell's border in red)
-        function onServerCellHover(cell: PartialCellInfoDto) {
+        function onServerCellHover(cell: CellDto) {
             if (isMyTurn) return;
 
             colorHoveredCell(cell);
         }
 
         // End the red border coloring once the opponent is no longer hovering it
-        function onServerCellHoverEnd(cell: PartialCellInfoDto) {
+        function onServerCellHoverEnd(cell: CellDto) {
             if (isMyTurn) return;
 
             decolorHoveredCell(cell);

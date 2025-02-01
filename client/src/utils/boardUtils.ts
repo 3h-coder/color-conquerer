@@ -1,10 +1,10 @@
-import { PartialCellInfoDto } from "../dto/PartialCellInfoDto";
+import { CellDto } from "../dto/PartialCellInfoDto";
 import { PartialMatchActionDto } from "../dto/PartialMatchActionDto";
 import { ActionType } from "../enums/actionType";
 import { CellState } from "../enums/cellStates";
 import { getHtmlCell, getOwnedCellColor } from "./cellUtils";
 
-export function animateProcessedAction(action: PartialMatchActionDto, isPlayer1: boolean, boardArray: PartialCellInfoDto[][]) {
+export function animateProcessedAction(action: PartialMatchActionDto, isPlayer1: boolean, boardArray: CellDto[][]) {
   switch (action.type) {
     case ActionType.CELL_MOVE: {
       const targetCoords = action.impactedCoords;

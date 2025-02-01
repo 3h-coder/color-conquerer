@@ -1,13 +1,13 @@
-import { PartialCellInfoDto } from "../dto/PartialCellInfoDto";
+import { CellDto } from "../dto/PartialCellInfoDto";
 import { CellState, CellTransientState } from "../enums/cellStates";
 import { EMPTY_STRING } from "../env";
 import { cellStyle, colors } from "../style/constants";
 
-export function isOwned(cell: PartialCellInfoDto) {
+export function isOwned(cell: CellDto) {
   return cell.owner !== 0;
 }
 
-export function getCellStyle(cell: PartialCellInfoDto, isPlayer1: boolean) {
+export function getCellStyle(cell: CellDto, isPlayer1: boolean) {
   const style: React.CSSProperties = {};
 
   if (canBeTargetted(cell)) {
@@ -34,15 +34,15 @@ function clearHTMLCellStyle(htmlCell: HTMLElement) {
   htmlCell.classList.remove(cellStyle.hoveredClassName);
 }
 
-export function colorHoveredCell(cell: PartialCellInfoDto) {
+export function colorHoveredCell(cell: CellDto) {
   addClassName(cell.rowIndex, cell.columnIndex, cellStyle.hoveredClassName);
 }
 
-export function decolorHoveredCell(cell: PartialCellInfoDto) {
+export function decolorHoveredCell(cell: CellDto) {
   removeClassName(cell.rowIndex, cell.columnIndex, cellStyle.hoveredClassName);
 }
 
-function getCellColor(cell: PartialCellInfoDto, isPlayer1: boolean) {
+function getCellColor(cell: CellDto, isPlayer1: boolean) {
   if (!isOwned(cell)) return colors.cell.idle;
 
   const ownPlayer = isPlayer1 ? 1 : 2;
@@ -61,7 +61,7 @@ export function getOwnedCellColor(isMaster: boolean, ownCell: boolean) {
 }
 
 function getFreshlySpawnedCellColor(
-  cell: PartialCellInfoDto,
+  cell: CellDto,
   isPlayer1: boolean
 ) {
   const ownPlayer = isPlayer1 ? 1 : 2;
@@ -93,14 +93,14 @@ export function getHtmlCell(rowIndex: number, columnIndex: number) {
   return document.getElementById(getCellId(rowIndex, columnIndex));
 }
 
-export function isSelectable(cell: PartialCellInfoDto) {
+export function isSelectable(cell: CellDto) {
   return cell.owner !== 0 || cell.transientState !== CellTransientState.NONE;
 }
 
 /**
  * Returns true if the cell can be targetted by a spell, a spawn or a move.
  */
-export function canBeTargetted(cell: PartialCellInfoDto) {
+export function canBeTargetted(cell: CellDto) {
   return (
     cell.transientState === CellTransientState.CAN_BE_MOVED_INTO ||
     cell.transientState === CellTransientState.CAN_BE_SPAWNED_INTO ||

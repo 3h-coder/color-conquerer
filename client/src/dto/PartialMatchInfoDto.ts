@@ -1,11 +1,11 @@
 import { EMPTY_STRING } from "../env";
-import { PartialCellInfoDto } from "./PartialCellInfoDto";
+import { CellDto } from "./PartialCellInfoDto";
 import { PlayerGameInfoBundleDto, undefinedPlayerInfoBundleDto } from "./PlayerInfoBundleDto";
 
 export interface PartialMatchInfoDto {
     id: string;
     roomId: string;
-    boardArray: PartialCellInfoDto[][];
+    boardArray: CellDto[][];
     currentTurn: number;
     playerInfoBundle: PlayerGameInfoBundleDto;
 }
@@ -16,4 +16,4 @@ export const undefinedMatch: PartialMatchInfoDto = {
     boardArray: [],
     currentTurn: 0,
     playerInfoBundle: undefinedPlayerInfoBundleDto
-}
+};

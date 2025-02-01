@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { LandMineIcon, SwordIcon } from "../../../assets/svg";
-import { PartialCellInfoDto } from "../../../dto/PartialCellInfoDto";
+import { CellDto } from "../../../dto/PartialCellInfoDto";
 import { CellState, CellTransientState } from "../../../enums/cellStates";
 import { Events } from "../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../env";
@@ -14,7 +14,7 @@ import {
 interface GameCellProps {
     id: string;
     isPlayer1: boolean;
-    cellInfo: PartialCellInfoDto;
+    cellInfo: CellDto;
     canInteract: boolean;
     canDisplayPossibleActions: boolean;
 }

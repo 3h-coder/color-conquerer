@@ -1,7 +1,7 @@
 import uuid
 from enum import StrEnum
 
-from dto.cell_info_dto import CellInfoDto
+from dto.cell_info_dto import CellDto
 from dto.queue_player_dto import QueuePlayerDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
@@ -25,5 +25,5 @@ def generate_id(type):
         return f"{IdPrefixes.ROOM}-{uuid.uuid4()}"
     elif type is MatchInfoDto:
         return f"{IdPrefixes.MATCH}-{uuid.uuid4()}"
-    elif type is CellInfoDto:
+    elif type is CellDto:
         return f"{IdPrefixes.CELL}-{uuid.uuid4()}"

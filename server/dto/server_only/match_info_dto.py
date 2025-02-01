@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dto.cell_info_dto import CellInfoDto
+from dto.cell_info_dto import CellDto
 from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.server_only.player_game_info_dto import PlayerGameInfoDto
 from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
@@ -27,7 +27,7 @@ class MatchInfoDto(PartialMatchInfoDto):
 
     @staticmethod
     def get_initial_match_info(
-        id: str, room_dto: RoomDto, initial_board_array: list[list[CellInfoDto]]
+        id: str, room_dto: RoomDto, initial_board_array: list[list[CellDto]]
     ):
         player1GameInfo = PlayerGameInfoDto.get_initial_player_game_info(
             is_player_1=True

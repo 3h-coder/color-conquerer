@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from dto.base_dto import BaseDto
-from dto.cell_info_dto import CellInfoDto
+from dto.cell_info_dto import CellDto
 from dto.player_info_bundle_dto import PlayerGameInfoBundleDto
 from utils.board_utils import to_client_board_dto
 
@@ -19,7 +19,7 @@ class PartialMatchInfoDto(BaseDto):
 
     id: str
     roomId: str
-    boardArray: list[list[CellInfoDto]]
+    boardArray: list[list[CellDto]]
     currentTurn: int
     isPlayer1Turn: bool
     # This property is currently not updated server side,

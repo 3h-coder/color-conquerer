@@ -4,7 +4,7 @@ from flask_socketio import emit, join_room
 from config.logging import get_configured_logger
 from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.message_dto import MessageDto
-from dto.cell_info_dto import CellInfoDto
+from dto.cell_info_dto import CellDto
 from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from exceptions.server_error import ServerError
@@ -112,7 +112,7 @@ def handle_cell_hover(data: dict):
     """
     Notifies the room (i.e. the opponent) that a certain cell is being hovered.
     """
-    cell_info = CellInfoDto.from_dict(data)
+    cell_info = CellDto.from_dict(data)
     room_id = _get_session_variable(ROOM_ID)
     emit(
         Events.SERVER_CELL_HOVER,
@@ -127,7 +127,7 @@ def handle_cell_hover_end(data: dict):
     """
     Notifies the room (i.e. the opponent) that a certain cell is no longer being hovered.
     """
-    cell_info_dto = CellInfoDto.from_dict(data)
+    cell_info_dto = CellDto.from_dict(data)
     room_id = _get_session_variable(ROOM_ID)
     emit(
         Events.SERVER_CELL_HOVER_END,
@@ -153,7 +153,7 @@ def handle_cell_click(data: dict):
         )
         return
 
-    cell_info = CellInfoDto.from_dict(data)
+    cell_info = CellDto.from_dict(data)
     _logger.info(f"({request.remote_addr}) | Received cell click event -> {cell_info}")
     row, col = cell_info.rowIndex, cell_info.columnIndex
     match.handle_cell_selection(row, col)

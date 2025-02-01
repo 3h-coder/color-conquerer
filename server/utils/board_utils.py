@@ -3,7 +3,7 @@ Contains all utility methods relative to the game board, excluding game engine m
 and cell manipulation.
 """
 
-from dto.cell_info_dto import Cell, CellInfoDto
+from dto.cell_info_dto import Cell, CellDto
 
 
 def create_starting_board(board_size: int):
@@ -28,7 +28,7 @@ def to_client_board_dto(board: list[list[Cell]]):
     for row in board:
         new_row = []
         for cell in row:
-            new_row.append(CellInfoDto.from_cell(cell))
+            new_row.append(CellDto.from_cell(cell))
         result.append(new_row)
 
     return result

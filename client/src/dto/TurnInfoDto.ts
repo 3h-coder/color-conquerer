@@ -1,5 +1,5 @@
 import { EMPTY_STRING } from "../env";
-import { PartialCellInfoDto } from "./PartialCellInfoDto";
+import { CellDto } from "./PartialCellInfoDto";
 import { PlayerGameInfoBundleDto, undefinedPlayerInfoBundleDto } from "./PlayerInfoBundleDto";
 
 export interface TurnInfoDto {
@@ -9,7 +9,7 @@ export interface TurnInfoDto {
     totalTurnDurationInS: number;
     notifyTurnChange: boolean;
     playerGameInfoBundle: PlayerGameInfoBundleDto;
-    updatedBoardArray: PartialCellInfoDto[][];
+    updatedBoardArray: CellDto[][];
 }
 
 export const undefinedTurnInfo: TurnInfoDto = {

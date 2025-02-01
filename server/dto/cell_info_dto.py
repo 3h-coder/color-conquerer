@@ -7,7 +7,7 @@ from game_engine.models.cell import Cell, CellOwner, CellState, CellTransientSta
 
 
 @dataclass
-class CellInfoDto(BaseDto):
+class CellDto(BaseDto):
     owner: CellOwner
     isMaster: bool
     rowIndex: int
@@ -17,7 +17,7 @@ class CellInfoDto(BaseDto):
 
     @staticmethod
     def from_cell(cell: Cell):
-        return CellInfoDto(
+        return CellDto(
             cell.owner,
             cell.isMaster,
             cell.rowIndex,
