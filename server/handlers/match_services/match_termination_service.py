@@ -8,7 +8,7 @@ from handlers.match_services.client_notifications import notify_match_ending
 from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:
-    from handlers.match_services.match_handler_unit import MatchHandlerUnit
+    from handlers.match_handler_unit import MatchHandlerUnit
 
 
 class MatchTerminationService(ServiceBase):

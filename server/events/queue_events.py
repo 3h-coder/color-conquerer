@@ -10,7 +10,7 @@ from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from exceptions.queue_error import QueueError
 from handlers.match_handler import MatchHandler
-from handlers.match_services.match_handler_unit import MatchHandlerUnit
+from handlers.match_handler_unit import MatchHandlerUnit
 from handlers.room_handler import RoomHandler
 from handlers.session_cache_handler import SessionCacheHandler
 from server_gate import get_match_handler, get_room_handler, get_session_cache_handler

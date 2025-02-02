@@ -213,8 +213,4 @@ class CellSelectionManager(ActionManager):
         )
 
     def _has_already_attacked_this_turn(self, cell: Cell):
-        self._logger.debug(
-            f"The turn attacks list is {self._match_actions_service.turn_attacks}"
-        )
-        self._logger.debug(f"The cell is : {cell}")
         return cell is not None and cell.id in self._match_actions_service.turn_attacks

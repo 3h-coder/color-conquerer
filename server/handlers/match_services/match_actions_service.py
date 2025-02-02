@@ -24,7 +24,7 @@ from handlers.match_services.action_processor import ActionProcessor
 from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:
-    from handlers.match_services.match_handler_unit import MatchHandlerUnit
+    from handlers.match_handler_unit import MatchHandlerUnit
 
 
 class MatchActionsService(ServiceBase, TransientTurnStateHolder):

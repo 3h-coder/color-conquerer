@@ -10,7 +10,7 @@ from handlers.match_services.service_base import ServiceBase
 from utils.board_utils import get_cells_owned_by_player
 
 if TYPE_CHECKING:
-    from handlers.match_services.match_handler_unit import MatchHandlerUnit
+    from handlers.match_handler_unit import MatchHandlerUnit
 
 
 class TurnWatcherService(ServiceBase):

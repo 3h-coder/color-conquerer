@@ -11,7 +11,7 @@ from handlers.match_services.service_base import ServiceBase
 from utils import session_utils
 
 if TYPE_CHECKING:
-    from handlers.match_services.match_handler_unit import MatchHandlerUnit
+    from handlers.match_handler_unit import MatchHandlerUnit
 
 
 class PlayerExitWatcherService(ServiceBase):

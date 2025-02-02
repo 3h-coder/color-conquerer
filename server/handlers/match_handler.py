@@ -1,7 +1,7 @@
 from config.logging import get_configured_logger
 from dto.partial_match_info_dto import PartialMatchInfoDto
 from dto.server_only.room_dto import RoomDto
-from handlers.match_services.match_handler_unit import MatchHandlerUnit
+from handlers.match_handler_unit import MatchHandlerUnit
 
 
 class MatchHandler:

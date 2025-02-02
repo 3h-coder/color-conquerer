@@ -264,11 +264,9 @@ class MatchHandlerUnit:
 
         player1_master_cell.set_owned_by_player1()
         player1_master_cell.is_master = True
-        self.logger.debug(f"The player1 master cell is {player1_master_cell}")
 
         player2_master_cell.set_owned_by_player2()
         player2_master_cell.is_master = True
-        self.logger.debug(f"The player2 master cell is {player1_master_cell}")
 
         # Initialize mana bubbles
         board[6][5].set_as_mana_bubble()
