@@ -6,6 +6,7 @@ from dto.queue_player_dto import QueuePlayerDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
 from dto.user_dto import UserDto
+from game_engine.models.cell import Cell
 
 
 class IdPrefixes(StrEnum):
@@ -25,5 +26,5 @@ def generate_id(type):
         return f"{IdPrefixes.ROOM}-{uuid.uuid4()}"
     elif type is MatchInfoDto:
         return f"{IdPrefixes.MATCH}-{uuid.uuid4()}"
-    elif type is CellDto:
+    elif type is Cell:
         return f"{IdPrefixes.CELL}-{uuid.uuid4()}"

@@ -2,46 +2,46 @@ import functools
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
-from dto.partial_match_action_dto import PartialMatchActionDto
-from dto.possible_actions_dto import PossibleActionsDto
-from dto.processed_action_dto import ProcessedActionDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_closure_dto import EndingReason
 from dto.server_only.player_info_dto import PlayerInfoDto
-from game_engine.models.cell import Cell
-from game_engine.spells.spell import Spell
-from game_engine.spells.spell_factory import get_spell
 from handlers.match_services.action_calculator import ActionCalculator
+from handlers.match_services.action_helpers.cell_selection_manager import (
+    CellSelectionManager,
+)
+from handlers.match_services.action_helpers.cell_spawn_manager import CellSpawnManager
 from handlers.match_services.action_helpers.error_messages import ErrorMessages
 from handlers.match_services.action_helpers.player_mode import PlayerMode
 from handlers.match_services.action_helpers.server_mode import ServerMode
-from handlers.match_services.action_processor import ActionProcessor
-from handlers.match_services.client_notifications import (
-    notify_action_error,
-    notify_possible_actions,
-    notify_processed_action,
+from handlers.match_services.action_helpers.spell_manager import SpellManager
+from handlers.match_services.action_helpers.transient_turn_state import (
+    TransientTurnState,
 )
+from handlers.match_services.action_helpers.transient_turn_state_holder import (
+    TransientTurnStateHolder,
+)
+from handlers.match_services.action_processor import ActionProcessor
 from handlers.match_services.service_base import ServiceBase
-from utils.board_utils import copy_board, to_client_board_dto
 
 if TYPE_CHECKING:
     from handlers.match_services.match_handler_unit import MatchHandlerUnit
 
 
-class MatchActionsService(ServiceBase):
+class MatchActionsService(ServiceBase, TransientTurnStateHolder):
     """
     Helper class responsible for handling action requests from each players.
     The class handles both the action validation and action processing.
     """
 
     def __init__(self, match_handler_unit: "MatchHandlerUnit"):
-        super().__init__(match_handler_unit)
+        ServiceBase.__init__(self, match_handler_unit)
+        TransientTurnStateHolder.__init__(self, TransientTurnState())
         self._logger = get_configured_logger(__name__)
 
         # region Match persistent fields
 
         self._board_array = self.match.match_info.boardArray
-        self._action_calculator = ActionCalculator(self.match_info)
+        self.action_calculator = ActionCalculator(self.match_info)
         self._action_processor = ActionProcessor(self.match_info)
 
         # Dictionary storing all of the actions that happened during a match.
@@ -54,398 +54,30 @@ class MatchActionsService(ServiceBase):
         # ⚠️ Any field below is meant to be reset in the reset_for_new_turn method ⚠️
 
         # used to track all the cells that moved during the turn
-        self._turn_movements: set[str] = set()
+        self.turn_movements: set[str] = set()
         # used to track all the cells that attacked during the turn
-        self._turn_attacks: set[str] = set()
-        self._current_player: PlayerInfoDto = None
+        self.turn_attacks: set[str] = set()
+        self.current_player: PlayerInfoDto | None = None
 
-        # endregion
-
-        # region Player action state fields
-        # ⚠️ Any field below is meant to be reset in the _set_player_to_idle method ⚠️
-
-        # Used to confirm whether an action can be done or not
-        self._possible_actions: set[MatchActionDto] = set()
-        # Actions that have been validated and applied,
-        # overridden each time a set of action is processed
-        self._processed_action: MatchActionDto = None
-        self._player_mode = PlayerMode.IDLE
-        self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
-        # Board copy to save and send to the client the transient states
-        # resulting from the possible actions.
-        self._transient_board_array: list[list[Cell]] | None = None
-        # Applicable when the player mode is OWN_CELL_SELECTED
-        self._selected_cell: Cell = None
-        # Applicable when the player mode is SPELL_SELECTED
-        self._selected_spell: Spell = None
-        # Message to the player when their request is invalid
-        self._error_msg: str = ""
-
-        # endregion
-
-    def _initialize_transient_board(func):
-        """
-        Decorator method that ensures the transient board is properly initialized.
-
-        To be wrapped around any method that uses the transient board.
-        """
-
-        @functools.wraps(func)
-        def wrapper(self: "MatchActionsService", *args, **kwargs):
-            if self._transient_board_array is None:
-                self._transient_board_array = copy_board(self._board_array)
-            return func(self, *args, **kwargs)
-
-        return wrapper
+        self._cell_selection_manager = CellSelectionManager(self)
+        self._cell_spawn_manager = CellSpawnManager(self)
+        self._spell_manager = SpellManager(self)
 
     def _entry_point(func):
         """
-        Decorator method to mark a mathod as en entry point for the service.
+        Decorator method to mark a method as en entry point for the service.
 
-        This implies certain processing afterwards such as checking for the game ending for example.
+        This implies certain processing before and after the decorated method call
+        such as checking for the game ending for example.
         """
 
         @functools.wraps(func)
         def wrapper(self: "MatchActionsService", *args, **kwargs):
-            self._current_player = self.match.get_current_player()
+            self.current_player = self.match.get_current_player()
             func(self, *args, **kwargs)
             self._end_match_if_game_over()
 
         return wrapper
-
-    def reset_for_new_turn(self):
-        """
-        Performs all the cleanup and reset necessary for a fresh new turn.
-
-        Meant to be used as a callback for the turn watcher service.
-        """
-        self.actions_per_turn[self.match_info.currentTurn] = []
-        self._turn_movements = set()
-        self._turn_attacks = set()
-        self._current_player = self.match.get_current_player()
-        self.set_player_as_idle()
-
-    def set_player_as_idle(self):
-        """
-        Resets all the temporary fields used to store the state of the current player's action.
-
-        This is an effective reset of a player's action state.
-
-        Note : This will also reset any error message.
-        """
-        self._player_mode = PlayerMode.IDLE
-        self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
-        self._possible_actions = set()
-        self._processed_action = None
-        self._transient_board_array = None
-        self._selected_cell = None
-        self._selected_spell = None
-        self._error_msg = ""
-
-    @_entry_point
-    def handle_cell_selection(self, cell_row: int, cell_col: int):
-        """
-        Handles the selection of a cell. This can either trigger an action or return a list of possible actions.
-        """
-        player = self._current_player
-        is_player_1 = player.isPlayer1
-        cell: Cell = self._board_array[cell_row][cell_col]
-
-        if cell.belongs_to(player):
-            self._handle_own_cell_selection(cell, is_player_1)
-
-        # the cell belongs to the opponent
-        elif cell.is_owned():
-            self._handle_opponent_cell_selection(cell, is_player_1)
-
-        # the cell is idle
-        else:
-            self._handle_idle_cell_selection(cell, is_player_1)
-
-        self._send_response()
-
-        if self._server_mode == ServerMode.SHOW_PROCESSED_ACTION:
-            self.set_player_as_idle()
-
-    @_entry_point
-    def handle_spawn_toggle(self):
-        """
-        Handles the spawn/spawn cancellation request of a player.
-        """
-        if self._player_mode == PlayerMode.IDLE:
-            self._find_possible_spawns()
-
-        elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
-            self.set_player_as_idle()
-            self._find_possible_spawns()
-
-        elif self._player_mode == PlayerMode.CELL_SPAWN:
-            self.set_player_as_idle()
-
-        elif self._player_mode == PlayerMode.SPELL_SELECTED:
-            self.set_player_as_idle()
-            self._find_possible_spawns()
-
-        self._send_response()
-
-    @_entry_point
-    def handle_spell_request(self, spell_id: int):
-        """
-        Handles the spell request of a player.
-        """
-        if self._player_mode == PlayerMode.IDLE:
-            self._find_spell_possible_targets(spell_id)
-
-        elif self._player_mode == PlayerMode.SPELL_SELECTED:
-            if spell_id == self._selected_spell.id:
-                self.set_player_as_idle()
-            else:
-                self._find_spell_possible_targets(spell_id)
-
-        else:
-            self.set_player_as_idle()
-            self._find_spell_possible_targets(spell_id)
-
-        self._send_response()
-
-    def _handle_own_cell_selection(self, cell: Cell, player1: bool):
-        """
-        Handles all possible cases resulting from a player selecting a cell of their own.
-
-        For example, if the player mode is set to owned cell selection, than the possible actions are either
-        move, attack, or no action.
-        """
-        if self._player_mode == PlayerMode.IDLE:
-            self._set_selected_cell(cell)
-            possible_actions = self._get_possible_movements_and_attacks(player1)
-            if possible_actions:
-                self._set_possible_actions(set(possible_actions))
-            else:
-                self.set_player_as_idle()
-
-        elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
-
-            if self._selected_cell == cell:
-                self.set_player_as_idle()
-
-            elif cell.is_owned():
-                self._error_msg = ErrorMessages.CANNOT_MOVE_TO_NOR_ATTACK
-
-        elif self._player_mode == PlayerMode.CELL_SPAWN:
-            self._error_msg = ErrorMessages.SELECT_IDLE_CELL
-
-        elif self._player_mode == PlayerMode.SPELL_SELECTED:
-            spell_action = MatchActionDto.spell(
-                self._current_player.isPlayer1,
-                self._selected_spell,
-                cell.row_index,
-                cell.column_index,
-            )
-
-            self._validate_and_process_action(spell_action)
-
-    def _handle_opponent_cell_selection(self, cell: Cell, player1: bool):
-        """
-        Handles all possible cases resulting from a player selecting an enemy cell of their own.
-
-        For example, if the player mode is set to owned cell selection, than there
-        shouldn't be any possible action.
-        """
-        if self._player_mode == PlayerMode.IDLE:
-            pass  # no action possible
-
-        elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
-            attack = MatchActionDto.cell_attack(
-                player1,
-                self._selected_cell.id,
-                self._selected_cell.row_index,
-                self._selected_cell.column_index,
-                cell.row_index,
-                cell.column_index,
-            )
-            self._validate_and_process_action(attack)
-
-        elif self._player_mode == PlayerMode.CELL_SPAWN:
-            self._error_msg = ErrorMessages.SELECT_IDLE_CELL
-
-        elif self._player_mode == PlayerMode.SPELL_SELECTED:
-            spell_action = MatchActionDto.spell(
-                self._current_player.isPlayer1,
-                self._selected_spell,
-                cell.row_index,
-                cell.column_index,
-            )
-
-            self._validate_and_process_action(spell_action)
-
-    def _handle_idle_cell_selection(self, cell: Cell, player1: bool):
-        """
-        Handles all possible cases resulting from a player selecting an idle cell.
-
-        For example, if the player mode is set to cell spawn, than there may be a spawn action.
-        """
-        if self._player_mode == PlayerMode.IDLE:
-            pass  # no action possible
-
-        elif self._player_mode == PlayerMode.OWN_CELL_SELECTED:
-            movement = MatchActionDto.cell_movement(
-                player1,
-                self._selected_cell.id,
-                self._selected_cell.row_index,
-                self._selected_cell.column_index,
-                cell.row_index,
-                cell.column_index,
-            )
-            self._validate_and_process_action(movement)
-
-        elif self._player_mode == PlayerMode.CELL_SPAWN:
-            spawn = MatchActionDto.cell_spawn(
-                player1, cell.row_index, cell.column_index
-            )
-            self._validate_and_process_action(
-                spawn, server_mode=ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
-            )
-
-        elif self._player_mode == PlayerMode.SPELL_SELECTED:
-            spell_action = MatchActionDto.spell(
-                self._current_player.isPlayer1,
-                self._selected_spell,
-                cell.row_index,
-                cell.column_index,
-            )
-
-            self._validate_and_process_action(spell_action)
-
-    def _send_response(self):
-        """
-        Crucial method.
-
-        Let's the client know the server's response to the player's request allowing it to render
-        subsequent animations properly.
-        """
-        if self._error_msg:
-            self._logger.debug(
-                f"Sending to the client the error message : {self._error_msg}"
-            )
-            notify_action_error(self._error_msg)
-            return
-
-        if self._server_mode == ServerMode.SHOW_POSSIBLE_ACTIONS:
-            notify_possible_actions(
-                PossibleActionsDto(
-                    self._player_mode,
-                    self._get_client_friendly_transient_board(),
-                )
-            )
-            return
-
-        processed_action_dto = ProcessedActionDto(
-            PartialMatchActionDto.from_match_action_dto(self._processed_action),
-            self._player_mode,
-            self.match.get_turn_info(),
-            None,
-        )
-        if self._server_mode == ServerMode.SHOW_PROCESSED_ACTION:
-            notify_processed_action(
-                processed_action_dto,
-                self.room_id,
-            )
-
-        elif self._server_mode == ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
-            processed_action_dto.overridingTransientBoard = (
-                self._get_client_friendly_transient_board()
-            )
-
-            notify_processed_action(
-                processed_action_dto,
-                self.room_id,
-            )
-
-    def _set_possible_actions(
-        self, actions: set[MatchActionDto], update_server_mode=True
-    ):
-        """
-        Stores all of the possible actions and sets the server mode accordingly.
-        """
-        if update_server_mode:
-            self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
-        self._possible_actions = actions
-
-    def _validate_and_process_action(
-        self, action: MatchActionDto, server_mode=ServerMode.SHOW_PROCESSED_ACTION
-    ):
-        """
-        Validates the given action and processes it if it is valid.
-        """
-        if action not in self._possible_actions:
-            self._logger.error(
-                f"The following action was not registered in the possible actions : {action}"
-            )
-            self._error_msg = ErrorMessages.INVALID_ACTION
-            return
-
-        if action.manaCost > self._current_player.playerGameInfo.currentMP:
-            self._error_msg = ErrorMessages.NOT_ENOUGH_MANA
-            return
-
-        self._process_action(action, server_mode)
-
-    def _process_action(
-        self,
-        action: MatchActionDto,
-        server_mode=ServerMode.SHOW_PROCESSED_ACTION,
-    ):
-        """
-        Processes all of the given actions, setting the associate fields along the way.
-
-        Note : Action validation should be done before calling this method.
-        """
-        self._server_mode = (
-            server_mode
-            if server_mode != ServerMode.SHOW_POSSIBLE_ACTIONS
-            else ServerMode.SHOW_PROCESSED_ACTION
-        )
-        processed_action = self._action_processor.process_action(action)
-        if processed_action is None:
-            self.set_player_as_idle()
-            self._error_msg = ErrorMessages.INVALID_ACTION
-            return
-
-        # Reset the error message as it is no longer relevant
-        self._error_msg = ""
-
-        self._processed_action = processed_action
-        self._register_processed_action(processed_action)
-        self._calculate_post_processing_possible_actions()
-
-    def _register_processed_action(self, action: MatchActionDto):
-        """
-        Adds a processed action to the turn and match actions fields.
-        """
-        current_turn = self.match_info.currentTurn
-        if current_turn not in self.actions_per_turn:
-            self.actions_per_turn[current_turn] = []
-
-        self.actions_per_turn[current_turn].append(action)
-
-        cell_id = action.cellId
-        if action.type == ActionType.CELL_MOVE:
-            self._turn_movements.add(cell_id)
-
-        elif action.type == ActionType.CELL_ATTACK:
-            self._turn_attacks.add(cell_id)
-
-    def _calculate_post_processing_possible_actions(self):
-        """
-        Meant to be called right after action processing.
-        """
-        self._transient_board_array = None
-
-        if self._server_mode != ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
-            return
-
-        if self._player_mode == PlayerMode.CELL_SPAWN:
-            self._find_possible_spawns(update_server_mode=False)
 
     def _end_match_if_game_over(self):
         """
@@ -463,86 +95,113 @@ class MatchActionsService(ServiceBase):
         elif self.match_info.player2_is_dead():
             self.match.end(EndingReason.PLAYER_WON, loser_id=player2.playerId)
 
-    @_initialize_transient_board
-    def _set_selected_cell(self, cell: Cell):
+    def reset_for_new_turn(self):
         """
-        Sets the player mode and selected cell fields accordingly.
+        Performs all the cleanup and reset necessary for a fresh new turn.
+
+        Meant to be used as a callback for the turn watcher service.
         """
-        self._player_mode = PlayerMode.OWN_CELL_SELECTED
-        self._selected_cell = cell
-        transient_cell = self._transient_board_array[cell.row_index][cell.column_index]
-        transient_cell.set_selected()
+        self.actions_per_turn[self.match_info.currentTurn] = []
+        self.turn_movements = set()
+        self.turn_attacks = set()
+        self.current_player = self.match.get_current_player()
+        self.set_player_as_idle()
 
-    @_initialize_transient_board
-    def _get_possible_movements_and_attacks(self, player1: bool):
+    @_entry_point
+    def handle_cell_selection(self, cell_row: int, cell_col: int):
         """
-        Returns the concatenated possible movements and attacks a cell may perform.
-
-        Note : A freshly spawned cell cannot move or attack.
+        Handles the cell selection from the current player.
         """
-        if self._selected_cell.is_freshly_spawned():
-            return []
+        self._cell_selection_manager.handle_cell_selection(cell_row, cell_col)
 
-        movements: list[MatchActionDto] = []
-        attacks: list[MatchActionDto] = []
+    @_entry_point
+    def handle_spawn_toggle(self):
+        """
+        Handles the spawn toggling action, to either display the possible
+        spawns or quit displaying it.
+        """
+        self._cell_spawn_manager.handle_spawn_toggle()
 
-        if not self._selected_cell_has_already_moved_this_turn():
-            movements = self._action_calculator.calculate_possible_movements(
-                self._selected_cell, player1, self._transient_board_array
+    @_entry_point
+    def handle_spell_request(self, spell_id: int):
+        """
+        Handles the spell request of a player.
+        """
+        self._spell_manager.handle_spell_request(spell_id)
+
+    def validate_and_process_action(
+        self, action: MatchActionDto, server_mode=ServerMode.SHOW_PROCESSED_ACTION
+    ):
+        """
+        Validates the given action and processes it if it is valid.
+        """
+        if action not in self.get_possible_actions():
+            self._logger.error(
+                f"The following action was not registered in the possible actions : {action}"
             )
+            self.set_error_message(ErrorMessages.INVALID_ACTION)
+            return
 
-        if not self._selected_cell_has_already_attacked_this_turn():
-            attacks = self._action_calculator.calculate_possible_attacks(
-                self._selected_cell, player1, self._transient_board_array
-            )
+        if action.manaCost > self.current_player.playerGameInfo.currentMP:
+            self.set_error_message(ErrorMessages.NOT_ENOUGH_MANA)
+            return
 
-        return movements + attacks
+        self._process_action(action, server_mode)
 
-    @_initialize_transient_board
-    def _find_possible_spawns(self, update_server_mode=True):
+    def _process_action(
+        self,
+        action: MatchActionDto,
+        server_mode=ServerMode.SHOW_PROCESSED_ACTION,
+    ):
         """
-        Sets the player mode to CELL_SPAWN and fills the possible actions field with
-        the potential spawns.
+        Processes all of the given actions, setting the associate fields along the way.
+
+        Note : Action validation should be done before calling this method.
         """
-        player = self._current_player
-        possible_spawns = self._action_calculator.calculate_possible_spawns(
-            player.isPlayer1, self._transient_board_array
+        self.set_server_mode(
+            server_mode
+            if server_mode != ServerMode.SHOW_POSSIBLE_ACTIONS
+            else ServerMode.SHOW_PROCESSED_ACTION
         )
-        self._player_mode = PlayerMode.CELL_SPAWN
-        self._set_possible_actions(possible_spawns, update_server_mode)
+        processed_action = self._action_processor.process_action(action)
+        if processed_action is None:
+            self.set_player_as_idle()
+            self.set_error_message(ErrorMessages.INVALID_ACTION)
+            return
 
-    @_initialize_transient_board
-    def _find_spell_possible_targets(self, spell_id: int):
+        self.set_error_message("")
+
+        self.set_processed_action(processed_action)
+        self._register_processed_action(processed_action)
+        self._calculate_post_processing_possible_actions()
+
+    def _register_processed_action(self, action: MatchActionDto):
         """
-        Sets the player mode to SPELL_SELECTED and fills the possible actions field with
-        the potential targets of the spell.
+        Adds a processed action to the turn and match actions fields.
         """
-        player = self._current_player
-        spell = get_spell(spell_id)
-        possible_spell_invocations = (
-            self._action_calculator.calculate_possible_spell_targets(
-                spell, player.isPlayer1, self._transient_board_array
-            )
-        )
-        self._player_mode = PlayerMode.SPELL_SELECTED
-        self._selected_spell = spell
-        self._set_possible_actions(possible_spell_invocations)
+        current_turn = self.match_info.currentTurn
+        if current_turn not in self.actions_per_turn:
+            self.actions_per_turn[current_turn] = []
 
-    def _selected_cell_has_already_moved_this_turn(self):
-        return (
-            self._selected_cell is not None
-            and self._selected_cell.id in self._turn_movements
-        )
+        self.actions_per_turn[current_turn].append(action)
 
-    def _selected_cell_has_already_attacked_this_turn(self):
-        return (
-            self._selected_cell is not None
-            and self._selected_cell.id in self._turn_attacks
-        )
+        cell_id = action.cellId
+        if action.type == ActionType.CELL_MOVE:
+            self.turn_movements.add(cell_id)
 
-    def _get_client_friendly_transient_board(self):
-        return (
-            to_client_board_dto(self._transient_board_array)
-            if self._transient_board_array
-            else to_client_board_dto(self._board_array)
-        )
+        elif action.type == ActionType.CELL_ATTACK:
+            self.turn_attacks.add(cell_id)
+
+    def _calculate_post_processing_possible_actions(self):
+        """
+        Meant to be called right after action processing.
+        """
+        self.set_transient_board_array(None)
+        server_mode = self.get_server_mode()
+
+        if server_mode != ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
+            return
+
+        player_mode = self.get_player_mode()
+        if player_mode == PlayerMode.CELL_SPAWN:
+            self._cell_spawn_manager.find_possible_spawns(update_server_mode=False)

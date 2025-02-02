@@ -9,7 +9,7 @@ from handlers.match_services.action_helpers.player_mode import PlayerMode
 from handlers.match_services.action_helpers.server_mode import ServerMode
 
 if TYPE_CHECKING:
-    from handlers.match_services.match_actions_service2 import MatchActionsService2
+    from handlers.match_services.match_actions_service import MatchActionsService
 
 
 class CellSelectionManager(ActionManager):
@@ -20,8 +20,8 @@ class CellSelectionManager(ActionManager):
     to spawn a new one.
     """
 
-    def __init__(self, match_actions_service: "MatchActionsService2"):
-        super().__init__(self, match_actions_service)
+    def __init__(self, match_actions_service: "MatchActionsService"):
+        super().__init__(match_actions_service)
         self._logger = get_configured_logger(__name__)
 
     def handle_cell_selection(self, cell_row: int, cell_col: int):
@@ -66,7 +66,6 @@ class CellSelectionManager(ActionManager):
                 self.set_player_as_idle()
 
         elif player_mode == PlayerMode.OWN_CELL_SELECTED:
-
             if self.get_selected_cell() == cell:
                 self.set_player_as_idle()
 
@@ -198,7 +197,15 @@ class CellSelectionManager(ActionManager):
 
     @ActionManager.initialize_transient_board
     def _set_selected_cell(self, cell: Cell):
+        transient_board_array = self.get_transient_board_array()
+
+        self.set_player_mode(PlayerMode.OWN_CELL_SELECTED)
         self.set_selected_cell(cell)
+
+        corresponding_cell: Cell = transient_board_array[cell.row_index][
+            cell.column_index
+        ]
+        corresponding_cell.set_selected()
 
     def _has_already_moved_this_turn(self, cell: Cell):
         return (
@@ -206,4 +213,8 @@ class CellSelectionManager(ActionManager):
         )
 
     def _has_already_attacked_this_turn(self, cell: Cell):
+        self._logger.debug(
+            f"The turn attacks list is {self._match_actions_service.turn_attacks}"
+        )
+        self._logger.debug(f"The cell is : {cell}")
         return cell is not None and cell.id in self._match_actions_service.turn_attacks

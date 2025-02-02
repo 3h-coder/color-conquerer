@@ -18,7 +18,7 @@ from handlers.match_services.client_notifications import (
 from utils.board_utils import copy_board, to_client_board_dto
 
 if TYPE_CHECKING:
-    from handlers.match_services.match_actions_service2 import MatchActionsService2
+    from handlers.match_services.match_actions_service import MatchActionsService
 
 
 class ActionManager(TransientTurnStateHolder):
@@ -29,8 +29,8 @@ class ActionManager(TransientTurnStateHolder):
     within the action service.
     """
 
-    def __init__(self, match_actions_service: "MatchActionsService2"):
-        super().__init__(self, match_actions_service.transient_turn_state)
+    def __init__(self, match_actions_service: "MatchActionsService"):
+        super().__init__(match_actions_service.transient_turn_state)
         self._match_actions_service = match_actions_service
         self._board_array = match_actions_service._board_array
         self._match = match_actions_service.match
@@ -55,8 +55,10 @@ class ActionManager(TransientTurnStateHolder):
 
         return wrapper
 
-    def validate_and_process_action(self, action: MatchActionDto):
-        self._match_actions_service.validate_and_process_action(action)
+    def validate_and_process_action(
+        self, action: MatchActionDto, server_mode=ServerMode.SHOW_PROCESSED_ACTION
+    ):
+        self._match_actions_service.validate_and_process_action(action, server_mode)
 
     def send_response_to_client(self):
         """
@@ -74,6 +76,7 @@ class ActionManager(TransientTurnStateHolder):
         server_mode = self.get_server_mode()
         processed_action = self.get_processed_action()
 
+        # Send the possible actions
         if server_mode == ServerMode.SHOW_POSSIBLE_ACTIONS:
             notify_possible_actions(
                 PossibleActionsDto(
@@ -83,19 +86,19 @@ class ActionManager(TransientTurnStateHolder):
             )
             return
 
-        processed_action_dto = ProcessedActionDto(
-            PartialMatchActionDto.from_match_action_dto(processed_action),
-            player_mode,
-            self._match.get_turn_info(),
-            None,
+        processed_action_dto = self._get_processed_action_dto(
+            player_mode, processed_action
         )
+        # Send the processed action
         if server_mode == ServerMode.SHOW_PROCESSED_ACTION:
             notify_processed_action(
                 processed_action_dto,
                 self._room_id,
             )
+            return
 
-        elif server_mode == ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
+        # Send both the processed action and further possible actions (through the overriding transient board)
+        if server_mode == ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
             processed_action_dto.overridingTransientBoard = (
                 self._get_client_friendly_transient_board()
             )
@@ -104,6 +107,16 @@ class ActionManager(TransientTurnStateHolder):
                 processed_action_dto,
                 self._room_id,
             )
+
+    def _get_processed_action_dto(self, player_mode, processed_action):
+        return ProcessedActionDto(
+            processedAction=PartialMatchActionDto.from_match_action_dto(
+                processed_action
+            ),
+            playerMode=player_mode,
+            updatedTurnInfo=self._match.get_turn_info(),
+            overridingTransientBoard=None,
+        )
 
     def _get_client_friendly_transient_board(self):
         transient_board_array = self.get_transient_board_array()

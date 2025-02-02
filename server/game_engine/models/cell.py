@@ -53,6 +53,13 @@ class Cell:
     def __hash__(self):
         return hash(self.row_index, self.column_index, self.id)
 
+    def __str__(self):
+        return (
+            f"Cell(owner: {self.owner}, is_master: {self.is_master}, "
+            f"row_index: {self.row_index}, column_index: {self.column_index}, "
+            f"state: {self.state}, transient_state: {self.transient_state}, id: {self.id})"
+        )
+
     def clone(self):
         return Cell(
             owner=self.owner,

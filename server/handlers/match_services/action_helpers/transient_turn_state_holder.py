@@ -1,6 +1,7 @@
 from dto.server_only.match_action_dto import MatchActionDto
 from game_engine.models.cell import Cell
 from game_engine.spells.spell import Spell
+from handlers.match_services.action_helpers.player_mode import PlayerMode
 from handlers.match_services.action_helpers.server_mode import ServerMode
 from handlers.match_services.action_helpers.transient_turn_state import (
     TransientTurnState,
@@ -45,6 +46,9 @@ class TransientTurnStateHolder:
     def get_player_mode(self):
         return self.transient_turn_state.player_mode
 
+    def set_player_mode(self, player_mode: PlayerMode):
+        self.transient_turn_state.player_mode = player_mode
+
     def get_server_mode(self):
         return self.transient_turn_state.server_mode
 
@@ -61,7 +65,7 @@ class TransientTurnStateHolder:
         return self.transient_turn_state.selected_cell
 
     def set_selected_cell(self, cell: Cell):
-        self.transient_turn_state.set_selected_cell(cell)
+        self.transient_turn_state.selected_cell = cell
 
     def get_selected_spell(self):
         return self.transient_turn_state.selected_spell
