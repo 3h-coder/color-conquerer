@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from config.logging import get_configured_logger
 from dto.server_only.match_action_dto import MatchActionDto
 from game_engine.models.cell import Cell
 from handlers.match_services.action_helpers.action_manager import ActionManager
@@ -21,6 +22,7 @@ class CellSelectionManager(ActionManager):
 
     def __init__(self, match_actions_service: "MatchActionsService2"):
         super().__init__(self, match_actions_service)
+        self._logger = get_configured_logger(__name__)
 
     def handle_cell_selection(self, cell_row: int, cell_col: int):
         """
@@ -82,7 +84,89 @@ class CellSelectionManager(ActionManager):
                 cell.column_index,
             )
 
-            self._match_actions_service.validate_and_process_action(spell_action)
+            self.validate_and_process_action(spell_action)
+
+    def _handle_opponent_cell_selection(self, cell: Cell, player1: bool):
+        """
+        Handles all possible cases resulting from a player selecting an enemy cell of their own.
+
+        For example, if the player mode is set to owned cell selection, than there
+        shouldn't be any possible action.
+        """
+        player_mode = self.get_player_mode()
+        if player_mode == PlayerMode.IDLE:
+            return  # no action possible
+
+        selected_cell = self.get_selected_cell()
+        if player_mode == PlayerMode.OWN_CELL_SELECTED:
+            attack = MatchActionDto.cell_attack(
+                player1,
+                selected_cell.id,
+                selected_cell.row_index,
+                selected_cell.column_index,
+                cell.row_index,
+                cell.column_index,
+            )
+            self.validate_and_process_action(attack)
+
+        elif player_mode == PlayerMode.CELL_SPAWN:
+            self.set_error_message(ErrorMessages.SELECT_IDLE_CELL)
+
+        elif player_mode == PlayerMode.SPELL_SELECTED:
+            current_player = self.get_current_player()
+            selected_spell = self.get_selected_spell()
+
+            spell_action = MatchActionDto.spell(
+                current_player.isPlayer1,
+                selected_spell,
+                cell.row_index,
+                cell.column_index,
+            )
+
+            self.validate_and_process_action(spell_action)
+
+    def _handle_idle_cell_selection(self, cell: Cell, player1: bool):
+        """
+        Handles all possible cases resulting from a player selecting an idle cell.
+
+        For example, if the player mode is set to cell spawn, than there may be a spawn action.
+        """
+        player_mode = self.get_player_mode()
+        if player_mode == PlayerMode.IDLE:
+            return  # no action possible
+
+        if player_mode == PlayerMode.OWN_CELL_SELECTED:
+            selected_cell = self.get_selected_cell()
+            movement = MatchActionDto.cell_movement(
+                player1,
+                selected_cell.id,
+                selected_cell.row_index,
+                selected_cell.column_index,
+                cell.row_index,
+                cell.column_index,
+            )
+            self.validate_and_process_action(movement)
+
+        elif player_mode == PlayerMode.CELL_SPAWN:
+            spawn = MatchActionDto.cell_spawn(
+                player1, cell.row_index, cell.column_index
+            )
+            self.validate_and_process_action(
+                spawn, server_mode=ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
+            )
+
+        elif player_mode == PlayerMode.SPELL_SELECTED:
+            current_player = self.get_current_player()
+            selected_spell = self.get_selected_spell()
+
+            spell_action = MatchActionDto.spell(
+                current_player.isPlayer1,
+                selected_spell,
+                cell.row_index,
+                cell.column_index,
+            )
+
+            self.validate_and_process_action(spell_action)
 
     @ActionManager.initialize_transient_board
     def _get_possible_movements_and_attacks(self, player1: bool):

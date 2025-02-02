@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from dto.server_only.match_action_dto import MatchActionDto
 from game_engine.models.cell import Cell
 from game_engine.spells.spell import Spell
@@ -54,6 +55,12 @@ class TransientTurnState:
         self.possible_actions = actions
 
     def set_selected_cell(self, cell: Cell):
+        """
+        Stores the selected cell, setting the player mode and transient board
+        corresponding cell accordingly.
+
+        WARNING : The transient board should not be None when calling this method
+        """
         self.player_mode = PlayerMode.OWN_CELL_SELECTED
         self.selected_cell = cell
         transient_cell: Cell = self.transient_board_array[cell.row_index][
