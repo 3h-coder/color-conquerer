@@ -6,14 +6,14 @@ from dto.server_only.match_closure_dto import EndingReason
 from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.room_dto import RoomDto
 from dto.turn_info_dto import TurnInfoDto
-from handlers.match_helpers.client_notifications import notify_match_start
-from handlers.match_helpers.match_actions_service import MatchActionsService
-from handlers.match_helpers.match_termination_service import MatchTerminationService
-from handlers.match_helpers.player_entry_watcher_service import (
+from handlers.match_services.client_notifications import notify_match_start
+from handlers.match_services.match_actions_service import MatchActionsService
+from handlers.match_services.match_termination_service import MatchTerminationService
+from handlers.match_services.player_entry_watcher_service import (
     PlayerEntryWatcherService,
 )
-from handlers.match_helpers.player_exit_watcher_service import PlayerExitWatcherService
-from handlers.match_helpers.turn_watcher_service import TurnWatcherService
+from handlers.match_services.player_exit_watcher_service import PlayerExitWatcherService
+from handlers.match_services.turn_watcher_service import TurnWatcherService
 from server_gate import get_server
 from utils.board_utils import create_starting_board, to_client_board_dto
 from utils.id_generation_utils import generate_id

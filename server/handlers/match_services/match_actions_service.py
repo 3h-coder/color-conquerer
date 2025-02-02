@@ -14,18 +14,18 @@ from dto.server_only.player_info_dto import PlayerInfoDto
 from game_engine.models.cell import Cell
 from game_engine.spells.spell import Spell
 from game_engine.spells.spell_factory import get_spell
-from handlers.match_helpers.action_calculator import ActionCalculator
-from handlers.match_helpers.action_processor import ActionProcessor
-from handlers.match_helpers.client_notifications import (
+from handlers.match_services.action_calculator import ActionCalculator
+from handlers.match_services.action_processor import ActionProcessor
+from handlers.match_services.client_notifications import (
     notify_action_error,
     notify_possible_actions,
     notify_processed_action,
 )
-from handlers.match_helpers.service_base import ServiceBase
+from handlers.match_services.service_base import ServiceBase
 from utils.board_utils import copy_board, to_client_board_dto
 
 if TYPE_CHECKING:
-    from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
+    from handlers.match_services.match_handler_unit import MatchHandlerUnit
 
 
 class PlayerMode(IntEnum):

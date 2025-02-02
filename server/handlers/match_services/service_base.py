@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from config.logging import get_configured_logger
 
 if TYPE_CHECKING:
-    from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
+    from handlers.match_services.match_handler_unit import MatchHandlerUnit
 
 
 class ServiceBase:

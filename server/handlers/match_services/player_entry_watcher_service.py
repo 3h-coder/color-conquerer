@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_TO_WAIT_FOR_EVERYONE
 from dto.server_only.match_closure_dto import EndingReason
-from handlers.match_helpers.service_base import ServiceBase
+from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:
-    from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
+    from handlers.match_services.match_handler_unit import MatchHandlerUnit
 
 
 class PlayerEntryWatcherService(ServiceBase):

@@ -4,11 +4,11 @@ from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION
 from dto.partial_match_closure_dto import PartialMatchClosureDto
 from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
-from handlers.match_helpers.client_notifications import notify_match_ending
-from handlers.match_helpers.service_base import ServiceBase
+from handlers.match_services.client_notifications import notify_match_ending
+from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:
-    from handlers.match_helpers.match_handler_unit import MatchHandlerUnit
+    from handlers.match_services.match_handler_unit import MatchHandlerUnit
 
 
 class MatchTerminationService(ServiceBase):
