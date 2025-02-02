@@ -1,5 +1,5 @@
 import functools
-from enum import IntEnum, StrEnum
+from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
@@ -21,39 +21,15 @@ from handlers.match_services.client_notifications import (
     notify_possible_actions,
     notify_processed_action,
 )
+from handlers.match_services.action_helpers.player_mode import PlayerMode
+from handlers.match_services.action_helpers.server_mode import ServerMode
+from handlers.match_services.action_helpers.error_messages import ErrorMessages
 from handlers.match_services.service_base import ServiceBase
 from utils.board_utils import copy_board, to_client_board_dto
 
+
 if TYPE_CHECKING:
     from handlers.match_services.match_handler_unit import MatchHandlerUnit
-
-
-class PlayerMode(IntEnum):
-    # Default, the player is expected to select a cell, spawn a cell, or select a spell
-    IDLE = 0
-    # The player just selected a cell of their own and is expected to perform an action from it (move or attack)
-    OWN_CELL_SELECTED = 1
-    # A spawn action is being awaited on an idle cell with no owner
-    CELL_SPAWN = 2
-    # The player selected a spell, an action is possible on any cell as this depends on the spell
-    SPELL_SELECTED = 3
-
-
-class ServerMode(IntEnum):
-    # The server intends to show the possible actions to the player whose turn it is
-    SHOW_POSSIBLE_ACTIONS = 0
-    # The server intends to show the processed action to both players
-    SHOW_PROCESSED_ACTION = 1
-    # The server intends to show the processed action and the resulting possible actions from it simultaneously
-    # (example: all possible spawns after spawning a new cell)
-    SHOW_PROCESSED_AND_POSSIBLE_ACTIONS = 2
-
-
-class ErrorMessages(StrEnum):
-    CANNOT_MOVE_TO_NOR_ATTACK = "Cannot move to nor attack this cell"
-    SELECT_IDLE_CELL = "You must select an idle cell"
-    NOT_ENOUGH_MANA = "Not enough mana"
-    INVALID_ACTION = "Invalid action"  # The client should prevent this message from being shown, but just in case
 
 
 class MatchActionsService(ServiceBase):
@@ -101,7 +77,7 @@ class MatchActionsService(ServiceBase):
         self._server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         # Board copy to save and send to the client the transient states
         # resulting from the possible actions.
-        self._transient_board_array: list[list[Cell]] = None
+        self._transient_board_array: list[list[Cell]] | None = None
         # Applicable when the player mode is OWN_CELL_SELECTED
         self._selected_cell: Cell = None
         # Applicable when the player mode is SPELL_SELECTED
