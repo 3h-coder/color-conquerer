@@ -4,7 +4,7 @@ from dto.server_only.match_info_dto import MatchInfoDto
 from dto.server_only.player_game_info_dto import PlayerGameInfoDto
 from game_engine.cell_actions import move_cell, spawn_cell, trigger_cell_attack
 from game_engine.models.cell import Cell
-from game_engine.spells.spell_factory import get_spell
+from game_engine.models.spells.spell_factory import get_spell
 
 
 class ActionProcessor:

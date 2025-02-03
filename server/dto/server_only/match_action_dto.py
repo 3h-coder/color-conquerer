@@ -3,7 +3,7 @@ from enum import IntEnum
 
 from dto.coordinates_dto import CoordinatesDto
 from dto.partial_match_action_dto import PartialMatchActionDto
-from game_engine.spells.spell import Spell
+from game_engine.models.spells.spell import Spell
 
 
 class ActionType(IntEnum):

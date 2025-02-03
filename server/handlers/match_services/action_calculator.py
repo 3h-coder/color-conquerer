@@ -3,8 +3,8 @@ from constants.match_constants import BOARD_SIZE
 from dto.server_only.match_action_dto import MatchActionDto
 from dto.server_only.match_info_dto import MatchInfoDto
 from game_engine.models.cell import Cell
-from game_engine.spells.spell import Spell
-from game_engine.spells.spell_factory import get_spell
+from game_engine.models.spells.spell import Spell
+from game_engine.models.spells.spell_factory import get_spell
 from utils.board_utils import (
     get_cells_owned_by_player,
     get_neighbours,

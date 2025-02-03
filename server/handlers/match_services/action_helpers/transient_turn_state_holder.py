@@ -1,6 +1,6 @@
 from dto.server_only.match_action_dto import MatchActionDto
 from game_engine.models.cell import Cell
-from game_engine.spells.spell import Spell
+from game_engine.models.spells.spell import Spell
 from handlers.match_services.action_helpers.player_mode import PlayerMode
 from handlers.match_services.action_helpers.server_mode import ServerMode
 from handlers.match_services.action_helpers.transient_turn_state import (

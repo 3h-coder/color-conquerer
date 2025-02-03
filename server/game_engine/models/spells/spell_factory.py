@@ -1,6 +1,6 @@
-from game_engine.spells.mine_trap_spell import MineTrapSpell
-from game_engine.spells.spell import Spell
-from game_engine.spells.spell_id import Spell_ID
+from game_engine.models.spells.mine_trap_spell import MineTrapSpell
+from game_engine.models.spells.spell import Spell
+from game_engine.models.spells.spell_id import Spell_ID
 
 _SPELLS = {
     Spell_ID.MINE_TRAP: lambda: MineTrapSpell(),

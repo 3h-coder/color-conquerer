@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
-from game_engine.spells.spell_factory import get_spell
+from game_engine.models.spells.spell_factory import get_spell
 from handlers.match_services.action_helpers.action_manager import ActionManager
 from handlers.match_services.action_helpers.player_mode import PlayerMode
 
