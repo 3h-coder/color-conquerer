@@ -1,7 +1,7 @@
 from flask import Blueprint, session
 
 from constants.session_variables import IN_MATCH, ROOM_ID
-from dto.server_only.home_state_dto import HomeState, HomeStateDto
+from dto.home_state_dto import HomeState, HomeStateDto
 from middlewares.error_handler import handle_error
 from server_gate import get_match_handler
 
