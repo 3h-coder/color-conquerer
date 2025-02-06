@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from game_engine.models.cell import Cell
-from game_engine.models.player_resources import PlayerResources
+from game_engine.models.turn_state import TurnState
 
 
 @dataclass
@@ -12,3 +12,4 @@ class TurnContext:
     remaining_time_in_s: int
     duration_in_s: int
     updated_board_array: list[list[Cell]]
+    current_state: TurnState

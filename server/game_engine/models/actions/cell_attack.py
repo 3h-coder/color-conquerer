@@ -1,7 +1,7 @@
-from game_engine.models.actions.match_action import MatchAction
+from game_engine.models.actions.cell_action import CellAction
 
 
-class CellAttack(MatchAction):
+class CellAttack(CellAction):
     """
     Represents a cell attacking another.
     """
