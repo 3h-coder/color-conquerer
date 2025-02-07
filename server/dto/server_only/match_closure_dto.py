@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from dto.base_dto import BaseDto
-from dto.server_only.player_info_dto import PlayerInfoDto
+from dto.player_dto import PlayerDto
 
 
 class EndingReason(StrEnum):
@@ -15,7 +15,7 @@ class EndingReason(StrEnum):
 @dataclass
 class MatchClosureDto(BaseDto):
     endingReason: str
-    winner: PlayerInfoDto | None  # None if draw or no winner
-    loser: PlayerInfoDto | None  # None if draw or no loser
+    winner: PlayerDto | None  # None if draw or no winner
+    loser: PlayerDto | None  # None if draw or no loser
     totalTurns: int
     actionsPerTurn: dict[int, list]

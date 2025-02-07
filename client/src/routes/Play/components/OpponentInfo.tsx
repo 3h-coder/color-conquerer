@@ -4,11 +4,11 @@ import PlayerHPAndMPInfo from "./PlayerHPAndMPInfo";
 
 export default function OpponentInfo() {
     const { isPlayer1 } = usePlayerInfo();
-    const { playerGameInfoBundle } = usePlayersGameInfo();
+    const { playerResourceBundle: playerGameInfoBundle } = usePlayersGameInfo();
 
     const opponentGameInfo = isPlayer1
-        ? playerGameInfoBundle.player2GameInfo
-        : playerGameInfoBundle.player1GameInfo;
+        ? playerGameInfoBundle.player2Resources
+        : playerGameInfoBundle.player1Resources;
 
     return (
         <PlayerHPAndMPInfo

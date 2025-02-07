@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from enum import IntEnum
 
-from dto.server_only.player_info_dto import PlayerInfoDto
+from dto.player_dto import PlayerDto
+from game_engine.models.player import Player
 
 
 # The following states are temporary and meant to be sent to
@@ -119,10 +120,10 @@ class Cell:
     def belongs_to_player_2(self):
         return self.owner == CellOwner.PLAYER_2
 
-    def belongs_to(self, player: PlayerInfoDto):
+    def belongs_to(self, player: Player):
         return (
             self.owner == CellOwner.PLAYER_1
-            if player.isPlayer1
+            if player.is_player_1
             else self.owner == CellOwner.PLAYER_2
         )
 

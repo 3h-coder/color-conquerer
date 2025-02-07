@@ -6,7 +6,7 @@ import SpellCard from "../buttons/SpellCard";
 export default function SpellDeck() {
     const { turnInfo } = useTurnInfo();
     const { isPlayer1 } = usePlayerInfo();
-    const playerGameInfo = isPlayer1 ? turnInfo.playerGameInfoBundle.player1GameInfo : turnInfo.playerGameInfoBundle.player2GameInfo;
+    const playerGameInfo = isPlayer1 ? turnInfo.playerResourceBundle.player1Resources : turnInfo.playerResourceBundle.player2Resources;
     const spells = playerGameInfo.spells;
 
     return (

@@ -1,4 +1,4 @@
-import { PartialPlayerInfoDto } from "./PartialPlayerInfoDto";
+import { PlayerDto } from "./PlayerDto";
 
 export enum EndingReason {
     PLAYER_LEFT = "player left",
@@ -9,6 +9,6 @@ export enum EndingReason {
 
 export interface MatchClosureDto {
     endingReason: string,
-    winner: PartialPlayerInfoDto,
-    loser: PartialPlayerInfoDto,
+    winner: PlayerDto,
+    loser: PlayerDto,
 }

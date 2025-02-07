@@ -34,7 +34,7 @@ class ActionManager(TransientTurnStateHolder):
         self._match_actions_service = match_actions_service
         self._board_array = match_actions_service._board_array
         self._match = match_actions_service.match
-        self._room_id = match_actions_service.match.match_info.roomId
+        self._room_id = match_actions_service.match.match_context.room_id
         self._logger = get_configured_logger(__name__)
 
     def get_current_player(self):
@@ -114,7 +114,7 @@ class ActionManager(TransientTurnStateHolder):
                 processed_action
             ),
             playerMode=player_mode,
-            updatedTurnInfo=self._match.get_turn_info(),
+            updatedTurnInfo=self._match.get_turn_context_dto(),
             overridingTransientBoard=None,
         )
 

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Callable
 
 from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
-from dto.turn_info_dto import TurnInfoDto
+from dto.turn_context_dto import TurnContextDto
 from handlers.match_services.client_notifications import notify_turn_swap
 from handlers.match_services.service_base import ServiceBase
 from utils.board_utils import get_cells_owned_by_player
@@ -74,8 +74,8 @@ class TurnWatcherService(ServiceBase):
 
         # Notify the turn change to players
         notify_turn_swap(
-            self.match.get_turn_info(for_new_turn=True),
-            self.match_info.roomId,
+            self.match.get_turn_context_dto(for_new_turn=True),
+            self.match_context.room_id,
         )
 
     def _process_turn_swap(self):
@@ -83,8 +83,8 @@ class TurnWatcherService(ServiceBase):
         Performs all the processing related to turn swapping such as
         incrementing the turn or adding a mana point to the player whose turn it will be.
         """
-        self.match_info.currentTurn += 1
-        self.match_info.isPlayer1Turn = not self.match_info.isPlayer1Turn
+        self.match_context.current_turn += 1
+        self.match_context.is_player1_turn = not self.match_context.is_player1_turn
 
         self._increment_current_player_MP()
         self._enable_spawned_cells()
@@ -97,7 +97,7 @@ class TurnWatcherService(ServiceBase):
         we "wake them up" during the next turn.
         """
         current_player_cells = get_cells_owned_by_player(
-            self.match_info.isPlayer1Turn, self.match_info.boardArray
+            self.match_context.is_player1_turn, self.match_context.board_array
         )
         for cell in current_player_cells:
             if cell.is_freshly_spawned():
@@ -107,15 +107,15 @@ class TurnWatcherService(ServiceBase):
         """
         Increments the current player's available mana points for the turn by 1.
         """
-        current_turn = self.match_info.currentTurn
+        current_turn = self.match_context.current_turn
         current_player = self.match.get_current_player()
 
-        player_game_info = current_player.playerGameInfo
+        player_game_info = current_player.resources
 
         remainder = current_turn % 2
         quotient = current_turn // 2
 
-        player_game_info.currentMP = min(quotient + remainder, player_game_info.maxMP)
+        player_game_info.current_mp = min(quotient + remainder, player_game_info.max_mp)
 
     def _trigger_external_callbacks(self):
         for callback in self._turn_swap_external_callbacks:

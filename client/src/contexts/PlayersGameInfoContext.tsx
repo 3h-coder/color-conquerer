@@ -1,17 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createContext, useContext, useState } from "react";
 import {
-    PlayerGameInfoBundleDto,
-    undefinedPlayerInfoBundleDto,
+    PlayerResourceBundleDto,
+    undefinedPlayerResourceBundleDto,
 } from "../dto/PlayerInfoBundleDto";
 
 interface PlayersGameInfoContextObject {
-    playerGameInfoBundle: PlayerGameInfoBundleDto;
-    setPlayerGameInfoBundle: (p: PlayerGameInfoBundleDto) => void;
+    playerResourceBundle: PlayerResourceBundleDto;
+    setPlayerResourceBundle: (p: PlayerResourceBundleDto) => void;
 }
 
 const PlayerGameInfoContext = createContext<PlayersGameInfoContextObject>({
-    playerGameInfoBundle: undefinedPlayerInfoBundleDto,
-    setPlayerGameInfoBundle: (_p: PlayerGameInfoBundleDto) => { },
+    playerResourceBundle: undefinedPlayerResourceBundleDto,
+    setPlayerResourceBundle: (_p: PlayerResourceBundleDto) => { },
 });
 
 interface PlayersGameInfoContextProviderProps {
@@ -22,15 +23,15 @@ export default function PlayersGameInfoContextProvider(
     props: PlayersGameInfoContextProviderProps
 ) {
     const { children } = props;
-    const [playerGameInfoBundle, setPlayerGameInfoBundle] = useState(
-        undefinedPlayerInfoBundleDto
+    const [playerResourceBundle, setPlayerResourceBundle] = useState(
+        undefinedPlayerResourceBundleDto
     );
 
     return (
         <PlayerGameInfoContext.Provider
             value={{
-                playerGameInfoBundle,
-                setPlayerGameInfoBundle,
+                playerResourceBundle,
+                setPlayerResourceBundle,
             }}
         >
             {children}
@@ -38,6 +39,7 @@ export default function PlayersGameInfoContextProvider(
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function usePlayersGameInfo() {
     return useContext(PlayerGameInfoContext);
 }

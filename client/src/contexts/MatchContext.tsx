@@ -9,14 +9,14 @@ import {
 import { fetchMatchInfo } from "../api/game";
 import { ParseErrorDto } from "../dto/ErrorDto";
 import {
-    PartialMatchInfoDto,
+    MatchContextDto,
     undefinedMatch,
-} from "../dto/PartialMatchInfoDto";
+} from "../dto/MatchContextDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
 import { useUser } from "./UserContext";
 
 interface MatchContextObject {
-    matchInfo: PartialMatchInfoDto;
+    matchInfo: MatchContextDto;
     loading: boolean;
     failedToResolve: boolean;
 }
@@ -35,7 +35,7 @@ export default function MatchContextProvider(props: MatchContextProviderProps) {
     const { children } = props;
     const { user } = useUser();
     const [matchInfo, setMatchInfo] =
-        useState<PartialMatchInfoDto>(undefinedMatch);
+        useState<MatchContextDto>(undefinedMatch);
     const [loading, setLoading] = useState(true);
     const [failedToResolve, setFailedToResolve] = useState(false);
 

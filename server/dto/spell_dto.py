@@ -13,18 +13,3 @@ class SpellDto(BaseDto):
     manaCost: int
     count: int
     maxCount: int
-
-    @staticmethod
-    def from_spell(spell: Spell, max_count: int):
-        return SpellDto(
-            id=spell.id,
-            name=spell.name,
-            description=spell.description,
-            manaCost=spell.mana_cost,
-            count=max_count,
-            maxCount=max_count,
-        )
-
-    @staticmethod
-    def get_initial_deck():
-        return [SpellDto.from_spell(MineTrapSpell(), 5)]

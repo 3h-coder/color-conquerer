@@ -3,11 +3,12 @@ from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
 from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
-from dto.message_dto import MessageDto
 from dto.cell_dto import CellDto
-from dto.server_only.player_info_dto import PlayerInfoDto
+from dto.message_dto import MessageDto
+from dto.player_dto import PlayerDto
 from events.events import Events
 from exceptions.server_error import ServerError
+from game_engine.models.player import Player
 from server_gate import get_match_handler, get_session_cache_handler
 from utils import session_utils
 
@@ -38,7 +39,7 @@ def handle_client_ready():
     """
     server_error_msg = "A server error occured, unable to connect you to your match"
 
-    player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
+    player_info: Player = _get_session_variable(PLAYER_INFO)
     if player_info is None:
         raise ServerError(
             server_error_msg,
@@ -62,10 +63,10 @@ def handle_client_ready():
     if match.is_ongoing():
         emit(
             Events.SERVER_MATCH_ONGOING,
-            match.get_turn_info().to_dict(),
+            match.get_turn_context_dto().to_dict(),
         )
     elif match.is_waiting_to_start():
-        match.mark_player_as_ready(player_info.playerId)
+        match.mark_player_as_ready(player_info.player_id)
         # Start the match if everyone is ready
         if match.all_players_ready():
             _logger.info(f"All players ready in the room {room_id}")
@@ -74,7 +75,7 @@ def handle_client_ready():
         else:
             emit(
                 Events.SERVER_SET_WAITING_TEXT,
-                MessageDto.from_string("Waiting for your opponent...").to_dict(),
+                MessageDto("Waiting for your opponent...").to_dict(),
             )
 
 
@@ -85,13 +86,13 @@ def handle_turn_end():
     the end turn button.
     """
     room_id = _get_session_variable(ROOM_ID)
-    player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
+    player_info: Player = _get_session_variable(PLAYER_INFO)
     _logger.info(f"({request.remote_addr}) | Turn swap requested")
 
     match_handler = get_match_handler()
 
     match = match_handler.get_unit(room_id)
-    if not match.get_current_player().playerId == player_info.playerId:
+    if not match.get_current_player().player_id == player_info.player_id:
         _logger.error(
             "The end of turn can only be requested by the player whose turn it is"
         )
@@ -143,11 +144,11 @@ def handle_cell_click(data: dict):
     Receives the client cell click, and notifies the client accordingly.
     """
     room_id = _get_session_variable(ROOM_ID)
-    player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
+    player_info: Player = _get_session_variable(PLAYER_INFO)
     match = get_match_handler().get_unit(room_id)
 
-    player_id = player_info.playerId
-    if not match.get_current_player().playerId == player_id:
+    player_id = player_info.player_id
+    if not match.get_current_player().player_id == player_id:
         _logger.error(
             f"Cannot process the click of the player {player_id} as it is the turn of their opponent"
         )
@@ -166,11 +167,11 @@ def handle_spawn_button():
     """
     _logger.info(f"({request.remote_addr}) | Received cell spawn button toggle event")
     room_id = _get_session_variable(ROOM_ID)
-    player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
+    player_info: Player = _get_session_variable(PLAYER_INFO)
     match = get_match_handler().get_unit(room_id)
 
-    player_id = player_info.playerId
-    if not match.get_current_player().playerId == player_id:
+    player_id = player_info.player_id
+    if not match.get_current_player().player_id == player_id:
         _logger.error(
             f"Cannot process the spawn request of the player {player_id} as it is the turn of their opponent"
         )
@@ -186,11 +187,11 @@ def handle_spell_button(spell_id: int):
     """
     _logger.info(f"({request.remote_addr}) | Received spell button toggle event")
     room_id = _get_session_variable(ROOM_ID)
-    player_info: PlayerInfoDto = _get_session_variable(PLAYER_INFO)
+    player_info: Player = _get_session_variable(PLAYER_INFO)
     match = get_match_handler().get_unit(room_id)
 
-    player_id = player_info.playerId
-    if not match.get_current_player().playerId == player_id:
+    player_id = player_info.player_id
+    if not match.get_current_player().player_id == player_id:
         _logger.error(
             f"Cannot process the spell request of the player {player_id} as it is the turn of their opponent"
         )

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
 import { useTurnInfo } from "../../../contexts/TurnContext";
-import { TurnInfoDto } from "../../../dto/TurnInfoDto";
+import { TurnContextDto } from "../../../dto/TurnContextDto";
 import { round } from "../../../utils/mathUtils";
 
 export default function GameTopInfo() {
@@ -32,14 +32,14 @@ function GameTopInfoContainer(props: GameTopInfoContainerProps) {
 }
 
 interface TimeCountDownBarProps {
-    turnInfoDto: TurnInfoDto;
+    turnInfoDto: TurnContextDto;
 }
 
 function TimeCountDownBar(props: TimeCountDownBarProps) {
     const { turnInfoDto } = props;
-    const totalTurnDurationInS = turnInfoDto.totalTurnDurationInS;
+    const totalTurnDurationInS = turnInfoDto.durationInS;
 
-    const initialPercentage = round((turnInfoDto.durationInS * 100) / totalTurnDurationInS, 2);
+    const initialPercentage = round((turnInfoDto.remainingTimeInS * 100) / totalTurnDurationInS, 2);
     const [timePercentage, setTimePercentage] = useState(initialPercentage);
 
 
@@ -48,7 +48,7 @@ function TimeCountDownBar(props: TimeCountDownBarProps) {
 
     // Update timePercentage whenever turnInfoDto changes
     useEffect(() => {
-        setTimePercentage(round((turnInfoDto.durationInS * 100) / totalTurnDurationInS, 2));
+        setTimePercentage(round((turnInfoDto.remainingTimeInS * 100) / totalTurnDurationInS, 2));
     }, [turnInfoDto]);
 
     // Update timePercentage every 500ms

@@ -9,13 +9,13 @@ import {
 import { fetchPlayerInfo } from "../api/game";
 import { ParseErrorDto } from "../dto/ErrorDto";
 import {
-    PartialPlayerInfoDto,
+    PlayerDto,
     undefinedPlayer
-} from "../dto/PartialPlayerInfoDto";
+} from "../dto/PlayerDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
 import { useUser } from "./UserContext";
 
-interface PlayerContextObject extends PartialPlayerInfoDto {
+interface PlayerContextObject extends PlayerDto {
     loading: boolean;
     failedToResolve: boolean;
 }

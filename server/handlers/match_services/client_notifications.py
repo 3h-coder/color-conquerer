@@ -6,7 +6,7 @@ from dto.message_dto import MessageDto
 from dto.partial_match_closure_dto import PartialMatchClosureDto
 from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_action_dto import ProcessedActionDto
-from dto.turn_info_dto import TurnInfoDto
+from dto.turn_context_dto import TurnContextDto
 from events.events import Events
 from server_gate import get_server
 
@@ -16,11 +16,11 @@ if TYPE_CHECKING:
 _server: "Server" = None
 
 
-def notify_match_start(turn_info: TurnInfoDto, room_id: str):
+def notify_match_start(turn_info: TurnContextDto, room_id: str):
     _emit(Events.SERVER_MATCH_START, turn_info.to_dict(), to=room_id)
 
 
-def notify_turn_swap(turn_info: TurnInfoDto, room_id: str):
+def notify_turn_swap(turn_info: TurnContextDto, room_id: str):
     _emit(Events.SERVER_TURN_SWAP, turn_info.to_dict(), to=room_id)
 
 

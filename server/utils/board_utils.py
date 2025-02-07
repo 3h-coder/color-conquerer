@@ -6,16 +6,6 @@ and cell manipulation.
 from dto.cell_dto import Cell, CellDto
 
 
-def create_starting_board(board_size: int):
-    return [
-        [
-            Cell.get_default_idle_cell(row_index=i, col_index=j)
-            for j in range(board_size)
-        ]
-        for i in range(board_size)
-    ]
-
-
 def copy_board(board: list[list[Cell]]):
     return [[cell.clone() for cell in row] for row in board]
 

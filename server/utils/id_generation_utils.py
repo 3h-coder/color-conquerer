@@ -1,12 +1,11 @@
 import uuid
 from enum import StrEnum
 
-from dto.cell_dto import CellDto
 from dto.queue_player_dto import QueuePlayerDto
-from dto.server_only.match_info_dto import MatchInfoDto
-from dto.server_only.room_dto import RoomDto
 from dto.user_dto import UserDto
 from game_engine.models.cell import Cell
+from game_engine.models.match_context import MatchContext
+from game_engine.models.room import Room
 
 
 class IdPrefixes(StrEnum):
@@ -22,9 +21,9 @@ def generate_id(type):
         return f"{IdPrefixes.USER}-{uuid.uuid4()}"
     elif type is QueuePlayerDto:
         return f"{IdPrefixes.PLAYER}-{uuid.uuid4()}"
-    elif type is RoomDto:
+    elif type is Room:
         return f"{IdPrefixes.ROOM}-{uuid.uuid4()}"
-    elif type is MatchInfoDto:
+    elif type is MatchContext:
         return f"{IdPrefixes.MATCH}-{uuid.uuid4()}"
     elif type is Cell:
         return f"{IdPrefixes.CELL}-{uuid.uuid4()}"

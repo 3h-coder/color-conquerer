@@ -1,6 +1,6 @@
 from config.logging import get_configured_logger
 from dto.queue_player_dto import QueuePlayerDto
-from dto.server_only.room_dto import RoomDto
+from game_engine.models.room import Room
 from utils.id_generation_utils import generate_id
 
 
@@ -15,8 +15,8 @@ class RoomHandler:
 
     def __init__(self):
         self.logger = get_configured_logger(__name__)
-        self.open_rooms: dict[str, RoomDto] = {}
-        self.closed_rooms: dict[str, RoomDto] = {}
+        self.open_rooms: dict[str, Room] = {}
+        self.closed_rooms: dict[str, Room] = {}
 
     def at_capacity(self):
         """
@@ -38,11 +38,11 @@ class RoomHandler:
             A tuple with the room id and a boolean indicating whether or not the room is closed.
         """
         if not self.open_rooms:
-            new_room = RoomDto(
-                id=generate_id(RoomDto),
-                player1=player_register_dto,
-                player2=None,
-                sessionIds={},
+            new_room = Room(
+                id=generate_id(Room),
+                player1_queue_dto=player_register_dto,
+                player2_queue_dto=None,
+                session_ids={},
             )
             self.open_rooms[new_room.id] = new_room
             self._log_rooms_count()
@@ -51,7 +51,7 @@ class RoomHandler:
 
         # Place the player in the first open room
         room = self.open_rooms[next(iter(self.open_rooms))]
-        room.player2 = player_register_dto
+        room.player2_queue_dto = player_register_dto
 
         # Move the room to the closed rooms
         self.closed_rooms[room.id] = room

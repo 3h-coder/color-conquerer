@@ -10,7 +10,7 @@ import { useTurnInfo } from "../../contexts/TurnContext";
 import { ErrorDto } from "../../dto/ErrorDto";
 import { EndingReason, MatchClosureDto } from "../../dto/MatchClosureDto";
 import { MessageDto } from "../../dto/MessageDto";
-import { TurnInfoDto } from "../../dto/TurnInfoDto";
+import { TurnContextDto } from "../../dto/TurnContextDto";
 import { Events } from "../../enums/events";
 import { ModalIcon } from "../../enums/modalIcons";
 import { PlayerMode } from "../../enums/playerMode";
@@ -88,21 +88,21 @@ export default function PlayContent() {
       setWaitingText(messageDto.message);
     }
 
-    function onMatchBeginning(turnInfoDto: TurnInfoDto) {
+    function onMatchBeginning(turnInfoDto: TurnContextDto) {
       onMatchOngoing(turnInfoDto);
     }
 
-    function onMatchOngoing(turnInfoDto: TurnInfoDto) {
+    function onMatchOngoing(turnInfoDto: TurnContextDto) {
       setCanRenderContent(true);
       setTurnInfo(turnInfoDto);
       developmentLog(
-        `The match is ongoing.\nThere are ${turnInfoDto.durationInS} seconds left in the turn`
+        `The match is ongoing.\nThere are ${turnInfoDto.remainingTimeInS} seconds left in the turn`
       );
     }
 
-    function onTurnSwap(turnInfoDto: TurnInfoDto) {
+    function onTurnSwap(turnInfoDto: TurnContextDto) {
       developmentLog(
-        `Turn swap!\nThe new turn lasts ${turnInfoDto.durationInS} seconds `
+        `Turn swap!\nThe new turn lasts ${turnInfoDto.remainingTimeInS} seconds `
       );
       setTurnInfo(turnInfoDto);
     }

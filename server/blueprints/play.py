@@ -1,9 +1,10 @@
 from flask import Blueprint, current_app, jsonify, request, session
 
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
-from dto.partial_player_info_dto import PartialPlayerInfoDto
-from dto.server_only.player_info_dto import PlayerInfoDto
+from dto.player_dto import PlayerDto
 from exceptions.unauthorized_error import UnauthorizedError
+from game_engine.models.match_context import MatchContext
+from game_engine.models.player import Player
 from handlers.session_cache_handler import SessionCacheHandler
 from middlewares.error_handler import handle_error
 from server_gate import get_match_handler, get_session_cache_handler
@@ -20,17 +21,17 @@ def get_match_info():
 
     match_handler = get_match_handler()
 
-    partial_match_info = match_handler.get_match_info(room_id, partial=True)
-    return jsonify(partial_match_info.to_dict()), 200
+    match_context: MatchContext = match_handler.get_match_context(room_id)
+    return jsonify(match_context.to_dto().to_dict()), 200
 
 
 @play_bp.route("/play/player-info", methods=["GET"])
 def get_player_info():
     session_cache_handler = get_session_cache_handler()
-    player_info = _get_player_info_or_raise_error(session_cache_handler)
+    player_info: Player = _get_player_info_or_raise_error(session_cache_handler)
 
-    partial_player_info = PartialPlayerInfoDto.from_player_info_dto(player_info)
-    return jsonify(partial_player_info.to_dict()), 200
+    player_info_dto = player_info.to_dto()
+    return jsonify(player_info_dto.to_dict()), 200
 
 
 def _get_room_id_or_raise_error(session_cache_handler: SessionCacheHandler):
@@ -59,7 +60,7 @@ def _get_player_info_or_raise_error(session_cache_handler: SessionCacheHandler):
     Tries to get the player info from the session or session cache.
     If it fails to get it, throws an unauthorized error.
     """
-    player_info: PlayerInfoDto = session.get(PLAYER_INFO)
+    player_info: PlayerDto = session.get(PLAYER_INFO)
     if player_info is None:
         current_app.logger.warning(
             f"({request.remote_addr}) | The player info was not defined, resorting to session cache"

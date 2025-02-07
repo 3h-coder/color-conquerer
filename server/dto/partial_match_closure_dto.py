@@ -3,7 +3,7 @@ from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from dto.base_dto import BaseDto
-from dto.partial_player_info_dto import PartialPlayerInfoDto
+from dto.player_dto import PlayerDto
 
 if TYPE_CHECKING:
     from dto.server_only.match_closure_dto import MatchClosureDto
@@ -12,13 +12,13 @@ if TYPE_CHECKING:
 @dataclass
 class PartialMatchClosureDto(BaseDto):
     endingReason: str
-    winner: PartialPlayerInfoDto
-    loser: PartialPlayerInfoDto
+    winner: PlayerDto
+    loser: PlayerDto
 
     @staticmethod
     def from_match_closure_dto(match_closure_dto: "MatchClosureDto"):
         return PartialMatchClosureDto(
             endingReason=match_closure_dto.endingReason,
-            winner=PartialPlayerInfoDto.from_player_info_dto(match_closure_dto.winner),
-            loser=PartialPlayerInfoDto.from_player_info_dto(match_closure_dto.loser),
+            winner=match_closure_dto.winner,
+            loser=match_closure_dto.loser,
         )

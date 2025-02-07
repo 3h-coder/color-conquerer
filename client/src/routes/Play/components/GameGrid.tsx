@@ -7,11 +7,11 @@ import { usePlayerInfo } from "../../../contexts/PlayerContext";
 import { usePlayerMode } from "../../../contexts/PlayerModeContext";
 import { usePlayersGameInfo } from "../../../contexts/PlayersGameInfoContext";
 import { useTurnInfo } from "../../../contexts/TurnContext";
-import { MessageDto } from "../../../dto/MessageDto";
 import { CellDto } from "../../../dto/CellDto";
+import { MessageDto } from "../../../dto/MessageDto";
 import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
 import { ProcessedActionDto } from "../../../dto/ProcessedActionDto";
-import { undefinedTurnInfo } from "../../../dto/TurnInfoDto";
+import { undefinedTurnInfo } from "../../../dto/TurnContextDto";
 import { Events } from "../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../env";
 import { animateProcessedAction } from "../../../utils/boardUtils";
@@ -29,7 +29,7 @@ export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
     const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnInfo, canInteract, setCanInteract } = useTurnInfo();
-    const { setPlayerGameInfoBundle } = usePlayersGameInfo();
+    const { setPlayerResourceBundle } = usePlayersGameInfo();
     const { setPlayerMode } = usePlayerMode();
 
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
@@ -54,7 +54,7 @@ export default function GameGrid() {
 
         function handleTurnInfoUpdate() {
             setBoardArray(turnInfo.updatedBoardArray);
-            setPlayerGameInfoBundle(turnInfo.playerGameInfoBundle);
+            setPlayerResourceBundle(turnInfo.playerResourceBundle);
             setActionErrorMessage(EMPTY_STRING);
 
             if (turnInfo === undefinedTurnInfo) return;
@@ -147,7 +147,7 @@ export default function GameGrid() {
             setPlayerMode(processedActionDto.playerMode);
 
             // Update the player info bundle to display the proper HP/MP values
-            setPlayerGameInfoBundle(processedActionDto.updatedTurnInfo.playerGameInfoBundle);
+            setPlayerResourceBundle(processedActionDto.updatedTurnInfo.playerResourceBundle);
 
             // Trigger animations
             animateProcessedAction(processedActionDto.processedAction, isPlayer1, boardArray);

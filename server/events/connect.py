@@ -4,8 +4,8 @@ from flask_socketio import emit
 from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from dto.message_dto import MessageDto
-from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
+from game_engine.models.player import Player
 from server_gate import get_connection_handler, get_match_handler
 
 _logger = get_configured_logger(__name__)
@@ -37,8 +37,8 @@ def handle_connection(_):
 
     if match.is_ongoing():
         _logger.debug("Player rejoinded the match, stopping exit watcher")
-        player_info: PlayerInfoDto = session.get(PLAYER_INFO)
-        player_id = player_info.playerId
+        player_info: Player = session.get(PLAYER_INFO)
+        player_id = player_info.player_id
         match.stop_watching_player_exit(player_id)
     elif match.is_ended():
         _logger.debug(

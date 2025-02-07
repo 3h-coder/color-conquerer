@@ -1,7 +1,6 @@
 import { SpellDto } from "./SpellDto";
 
-export interface PartialPlayerGameInfoDto {
-    player1: boolean;
+export interface PlayerResourcesDto {
     maxHP: number;
     currentHP: number;
     maxMP: number;
@@ -9,8 +8,7 @@ export interface PartialPlayerGameInfoDto {
     spells: SpellDto[];
 }
 
-export const undefinedPlayerGameInfo: PartialPlayerGameInfoDto = {
-    player1: false,
+export const undefinedPlayerResources: PlayerResourcesDto = {
     maxHP: 0,
     currentHP: 0,
     maxMP: 0,

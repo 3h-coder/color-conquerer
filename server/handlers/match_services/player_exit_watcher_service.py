@@ -26,8 +26,8 @@ class PlayerExitWatcherService(ServiceBase):
 
         # Events used to cancel an exit watcher task for a specific player, i.e. not kick the player out when they reconnect
         self.player_exit_watch_stop_events = {
-            self.match_info.player1.playerId: Event(),
-            self.match_info.player2.playerId: Event(),
+            self.match_context.player1.player_id: Event(),
+            self.match_context.player2.player_id: Event(),
         }
 
     def stop_watching_player_exit(self, player_id: str):

@@ -1,9 +1,9 @@
-import { PartialMatchInfoDto } from "../dto/PartialMatchInfoDto";
-import { PartialPlayerInfoDto } from "../dto/PartialPlayerInfoDto";
+import { MatchContextDto } from "../dto/MatchContextDto";
+import { PlayerDto } from "../dto/PlayerDto";
 import { DEFAULT_HEADERS, fetchAs } from "./fetch";
 
 export async function fetchPlayerInfo() {
-    return await fetchAs<PartialPlayerInfoDto>("/play/player-info", {
+    return await fetchAs<PlayerDto>("/play/player-info", {
         method: "GET",
         headers: DEFAULT_HEADERS,
         credentials: "include"
@@ -11,7 +11,7 @@ export async function fetchPlayerInfo() {
 }
 
 export async function fetchMatchInfo() {
-    return await fetchAs<PartialMatchInfoDto>("/play/match-info", {
+    return await fetchAs<MatchContextDto>("/play/match-info", {
         method: "GET",
         headers: DEFAULT_HEADERS,
         credentials: "include"

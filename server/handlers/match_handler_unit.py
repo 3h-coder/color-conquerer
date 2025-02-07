@@ -1,11 +1,14 @@
 from enum import Enum
 
 from config.logging import get_configured_logger
-from constants.match_constants import BOARD_SIZE, TURN_DURATION_IN_S
+from constants.match_constants import TURN_DURATION_IN_S
+from dto.player_resources_bundle_dto import PlayerResourceBundleDto
 from dto.server_only.match_closure_dto import EndingReason
-from dto.server_only.match_info_dto import MatchInfoDto
-from dto.server_only.room_dto import RoomDto
-from dto.turn_info_dto import TurnInfoDto
+from dto.turn_context_dto import TurnContextDto
+from game_engine.models.match_context import MatchContext
+from game_engine.models.room import Room
+from game_engine.models.turn_context import TurnContext
+from game_engine.models.turn_state import TurnState
 from handlers.match_services.client_notifications import notify_match_start
 from handlers.match_services.match_actions_service import MatchActionsService
 from handlers.match_services.match_termination_service import MatchTerminationService
@@ -15,7 +18,7 @@ from handlers.match_services.player_entry_watcher_service import (
 from handlers.match_services.player_exit_watcher_service import PlayerExitWatcherService
 from handlers.match_services.turn_watcher_service import TurnWatcherService
 from server_gate import get_server
-from utils.board_utils import create_starting_board, to_client_board_dto
+from utils.board_utils import to_client_board_dto
 from utils.id_generation_utils import generate_id
 
 
@@ -25,21 +28,25 @@ class MatchHandlerUnit:
     Manages the whole lifecyle (start to end) partly thanks to underlying helper classes instances.
     """
 
-    def __init__(self, room_dto: RoomDto):
+    def __init__(self, room: Room):
         self.logger = get_configured_logger(__name__)
         self.server = get_server()
 
-        self.match_info: MatchInfoDto = self._get_initial_match_info(room_dto)
+        self.match_context: MatchContext = self._get_initial_match_context(room)
+        self.turn_state: TurnState = TurnState.get_initial(
+            player1_turn=False,
+            player1_resources=self.match_context.player1.resources,
+            player2_resources=self.match_context.player2.resources,
+        )
 
         # Dictionary with the key being the session id and the value the player id
         # May be used when needed to find a player from its session
-        self._session_ids = room_dto.sessionIds
+        self._session_ids = room.session_ids
 
         self.status = MatchStatus.WAITING_TO_START
 
         self._match_termination_service = MatchTerminationService(self)
 
-        # self._match_actions_service = MatchActionsService(self)
         self._match_actions_service = MatchActionsService(self)
 
         self._player_entry_watcher_service = PlayerEntryWatcherService(self)
@@ -100,7 +107,7 @@ class MatchHandlerUnit:
         Starts the match, setting up the turn watcher and notifying the clients.
         """
         self.logger.info(
-            f"Match start requested for the match in the room {self.match_info.roomId}"
+            f"Match start requested for the match in the room {self.match_context.room_id}"
         )
 
         if not self.is_waiting_to_start():
@@ -109,19 +116,20 @@ class MatchHandlerUnit:
             )
             return
 
-        self.logger.info(f"Starting the match in the room {self.match_info.roomId}")
+        self.logger.info(f"Starting the match in the room {self.match_context.room_id}")
 
         self.status = MatchStatus.ONGOING
-        self.match_info.currentTurn = 1
-        self.match_info.isPlayer1Turn = True
+        self.match_context.current_turn = 1
+        self.match_context.is_player1_turn = True
+        self.turn_state.is_player1_turn = True
 
         # Trigger the turn watcher service to process player turns
         self._turn_watcher_service.trigger()
 
         # notify the clients
         notify_match_start(
-            self.get_turn_info(for_new_turn=True),
-            self.match_info.roomId,
+            self.get_turn_context_dto(for_new_turn=True),
+            self.match_context.room_id,
         )
 
     def cancel(self):
@@ -141,24 +149,27 @@ class MatchHandlerUnit:
         """
         self._match_termination_service.end_match(reason, winner_id, loser_id)
 
-    def get_turn_info(self, for_new_turn=False):
-        return TurnInfoDto(
-            currentPlayerId=self.get_current_player().playerId,
-            isPlayer1Turn=self.match_info.isPlayer1Turn,
-            durationInS=(
+    def get_turn_context_dto(self, for_new_turn=False):
+        return TurnContextDto(
+            currentPlayerId=self.get_current_player().player_id,
+            isPlayer1Turn=self.match_context.is_player1_turn,
+            remainingTimeInS=(
                 TURN_DURATION_IN_S if for_new_turn else self._get_remaining_turn_time()
             ),
-            totalTurnDurationInS=TURN_DURATION_IN_S,
+            durationInS=TURN_DURATION_IN_S,
             notifyTurnChange=for_new_turn,
-            playerGameInfoBundle=self.match_info.get_player_info_bundle(),
-            updatedBoardArray=to_client_board_dto(self.match_info.boardArray),
+            updatedBoardArray=to_client_board_dto(self.match_context.board_array),
+            playerResourceBundle=PlayerResourceBundleDto(
+                self.match_context.player1.resources.to_dto(),
+                self.match_context.player2.resources.to_dto(),
+            ),
         )
 
     def set_player_as_idle(self, player_id: str):
         """
         Sets the server side player mode to idle.
         """
-        if self.get_current_player().playerId != player_id:
+        if self.get_current_player().player_id != player_id:
             return
 
         self._match_actions_service.set_player_as_idle()
@@ -203,18 +214,18 @@ class MatchHandlerUnit:
     def get_current_player(self):
         """Gets the id of the player of whom it is the turn."""
         return (
-            self.match_info.player1
-            if self.match_info.isPlayer1Turn
-            else self.match_info.player2
+            self.match_context.player1
+            if self.match_context.is_player1_turn
+            else self.match_context.player2
         )
 
     def get_player(self, player_id: str):
         """
         Gets the `PlayerInfoDto` instance associated with the given player id.
         """
-        player1 = self.match_info.player1
-        player2 = self.match_info.player2
-        player_ids = [player1.playerId, player2.playerId]
+        player1 = self.match_context.player1
+        player2 = self.match_context.player2
+        player_ids = [player1.player_id, player2.player_id]
         self.logger.debug(f"Player ids: {player_ids}")
 
         if player_id not in player_ids:
@@ -234,11 +245,11 @@ class MatchHandlerUnit:
         """
         Gets the player game info of both players.
         """
-        player_1 = self.match_info.player1
-        player_2 = self.match_info.player2
+        player_1 = self.match_context.player1
+        player_2 = self.match_context.player2
         return (
-            player_1.playerGameInfo,
-            player_2.playerGameInfo,
+            player_1.resources,
+            player_2.resources,
         )
 
     def _get_remaining_turn_time(self):
@@ -247,33 +258,8 @@ class MatchHandlerUnit:
         """
         return self._turn_watcher_service.get_remaining_turn_time()
 
-    def _get_initial_match_info(self, room_dto: RoomDto):
-        return MatchInfoDto.get_initial_match_info(
-            generate_id(MatchInfoDto), room_dto, self._get_starting_board_array()
-        )
-
-    def _get_starting_board_array(self):
-        # ⚠️ the board size must never change
-        # TODO: create unit tests to ensure that
-
-        board = create_starting_board(BOARD_SIZE)
-
-        # Initialize the master cells
-        player1_master_cell = board[1][5]
-        player2_master_cell = board[9][5]
-
-        player1_master_cell.set_owned_by_player1()
-        player1_master_cell.is_master = True
-
-        player2_master_cell.set_owned_by_player2()
-        player2_master_cell.is_master = True
-
-        # Initialize mana bubbles
-        board[6][5].set_as_mana_bubble()
-        board[5][1].set_as_mana_bubble()
-        board[5][9].set_as_mana_bubble()
-
-        return board
+    def _get_initial_match_context(self, room: Room):
+        return MatchContext.get_initial(generate_id(MatchContext), room)
 
 
 class MatchStatus(Enum):

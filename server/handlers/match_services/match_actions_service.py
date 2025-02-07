@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from config.logging import get_configured_logger
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_closure_dto import EndingReason
-from dto.server_only.player_info_dto import PlayerInfoDto
+from game_engine.models.player import Player
 from handlers.match_services.action_calculator import ActionCalculator
 from handlers.match_services.action_helpers.cell_selection_manager import (
     CellSelectionManager,
@@ -40,9 +40,9 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
 
         # region Match persistent fields
 
-        self._board_array = self.match.match_info.boardArray
-        self.action_calculator = ActionCalculator(self.match_info)
-        self._action_processor = ActionProcessor(self.match_info)
+        self._board_array = self.match.match_context.board_array
+        self.action_calculator = ActionCalculator(self.match_context)
+        self._action_processor = ActionProcessor(self.match_context)
 
         # Dictionary storing all of the actions that happened during a match.
         # Key : turn number | Value : list of actions
@@ -54,10 +54,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         # ⚠️ Any field below is meant to be reset in the reset_for_new_turn method ⚠️
 
         # used to track all the cells that moved during the turn
-        self.turn_movements: set[str] = set()
-        # used to track all the cells that attacked during the turn
-        self.turn_attacks: set[str] = set()
-        self.current_player: PlayerInfoDto | None = None
+        self.turn_state = self.match.turn_state
 
         self._cell_selection_manager = CellSelectionManager(self)
         self._cell_spawn_manager = CellSpawnManager(self)
@@ -83,17 +80,17 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         """
         Ends the match if at least one player dies.
         """
-        player1 = self.match_info.player1
-        player2 = self.match_info.player2
+        player1 = self.match_context.player1
+        player2 = self.match_context.player2
 
-        if self.match_info.both_players_are_dead():
+        if self.match_context.both_players_are_dead():
             self.match.end(EndingReason.DRAW)
 
-        elif self.match_info.player1_is_dead():
-            self.match.end(EndingReason.PLAYER_WON, loser_id=player1.playerId)
+        elif self.match_context.player1_is_dead():
+            self.match.end(EndingReason.PLAYER_WON, loser_id=player1.player_id)
 
-        elif self.match_info.player2_is_dead():
-            self.match.end(EndingReason.PLAYER_WON, loser_id=player2.playerId)
+        elif self.match_context.player2_is_dead():
+            self.match.end(EndingReason.PLAYER_WON, loser_id=player2.player_id)
 
     def reset_for_new_turn(self):
         """
@@ -101,9 +98,8 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
 
         Meant to be used as a callback for the turn watcher service.
         """
-        self.actions_per_turn[self.match_info.currentTurn] = []
-        self.turn_movements = set()
-        self.turn_attacks = set()
+        self.actions_per_turn[self.match_context.current_turn] = []
+        self.turn_state.reset_for_new_turn()
         self.current_player = self.match.get_current_player()
         self.set_player_as_idle()
 
@@ -142,7 +138,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
             self.set_error_message(ErrorMessages.INVALID_ACTION)
             return
 
-        if action.manaCost > self.current_player.playerGameInfo.currentMP:
+        if action.manaCost > self.current_player.resources.current_mp:
             self.set_error_message(ErrorMessages.NOT_ENOUGH_MANA)
             return
 
@@ -179,7 +175,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         """
         Adds a processed action to the turn and match actions fields.
         """
-        current_turn = self.match_info.currentTurn
+        current_turn = self.match_context.current_turn
         if current_turn not in self.actions_per_turn:
             self.actions_per_turn[current_turn] = []
 
@@ -187,10 +183,10 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
 
         cell_id = action.cellId
         if action.type == ActionType.CELL_MOVE:
-            self.turn_movements.add(cell_id)
+            self.turn_state.movements.append(cell_id)
 
         elif action.type == ActionType.CELL_ATTACK:
-            self.turn_attacks.add(cell_id)
+            self.turn_state.attacks.append(cell_id)
 
     def _calculate_post_processing_possible_actions(self):
         """

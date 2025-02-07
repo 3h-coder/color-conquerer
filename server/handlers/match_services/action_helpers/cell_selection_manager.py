@@ -29,7 +29,7 @@ class CellSelectionManager(ActionManager):
         Handles the cell selection from the current player.
         """
         player = self.get_current_player()
-        is_player_1 = player.isPlayer1
+        is_player_1 = player.is_player_1
         cell: Cell = self._board_array[cell_row][cell_col]
 
         if cell.belongs_to(player):
@@ -116,7 +116,7 @@ class CellSelectionManager(ActionManager):
             selected_spell = self.get_selected_spell()
 
             spell_action = MatchActionDto.spell(
-                current_player.isPlayer1,
+                current_player.is_player_1,
                 selected_spell,
                 cell.row_index,
                 cell.column_index,
@@ -159,7 +159,7 @@ class CellSelectionManager(ActionManager):
             selected_spell = self.get_selected_spell()
 
             spell_action = MatchActionDto.spell(
-                current_player.isPlayer1,
+                current_player.is_player_1,
                 selected_spell,
                 cell.row_index,
                 cell.column_index,
@@ -209,8 +209,12 @@ class CellSelectionManager(ActionManager):
 
     def _has_already_moved_this_turn(self, cell: Cell):
         return (
-            cell is not None and cell.id in self._match_actions_service.turn_movements
+            cell is not None
+            and cell.id in self._match_actions_service.turn_state.movements
         )
 
     def _has_already_attacked_this_turn(self, cell: Cell):
-        return cell is not None and cell.id in self._match_actions_service.turn_attacks
+        return (
+            cell is not None
+            and cell.id in self._match_actions_service.turn_state.attacks
+        )

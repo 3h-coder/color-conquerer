@@ -5,7 +5,7 @@ from dto.queue_player_dto import QueuePlayerDto
 
 
 @dataclass
-class RoomDto(BaseDto):
+class Room(BaseDto):
     id: str
     player1: QueuePlayerDto
     player2: QueuePlayerDto

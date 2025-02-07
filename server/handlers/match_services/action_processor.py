@@ -1,9 +1,11 @@
 from config.logging import get_configured_logger
+from dto.player_resources_dto import PlayerResourcesDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
-from dto.server_only.match_info_dto import MatchInfoDto
-from dto.server_only.player_game_info_dto import PlayerGameInfoDto
+from dto.server_only.match_context_dto import MatchContextDto
 from game_engine.cell_actions import move_cell, spawn_cell, trigger_cell_attack
 from game_engine.models.cell import Cell
+from game_engine.models.match_context import MatchContext
+from game_engine.models.player_resources import PlayerResources
 from game_engine.models.spells.spell_factory import get_spell
 
 
@@ -14,10 +16,10 @@ class ActionProcessor:
     Note : Action validation should be done before calling this class's methods.
     """
 
-    def __init__(self, match_info: MatchInfoDto):
+    def __init__(self, match_info: MatchContext):
         self._logger = get_configured_logger(__name__)
-        self._match_info = match_info
-        self._board_array = match_info.boardArray
+        self._match_context = match_info
+        self._board_array = match_info.board_array
 
     def process_action(self, action: MatchActionDto):
         """
@@ -28,7 +30,7 @@ class ActionProcessor:
         Returns True if the action could be processed properly, false otherwise.
         """
         action_type = action.type
-        player_game_info = self._match_info.get_player_game_info(action.player1)
+        player_game_info = self._match_context.get_player_resources(action.player1)
         try:
             self._process_player_mana(player_game_info, action)
 
@@ -54,7 +56,7 @@ class ActionProcessor:
                     attacking_coords.columnIndex,
                     target_coords.rowIndex,
                     target_coords.columnIndex,
-                    self._match_info,
+                    self._match_context,
                 )
 
             elif action_type == ActionType.CELL_SPAWN:
@@ -82,24 +84,24 @@ class ActionProcessor:
             return None
 
     def _process_player_mana(
-        self, player_game_info: PlayerGameInfoDto, action: MatchActionDto
+        self, player_resources: PlayerResources, action: MatchActionDto
     ):
         """
         Processes the player mana regeneration.
         """
-        if action.manaCost > player_game_info.currentMP:
+        if action.manaCost > player_resources.current_mp:
             raise ValueError(
                 f"Player {action.player1} tried to perform an action with not enough mana."
             )
 
-        player_game_info.currentMP -= action.manaCost
+        player_resources.current_mp -= action.manaCost
 
     def _check_for_mana_bubble(
-        self, player_game_info: PlayerGameInfoDto, row_index: int, col_index: int
+        self, player_game_info: PlayerResources, row_index: int, col_index: int
     ):
         """
         Increases the player's mana by one if the target cell is a mana bubble.
         """
         cell: Cell = self._board_array[row_index][col_index]
         if cell.is_mana_bubble():
-            player_game_info.currentMP += 1
+            player_game_info.current_mp += 1

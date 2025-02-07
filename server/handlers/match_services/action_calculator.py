@@ -1,8 +1,8 @@
 from config.logging import get_configured_logger
 from constants.match_constants import BOARD_SIZE
 from dto.server_only.match_action_dto import MatchActionDto
-from dto.server_only.match_info_dto import MatchInfoDto
 from game_engine.models.cell import Cell
+from game_engine.models.match_context import MatchContext
 from game_engine.models.spells.spell import Spell
 from game_engine.models.spells.spell_factory import get_spell
 from utils.board_utils import (
@@ -18,10 +18,10 @@ class ActionCalculator:
     such as a cell click for example.
     """
 
-    def __init__(self, match_info: MatchInfoDto):
+    def __init__(self, match_info: MatchContext):
         self._logger = get_configured_logger(__name__)
         self._match_info = match_info
-        self._board_array = match_info.boardArray
+        self._board_array = match_info.board_array
 
     def calculate_possible_movements(
         self,

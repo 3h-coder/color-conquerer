@@ -36,7 +36,7 @@ class MatchTerminationService(ServiceBase):
         Additionally, notifies all players and schedules this match handler unit's garbage collection.
         """
         self._logger.info(
-            f"Received termination request for the match in the room {self.match_info.roomId}"
+            f"Received termination request for the match in the room {self.match_context.room_id}"
         )
 
         if not self.match.is_ongoing():
@@ -54,7 +54,7 @@ class MatchTerminationService(ServiceBase):
             reason,
             winner,
             loser,
-            totalTurns=self.match_info.currentTurn,
+            totalTurns=self.match_context.current_turn,
             actionsPerTurn=self.match.get_actions_per_turn(),
         )
 
@@ -73,7 +73,7 @@ class MatchTerminationService(ServiceBase):
         nor notification sent.
         """
         self._logger.info(
-            f"Match cancellation requested for the match in the room {self.match_info.roomId}"
+            f"Match cancellation requested for the match in the room {self.match_context.room_id}"
         )
 
         if not self.match.is_waiting_to_start():
@@ -96,8 +96,8 @@ class MatchTerminationService(ServiceBase):
             raise ValueError("The provided winner and loser id values were identical")
 
     def _get_winner_and_loser(self, winner_id: str, loser_id: str):
-        player1 = self.match_info.player1
-        player2 = self.match_info.player2
+        player1 = self.match_context.player1
+        player2 = self.match_context.player2
         winner = None
         loser = None
 
@@ -112,13 +112,13 @@ class MatchTerminationService(ServiceBase):
     def _notify_match_ending(self):
         notify_match_ending(
             PartialMatchClosureDto.from_match_closure_dto(self.match_closure_info),
-            self.match_info.roomId,
+            self.match_context.room_id,
         )
 
     def _close_rooms(self):
-        self.match.server.socketio.close_room(self.match_info.roomId)
+        self.match.server.socketio.close_room(self.match_context.room_id)
 
-        self._server.room_handler.remove_closed_room(self.match_info.roomId)
+        self._server.room_handler.remove_closed_room(self.match_context.room_id)
 
     def _schedule_garbage_collection(self):
         """
@@ -131,7 +131,7 @@ class MatchTerminationService(ServiceBase):
     def _delete_match_and_room(self):
         self.match.server.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
 
-        room_id = self.match_info.roomId
+        room_id = self.match_context.room_id
         self._logger.debug(f"Deleting the match handler unit for the room {room_id}")
 
         room_handler = self._server.room_handler

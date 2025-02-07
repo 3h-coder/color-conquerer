@@ -4,11 +4,12 @@ from flask_socketio import emit, join_room
 from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.client_stored_match_info_dto import ClientStoredMatchInfoDto
+from dto.player_dto import PlayerDto
 from dto.queue_player_dto import QueuePlayerDto
 from dto.server_only.error_dto import ErrorDto
-from dto.server_only.player_info_dto import PlayerInfoDto
 from events.events import Events
 from exceptions.queue_error import QueueError
+from game_engine.models.player import Player
 from handlers.match_handler import MatchHandler
 from handlers.match_handler_unit import MatchHandlerUnit
 from handlers.room_handler import RoomHandler
@@ -38,8 +39,11 @@ def handle_queue_registration(data: dict):
     )
 
     (room_id, closed) = _make_enter_in_room(queue_player_dto, room_handler)
-    player_info = PlayerInfoDto(
-        player_id, isPlayer1=not closed, user=queue_player_dto.user, playerGameInfo=None
+    player_info = Player(
+        player_id,
+        user_id=queue_player_dto.user.id,
+        is_player_1=not closed,
+        resources=None,
     )
     _save_into_session(room_id, player_info, session_cache_handler)
 
@@ -129,10 +133,10 @@ def _make_enter_in_room(queue_player_dto: QueuePlayerDto, room_handler: RoomHand
     Set the session's room id and notifies the client that the player is registered in a room.
     """
     (room, closed) = room_handler.make_enter_in_room(queue_player_dto)
-    if not room.sessionIds:
-        room.sessionIds = {session[SESSION_ID]: queue_player_dto.playerId}
+    if not room.session_ids:
+        room.session_ids = {session[SESSION_ID]: queue_player_dto.playerId}
     else:
-        room.sessionIds[session[SESSION_ID]] = queue_player_dto.playerId
+        room.session_ids[session[SESSION_ID]] = queue_player_dto.playerId
 
     room_id = room.id
     join_room(room_id)
@@ -146,7 +150,7 @@ def _make_enter_in_room(queue_player_dto: QueuePlayerDto, room_handler: RoomHand
 
 
 def _save_into_session(
-    room_id: str, player_info: PlayerInfoDto, session_cache_handler: SessionCacheHandler
+    room_id: str, player_info: PlayerDto, session_cache_handler: SessionCacheHandler
 ):
     """
     Saves the player information into the session.

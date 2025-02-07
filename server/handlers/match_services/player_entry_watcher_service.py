@@ -25,8 +25,8 @@ class PlayerEntryWatcherService(ServiceBase):
 
         # Dictionary used to determine which player is ready or not
         self._players_ready = {
-            self.match_info.player1.playerId: False,
-            self.match_info.player2.playerId: False,
+            self.match_context.player1.player_id: False,
+            self.match_context.player2.player_id: False,
         }
 
     def mark_player_as_ready(self, player_id):

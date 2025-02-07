@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
 from dto.cell_dto import CellDto
-from dto.partial_match_action_dto import PartialMatchActionDto
 
 
 @dataclass

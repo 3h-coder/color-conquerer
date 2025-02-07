@@ -49,7 +49,7 @@ class SpellManager(ActionManager):
         spell = get_spell(spell_id)
 
         possible_spell_invocations = action_calculator.calculate_possible_spell_targets(
-            spell, player.isPlayer1, transient_board_array
+            spell, player.is_player_1, transient_board_array
         )
 
         self.set_player_mode(PlayerMode.SPELL_SELECTED)

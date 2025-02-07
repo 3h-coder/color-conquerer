@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from dto.base_dto import BaseDto
 from dto.cell_dto import CellDto
 from dto.partial_match_action_dto import PartialMatchActionDto
-from dto.turn_info_dto import TurnInfoDto
+from dto.turn_context_dto import TurnContextDto
 
 
 @dataclass
@@ -14,7 +14,7 @@ class ProcessedActionDto(BaseDto):
 
     processedAction: PartialMatchActionDto
     playerMode: int
-    updatedTurnInfo: TurnInfoDto
+    updatedTurnInfo: TurnContextDto
     # If the server mode is set to SHOW_PROCESSED_AND_POSSIBLE_ACTIONS, this board
     # will override the one from the turn info dto client side
     overridingTransientBoard: list[list[CellDto]] | None

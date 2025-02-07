@@ -2,7 +2,7 @@
 Contains the core cell mechanics methods, such as moving a cell, spawning a cell, and triggering a cell attack.
 """
 
-from dto.server_only.match_info_dto import MatchInfoDto
+from dto.server_only.match_context_dto import MatchContextDto
 from game_engine.models.cell import Cell
 
 
@@ -57,7 +57,7 @@ def trigger_cell_attack(
     attacking_col_index,
     target_row_index,
     target_col_index,
-    match_info: MatchInfoDto,
+    match_info: MatchContextDto,
 ):
     """
     Triggers an attack between two cells on the board.

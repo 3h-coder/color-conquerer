@@ -3,6 +3,7 @@ Utility methods for test setup and execution.
 """
 
 from flask.testing import FlaskClient
+
 from application import Application
 from dto.queue_player_dto import QueuePlayerDto
 from dto.user_dto import UserDto
@@ -35,10 +36,10 @@ def mock_user_dto(
     return UserDto(id, username, is_authenticating, is_authenticated)
 
 
-def mock_queue_player_dto(user: UserDto = None, playerId: str = "mock_player_id"):
+def mock_queue_player_dto(user: UserDto = None, player_id: str = "mock_player_id"):
     if user is None:
         user = mock_user_dto()
-    return QueuePlayerDto(user, playerId)
+    return QueuePlayerDto(user, player_id)
 
 
 # endregion

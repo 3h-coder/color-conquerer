@@ -49,7 +49,7 @@ class CellSpawnManager(ActionManager):
         action_calculator = self._match_actions_service.action_calculator
 
         possible_spawns = action_calculator.calculate_possible_spawns(
-            player.isPlayer1, transient_board_array
+            player.is_player_1, transient_board_array
         )
         self.set_player_mode(PlayerMode.CELL_SPAWN)
         self.set_possible_actions(possible_spawns, update_server_mode)

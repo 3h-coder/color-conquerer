@@ -3,7 +3,7 @@ from flask_socketio import leave_room
 
 from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
-from dto.server_only.player_info_dto import PlayerInfoDto
+from game_engine.models.player import Player
 from handlers.room_handler import RoomHandler
 from server_gate import get_connection_handler, get_match_handler, get_room_handler
 from utils import session_utils
@@ -42,13 +42,13 @@ def handle_disconnection():
         _handle_disconnection_in_queue(room_id, room_handler)
         return
 
-    player_info: PlayerInfoDto = session.get(PLAYER_INFO)
+    player_info: Player = session.get(PLAYER_INFO)
     if not player_info:
         return
 
     match_handler = get_match_handler()
 
-    player_id = player_info.playerId
+    player_id = player_info.player_id
     match = match_handler.get_unit(room_id)
 
     if match is not None and match.is_ongoing():
