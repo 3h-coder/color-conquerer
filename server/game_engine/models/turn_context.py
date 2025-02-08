@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from dto.player_resources_bundle_dto import PlayerResourceBundleDto
 from dto.turn_context_dto import TurnContextDto
-from game_engine.models.cell import Cell
+from game_engine.models.cell.cell import Cell
 from game_engine.models.turn_state import TurnState
 from utils.board_utils import to_client_board_dto
 

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from dto.coordinates_dto import CoordinatesDto
-from game_engine.models.cell import Cell
+from game_engine.models.cell.cell import Cell
 
 
 @dataclass

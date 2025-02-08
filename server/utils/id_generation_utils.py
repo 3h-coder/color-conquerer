@@ -3,7 +3,7 @@ from enum import StrEnum
 
 from dto.queue_player_dto import QueuePlayerDto
 from dto.user_dto import UserDto
-from game_engine.models.cell import Cell
+from game_engine.models.cell.cell import Cell
 from game_engine.models.match_context import MatchContext
 from game_engine.models.room import Room
 

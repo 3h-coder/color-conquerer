@@ -2,7 +2,7 @@
 Contains the core cell mechanics methods, such as moving a cell, spawning a cell, and triggering a cell attack.
 """
 
-from game_engine.models.cell import Cell
+from game_engine.models.cell.cell import Cell
 from game_engine.models.match_context import MatchContext
 
 

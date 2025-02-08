@@ -6,7 +6,7 @@ from dto.spell_dto import SpellDto
 from game_engine.models.spells.spell_id import Spell_ID
 
 if TYPE_CHECKING:
-    from game_engine.models.cell import Cell
+    from game_engine.models.cell.cell import Cell
 
 
 class Spell:

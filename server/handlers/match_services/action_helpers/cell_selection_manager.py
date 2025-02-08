@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from dto.server_only.match_action_dto import MatchActionDto
-from game_engine.models.cell import Cell
+from game_engine.models.cell.cell import Cell
 from handlers.match_services.action_helpers.action_manager import ActionManager
 from handlers.match_services.action_helpers.error_messages import ErrorMessages
 from handlers.match_services.action_helpers.player_mode import PlayerMode

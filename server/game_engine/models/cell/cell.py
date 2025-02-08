@@ -1,36 +1,11 @@
 from dataclasses import dataclass
-from enum import IntEnum
 
+from dto.cell_dto import CellDto
 from dto.player_dto import PlayerDto
+from game_engine.models.cell.cell_owner import CellOwner
+from game_engine.models.cell.cell_state import CellState
+from game_engine.models.cell.cell_transient_state import CellTransientState
 from game_engine.models.player import Player
-
-
-# The following states are temporary and meant to be sent to
-# the player whose turn it is to inform him of the
-# possible actions he can take.
-class CellTransientState(IntEnum):
-    NONE = 0
-    SELECTED = 1
-    CAN_BE_MOVED_INTO = 2
-    CAN_BE_SPAWNED_INTO = 3
-    CAN_BE_ATTACKED = 4
-    CAN_BE_SPELL_TARGETTED = 5
-
-
-class CellState(IntEnum):
-    NONE = 0
-    # A cell that was just spawned and shouldn't be able to move nor attack
-    FRESHLY_SPAWNED = 1
-    # For idle cells, whenever you spawn on it, the player gets 1 mana point
-    MANA_BUBBLE = 2
-    # Will explode when spwaned upon or moved into
-    MINE_TRAP = 3
-
-
-class CellOwner(IntEnum):
-    NONE = 0
-    PLAYER_1 = 1
-    PLAYER_2 = 2
 
 
 @dataclass
@@ -59,6 +34,16 @@ class Cell:
             f"Cell(owner: {self.owner}, is_master: {self.is_master}, "
             f"row_index: {self.row_index}, column_index: {self.column_index}, "
             f"state: {self.state}, transient_state: {self.transient_state}, id: {self.id})"
+        )
+
+    def to_dto(self):
+        return CellDto(
+            self.owner,
+            self.is_master,
+            self.row_index,
+            self.column_index,
+            self.state,
+            self.transient_state,
         )
 
     def clone(self):

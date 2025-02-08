@@ -1,5 +1,5 @@
 from constants.game_constants import BOARD_SIZE
-from game_engine.models.cell import Cell
+from game_engine.models.cell.cell import Cell
 
 
 def create_starting_board_array():

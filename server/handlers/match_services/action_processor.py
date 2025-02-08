@@ -3,7 +3,7 @@ from dto.player_resources_dto import PlayerResourcesDto
 from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_context_dto import MatchContextDto
 from game_engine.cell_actions import move_cell, spawn_cell, trigger_cell_attack
-from game_engine.models.cell import Cell
+from game_engine.models.cell.cell import Cell
 from game_engine.models.match_context import MatchContext
 from game_engine.models.player_resources import PlayerResources
 from game_engine.models.spells.spell_factory import get_spell

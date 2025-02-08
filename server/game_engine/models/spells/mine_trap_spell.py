@@ -5,7 +5,7 @@ from game_engine.models.spells.spell import Spell
 from game_engine.models.spells.spell_id import Spell_ID
 
 if TYPE_CHECKING:
-    from game_engine.models.cell import Cell
+    from game_engine.models.cell.cell import Cell
 
 
 class MineTrapSpell(Spell):
