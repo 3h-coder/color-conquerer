@@ -5,7 +5,6 @@ import PlayerHPAndMPInfo from "./PlayerHPAndMPInfo";
 export default function MyPlayerInfo() {
     const { isPlayer1 } = usePlayerInfo();
     const { playerResourceBundle } = usePlayersGameInfo();
-    console.log("The playerResourceBundle value is", playerResourceBundle);
 
     const playerGameInfo = isPlayer1
         ? playerResourceBundle.player1Resources

@@ -2,8 +2,8 @@
 Contains the core cell mechanics methods, such as moving a cell, spawning a cell, and triggering a cell attack.
 """
 
-from dto.server_only.match_context_dto import MatchContextDto
 from game_engine.models.cell import Cell
+from game_engine.models.match_context import MatchContext
 
 
 def move_cell(
@@ -57,12 +57,12 @@ def trigger_cell_attack(
     attacking_col_index,
     target_row_index,
     target_col_index,
-    match_info: MatchContextDto,
+    match_info: MatchContext,
 ):
     """
     Triggers an attack between two cells on the board.
     """
-    board: list[list[Cell]] = match_info.boardArray
+    board: list[list[Cell]] = match_info.board_array
     attacking_cell: Cell = board[attacking_row_index][attacking_col_index]
     target_cell: Cell = board[target_row_index][target_col_index]
 
@@ -72,8 +72,8 @@ def trigger_cell_attack(
     attacking_is_master = attacking_cell.is_master
     target_is_master = target_cell.is_master
 
-    player1_game_info = match_info.get_player_game_info(player1=True)
-    player2_game_info = match_info.get_player_game_info(player1=False)
+    player1_game_info = match_info.get_player_resources(player1=True)
+    player2_game_info = match_info.get_player_resources(player1=False)
 
     attacker_game_info = (
         player1_game_info if attacking_cell.belongs_to_player_1() else player2_game_info
@@ -85,15 +85,15 @@ def trigger_cell_attack(
     )
 
     if attacking_is_master and target_is_master:
-        attacker_game_info.currentHP -= 1
-        target_game_info.currentHP -= 1
+        attacker_game_info.current_hp -= 1
+        target_game_info.current_hp -= 1
 
     elif attacking_is_master:
-        attacker_game_info.currentHP -= 1
+        attacker_game_info.current_hp -= 1
         target_cell.set_idle()  # target cell is destroyed
 
     elif target_is_master:
-        target_game_info.currentHP -= 1
+        target_game_info.current_hp -= 1
         attacking_cell.set_idle()  # attacking cell is destroyed
 
     else:
@@ -102,7 +102,7 @@ def trigger_cell_attack(
 
     # The following code is technically not necessary as the game should end if a player's HP reaches 0,
     # but it's a good practice to keep the board consistent.
-    if attacker_game_info.currentHP <= 0:
+    if attacker_game_info.current_hp <= 0:
         attacking_cell.set_idle()
-    if target_game_info.currentHP <= 0:
+    if target_game_info.current_hp <= 0:
         target_cell.set_idle()

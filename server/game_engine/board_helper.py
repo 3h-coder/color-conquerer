@@ -1,4 +1,4 @@
-from constants.match_constants import BOARD_SIZE
+from constants.game_constants import BOARD_SIZE
 from game_engine.models.cell import Cell
 
 

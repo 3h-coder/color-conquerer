@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 
-from constants.match_constants import MAX_HP_VALUE, MAX_MP_VALUE
+from constants.game_constants import MAX_HP_VALUE, MAX_MP_VALUE
 from dto.player_resources_dto import PlayerResourcesDto
-from game_engine.models.spells.spell_factory import get_initial_spell_deck
+from dto.spell_dto import SpellDto
+from game_engine.models.spells.spell_factory import get_initial_spell_deck, get_spell
 from game_engine.models.spells.spell_id import Spell_ID
 
 
@@ -17,6 +18,7 @@ class PlayerResources:
     current_hp: int
     max_mp: int
     current_mp: int
+    # Spell id | count
     spells: dict[Spell_ID, int]
 
     @staticmethod
@@ -35,5 +37,15 @@ class PlayerResources:
             currentHP=self.current_hp,
             maxMP=self.max_mp,
             currentMP=self.current_mp,
-            spells=self.spells,
+            spells=self._convert_spells_to_dto_list(),
         )
+
+    def _convert_spells_to_dto_list(self):
+        result: list[SpellDto] = []
+
+        for spell_id in self.spells:
+            count = self.spells[spell_id]
+            spell = get_spell(spell_id)
+            result.append(spell.to_dto(count))
+
+        return result

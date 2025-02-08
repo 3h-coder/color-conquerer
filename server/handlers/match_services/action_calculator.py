@@ -1,5 +1,5 @@
 from config.logging import get_configured_logger
-from constants.match_constants import BOARD_SIZE
+from constants.game_constants import BOARD_SIZE
 from dto.server_only.match_action_dto import MatchActionDto
 from game_engine.models.cell import Cell
 from game_engine.models.match_context import MatchContext
