@@ -87,8 +87,8 @@ def test_successful_registration_puts_queuer_in_an_open_room(
     assert len(room_handler.closed_rooms) == 0
     assert len(room_handler.open_rooms) == 1
 
-    open_room_dto = next(iter(room_handler.open_rooms.values()))
-    assert queue_player_dto.user == open_room_dto.player1.user
+    open_room = next(iter(room_handler.open_rooms.values()))
+    assert queue_player_dto.user == open_room.player1_queue_dto.user
 
 
 def test_two_players_queueing_starts_a_match(
