@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dto.server_only.match_context_dto import MatchContextDto
+from dto.match_context_dto import MatchContextDto
 from game_engine.board_helper import create_starting_board_array
 from game_engine.models.cell.cell import Cell
 from game_engine.models.player import Player

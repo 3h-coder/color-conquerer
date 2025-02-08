@@ -4,9 +4,9 @@ from flask_socketio import emit, join_room
 from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.client_stored_match_info_dto import ClientStoredMatchInfoDto
+from dto.error_dto import ErrorDto
 from dto.player_dto import PlayerDto
 from dto.queue_player_dto import QueuePlayerDto
-from dto.server_only.error_dto import ErrorDto
 from events.events import Events
 from exceptions.queue_error import QueueError
 from game_engine.models.player import Player
