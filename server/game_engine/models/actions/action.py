@@ -1,22 +1,34 @@
-from dataclasses import dataclass
-
 from dto.coordinates_dto import CoordinatesDto
 from game_engine.models.cell.cell import Cell
 
 
-@dataclass
 class Action:
     """
     Base class for all actions
     """
 
-    from_player1: bool
-    is_direct: bool
-    impacted_coords: CoordinatesDto
-    mana_cost: int
+    DEFAULT_MANA_COST = 0
 
-    @classmethod
-    def calculate(cls):
+    def __init__(
+        self,
+        from_player1: bool,
+        is_direct: bool,
+        impacted_coords: CoordinatesDto,
+    ):
+        self.from_player1 = from_player1
+        self.is_direct = is_direct
+        self.impacted_coords = impacted_coords
+        self.mana_cost = self.DEFAULT_MANA_COST
+
+    def to_dto(self):
+        raise NotImplementedError
+
+    @staticmethod
+    def create(*args, **kwargs) -> "Action":
+        raise NotImplementedError
+
+    @staticmethod
+    def calculate(*args, **kwargs) -> set["Action"]:
         """
         Returns a list of instances of the class based on the given parameters.
         """
