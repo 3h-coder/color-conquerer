@@ -1,4 +1,3 @@
-from threading import Event
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from dto.cell_dto import CellDto
-from dto.player_dto import PlayerDto
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
 from game_engine.models.cell.cell_transient_state import CellTransientState

@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from config.logging import get_configured_logger
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit

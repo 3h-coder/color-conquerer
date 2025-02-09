@@ -6,7 +6,6 @@ from dto.server_only.match_closure_dto import EndingReason
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.cell_attack import CellAttack
 from game_engine.models.actions.cell_movement import CellMovement
-from game_engine.models.player import Player
 from handlers.match_services.action_helpers.cell_selection_manager import (
     CellSelectionManager,
 )

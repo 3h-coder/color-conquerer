@@ -1,9 +1,9 @@
 import { CellDto } from "./CellDto";
-import { PartialMatchActionDto } from "./PartialMatchActionDto";
+import { MatchActionDto } from "./MatchActionDto";
 import { TurnContextDto } from "./TurnContextDto";
 
 export interface ProcessedActionDto {
-    processedAction: PartialMatchActionDto;
+    processedAction: MatchActionDto;
     playerMode: number;
     updatedTurnInfo: TurnContextDto;
     overridingTransientBoard: CellDto[][] | null;
