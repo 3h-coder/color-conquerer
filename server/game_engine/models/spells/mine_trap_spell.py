@@ -26,10 +26,10 @@ class MineTrapSpell(Spell):
             mana_cost=self.MANA_COST,
         )
 
-    def get_possible_targets(self, board: list[list["Cell"]]):
+    def get_possible_targets(self, transient_board: list[list["Cell"]]):
         possible_targets = []
 
-        for row in board:
+        for row in transient_board:
             for cell in row:
                 if cell.is_owned():
                     continue

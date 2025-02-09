@@ -2,10 +2,10 @@ import functools
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
-from dto.partial_match_action_dto import PartialMatchActionDto
 from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_action_dto import ProcessedActionDto
-from dto.server_only.match_action_dto import MatchActionDto
+from game_engine.models.actions.action import Action
+from handlers.match_services.action_helpers.player_mode import PlayerMode
 from handlers.match_services.action_helpers.server_mode import ServerMode
 from handlers.match_services.action_helpers.transient_turn_state_holder import (
     TransientTurnStateHolder,
@@ -56,7 +56,7 @@ class ActionManager(TransientTurnStateHolder):
         return wrapper
 
     def validate_and_process_action(
-        self, action: MatchActionDto, server_mode=ServerMode.SHOW_PROCESSED_ACTION
+        self, action: Action, server_mode=ServerMode.SHOW_PROCESSED_ACTION
     ):
         self._match_actions_service.validate_and_process_action(action, server_mode)
 
@@ -108,11 +108,11 @@ class ActionManager(TransientTurnStateHolder):
                 self._room_id,
             )
 
-    def _get_processed_action_dto(self, player_mode, processed_action):
+    def _get_processed_action_dto(
+        self, player_mode: PlayerMode, processed_action: Action
+    ):
         return ProcessedActionDto(
-            processedAction=PartialMatchActionDto.from_match_action_dto(
-                processed_action
-            ),
+            processedAction=processed_action.to_dto(),
             playerMode=player_mode,
             updatedTurnInfo=self._match.get_turn_context_dto(),
             overridingTransientBoard=None,

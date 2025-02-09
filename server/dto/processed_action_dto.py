@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
 from dto.cell_dto import CellDto
-from dto.partial_match_action_dto import PartialMatchActionDto
+from dto.match_action_dto import MatchActionDto
 from dto.turn_context_dto import TurnContextDto
 
 
@@ -12,7 +12,7 @@ class ProcessedActionDto(BaseDto):
     Meant to be sent to the client.
     """
 
-    processedAction: PartialMatchActionDto
+    processedAction: MatchActionDto
     playerMode: int
     updatedTurnInfo: TurnContextDto
     # If the server mode is set to SHOW_PROCESSED_AND_POSSIBLE_ACTIONS, this board

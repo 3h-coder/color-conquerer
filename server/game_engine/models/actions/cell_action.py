@@ -1,5 +1,5 @@
 from dto.coordinates_dto import CoordinatesDto
-from dto.server_only.match_action_dto import ActionType, MatchActionDto
+from dto.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
 
 
@@ -23,8 +23,5 @@ class CellAction(Action):
             type=None,
             originatingCellCoords=self.originating_coords,
             impactedCoords=self.impacted_coords,
-            isDirect=self.is_direct,
-            manaCost=self.mana_cost,
-            cellId=self.cell_id,
             spellId=None,
         )

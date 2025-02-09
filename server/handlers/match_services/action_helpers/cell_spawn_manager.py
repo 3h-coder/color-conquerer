@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
+from game_engine.action_calculation import get_possible_spawns
 from handlers.match_services.action_helpers.action_manager import ActionManager
 from handlers.match_services.action_helpers.player_mode import PlayerMode
 
@@ -46,10 +47,11 @@ class CellSpawnManager(ActionManager):
         """
         player = self.get_current_player()
         transient_board_array = self.get_transient_board_array()
-        action_calculator = self._match_actions_service.action_calculator
 
-        possible_spawns = action_calculator.calculate_possible_spawns(
-            player.is_player_1, transient_board_array
-        )
+        possible_spawns = get_possible_spawns(player.is_player_1, transient_board_array)
+
         self.set_player_mode(PlayerMode.CELL_SPAWN)
+        self._logger.debug(
+            f"Setting the possible spawns ({len(possible_spawns)} in total)"
+        )
         self.set_possible_actions(possible_spawns, update_server_mode)

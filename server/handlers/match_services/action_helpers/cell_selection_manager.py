@@ -1,7 +1,11 @@
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
-from dto.server_only.match_action_dto import MatchActionDto
+from game_engine.action_calculation import get_possible_movements_and_attacks
+from game_engine.models.actions.cell_attack import CellAttack
+from game_engine.models.actions.cell_movement import CellMovement
+from game_engine.models.actions.cell_spawn import CellSpawn
+from game_engine.models.actions.spell_casting import SpellCasting
 from game_engine.models.cell.cell import Cell
 from handlers.match_services.action_helpers.action_manager import ActionManager
 from handlers.match_services.action_helpers.error_messages import ErrorMessages
@@ -23,6 +27,7 @@ class CellSelectionManager(ActionManager):
     def __init__(self, match_actions_service: "MatchActionsService"):
         super().__init__(match_actions_service)
         self._logger = get_configured_logger(__name__)
+        self._turn_state = self._match_actions_service.turn_state
 
     def handle_cell_selection(self, cell_row: int, cell_col: int):
         """
@@ -61,7 +66,7 @@ class CellSelectionManager(ActionManager):
             self._set_selected_cell(cell)
             possible_actions = self._get_possible_movements_and_attacks(player1)
             if possible_actions:
-                self.set_possible_actions(set(possible_actions))
+                self.set_possible_actions(possible_actions)
             else:
                 self.set_player_as_idle()
 
@@ -76,7 +81,7 @@ class CellSelectionManager(ActionManager):
             self.set_error_message(ErrorMessages.SELECT_IDLE_CELL)
 
         elif player_mode == PlayerMode.SPELL_SELECTED:
-            spell_action = MatchActionDto.spell(
+            spell_action = SpellCasting.create(
                 player1,
                 self.get_selected_spell(),
                 cell.row_index,
@@ -98,7 +103,7 @@ class CellSelectionManager(ActionManager):
 
         selected_cell = self.get_selected_cell()
         if player_mode == PlayerMode.OWN_CELL_SELECTED:
-            attack = MatchActionDto.cell_attack(
+            attack = CellAttack.create(
                 player1,
                 selected_cell.id,
                 selected_cell.row_index,
@@ -115,7 +120,7 @@ class CellSelectionManager(ActionManager):
             current_player = self.get_current_player()
             selected_spell = self.get_selected_spell()
 
-            spell_action = MatchActionDto.spell(
+            spell_action = SpellCasting.create(
                 current_player.is_player_1,
                 selected_spell,
                 cell.row_index,
@@ -136,7 +141,7 @@ class CellSelectionManager(ActionManager):
 
         if player_mode == PlayerMode.OWN_CELL_SELECTED:
             selected_cell = self.get_selected_cell()
-            movement = MatchActionDto.cell_movement(
+            movement = CellMovement.create(
                 player1,
                 selected_cell.id,
                 selected_cell.row_index,
@@ -147,9 +152,7 @@ class CellSelectionManager(ActionManager):
             self.validate_and_process_action(movement)
 
         elif player_mode == PlayerMode.CELL_SPAWN:
-            spawn = MatchActionDto.cell_spawn(
-                player1, cell.row_index, cell.column_index
-            )
+            spawn = CellSpawn.create(player1, cell.row_index, cell.column_index)
             self.validate_and_process_action(
                 spawn, server_mode=ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
             )
@@ -158,7 +161,7 @@ class CellSelectionManager(ActionManager):
             current_player = self.get_current_player()
             selected_spell = self.get_selected_spell()
 
-            spell_action = MatchActionDto.spell(
+            spell_action = SpellCasting.create(
                 current_player.is_player_1,
                 selected_spell,
                 cell.row_index,
@@ -174,26 +177,12 @@ class CellSelectionManager(ActionManager):
 
         Note : A freshly spawned cell cannot move or attack.
         """
-        selected_cell = self.get_selected_cell()
-        if selected_cell.is_freshly_spawned():
-            return []
-
-        action_calculator = self._match_actions_service.action_calculator
-        transient_board = self.get_transient_board_array()
-        movements: list[MatchActionDto] = []
-        attacks: list[MatchActionDto] = []
-
-        if not self._has_already_moved_this_turn(selected_cell):
-            movements = action_calculator.calculate_possible_movements(
-                selected_cell, player1, transient_board
-            )
-
-        if not self._has_already_attacked_this_turn(selected_cell):
-            attacks = action_calculator.calculate_possible_attacks(
-                selected_cell, player1, transient_board
-            )
-
-        return movements + attacks
+        return get_possible_movements_and_attacks(
+            player1,
+            self.get_selected_cell(),
+            self.get_transient_board_array(),
+            self._turn_state,
+        )
 
     @ActionManager.initialize_transient_board
     def _set_selected_cell(self, cell: Cell):
@@ -206,15 +195,3 @@ class CellSelectionManager(ActionManager):
             cell.column_index
         ]
         corresponding_cell.set_selected()
-
-    def _has_already_moved_this_turn(self, cell: Cell):
-        return (
-            cell is not None
-            and cell.id in self._match_actions_service.turn_state.movements
-        )
-
-    def _has_already_attacked_this_turn(self, cell: Cell):
-        return (
-            cell is not None
-            and cell.id in self._match_actions_service.turn_state.attacks
-        )

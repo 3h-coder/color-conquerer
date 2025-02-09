@@ -1,4 +1,4 @@
-from dto.server_only.match_action_dto import MatchActionDto
+from game_engine.models.actions.action import Action
 from game_engine.models.cell.cell import Cell
 from game_engine.models.spells.spell import Spell
 from handlers.match_services.action_helpers.player_mode import PlayerMode
@@ -16,10 +16,10 @@ class TransientTurnState:
 
     def __init__(self):
         # Used to confirm whether an action can be done or not
-        self.possible_actions: set[MatchActionDto] = set()
+        self.possible_actions: set[Action] = set()
         # Actions that have been validated and applied,
         # overridden each time a set of action is processed
-        self.processed_action: MatchActionDto | None = None
+        self.processed_action: Action | None = None
         self.player_mode = PlayerMode.IDLE
         self.server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         # Board copy to save and send to the client the transient states
@@ -42,9 +42,7 @@ class TransientTurnState:
         self.selected_spell = None
         self.error_msg = ""
 
-    def set_possible_actions(
-        self, actions: set[MatchActionDto], update_server_mode=True
-    ):
+    def set_possible_actions(self, actions: set[Action], update_server_mode=True):
         """
         Stores all of the possible actions and sets the server mode accordingly.
         """

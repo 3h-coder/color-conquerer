@@ -1,8 +1,9 @@
 from constants.game_constants import BOARD_SIZE
 from dto.coordinates_dto import CoordinatesDto
-from dto.server_only.match_action_dto import ActionType
+from dto.match_action_dto import ActionType
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.cell.cell import Cell
+from game_engine.models.match_context import MatchContext
 from utils.board_utils import is_out_of_bounds
 
 
@@ -19,7 +20,10 @@ class CellMovement(CellAction):
             and other.originating_coords == self.originating_coords
         )
 
-    def to_dto():
+    def __hash__(self):
+        return hash((self.cell_id, self.impacted_coords, self.originating_coords))
+
+    def to_dto(self):
         match_action_dto = super().to_dto()
         match_action_dto.type = ActionType.CELL_MOVE
         return match_action_dto
@@ -45,7 +49,6 @@ class CellMovement(CellAction):
     def calculate(
         cell: Cell,
         player1: bool,
-        board_array: list[list[Cell]],
         transient_board_array: list[list[Cell]],
     ):
         """
@@ -53,22 +56,22 @@ class CellMovement(CellAction):
         """
         row_index, column_index = cell.row_index, cell.column_index
 
-        movements: list[CellMovement] = []
+        movements: set[CellMovement] = set()
         primary_directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # down, up, left, right
         for direction in primary_directions:
             new_row_index = row_index + direction[0]
             new_col_index = column_index + direction[1]
 
             if not CellMovement._is_valid_movement_target(
-                new_row_index, new_col_index, cell
+                new_row_index, new_col_index, cell, transient_board_array
             ):
                 continue
 
-            target_cell: Cell = board_array[new_row_index][new_col_index]
+            target_cell: Cell = transient_board_array[new_row_index][new_col_index]
 
             # Master cell extra steps
             if cell.is_master:
-                movements.extend(
+                movements = movements.union(
                     CellMovement._calculate_extra_master_movements(
                         cell, target_cell, player1, transient_board_array
                     )
@@ -80,7 +83,7 @@ class CellMovement(CellAction):
                 ]
                 transient_board_cell.set_can_be_moved_into()
 
-                movements.append(
+                movements.add(
                     CellMovement.create(
                         player1,
                         cell.id,
@@ -91,24 +94,55 @@ class CellMovement(CellAction):
                     )
                 )
 
-        return set(movements)
+        return movements
+
+    def apply(self, match_context: MatchContext):
+        """
+        Moves a cell from the given original coordinates to the given new coordinates.
+
+        This method does nothing if the cell to move is idle, and leaves an idle cell at the original coordinates otherwise.
+        """
+        board_array = match_context.board_array
+        originating_coords = self.originating_coords
+        target_coords = self.impacted_coords
+
+        cell_original_coords = board_array[originating_coords.rowIndex][
+            originating_coords.columnIndex
+        ]
+
+        if not cell_original_coords.is_owned():
+            return
+
+        cell_new_coords = board_array[target_coords.rowIndex][target_coords.columnIndex]
+        cell_id = cell_original_coords.id
+        is_master = cell_original_coords.is_master
+
+        if cell_original_coords.belongs_to_player_1():
+            cell_new_coords.set_owned_by_player1(cell_id)
+            cell_new_coords.is_master = is_master
+
+        elif cell_original_coords.belongs_to_player_2():
+            cell_new_coords.set_owned_by_player2(cell_id)
+            cell_new_coords.is_master = is_master
+
+        cell_original_coords.set_idle()
+        cell_new_coords.clear_state()
 
     @staticmethod
     def _calculate_extra_master_movements(
         master_cell: Cell,
         target_cell: Cell,
         player1: bool,
-        board_array: list[list[Cell]],
         transient_board_array: list[list[Cell]],
     ):
         """
         Gets the additional movements that a master cell may perform from a primary direction
         neighbour cell.
         """
-        additional_movements = CellMovement.calculate(
-            target_cell, player1, board_array, transient_board_array
+        additional_movements: set[CellMovement] = CellMovement.calculate(
+            target_cell, player1, transient_board_array
         )
-        return [
+        return {
             CellMovement.create(
                 player1,
                 master_cell.id,
@@ -118,7 +152,7 @@ class CellMovement(CellAction):
                 move.impacted_coords.columnIndex,
             )
             for move in additional_movements
-        ]
+        }
 
     @staticmethod
     def _is_valid_movement_target(

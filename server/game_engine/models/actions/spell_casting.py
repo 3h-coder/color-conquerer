@@ -1,5 +1,5 @@
 from dto.coordinates_dto import CoordinatesDto
-from dto.server_only.match_action_dto import ActionType, MatchActionDto
+from dto.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
 from game_engine.models.cell.cell import Cell
 from game_engine.models.spells.spell import Spell
@@ -30,15 +30,15 @@ class SpellCasting(Action):
             and other.impacted_coords == self.impacted_coords
         )
 
+    def __hash__(self):
+        return hash((self.spell_id, self.impacted_coords))
+
     def to_dto(self):
         return MatchActionDto(
             player1=self.from_player1,
             type=ActionType.PLAYER_SPELL,
             originatingCellCoords=None,
             impactedCoords=self.impacted_coords,
-            isDirect=self.is_direct,
-            manaCost=self.mana_cost,
-            cellId=None,
             spellId=self.spell_id,
         )
 

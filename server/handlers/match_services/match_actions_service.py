@@ -2,10 +2,11 @@ import functools
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
-from dto.server_only.match_action_dto import ActionType, MatchActionDto
 from dto.server_only.match_closure_dto import EndingReason
+from game_engine.models.actions.action import Action
+from game_engine.models.actions.cell_attack import CellAttack
+from game_engine.models.actions.cell_movement import CellMovement
 from game_engine.models.player import Player
-from handlers.match_services.action_calculator import ActionCalculator
 from handlers.match_services.action_helpers.cell_selection_manager import (
     CellSelectionManager,
 )
@@ -20,7 +21,7 @@ from handlers.match_services.action_helpers.transient_turn_state import (
 from handlers.match_services.action_helpers.transient_turn_state_holder import (
     TransientTurnStateHolder,
 )
-from handlers.match_services.action_processor import ActionProcessor
+from handlers.match_services.action_helpers.action_processor import ActionProcessor
 from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:
@@ -41,7 +42,6 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         # region Match persistent fields
 
         self._board_array = self.match.match_context.board_array
-        self.action_calculator = ActionCalculator(self.match_context)
         self._action_processor = ActionProcessor(self.match_context)
 
         # Dictionary storing all of the actions that happened during a match.
@@ -50,10 +50,6 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
 
         # endregion
 
-        # region Turn persistent fields
-        # ⚠️ Any field below is meant to be reset in the reset_for_new_turn method ⚠️
-
-        # used to track all the cells that moved during the turn
         self.turn_state = self.match.turn_state
 
         self._cell_selection_manager = CellSelectionManager(self)
@@ -99,8 +95,8 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         Meant to be used as a callback for the turn watcher service.
         """
         self.actions_per_turn[self.match_context.current_turn] = []
-        self.turn_state.reset_for_new_turn()
         self.current_player = self.match.get_current_player()
+        self.turn_state.reset_for_new_turn()
         self.set_player_as_idle()
 
     @_entry_point
@@ -126,7 +122,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         self._spell_manager.handle_spell_request(spell_id)
 
     def validate_and_process_action(
-        self, action: MatchActionDto, server_mode=ServerMode.SHOW_PROCESSED_ACTION
+        self, action: Action, server_mode=ServerMode.SHOW_PROCESSED_ACTION
     ):
         """
         Validates the given action and processes it if it is valid.
@@ -138,7 +134,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
             self.set_error_message(ErrorMessages.INVALID_ACTION)
             return
 
-        if action.manaCost > self.current_player.resources.current_mp:
+        if action.mana_cost > self.current_player.resources.current_mp:
             self.set_error_message(ErrorMessages.NOT_ENOUGH_MANA)
             return
 
@@ -146,7 +142,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
 
     def _process_action(
         self,
-        action: MatchActionDto,
+        action: Action,
         server_mode=ServerMode.SHOW_PROCESSED_ACTION,
     ):
         """
@@ -171,7 +167,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         self._register_processed_action(processed_action)
         self._calculate_post_processing_possible_actions()
 
-    def _register_processed_action(self, action: MatchActionDto):
+    def _register_processed_action(self, action: Action):
         """
         Adds a processed action to the turn and match actions fields.
         """
@@ -181,12 +177,11 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
 
         self.actions_per_turn[current_turn].append(action)
 
-        cell_id = action.cellId
-        if action.type == ActionType.CELL_MOVE:
-            self.turn_state.movements.append(cell_id)
+        if isinstance(action, CellMovement):
+            self.turn_state.movements.append(action.cell_id)
 
-        elif action.type == ActionType.CELL_ATTACK:
-            self.turn_state.attacks.append(cell_id)
+        elif isinstance(action, CellAttack):
+            self.turn_state.attacks.append(action.cell_id)
 
     def _calculate_post_processing_possible_actions(self):
         """

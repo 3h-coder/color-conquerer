@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
+from game_engine.action_calculation import get_possible_spell_castings
 from game_engine.models.spells.spell_factory import get_spell
 from handlers.match_services.action_helpers.action_manager import ActionManager
 from handlers.match_services.action_helpers.player_mode import PlayerMode
@@ -44,11 +45,10 @@ class SpellManager(ActionManager):
         the potential targets of the spell.
         """
         player = self.get_current_player()
-        action_calculator = self._match_actions_service.action_calculator
         transient_board_array = self.get_transient_board_array()
         spell = get_spell(spell_id)
 
-        possible_spell_invocations = action_calculator.calculate_possible_spell_targets(
+        possible_spell_invocations = get_possible_spell_castings(
             spell, player.is_player_1, transient_board_array
         )
 

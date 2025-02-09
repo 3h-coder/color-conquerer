@@ -1,5 +1,5 @@
 from dto.coordinates_dto import CoordinatesDto
-from game_engine.models.cell.cell import Cell
+from game_engine.models.match_context import MatchContext
 
 
 class Action:
@@ -34,7 +34,7 @@ class Action:
         """
         raise NotImplementedError
 
-    def process(self, board: list[list[Cell]]):
+    def apply(self, match_context: MatchContext):
         """
         Applies the action on the given board.
         """

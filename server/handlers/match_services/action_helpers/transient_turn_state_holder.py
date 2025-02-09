@@ -1,4 +1,4 @@
-from dto.server_only.match_action_dto import MatchActionDto
+from game_engine.models.actions.action import Action
 from game_engine.models.cell.cell import Cell
 from game_engine.models.spells.spell import Spell
 from handlers.match_services.action_helpers.player_mode import PlayerMode
@@ -32,15 +32,13 @@ class TransientTurnStateHolder:
     def get_possible_actions(self):
         return self.transient_turn_state.possible_actions
 
-    def set_possible_actions(
-        self, actions: set[MatchActionDto], update_server_mode=True
-    ):
+    def set_possible_actions(self, actions: set[Action], update_server_mode=True):
         self.transient_turn_state.set_possible_actions(actions, update_server_mode)
 
     def get_processed_action(self):
         return self.transient_turn_state.processed_action
 
-    def set_processed_action(self, action: MatchActionDto):
+    def set_processed_action(self, action: Action):
         self.transient_turn_state.processed_action = action
 
     def get_player_mode(self):

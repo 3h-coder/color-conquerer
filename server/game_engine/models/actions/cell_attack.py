@@ -1,7 +1,8 @@
 from dto.coordinates_dto import CoordinatesDto
-from dto.server_only.match_action_dto import ActionType
+from dto.match_action_dto import ActionType
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.cell.cell import Cell
+from game_engine.models.match_context import MatchContext
 from utils.board_utils import get_neighbours
 
 
@@ -17,6 +18,9 @@ class CellAttack(CellAction):
             and other.impacted_coords == self.impacted_coords
             and other.originating_coords == self.originating_coords
         )
+
+    def __hash__(self):
+        return hash((self.cell_id, self.impacted_coords, self.originating_coords))
 
     def to_dto(self):
         match_action_dto = super().to_dto()
@@ -44,7 +48,6 @@ class CellAttack(CellAction):
     def calculate(
         cell: Cell,
         from_player1: bool,
-        board_array: list[list[Cell]],
         transient_board_array: list[list[Cell]],
     ):
         """
@@ -54,7 +57,7 @@ class CellAttack(CellAction):
 
         attacks: set[CellAttack] = set()
         neighbours: list[Cell] = get_neighbours(
-            cell.row_index, cell.column_index, board_array
+            cell.row_index, cell.column_index, transient_board_array
         )
         for neighbour in neighbours:
             if not cell.is_hostile_to(neighbour):
@@ -76,3 +79,66 @@ class CellAttack(CellAction):
                 )
             )
         return attacks
+
+    def apply(self, match_context: MatchContext):
+        """
+        Triggers an attack between two cells on the board.
+        """
+        attacker_coords = self.originating_coords
+        target_coords = self.impacted_coords
+
+        attacking_row_index, attacking_col_index = (
+            attacker_coords.rowIndex,
+            attacker_coords.columnIndex,
+        )
+        target_row_index, target_col_index = (
+            target_coords.rowIndex,
+            target_coords.columnIndex,
+        )
+
+        board: list[list[Cell]] = match_context.board_array
+        attacking_cell: Cell = board[attacking_row_index][attacking_col_index]
+        target_cell: Cell = board[target_row_index][target_col_index]
+
+        if attacking_cell.owner == target_cell.owner:
+            return
+
+        attacking_is_master = attacking_cell.is_master
+        target_is_master = target_cell.is_master
+
+        player1_game_info = match_context.get_player_resources(player1=True)
+        player2_game_info = match_context.get_player_resources(player1=False)
+
+        attacker_game_info = (
+            player1_game_info
+            if attacking_cell.belongs_to_player_1()
+            else player2_game_info
+        )
+        target_game_info = (
+            player1_game_info
+            if attacker_game_info == player2_game_info
+            else player2_game_info
+        )
+
+        if attacking_is_master and target_is_master:
+            attacker_game_info.current_hp -= 1
+            target_game_info.current_hp -= 1
+
+        elif attacking_is_master:
+            attacker_game_info.current_hp -= 1
+            target_cell.set_idle()  # target cell is destroyed
+
+        elif target_is_master:
+            target_game_info.current_hp -= 1
+            attacking_cell.set_idle()  # attacking cell is destroyed
+
+        else:
+            attacking_cell.set_idle()
+            target_cell.set_idle()
+
+        # The following code is technically not necessary as the game should end if a player's HP reaches 0,
+        # but it's a good practice to keep the board consistent.
+        if attacker_game_info.current_hp <= 0:
+            attacking_cell.set_idle()
+        if target_game_info.current_hp <= 0:
+            target_cell.set_idle()
