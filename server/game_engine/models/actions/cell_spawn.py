@@ -4,8 +4,8 @@ from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
 from game_engine.models.cell.cell import Cell
+from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
-from utils.board_utils import get_cells_owned_by_player, get_neighbours
 
 
 @dataclass
@@ -54,26 +54,26 @@ class CellSpawn(Action):
     @staticmethod
     def calculate(
         from_player1: bool,
-        transient_board_array: list[list[Cell]],
+        transient_game_board: GameBoard,
     ):
         """
         Returns a set of spawns that a player can perform.
         """
         possible_spawns: set[CellSpawn] = set()
 
-        owned_cells = get_cells_owned_by_player(from_player1, transient_board_array)
+        owned_cells = transient_game_board.get_cells_owned_by_player(from_player1)
         for cell in owned_cells:
             row_index, column_index = cell.row_index, cell.column_index
-            neighbours: list[Cell] = get_neighbours(
-                row_index, column_index, transient_board_array
+            neighbours: list[Cell] = transient_game_board.get_neighbours(
+                row_index, column_index
             )
             for neighbour in neighbours:
                 if neighbour.is_owned():
                     continue
 
-                transient_board_cell = transient_board_array[neighbour.row_index][
-                    neighbour.column_index
-                ]
+                transient_board_cell = transient_game_board.get(
+                    neighbour.row_index, neighbour.column_index
+                )
                 transient_board_cell.set_can_be_spawned_into()
 
                 possible_spawns.add(
@@ -89,9 +89,9 @@ class CellSpawn(Action):
         Spawns a cell at the given coordinates for the given player.
         """
         target_coords = self.impacted_coords
-        cell = match_context.board_array[target_coords.rowIndex][
-            target_coords.columnIndex
-        ]
+        cell = match_context.game_board.get(
+            target_coords.rowIndex, target_coords.columnIndex
+        )
         if self.from_player1:
             cell.set_owned_by_player1()
             cell.set_freshly_spawned()

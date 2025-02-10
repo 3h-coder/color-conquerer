@@ -5,7 +5,7 @@ from game_engine.models.spells.spell import Spell
 from game_engine.models.spells.spell_id import Spell_ID
 
 if TYPE_CHECKING:
-    from game_engine.models.cell.cell import Cell
+    from game_engine.models.game_board import GameBoard
 
 
 class MineTrapSpell(Spell):
@@ -26,10 +26,10 @@ class MineTrapSpell(Spell):
             mana_cost=self.MANA_COST,
         )
 
-    def get_possible_targets(self, transient_board: list[list["Cell"]]):
+    def get_possible_targets(self, transient_board: "GameBoard"):
         possible_targets = []
 
-        for row in transient_board:
+        for row in transient_board.board:
             for cell in row:
                 if cell.is_owned():
                     continue
@@ -39,7 +39,7 @@ class MineTrapSpell(Spell):
 
         return possible_targets
 
-    def invoke(self, coordinates: CoordinatesDto, board: list[list["Cell"]]):
-        cell = board[coordinates.rowIndex][coordinates.columnIndex]
+    def invoke(self, coordinates: CoordinatesDto, board: "GameBoard"):
+        cell = board.get(coordinates.rowIndex, coordinates.columnIndex)
         cell.set_as_mine_trap()
         return board

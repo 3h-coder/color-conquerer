@@ -7,7 +7,6 @@ from constants.match_constants import TURN_DURATION_IN_S
 from dto.turn_context_dto import TurnContextDto
 from handlers.match_services.client_notifications import notify_turn_swap
 from handlers.match_services.service_base import ServiceBase
-from utils.board_utils import get_cells_owned_by_player
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -96,8 +95,8 @@ class TurnWatcherService(ServiceBase):
         Cells cannot move nor attack on the turn they are spawned, so
         we "wake them up" during the next turn.
         """
-        current_player_cells = get_cells_owned_by_player(
-            self.match_context.is_player1_turn, self.match_context.board_array
+        current_player_cells = self.match_context.game_board.get_cells_owned_by_player(
+            self.match_context.is_player1_turn,
         )
         for cell in current_player_cells:
             if cell.is_freshly_spawned():

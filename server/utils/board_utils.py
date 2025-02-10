@@ -1,57 +1,6 @@
 """
-Contains all utility methods relative to the game board, excluding game engine mechanics
-and cell manipulation.
+Contains all utility methods relative to 2D arrays.
 """
-
-from game_engine.models.cell.cell import Cell
-
-
-def copy_board(board: list[list[Cell]]):
-    return [[cell.clone() for cell in row] for row in board]
-
-
-def to_client_board_dto(board: list[list[Cell]]):
-    """
-    Converts a board of Cell objects to PartialCell to be sent to the client.
-    """
-    result: list[list[Cell]] = []
-    for row in board:
-        new_row = []
-        for cell in row:
-            new_row.append(cell.to_dto())
-        result.append(new_row)
-
-    return result
-
-
-def get_cells_owned_by_player(player1: bool, board: list[list[Cell]]):
-    """
-    Returns a list of cells owned by the given player.
-    """
-    return [
-        cell
-        for row in board
-        for cell in row
-        if (player1 and cell.belongs_to_player_1())
-        or (not player1 and cell.belongs_to_player_2())
-    ]
-
-
-def is_owned(row_index: int, col_index: int, board: list[list[Cell]]):
-    return board[row_index][col_index].is_owned()
-
-
-def is_out_of_bounds(index, board_size: int = None, square_board: list[list] = None):
-    if index < 0:
-        return True
-
-    if board_size is not None:
-        return index >= board_size
-
-    if square_board:
-        return index >= len(square_board[0])
-
-    return False
 
 
 def get_neighbours(row_index: int, column_index: int, board: list[list]):
@@ -75,3 +24,16 @@ def get_neighbours(row_index: int, column_index: int, board: list[list]):
             neighbors.append(board[r][c])
 
     return neighbors
+
+
+def is_out_of_bounds(index, board_size: int = None, square_board: list[list] = None):
+    if index < 0:
+        return True
+
+    if board_size is not None:
+        return index >= board_size
+
+    if square_board:
+        return index >= len(square_board[0])
+
+    return False

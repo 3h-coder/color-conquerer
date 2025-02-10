@@ -3,6 +3,7 @@ from game_engine.models.actions.action import Action
 from game_engine.models.actions.cell_movement import CellMovement
 from game_engine.models.actions.cell_spawn import CellSpawn
 from game_engine.models.cell.cell import Cell
+from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 from game_engine.models.player_resources import PlayerResources
 
@@ -13,8 +14,8 @@ def process_action(action: Action, match_context: MatchContext) -> Action:
     _process_player_mana(player_resources, action)
 
     if isinstance(action, (CellMovement, CellSpawn)):
-        board_array = match_context.board_array
-        _check_for_mana_bubble(player_resources, board_array, action.impacted_coords)
+        game_board = match_context.game_board
+        _check_for_mana_bubble(player_resources, game_board, action.impacted_coords)
 
     action.apply(match_context)
 
@@ -33,12 +34,12 @@ def _process_player_mana(player_resources: PlayerResources, action: Action):
 
 def _check_for_mana_bubble(
     player_resources: PlayerResources,
-    board_array: list[list[Cell]],
+    game_board: GameBoard,
     coords: CoordinatesDto,
 ):
     """
     Increases the player's mana by one if the target cell is a mana bubble.
     """
-    cell: Cell = board_array[coords.rowIndex][coords.columnIndex]
+    cell: Cell = game_board.get(coords.rowIndex, coords.columnIndex)
     if cell.is_mana_bubble():
         player_resources.current_mp += 1

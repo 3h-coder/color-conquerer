@@ -7,6 +7,7 @@ from game_engine.models.spells.spell_id import Spell_ID
 
 if TYPE_CHECKING:
     from game_engine.models.cell.cell import Cell
+    from game_engine.models.game_board import GameBoard
 
 
 class Spell:
@@ -32,8 +33,8 @@ class Spell:
             maxCount=self.ORIGINAL_COUNT,
         )
 
-    def get_possible_targets(self, board: list[list["Cell"]]) -> list["Cell"]:
+    def get_possible_targets(self, board: "GameBoard") -> list["Cell"]:
         raise NotImplementedError
 
-    def invoke(self, coordinates: CoordinatesDto, board: list[list["Cell"]]):
+    def invoke(self, coordinates: CoordinatesDto, board: "GameBoard"):
         raise NotImplementedError

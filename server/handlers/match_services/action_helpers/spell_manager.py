@@ -45,11 +45,11 @@ class SpellManager(ActionManager):
         the potential targets of the spell.
         """
         player = self.get_current_player()
-        transient_board_array = self.get_transient_board_array()
+        transient_game_board = self.get_transient_game_board()
         spell = get_spell(spell_id)
 
         possible_spell_invocations = get_possible_spell_castings(
-            spell, player.is_player_1, transient_board_array
+            spell, player.is_player_1, transient_game_board
         )
 
         self.set_player_mode(PlayerMode.SPELL_SELECTED)

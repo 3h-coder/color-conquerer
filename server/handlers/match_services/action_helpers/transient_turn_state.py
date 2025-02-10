@@ -1,5 +1,6 @@
 from game_engine.models.actions.action import Action
 from game_engine.models.cell.cell import Cell
+from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.spell import Spell
 from handlers.match_services.action_helpers.player_mode import PlayerMode
 from handlers.match_services.action_helpers.server_mode import ServerMode
@@ -24,7 +25,7 @@ class TransientTurnState:
         self.server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         # Board copy to save and send to the client the transient states
         # resulting from the possible actions.
-        self.transient_board_array: list[list[Cell]] | None = None
+        self.transient_game_bard: GameBoard | None = None
         # Applicable when the player mode is OWN_CELL_SELECTED
         self.selected_cell: Cell | None = None
         # Applicable when the player mode is SPELL_SELECTED
@@ -37,7 +38,7 @@ class TransientTurnState:
         self.server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         self.possible_actions = set()
         self.processed_action = None
-        self.transient_board_array = None
+        self.transient_game_bard = None
         self.selected_cell = None
         self.selected_spell = None
         self.error_msg = ""

@@ -46,9 +46,9 @@ class CellSpawnManager(ActionManager):
         the potential spawns.
         """
         player = self.get_current_player()
-        transient_board_array = self.get_transient_board_array()
+        transient_game_board = self.get_transient_game_board()
 
-        possible_spawns = get_possible_spawns(player.is_player_1, transient_board_array)
+        possible_spawns = get_possible_spawns(player.is_player_1, transient_game_board)
 
         self.set_player_mode(PlayerMode.CELL_SPAWN)
         self._logger.debug(

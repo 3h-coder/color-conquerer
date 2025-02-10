@@ -1,9 +1,8 @@
 from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
-from game_engine.models.cell.cell import Cell
+from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.spell import Spell
-from game_engine.models.spells.spell_id import Spell_ID
 
 
 class SpellCasting(Action):
@@ -56,13 +55,13 @@ class SpellCasting(Action):
     def calculate(
         spell: Spell,
         from_player1: bool,  # not used for now
-        transient_board_array: list[list[Cell]],
+        transient_game_board: GameBoard,
     ):
         """
         Returns a set of spell casting actions that can be performed on a cell.
         """
         possible_spell_targets: set[SpellCasting] = set()
-        possible_targets = spell.get_possible_targets(transient_board_array)
+        possible_targets = spell.get_possible_targets(transient_game_board)
 
         for target in possible_targets:
             possible_spell_targets.add(

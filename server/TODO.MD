@@ -1,7 +1,7 @@
 # Server
 
-- Move action calculation and validation from the match helpers to the game engine
-- Refactor the match action dtos + create the match actions in the game engine
+- Create a class for the board (and associated dto)
+- Implement spells
 
 
 # Client

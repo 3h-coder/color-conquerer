@@ -15,7 +15,6 @@ from handlers.match_services.client_notifications import (
     notify_possible_actions,
     notify_processed_action,
 )
-from utils.board_utils import copy_board, to_client_board_dto
 
 if TYPE_CHECKING:
     from handlers.match_services.match_actions_service import MatchActionsService
@@ -32,7 +31,7 @@ class ActionManager(TransientTurnStateHolder):
     def __init__(self, match_actions_service: "MatchActionsService"):
         super().__init__(match_actions_service.transient_turn_state)
         self._match_actions_service = match_actions_service
-        self._board_array = match_actions_service._board_array
+        self._game_board = match_actions_service._game_board
         self._match = match_actions_service.match
         self._room_id = match_actions_service.match.match_context.room_id
         self._logger = get_configured_logger(__name__)
@@ -49,8 +48,8 @@ class ActionManager(TransientTurnStateHolder):
 
         @functools.wraps(func)
         def wrapper(self: "ActionManager", *args, **kwargs):
-            if self.get_transient_board_array() is None:
-                self.set_transient_board_array(copy_board(self._board_array))
+            if self.get_transient_game_board() is None:
+                self.set_transient_game_board(self._game_board.clone_as_transient())
             return func(self, *args, **kwargs)
 
         return wrapper
@@ -119,9 +118,9 @@ class ActionManager(TransientTurnStateHolder):
         )
 
     def _get_client_friendly_transient_board(self):
-        transient_board_array = self.get_transient_board_array()
+        transient_game_board = self.get_transient_game_board()
         return (
-            to_client_board_dto(transient_board_array)
-            if transient_board_array
-            else to_client_board_dto(self._board_array)
+            transient_game_board.to_dto()
+            if transient_game_board
+            else self._game_board.to_dto()
         )

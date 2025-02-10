@@ -6,6 +6,7 @@ from dto.server_only.match_closure_dto import EndingReason
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.cell_attack import CellAttack
 from game_engine.models.actions.cell_movement import CellMovement
+from handlers.match_services.action_helpers.action_processor import ActionProcessor
 from handlers.match_services.action_helpers.cell_selection_manager import (
     CellSelectionManager,
 )
@@ -20,7 +21,6 @@ from handlers.match_services.action_helpers.transient_turn_state import (
 from handlers.match_services.action_helpers.transient_turn_state_holder import (
     TransientTurnStateHolder,
 )
-from handlers.match_services.action_helpers.action_processor import ActionProcessor
 from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:
@@ -40,7 +40,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
 
         # region Match persistent fields
 
-        self._board_array = self.match.match_context.board_array
+        self._game_board = self.match.match_context.game_board
         self._action_processor = ActionProcessor(self.match_context)
 
         # Dictionary storing all of the actions that happened during a match.
@@ -186,7 +186,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         """
         Meant to be called right after action processing.
         """
-        self.set_transient_board_array(None)
+        self.set_transient_game_board(None)
         server_mode = self.get_server_mode()
 
         if server_mode != ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:

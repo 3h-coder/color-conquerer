@@ -35,7 +35,7 @@ class CellSelectionManager(ActionManager):
         """
         player = self.get_current_player()
         is_player_1 = player.is_player_1
-        cell: Cell = self._board_array[cell_row][cell_col]
+        cell: Cell = self._game_board.get(cell_row, cell_col)
 
         if cell.belongs_to(player):
             self._handle_own_cell_selection(cell, is_player_1)
@@ -180,18 +180,16 @@ class CellSelectionManager(ActionManager):
         return get_possible_movements_and_attacks(
             player1,
             self.get_selected_cell(),
-            self.get_transient_board_array(),
+            self.get_transient_game_board(),
             self._turn_state,
         )
 
     @ActionManager.initialize_transient_board
     def _set_selected_cell(self, cell: Cell):
-        transient_board_array = self.get_transient_board_array()
+        transient_game_board = self.get_transient_game_board()
 
         self.set_player_mode(PlayerMode.OWN_CELL_SELECTED)
         self.set_selected_cell(cell)
 
-        corresponding_cell: Cell = transient_board_array[cell.row_index][
-            cell.column_index
-        ]
+        corresponding_cell = transient_game_board.get(cell.row_index, cell.column_index)
         corresponding_cell.set_selected()

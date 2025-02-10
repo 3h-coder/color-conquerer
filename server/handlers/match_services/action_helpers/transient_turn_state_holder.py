@@ -53,11 +53,11 @@ class TransientTurnStateHolder:
     def set_server_mode(self, server_mode: ServerMode):
         self.transient_turn_state.server_mode = server_mode
 
-    def get_transient_board_array(self):
-        return self.transient_turn_state.transient_board_array
+    def get_transient_game_board(self):
+        return self.transient_turn_state.transient_game_bard
 
-    def set_transient_board_array(self, new_board_array):
-        self.transient_turn_state.transient_board_array = new_board_array
+    def set_transient_game_board(self, new_game_board):
+        self.transient_turn_state.transient_game_bard = new_game_board
 
     def get_selected_cell(self):
         return self.transient_turn_state.selected_cell

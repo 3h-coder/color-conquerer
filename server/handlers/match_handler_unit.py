@@ -7,7 +7,6 @@ from dto.server_only.match_closure_dto import EndingReason
 from dto.turn_context_dto import TurnContextDto
 from game_engine.models.match_context import MatchContext
 from game_engine.models.room import Room
-from game_engine.models.turn_context import TurnContext
 from game_engine.models.turn_state import TurnState
 from handlers.match_services.client_notifications import notify_match_start
 from handlers.match_services.match_actions_service import MatchActionsService
@@ -18,7 +17,6 @@ from handlers.match_services.player_entry_watcher_service import (
 from handlers.match_services.player_exit_watcher_service import PlayerExitWatcherService
 from handlers.match_services.turn_watcher_service import TurnWatcherService
 from server_gate import get_server
-from utils.board_utils import to_client_board_dto
 from utils.id_generation_utils import generate_id
 
 
@@ -158,7 +156,7 @@ class MatchHandlerUnit:
             ),
             durationInS=TURN_DURATION_IN_S,
             notifyTurnChange=for_new_turn,
-            updatedBoardArray=to_client_board_dto(self.match_context.board_array),
+            updatedBoardArray=self.match_context.game_board.to_dto(),
             playerResourceBundle=PlayerResourceBundleDto(
                 self.match_context.player1.resources.to_dto(),
                 self.match_context.player2.resources.to_dto(),

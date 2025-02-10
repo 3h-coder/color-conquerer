@@ -1,12 +1,9 @@
 from dataclasses import dataclass
 
 from dto.match_context_dto import MatchContextDto
-from game_engine.board_helper import create_starting_board_array
-from game_engine.models.cell.cell import Cell
+from game_engine.models.game_board import GameBoard
 from game_engine.models.player import Player
-from game_engine.models.player_resources import PlayerResources
 from game_engine.models.room import Room
-from utils.board_utils import to_client_board_dto
 
 
 @dataclass
@@ -18,7 +15,7 @@ class MatchContext:
 
     id: str
     room_id: str
-    board_array: list[list[Cell]]
+    game_board: GameBoard
     current_turn: int
     is_player1_turn: bool
     player1: Player
@@ -28,7 +25,7 @@ class MatchContext:
         return MatchContextDto(
             id=self.id,
             roomId=self.room_id,
-            boardArray=to_client_board_dto(self.board_array),
+            boardArray=self.game_board.to_dto(),
             currentTurn=self.current_turn,
             player1=self.player1.to_dto(),
             player2=self.player2.to_dto(),
@@ -39,7 +36,7 @@ class MatchContext:
         return MatchContext(
             id=id,
             room_id=room.id,
-            board_array=create_starting_board_array(),
+            game_board=GameBoard.get_initial(),
             current_turn=0,
             is_player1_turn=False,
             player1=Player.get_initial(

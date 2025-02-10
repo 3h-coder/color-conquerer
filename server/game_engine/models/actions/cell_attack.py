@@ -2,8 +2,8 @@ from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import ActionType
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.cell.cell import Cell
+from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
-from utils.board_utils import get_neighbours
 
 
 class CellAttack(CellAction):
@@ -48,7 +48,7 @@ class CellAttack(CellAction):
     def calculate(
         cell: Cell,
         from_player1: bool,
-        transient_board_array: list[list[Cell]],
+        transient_game_board: GameBoard,
     ):
         """
         Returns a set of attacks that an owned cell can perform.
@@ -56,16 +56,17 @@ class CellAttack(CellAction):
         row_index, column_index = cell.row_index, cell.column_index
 
         attacks: set[CellAttack] = set()
-        neighbours: list[Cell] = get_neighbours(
-            cell.row_index, cell.column_index, transient_board_array
+        neighbours: list[Cell] = transient_game_board.get_neighbours(
+            cell.row_index,
+            cell.column_index,
         )
         for neighbour in neighbours:
             if not cell.is_hostile_to(neighbour):
                 continue
 
-            transient_board_cell = transient_board_array[neighbour.row_index][
-                neighbour.column_index
-            ]
+            transient_board_cell = transient_game_board.get(
+                neighbour.row_index, neighbour.column_index
+            )
             transient_board_cell.set_can_be_attacked()
 
             attacks.add(
@@ -84,6 +85,7 @@ class CellAttack(CellAction):
         """
         Triggers an attack between two cells on the board.
         """
+        # region Variable setup
         attacker_coords = self.originating_coords
         target_coords = self.impacted_coords
 
@@ -96,10 +98,11 @@ class CellAttack(CellAction):
             target_coords.columnIndex,
         )
 
-        board: list[list[Cell]] = match_context.board_array
-        attacking_cell: Cell = board[attacking_row_index][attacking_col_index]
-        target_cell: Cell = board[target_row_index][target_col_index]
+        board = match_context.game_board
+        attacking_cell = board.get(attacking_row_index, attacking_col_index)
+        target_cell = board.get(target_row_index, target_col_index)
 
+        # Should never happen, but just in case
         if attacking_cell.owner == target_cell.owner:
             return
 
@@ -119,19 +122,24 @@ class CellAttack(CellAction):
             if attacker_game_info == player2_game_info
             else player2_game_info
         )
+        # endregion
 
+        # 2 master cells clash
         if attacking_is_master and target_is_master:
             attacker_game_info.current_hp -= 1
             target_game_info.current_hp -= 1
 
+        # master attack
         elif attacking_is_master:
             attacker_game_info.current_hp -= 1
             target_cell.set_idle()  # target cell is destroyed
 
+        # attack on master
         elif target_is_master:
             target_game_info.current_hp -= 1
             attacking_cell.set_idle()  # attacking cell is destroyed
 
+        # regular cell clash
         else:
             attacking_cell.set_idle()
             target_cell.set_idle()

@@ -3,6 +3,7 @@ from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import ActionType
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.cell.cell import Cell
+from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 from utils.board_utils import is_out_of_bounds
 
@@ -49,7 +50,7 @@ class CellMovement(CellAction):
     def calculate(
         cell: Cell,
         player1: bool,
-        transient_board_array: list[list[Cell]],
+        transient_game_board: GameBoard,
     ):
         """
         Returns the list of movements that an owned cell can perform.
@@ -63,24 +64,24 @@ class CellMovement(CellAction):
             new_col_index = column_index + direction[1]
 
             if not CellMovement._is_valid_movement_target(
-                new_row_index, new_col_index, cell, transient_board_array
+                new_row_index, new_col_index, cell, transient_game_board
             ):
                 continue
 
-            target_cell: Cell = transient_board_array[new_row_index][new_col_index]
+            target_cell: Cell = transient_game_board.get(new_row_index, new_col_index)
 
             # Master cell extra steps
             if cell.is_master:
                 movements = movements.union(
                     CellMovement._calculate_extra_master_movements(
-                        cell, target_cell, player1, transient_board_array
+                        cell, target_cell, player1, transient_game_board
                     )
                 )
 
             if not target_cell.is_owned():
-                transient_board_cell = transient_board_array[new_row_index][
-                    new_col_index
-                ]
+                transient_board_cell = transient_game_board.get(
+                    new_row_index, new_col_index
+                )
                 transient_board_cell.set_can_be_moved_into()
 
                 movements.add(
@@ -102,18 +103,20 @@ class CellMovement(CellAction):
 
         This method does nothing if the cell to move is idle, and leaves an idle cell at the original coordinates otherwise.
         """
-        board_array = match_context.board_array
+        game_board = match_context.game_board
         originating_coords = self.originating_coords
         target_coords = self.impacted_coords
 
-        cell_original_coords = board_array[originating_coords.rowIndex][
-            originating_coords.columnIndex
-        ]
+        cell_original_coords = game_board.get(
+            originating_coords.rowIndex, originating_coords.columnIndex
+        )
 
         if not cell_original_coords.is_owned():
             return
 
-        cell_new_coords = board_array[target_coords.rowIndex][target_coords.columnIndex]
+        cell_new_coords = game_board.get(
+            target_coords.rowIndex, target_coords.columnIndex
+        )
         cell_id = cell_original_coords.id
         is_master = cell_original_coords.is_master
 
@@ -133,14 +136,14 @@ class CellMovement(CellAction):
         master_cell: Cell,
         target_cell: Cell,
         player1: bool,
-        transient_board_array: list[list[Cell]],
+        transient_game_board: GameBoard,
     ):
         """
         Gets the additional movements that a master cell may perform from a primary direction
         neighbour cell.
         """
         additional_movements: set[CellMovement] = CellMovement.calculate(
-            target_cell, player1, transient_board_array
+            target_cell, player1, transient_game_board
         )
         return {
             CellMovement.create(
@@ -156,7 +159,7 @@ class CellMovement(CellAction):
 
     @staticmethod
     def _is_valid_movement_target(
-        row_index, col_index, cell_to_move: Cell, board_array: list[list[Cell]]
+        row_index, col_index, cell_to_move: Cell, game_board: GameBoard
     ):
         """
         A valid movement target is :
@@ -173,7 +176,7 @@ class CellMovement(CellAction):
         ):
             return False
 
-        target_cell: Cell = board_array[row_index][col_index]
+        target_cell = game_board.get(row_index, col_index)
 
         if cell_to_move.is_master:
             return not target_cell.is_hostile_to(cell_to_move)
