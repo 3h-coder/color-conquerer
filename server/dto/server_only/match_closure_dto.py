@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from dto.base_dto import BaseDto
-from dto.player_dto import PlayerDto
+from game_engine.models.player import Player
 
 
 class EndingReason(StrEnum):
@@ -15,7 +15,7 @@ class EndingReason(StrEnum):
 @dataclass
 class MatchClosureDto(BaseDto):
     endingReason: str
-    winner: PlayerDto | None  # None if draw or no winner
-    loser: PlayerDto | None  # None if draw or no loser
+    winner: Player | None  # None if draw or no winner
+    loser: Player | None  # None if draw or no loser
     totalTurns: int
     actionsPerTurn: dict[int, list]
