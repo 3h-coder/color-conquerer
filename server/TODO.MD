@@ -1,6 +1,6 @@
 # Server
 
-- Create a class for the board (and associated dto)
+- Hide spells in PlayerResourcesDto for the opponent
 - Implement spells
 
 
