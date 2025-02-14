@@ -54,9 +54,9 @@ def handle_client_ready():
         )
 
     match_handler = get_match_handler()
-
-    join_room(room_id)
     match = match_handler.get_unit(room_id)
+
+    _join_socket_rooms(room_id, match.individual_rooms, player_info.is_player_1)
     session[IN_MATCH] = True
 
     # Notify the client so it can render accordingly
@@ -198,6 +198,15 @@ def handle_spell_button(spell_id: int):
         return
 
     match.handle_spell_button(spell_id)
+
+
+def _join_socket_rooms(
+    room_id: str, individual_rooms: tuple[str, str], is_player1: bool
+):
+    # Join the common room
+    join_room(room_id)
+    player1_room, player2_room = individual_rooms
+    join_room(player1_room if is_player1 else player2_room)
 
 
 def _get_session_variable(variable_name: str):

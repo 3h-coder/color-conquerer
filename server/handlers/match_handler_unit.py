@@ -37,9 +37,7 @@ class MatchHandlerUnit:
             player2_resources=self.match_context.player2.resources,
         )
 
-        # Dictionary with the key being the session id and the value the player id
-        # May be used when needed to find a player from its session
-        self._session_ids = room.session_ids
+        self.individual_rooms = self._get_individual_rooms(room)
 
         self.status = MatchStatus.WAITING_TO_START
 
@@ -258,6 +256,19 @@ class MatchHandlerUnit:
 
     def _get_initial_match_context(self, room: Room):
         return MatchContext.get_initial(generate_id(MatchContext), room)
+
+    def _get_individual_rooms(self, room: Room):
+        """
+        Returns a list of individual room ids for each player.
+
+        This is necessary for the server to emit to a particular
+        player and not the other outside of a client request response.
+        """
+        room_id = room.id
+        player1_room_suffix = "-p1"
+        player2_room_suffix = "-p2"
+
+        return (f"{room_id}{player1_room_suffix}", f"{room_id}{player2_room_suffix}")
 
 
 class MatchStatus(Enum):
