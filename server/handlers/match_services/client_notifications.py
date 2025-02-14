@@ -8,6 +8,7 @@ from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_action_dto import ProcessedActionDto
 from dto.turn_context_dto import TurnContextDto
 from events.events import Events
+from game_engine.models.player import Player
 from server_gate import get_server
 
 if TYPE_CHECKING:

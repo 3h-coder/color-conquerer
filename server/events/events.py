@@ -30,6 +30,8 @@ class Events(StrEnum):
     CLIENT_SPAWN_BUTTON = "client-spawn-button"
     SERVER_SPAWN_ACTIVATED = "server-spawn-activated"
     CLIENT_SPELL_BUTTON = "client-spell-button"
+    CLIENT_REQUEST_SPELLS = "client-request-spells"
+    SERVER_SEND_SPELLS = "server-send-spells"
     SERVER_POSSIBLE_ACTIONS = "server-possibleActions"
     SERVER_PROCESSED_ACTIONS = "server-processedActions"
     SERVER_ACTION_ERROR = "server-actionError"

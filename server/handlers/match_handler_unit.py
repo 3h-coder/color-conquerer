@@ -31,13 +31,13 @@ class MatchHandlerUnit:
         self.server = get_server()
 
         self.match_context: MatchContext = self._get_initial_match_context(room)
+        player1 = self.match_context.player1
+        player2 = self.match_context.player2
         self.turn_state: TurnState = TurnState.get_initial(
             player1_turn=False,
-            player1_resources=self.match_context.player1.resources,
-            player2_resources=self.match_context.player2.resources,
+            player1_resources=player1.resources,
+            player2_resources=player2.resources,
         )
-
-        self.individual_rooms = self._get_individual_rooms(room)
 
         self.status = MatchStatus.WAITING_TO_START
 
@@ -237,9 +237,11 @@ class MatchHandlerUnit:
         """
         return self._match_actions_service.actions_per_turn
 
-    def _get_players_game_info(self):
+    def get_players_resources(self):
         """
-        Gets the player game info of both players.
+        Gets the player resources of both players.
+
+        The first and second elements in the tuple belong to the player1 and player2 respectively.
         """
         player_1 = self.match_context.player1
         player_2 = self.match_context.player2
@@ -256,19 +258,6 @@ class MatchHandlerUnit:
 
     def _get_initial_match_context(self, room: Room):
         return MatchContext.get_initial(generate_id(MatchContext), room)
-
-    def _get_individual_rooms(self, room: Room):
-        """
-        Returns a list of individual room ids for each player.
-
-        This is necessary for the server to emit to a particular
-        player and not the other outside of a client request response.
-        """
-        room_id = room.id
-        player1_room_suffix = "-p1"
-        player2_room_suffix = "-p2"
-
-        return (f"{room_id}{player1_room_suffix}", f"{room_id}{player2_room_suffix}")
 
 
 class MatchStatus(Enum):

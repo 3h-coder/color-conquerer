@@ -56,7 +56,7 @@ def handle_client_ready():
     match_handler = get_match_handler()
     match = match_handler.get_unit(room_id)
 
-    _join_socket_rooms(room_id, match.individual_rooms, player_info.is_player_1)
+    _join_socket_rooms(room_id, player_info)
     session[IN_MATCH] = True
 
     # Notify the client so it can render accordingly
@@ -65,6 +65,7 @@ def handle_client_ready():
             Events.SERVER_MATCH_ONGOING,
             match.get_turn_context_dto().to_dict(),
         )
+
     elif match.is_waiting_to_start():
         match.mark_player_as_ready(player_info.player_id)
         # Start the match if everyone is ready
@@ -77,6 +78,30 @@ def handle_client_ready():
                 Events.SERVER_SET_WAITING_TEXT,
                 MessageDto("Waiting for your opponent...").to_dict(),
             )
+
+
+@only_if_in_match
+def handle_client_spells_request():
+    """
+    Sent by the client when the player expands their spell board or
+    after the player casts a spell.
+
+    This is to display the updated spell deck.
+    """
+    player_info: Player = _get_session_variable(PLAYER_INFO)
+    room_id = _get_session_variable(ROOM_ID)
+
+    match_handler = get_match_handler()
+    match = match_handler.get_unit(room_id)
+
+    player_resources = match.get_players_resources()
+    spells_dto = (
+        player_resources[0].get_spells_dto()
+        if player_info.is_player_1
+        else player_resources[1].get_spells_dto()
+    )
+
+    emit(Events.SERVER_SEND_SPELLS, spells_dto.to_dict())
 
 
 @only_if_in_match
@@ -200,13 +225,10 @@ def handle_spell_button(spell_id: int):
     match.handle_spell_button(spell_id)
 
 
-def _join_socket_rooms(
-    room_id: str, individual_rooms: tuple[str, str], is_player1: bool
-):
+def _join_socket_rooms(room_id: str, player_info: Player):
     # Join the common room
     join_room(room_id)
-    player1_room, player2_room = individual_rooms
-    join_room(player1_room if is_player1 else player2_room)
+    join_room(player_info.individual_room_id)
 
 
 def _get_session_variable(variable_name: str):

@@ -10,6 +10,5 @@ class PlayerResourcesDto(BaseDto):
     currentHP: int
     maxMP: int
     currentMP: int
-    # WARNING : this value must be an empty list for the
-    # player1 if sent to player2 and vice-versa
-    spells: list[SpellDto]
+    # Spells cannot be shared with the opponent and
+    # have their own separate dto

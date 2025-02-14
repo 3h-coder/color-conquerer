@@ -9,4 +9,6 @@ class Room:
     id: str
     player1_queue_dto: QueuePlayerDto
     player2_queue_dto: QueuePlayerDto
+    player1_room_id: str
+    player2_room_id: str
     session_ids: dict[str, str]

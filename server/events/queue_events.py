@@ -38,11 +38,14 @@ def handle_queue_registration(data: dict):
         f"({request.remote_addr}) | {Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
     )
 
-    (room_id, closed) = _make_enter_in_room(queue_player_dto, room_handler)
+    (room, closed) = _make_enter_in_room(queue_player_dto, room_handler)
+    room_id = room.id
+    is_player1 = not closed
     player_info = Player(
         player_id,
+        individual_room_id=room.player1_room_id if is_player1 else room.player2_room_id,
         user_id=queue_player_dto.user.id,
-        is_player_1=not closed,
+        is_player_1=is_player1,
         resources=None,
     )
     _save_into_session(room_id, player_info, session_cache_handler)
@@ -146,7 +149,7 @@ def _make_enter_in_room(queue_player_dto: QueuePlayerDto, room_handler: RoomHand
         ClientStoredMatchInfoDto(queue_player_dto.playerId, room_id).to_dict(),
     )  # Notify the client that registration succeeded, sending them their player id and room id
 
-    return room_id, closed
+    return room, closed
 
 
 def _save_into_session(

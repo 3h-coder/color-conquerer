@@ -38,10 +38,13 @@ class RoomHandler:
             A tuple with the room id and a boolean indicating whether or not the room is closed.
         """
         if not self.open_rooms:
+            room_id = generate_id(Room)
             new_room = Room(
-                id=generate_id(Room),
+                id=room_id,
                 player1_queue_dto=player_register_dto,
                 player2_queue_dto=None,
+                player1_room_id=f"{room_id}-p1",
+                player2_room_id=f"{room_id}-p2",
                 session_ids={},
             )
             self.open_rooms[new_room.id] = new_room

@@ -41,11 +41,13 @@ class MatchContext:
             is_player1_turn=False,
             player1=Player.get_initial(
                 player_id=room.player1_queue_dto.playerId,
+                individual_room_id=room.player1_room_id,
                 user_id=room.player1_queue_dto.user.id,
                 is_player_1=True,
             ),
             player2=Player.get_initial(
                 player_id=room.player2_queue_dto.playerId,
+                individual_room_id=room.player2_room_id,
                 user_id=room.player2_queue_dto.user.id,
                 is_player_1=False,
             ),
