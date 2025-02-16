@@ -1,11 +1,12 @@
 # Server
 
-- Hide spells in PlayerResourcesDto for the opponent
 - Implement spells
+- Add rate limiting to certain events
 
 
 # Client
 
+- Force deboucing on spawn and cell controls
 - Match animations and UI embellishment
 - Check screen responsiveness
 
