@@ -6,29 +6,26 @@ import { useMatchInfo } from "../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
 import { usePlayerMode } from "../../../contexts/PlayerModeContext";
 import { usePlayersGameInfo } from "../../../contexts/PlayersGameInfoContext";
-import { useTurnInfo } from "../../../contexts/TurnContext";
-import { CellDto } from "../../../dto/CellDto";
+import { useTurnContext } from "../../../contexts/TurnContext";
 import { MessageDto } from "../../../dto/MessageDto";
 import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
 import { ProcessedActionDto } from "../../../dto/ProcessedActionDto";
-import { undefinedTurnInfo } from "../../../dto/TurnContextDto";
 import { Events } from "../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../env";
 import { animateProcessedAction } from "../../../utils/boardUtils";
 import {
-    colorHoveredCell,
-    decolorHoveredCell,
     getCellId,
 } from "../../../utils/cellUtils";
 import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 import GameError from "./GameError";
 import TurnSwapImage from "./TurnSwapImage";
+import { undefinedTurnContext } from "../../../dto/TurnContextDto";
 
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
     const { playerId, isPlayer1 } = usePlayerInfo();
-    const { turnInfo, canInteract, setCanInteract } = useTurnInfo();
+    const { turnContext, canInteract, setCanInteract } = useTurnContext();
     const { setPlayerResourceBundle } = usePlayersGameInfo();
     const { setPlayerMode } = usePlayerMode();
 
@@ -46,22 +43,22 @@ export default function GameGrid() {
         setTimeout(() => setCanDisplayPossibleActions(true), 100); // Force a reflow
     }
 
-    // React to a turnInfo update (from either a turn change or a page refresh)
+    // React to a turnContext update (from either a turn change or a page refresh)
     // - Set the board array
     // - Set the players game infos (HP/MP)
     useEffect(() => {
-        handleTurnInfoUpdate();
+        handleturnContextUpdate();
 
-        function handleTurnInfoUpdate() {
-            setBoardArray(turnInfo.updatedBoardArray);
-            setPlayerResourceBundle(turnInfo.playerResourceBundle);
+        function handleturnContextUpdate() {
+            setBoardArray(turnContext.updatedBoardArray);
+            setPlayerResourceBundle(turnContext.playerResourceBundle);
             setActionErrorMessage(EMPTY_STRING);
 
-            if (turnInfo === undefinedTurnInfo) return;
-            setIsMyTurn(turnInfo.currentPlayerId === playerId);
+            if (turnContext === undefinedTurnContext) return;
+            setIsMyTurn(turnContext.currentPlayerId === playerId);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [turnInfo]);
+    }, [turnContext]);
 
     // React to the isMyTurn change
     useEffect(() => {
@@ -75,7 +72,7 @@ export default function GameGrid() {
 
             // If not a turn change, the user may interact immediately
             // if it's their turn (typically after a page refresh)
-            if (!turnInfo.notifyTurnChange) {
+            if (!turnContext.notifyTurnChange) {
                 setCanInteract(isMyTurn);
                 return;
             }
@@ -113,20 +110,6 @@ export default function GameGrid() {
 
     // Register socket events
     useEffect(() => {
-        // To let the player know that the opponent has their cursor
-        // over a specific cell (by coloring the cell's border in red)
-        function onServerCellHover(cell: CellDto) {
-            if (isMyTurn) return;
-
-            colorHoveredCell(cell);
-        }
-
-        // End the red border coloring once the opponent is no longer hovering it
-        function onServerCellHoverEnd(cell: CellDto) {
-            if (isMyTurn) return;
-
-            decolorHoveredCell(cell);
-        }
 
         function onServerPossibleActions(possibleActions: PossibleActionsDto) {
             developmentLog("Received the possible actions", possibleActions);
@@ -147,7 +130,7 @@ export default function GameGrid() {
             setPlayerMode(processedActionDto.playerMode);
 
             // Update the player info bundle to display the proper HP/MP values
-            setPlayerResourceBundle(processedActionDto.updatedTurnInfo.playerResourceBundle);
+            setPlayerResourceBundle(processedActionDto.updatedTurnContext.playerResourceBundle);
 
             // Trigger animations
             animateProcessedAction(processedActionDto.processedAction, isPlayer1, boardArray);
@@ -157,7 +140,7 @@ export default function GameGrid() {
                 setBoardArray(processedActionDto.overridingTransientBoard);
                 triggerPossibleActionsAnimationSync();
             } else {
-                setBoardArray(processedActionDto.updatedTurnInfo.updatedBoardArray);
+                setBoardArray(processedActionDto.updatedTurnContext.updatedBoardArray);
             }
         }
 
@@ -168,15 +151,11 @@ export default function GameGrid() {
             setActionErrorMessage(gameErrorMessage);
         }
 
-        socket.on(Events.SERVER_CELL_HOVER, onServerCellHover);
-        socket.on(Events.SERVER_CELL_HOVER_END, onServerCellHoverEnd);
         socket.on(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
         socket.on(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
         socket.on(Events.SERVER_ACTION_ERROR, onServerActionError);
 
         return () => {
-            socket.off(Events.SERVER_CELL_HOVER, onServerCellHover);
-            socket.off(Events.SERVER_CELL_HOVER_END, onServerCellHoverEnd);
             socket.off(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
             socket.off(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
             socket.off(Events.SERVER_ACTION_ERROR, onServerActionError);

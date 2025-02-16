@@ -6,7 +6,7 @@ import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { useMatchInfo } from "../../contexts/MatchContext";
 import { usePlayerInfo } from "../../contexts/PlayerContext";
 import { usePlayerMode } from "../../contexts/PlayerModeContext";
-import { useTurnInfo } from "../../contexts/TurnContext";
+import { useTurnContext } from "../../contexts/TurnContext";
 import { ErrorDto } from "../../dto/ErrorDto";
 import { EndingReason, MatchClosureDto } from "../../dto/MatchClosureDto";
 import { MessageDto } from "../../dto/MessageDto";
@@ -35,7 +35,7 @@ export default function PlayContent() {
     loading: playerInfoLoading,
     failedToResolve: failedToResolvePlayerInfo,
   } = usePlayerInfo();
-  const { turnInfo, setTurnInfo } = useTurnInfo();
+  const { turnContext: turnInfo, setTurnContext: setTurnInfo } = useTurnContext();
   const { setPlayerMode } = usePlayerMode();
 
 
@@ -158,7 +158,7 @@ export default function PlayContent() {
       socket.off(Events.SERVER_ERROR, onError);
       socket.off(Events.SERVER_REDIRECT, onRedirection);
     };
-  });
+  }, []);
 
   function getMatchEndingText(matchClosureDto: MatchClosureDto) {
     if (matchClosureDto.endingReason === EndingReason.DRAW || !matchClosureDto.winner) return "Draw";

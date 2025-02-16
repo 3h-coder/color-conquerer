@@ -51,7 +51,4 @@ class CellSpawnManager(ActionManager):
         possible_spawns = get_possible_spawns(player.is_player_1, transient_game_board)
 
         self.set_player_mode(PlayerMode.CELL_SPAWN)
-        self._logger.debug(
-            f"Setting the possible spawns ({len(possible_spawns)} in total)"
-        )
         self.set_possible_actions(possible_spawns, update_server_mode)

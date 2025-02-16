@@ -113,7 +113,7 @@ export default function PlayButton() {
             socket.off(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess);
             socket.off(Events.SERVER_QUEUE_OPPONENT_FOUND, onOpponentFound);
         };
-    });
+    }, []);
 
     function requestMultiplayerMatch() {
         setModalVisible(true);

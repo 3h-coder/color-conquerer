@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { InfoIcon } from "../../../../assets/svg";
-import { useTurnInfo } from "../../../../contexts/TurnContext";
+import { useTurnContext } from "../../../../contexts/TurnContext";
 import { SpellDto } from "../../../../dto/SpellDto";
 import { socket, WHITE_SPACE } from "../../../../env";
 import { Events } from "../../../../enums/events";
@@ -13,7 +13,7 @@ interface SpellCardProps {
 
 export default function SpellCard(props: SpellCardProps) {
     const { spell } = props;
-    const { canInteract } = useTurnInfo();
+    const { canInteract } = useTurnContext();
     const { playerMode } = usePlayerMode();
     const [showDescription, setShowDescription] = useState(false);
     const isBeingTouched = useRef(false);

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { ChevronRightIcon, MagicWandIcon } from "../../../../assets/svg";
 import { SvgContainer } from "../../../../components/containers";
-import { useTurnInfo } from "../../../../contexts/TurnContext";
+import { useTurnContext } from "../../../../contexts/TurnContext";
 
 export interface SpellToggleButtonProps {
     spellsVisible: boolean;
@@ -10,7 +10,7 @@ export interface SpellToggleButtonProps {
 
 export default function SpellToggleButton(props: SpellToggleButtonProps) {
     const { spellsVisible, setSpellsVisible } = props;
-    const { canInteract } = useTurnInfo();
+    const { canInteract } = useTurnContext();
     const buttonKey = "d";
     const wandIconSize = "max(14px, 2.2vmin)";
     const chevronIconSize = "max(10px, 0.8vmin)";

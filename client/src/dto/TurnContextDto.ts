@@ -12,7 +12,7 @@ export interface TurnContextDto {
     playerResourceBundle: PlayerResourceBundleDto;
 }
 
-export const undefinedTurnInfo: TurnContextDto = {
+export const undefinedTurnContext: TurnContextDto = {
     currentPlayerId: EMPTY_STRING,
     isPlayer1Turn: false,
     remainingTimeInS: 0,

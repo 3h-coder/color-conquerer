@@ -1,9 +1,9 @@
-import { useTurnInfo } from "../../../../contexts/TurnContext";
+import { useTurnContext } from "../../../../contexts/TurnContext";
 import { Events } from "../../../../enums/events";
 import { socket } from "../../../../env";
 
 export default function EndTurnButton() {
-    const { canInteract } = useTurnInfo();
+    const { canInteract } = useTurnContext();
 
     const text = "End Turn";
 

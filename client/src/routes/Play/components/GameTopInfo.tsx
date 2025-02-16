@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
-import { useTurnInfo } from "../../../contexts/TurnContext";
+import { useTurnContext } from "../../../contexts/TurnContext";
 import { TurnContextDto } from "../../../dto/TurnContextDto";
 import { round } from "../../../utils/mathUtils";
 
 export default function GameTopInfo() {
     const { playerId } = usePlayerInfo();
-    const { turnInfo } = useTurnInfo();
+    const { turnContext: turnInfo } = useTurnContext();
     const whoseTurnMessage = playerId === turnInfo.currentPlayerId ? "Your turn" : "Opponent turn";
 
     return (

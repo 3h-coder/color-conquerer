@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
-import { TurnContextDto, undefinedTurnInfo } from "../dto/TurnContextDto";
+import { TurnContextDto, undefinedTurnContext as undefinedTurnContext } from "../dto/TurnContextDto";
 
 interface TurnContextObject {
-    turnInfo: TurnContextDto;
-    setTurnInfo: (t: TurnContextDto) => void;
+    turnContext: TurnContextDto;
+    setTurnContext: (t: TurnContextDto) => void;
     canInteract: boolean;
     setCanInteract: (c: boolean) => void;
 }
 
 
 const TurnContext = createContext<TurnContextObject>({
-    turnInfo: undefinedTurnInfo,
-    setTurnInfo: (_turnInfo: TurnContextDto) => { },
+    turnContext: undefinedTurnContext,
+    setTurnContext: (_turnInfo: TurnContextDto) => { },
     canInteract: false,
     setCanInteract: (_canInteract: boolean) => { },
 });
@@ -26,18 +26,18 @@ export default function TurnInfoContextProvider(
     props: TurnInfoContextProviderProps
 ) {
     const { children } = props;
-    const [turnInfo, setTurnInfo] = useState(undefinedTurnInfo);
+    const [turnContext, setTurnContext] = useState(undefinedTurnContext);
     const [canInteract, setCanInteract] = useState(false);
 
     return (
         <TurnContext.Provider
-            value={{ turnInfo, setTurnInfo, canInteract, setCanInteract }}
+            value={{ turnContext, setTurnContext, canInteract, setCanInteract }}
         >
             {children}
         </TurnContext.Provider>
     );
 }
 
-export function useTurnInfo() {
+export function useTurnContext() {
     return useContext(TurnContext);
 }

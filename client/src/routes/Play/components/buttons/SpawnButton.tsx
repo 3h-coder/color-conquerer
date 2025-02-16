@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { LocationPinIcon } from "../../../../assets/svg";
 import { SvgContainer } from "../../../../components/containers";
-import { useTurnInfo } from "../../../../contexts/TurnContext";
+import { useTurnContext } from "../../../../contexts/TurnContext";
 import { Events } from "../../../../enums/events";
 import { socket } from "../../../../env";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { PlayerMode } from "../../../../enums/playerMode";
 
 export default function SpawnButton() {
-    const { canInteract } = useTurnInfo();
+    const { canInteract } = useTurnContext();
     const { playerMode } = usePlayerMode();
 
     const buttonKey = "s";

@@ -113,7 +113,7 @@ class ActionManager(TransientTurnStateHolder):
         return ProcessedActionDto(
             processedAction=processed_action.to_dto(),
             playerMode=player_mode,
-            updatedTurnInfo=self._match.get_turn_context_dto(),
+            updatedTurnContext=self._match.get_turn_context_dto(),
             overridingTransientBoard=None,
         )
 

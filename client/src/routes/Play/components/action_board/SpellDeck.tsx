@@ -24,7 +24,7 @@ export default function SpellDeck() {
         return () => {
             socket.off(Events.SERVER_SEND_SPELLS, onSpellsReceived);
         };
-    });
+    }, []);
 
     return (
         <div className="spell-deck">

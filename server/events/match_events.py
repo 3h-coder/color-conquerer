@@ -134,36 +134,6 @@ def handle_session_clearing():
 
 
 @only_if_in_match
-def handle_cell_hover(data: dict):
-    """
-    Notifies the room (i.e. the opponent) that a certain cell is being hovered.
-    """
-    cell_info = CellDto.from_dict(data)
-    room_id = _get_session_variable(ROOM_ID)
-    emit(
-        Events.SERVER_CELL_HOVER,
-        cell_info.to_dict(),
-        to=room_id,
-        broadcast=True,
-    )
-
-
-@only_if_in_match
-def handle_cell_hover_end(data: dict):
-    """
-    Notifies the room (i.e. the opponent) that a certain cell is no longer being hovered.
-    """
-    cell_info_dto = CellDto.from_dict(data)
-    room_id = _get_session_variable(ROOM_ID)
-    emit(
-        Events.SERVER_CELL_HOVER_END,
-        cell_info_dto.to_dict(),
-        to=room_id,
-        broadcast=True,
-    )
-
-
-@only_if_in_match
 def handle_cell_click(data: dict):
     """
     Receives the client cell click, and notifies the client accordingly.

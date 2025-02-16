@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { LandMineIcon, SwordIcon } from "../../../assets/svg";
 import { CellDto } from "../../../dto/CellDto";
 import { CellState, CellTransientState } from "../../../enums/cellStates";
@@ -28,25 +27,6 @@ export default function GameCell(props: GameCellProps) {
     const isManaBubble = cellInfo.state == CellState.MANA_BUBBLE;
     const isMineTrap = cellInfo.state == CellState.MINE_TRAP;
 
-    // If the cell was previously hovered and is being re-rendered
-    // send a HOVER_END event to the server to clear the hover effect
-    // for the opponent client
-    useEffect(() => {
-        if (!selectable) socket.emit(Events.CLIENT_CELL_HOVER_END, cellInfo);
-    });
-
-    function onCellMouseEnter() {
-        if (!selectable) return;
-
-        socket.emit(Events.CLIENT_CELL_HOVER, cellInfo);
-    }
-
-    function onCellMouseLeave() {
-        if (!selectable) return;
-
-        socket.emit(Events.CLIENT_CELL_HOVER_END, cellInfo);
-    }
-
     function onCellClick() {
         if (!selectable) return;
 
@@ -67,8 +47,6 @@ export default function GameCell(props: GameCellProps) {
         <div
             className={classes}
             id={id}
-            onMouseEnter={onCellMouseEnter}
-            onMouseLeave={onCellMouseLeave}
             onClick={onCellClick}
             style={computedStyle}
         >

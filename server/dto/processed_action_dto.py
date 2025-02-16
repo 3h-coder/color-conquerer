@@ -14,7 +14,7 @@ class ProcessedActionDto(BaseDto):
 
     processedAction: MatchActionDto
     playerMode: int
-    updatedTurnInfo: TurnContextDto
+    updatedTurnContext: TurnContextDto
     # If the server mode is set to SHOW_PROCESSED_AND_POSSIBLE_ACTIONS, this board
     # will override the one from the turn info dto client side
     overridingTransientBoard: list[list[CellDto]] | None

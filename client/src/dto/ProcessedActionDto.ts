@@ -5,6 +5,6 @@ import { TurnContextDto } from "./TurnContextDto";
 export interface ProcessedActionDto {
     processedAction: MatchActionDto;
     playerMode: number;
-    updatedTurnInfo: TurnContextDto;
+    updatedTurnContext: TurnContextDto;
     overridingTransientBoard: CellDto[][] | null;
 }
