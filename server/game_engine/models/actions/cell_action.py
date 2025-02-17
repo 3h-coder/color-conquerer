@@ -8,12 +8,11 @@ class CellAction(Action):
     def __init__(
         self,
         from_player1: bool,
-        is_direct: bool,
         impacted_coords: bool,
         originating_coords: CoordinatesDto,
         cell_id: str,
     ):
-        super().__init__(from_player1, is_direct, impacted_coords)
+        super().__init__(from_player1, impacted_coords)
         self.originating_coords = originating_coords
         self.cell_id = cell_id
 

@@ -12,11 +12,9 @@ class Action:
     def __init__(
         self,
         from_player1: bool,
-        is_direct: bool,
         impacted_coords: CoordinatesDto,
     ):
         self.from_player1 = from_player1
-        self.is_direct = is_direct
         self.impacted_coords = impacted_coords
         self.mana_cost = self.DEFAULT_MANA_COST
 

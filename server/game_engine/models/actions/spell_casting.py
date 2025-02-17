@@ -13,12 +13,11 @@ class SpellCasting(Action):
     def __init__(
         self,
         from_player1: bool,
-        is_direct: bool,
         impacted_coords: bool,
         spell_id: str,
         mana_cost: int,
     ):
-        super().__init__(from_player1, is_direct, impacted_coords)
+        super().__init__(from_player1, impacted_coords)
         self.spell_id = spell_id
         self.mana_cost = mana_cost
 
@@ -45,7 +44,6 @@ class SpellCasting(Action):
     def create(from_player1: bool, spell: Spell, row_index: int, column_index: int):
         return SpellCasting(
             from_player1=from_player1,
-            is_direct=True,
             impacted_coords=CoordinatesDto(row_index, column_index),
             spell_id=spell.id,
             mana_cost=spell.mana_cost,

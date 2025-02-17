@@ -16,12 +16,9 @@ class CellSpawn(Action):
 
     DEFAULT_MANA_COST = 1
 
-    def __init__(
-        self, from_player1: bool, is_direct: bool, impacted_coords: CoordinatesDto
-    ):
+    def __init__(self, from_player1: bool, impacted_coords: CoordinatesDto):
         super().__init__(
             from_player1=from_player1,
-            is_direct=is_direct,
             impacted_coords=impacted_coords,
         )
 
@@ -47,7 +44,6 @@ class CellSpawn(Action):
     def create(from_player1: bool, row_index: int, column_index: int):
         return CellSpawn(
             from_player1=from_player1,
-            is_direct=True,
             impacted_coords=CoordinatesDto(row_index, column_index),
         )
 

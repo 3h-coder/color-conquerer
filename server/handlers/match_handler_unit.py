@@ -243,12 +243,7 @@ class MatchHandlerUnit:
 
         The first and second elements in the tuple belong to the player1 and player2 respectively.
         """
-        player_1 = self.match_context.player1
-        player_2 = self.match_context.player2
-        return (
-            player_1.resources,
-            player_2.resources,
-        )
+        return self.match_context.get_both_player_resources()
 
     def _get_remaining_turn_time(self):
         """

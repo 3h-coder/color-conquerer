@@ -38,7 +38,6 @@ class CellAttack(CellAction):
     ):
         return CellAttack(
             from_player1=from_player1,
-            is_direct=True,
             impacted_coords=CoordinatesDto(attack_row_index, attack_column_index),
             originating_coords=CoordinatesDto(row_index, column_index),
             cell_id=cell_id,

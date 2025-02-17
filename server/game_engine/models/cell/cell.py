@@ -124,6 +124,9 @@ class Cell:
     def is_mana_bubble(self):
         return self.state == CellState.MANA_BUBBLE
 
+    def is_mine_trap(self):
+        return self.state == CellState.MINE_TRAP
+
     def clear_state(self):
         self.state = CellState.NONE
 

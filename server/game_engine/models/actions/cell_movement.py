@@ -41,7 +41,6 @@ class CellMovement(CellAction):
         return CellMovement(
             from_player1=from_player1,
             cell_id=cell_id,
-            is_direct=True,
             impacted_coords=CoordinatesDto(new_row_index, new_column_index),
             originating_coords=CoordinatesDto(row_index, column_index),
         )

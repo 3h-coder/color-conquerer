@@ -56,6 +56,9 @@ class MatchContext:
     def get_player_resources(self, player1: bool):
         return self.player1.resources if player1 else self.player2.resources
 
+    def get_both_player_resources(self):
+        return (self.player1.resources, self.player2.resources)
+
     def both_players_are_dead(self):
         return self.player1_is_dead() and self.player2_is_dead()
 
