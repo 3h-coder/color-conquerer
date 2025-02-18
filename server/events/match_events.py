@@ -63,7 +63,7 @@ def handle_client_ready():
     if match.is_ongoing():
         emit(
             Events.SERVER_MATCH_ONGOING,
-            match.get_turn_context_dto().to_dict(),
+            match.get_turn_context_dto(for_player1=player_info.is_player_1).to_dict(),
         )
 
     elif match.is_waiting_to_start():

@@ -22,7 +22,7 @@ def get_match_info():
     match_handler = get_match_handler()
 
     match_context: MatchContext = match_handler.get_match_context(room_id)
-    return jsonify(match_context.to_dto().to_dict()), 200
+    return jsonify(match_context.to_dto(None).to_dict()), 200
 
 
 @play_bp.route("/play/player-info", methods=["GET"])

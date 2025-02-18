@@ -21,11 +21,11 @@ class MatchContext:
     player1: Player
     player2: Player
 
-    def to_dto(self):
+    def to_dto(self, for_player1: bool | None):
         return MatchContextDto(
             id=self.id,
             roomId=self.room_id,
-            boardArray=self.game_board.to_dto(),
+            boardArray=self.game_board.to_dto(for_player1),
             currentTurn=self.current_turn,
             player1=self.player1.to_dto(),
             player2=self.player2.to_dto(),
@@ -55,6 +55,9 @@ class MatchContext:
 
     def get_player_resources(self, player1: bool):
         return self.player1.resources if player1 else self.player2.resources
+
+    def get_individual_player_rooms(self):
+        return self.player1.individual_room_id, self.player2.individual_room_id
 
     def get_both_player_resources(self):
         return (self.player1.resources, self.player2.resources)

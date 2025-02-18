@@ -1,4 +1,4 @@
-import { CellState, CellTransientState } from "../enums/cellStates";
+import { CellHiddenState, CellState, CellTransientState } from "../enums/cellStates";
 
 export interface CellDto {
     owner: number;
@@ -6,5 +6,6 @@ export interface CellDto {
     rowIndex: number;
     columnIndex: number;
     state: CellState;
+    hiddenState: CellHiddenState;
     transientState: CellTransientState;
 }

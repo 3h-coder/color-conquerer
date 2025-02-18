@@ -14,11 +14,11 @@ class GameBoard:
     board: list[list[Cell]]
     is_transient: bool
 
-    def to_dto(self):
+    def to_dto(self, for_player1: bool | None):
         """
         Note : GameBoardDto is not defined, this simply returns a 2D CellDto array
         """
-        return [[cell.to_dto() for cell in row] for row in self.board]
+        return [[cell.to_dto(for_player1) for cell in row] for row in self.board]
 
     @staticmethod
     def get_initial():

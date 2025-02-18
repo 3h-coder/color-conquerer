@@ -71,10 +71,14 @@ class TurnWatcherService(ServiceBase):
 
         self._process_turn_swap()
 
+        player1_room, player2_room = self.match.get_individual_player_rooms()
         # Notify the turn change to players
         notify_turn_swap(
-            self.match.get_turn_context_dto(for_new_turn=True),
-            self.match_context.room_id,
+            self.match.get_turn_context_dto(for_player1=True, for_new_turn=True),
+            self.match.get_turn_context_dto(for_player1=False, for_new_turn=True),
+            player1_room,
+            player2_room,
+            self.match.lock,
         )
 
     def _process_turn_swap(self):

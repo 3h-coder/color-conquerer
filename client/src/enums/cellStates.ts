@@ -11,5 +11,9 @@ export enum CellState {
     NONE = 0,
     FRESHLY_SPAWNED = 1,
     MANA_BUBBLE = 2,
-    MINE_TRAP = 3
+}
+
+export enum CellHiddenState {
+    NONE = 0,
+    MINE_TRAP = 1
 }

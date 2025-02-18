@@ -71,6 +71,7 @@ class ActionManager(TransientTurnStateHolder):
             notify_action_error(error_msg)
             return
 
+        current_player = self.get_current_player()
         player_mode = self.get_player_mode()
         server_mode = self.get_server_mode()
         processed_action = self.get_processed_action()
@@ -80,47 +81,64 @@ class ActionManager(TransientTurnStateHolder):
             notify_possible_actions(
                 PossibleActionsDto(
                     player_mode,
-                    self._get_client_friendly_transient_board(),
+                    self._get_client_friendly_transient_board(
+                        current_player.is_player_1
+                    ),
                 )
             )
             return
 
-        processed_action_dto = self._get_processed_action_dto(
-            player_mode, processed_action
+        processed_action_dto_1 = self._get_processed_action_dto(
+            player_mode, processed_action, True
         )
+        processed_action_dto_2 = self._get_processed_action_dto(
+            player_mode, processed_action, False
+        )
+        player1_room, player2_room = self._match.get_individual_player_rooms()
         # Send the processed action
         if server_mode == ServerMode.SHOW_PROCESSED_ACTION:
             notify_processed_action(
-                processed_action_dto,
-                self._room_id,
+                processed_action_dto_1,
+                processed_action_dto_2,
+                player1_room,
+                player2_room,
+                self._match.lock,
             )
             return
 
         # Send both the processed action and further possible actions (through the overriding transient board)
         if server_mode == ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
-            processed_action_dto.overridingTransientBoard = (
-                self._get_client_friendly_transient_board()
-            )
+            if current_player.is_player_1:
+                processed_action_dto_1.overridingTransientBoard = (
+                    self._get_client_friendly_transient_board(for_player1=True)
+                )
+            else:
+                processed_action_dto_2.overridingTransientBoard = (
+                    self._get_client_friendly_transient_board(for_player1=False)
+                )
 
             notify_processed_action(
-                processed_action_dto,
-                self._room_id,
+                processed_action_dto_1,
+                processed_action_dto_2,
+                player1_room,
+                player2_room,
+                self._match.lock,
             )
 
     def _get_processed_action_dto(
-        self, player_mode: PlayerMode, processed_action: Action
+        self, player_mode: PlayerMode, processed_action: Action, for_player1: bool
     ):
         return ProcessedActionDto(
             processedAction=processed_action.to_dto(),
             playerMode=player_mode,
-            updatedTurnContext=self._match.get_turn_context_dto(),
+            updatedTurnContext=self._match.get_turn_context_dto(for_player1),
             overridingTransientBoard=None,
         )
 
-    def _get_client_friendly_transient_board(self):
+    def _get_client_friendly_transient_board(self, for_player1: bool):
         transient_game_board = self.get_transient_game_board()
         return (
-            transient_game_board.to_dto()
+            transient_game_board.to_dto(for_player1)
             if transient_game_board
-            else self._game_board.to_dto()
+            else self._game_board.to_dto(for_player1)
         )

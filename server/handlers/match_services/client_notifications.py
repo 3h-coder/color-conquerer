@@ -1,3 +1,4 @@
+from threading import Lock
 from typing import TYPE_CHECKING
 
 from flask_socketio import emit
@@ -17,20 +18,52 @@ if TYPE_CHECKING:
 _server: "Server" = None
 
 
-def notify_match_start(turn_info: TurnContextDto, room_id: str):
-    _emit(Events.SERVER_MATCH_START, turn_info.to_dict(), to=room_id)
+def notify_match_start(
+    turn_context_1: TurnContextDto,
+    turn_context_2: TurnContextDto,
+    player1_room: str,
+    player2_room: str,
+    lock: Lock,
+):
+    with lock:
+        _emit(Events.SERVER_MATCH_START, turn_context_1.to_dict(), to=player1_room)
+        _emit(Events.SERVER_MATCH_START, turn_context_2.to_dict(), to=player2_room)
 
 
-def notify_turn_swap(turn_info: TurnContextDto, room_id: str):
-    _emit(Events.SERVER_TURN_SWAP, turn_info.to_dict(), to=room_id)
+def notify_turn_swap(
+    turn_context_1: TurnContextDto,
+    turn_context_2: TurnContextDto,
+    player1_room: str,
+    player2_room: str,
+    lock: Lock,
+):
+    with lock:
+        _emit(Events.SERVER_TURN_SWAP, turn_context_1.to_dict(), to=player1_room)
+        _emit(Events.SERVER_TURN_SWAP, turn_context_2.to_dict(), to=player2_room)
 
 
 def notify_possible_actions(possible_actions: PossibleActionsDto):
     emit(Events.SERVER_POSSIBLE_ACTIONS, possible_actions.to_dict())
 
 
-def notify_processed_action(processed_actions: ProcessedActionDto, room_id: str):
-    _emit(Events.SERVER_PROCESSED_ACTIONS, processed_actions.to_dict(), to=room_id)
+def notify_processed_action(
+    processed_actions_1: ProcessedActionDto,
+    processed_actions_2: ProcessedActionDto,
+    player1_room: str,
+    player2_room: str,
+    lock: Lock,
+):
+    with lock:
+        _emit(
+            Events.SERVER_PROCESSED_ACTIONS,
+            processed_actions_1.to_dict(),
+            to=player1_room,
+        )
+        _emit(
+            Events.SERVER_PROCESSED_ACTIONS,
+            processed_actions_2.to_dict(),
+            to=player2_room,
+        )
 
 
 def notify_action_error(error_msg: str):

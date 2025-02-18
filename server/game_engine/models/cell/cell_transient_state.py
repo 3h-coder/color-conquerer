@@ -1,13 +1,13 @@
-"""
-The transient states are temporary and meant to be sent to
-the player whose turn it is to inform him of the
-possible actions he can take.
-"""
-
 from enum import IntEnum
 
 
 class CellTransientState(IntEnum):
+    """
+    The transient states are temporary and meant to be sent to
+    the player whose turn it is to inform him of the
+    possible actions he can take.
+    """
+
     NONE = 0
     SELECTED = 1
     CAN_BE_MOVED_INTO = 2

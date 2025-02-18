@@ -1,6 +1,6 @@
 import { LandMineIcon, SwordIcon } from "../../../assets/svg";
 import { CellDto } from "../../../dto/CellDto";
-import { CellState, CellTransientState } from "../../../enums/cellStates";
+import { CellHiddenState, CellState, CellTransientState } from "../../../enums/cellStates";
 import { Events } from "../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../env";
 import { cellStyle } from "../../../style/constants";
@@ -25,7 +25,7 @@ export default function GameCell(props: GameCellProps) {
     const selected = cellInfo.transientState === CellTransientState.SELECTED;
     const attackable = cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
     const isManaBubble = cellInfo.state == CellState.MANA_BUBBLE;
-    const isMineTrap = cellInfo.state == CellState.MINE_TRAP;
+    const isMineTrap = cellInfo.hiddenState == CellHiddenState.MINE_TRAP;
 
     function onCellClick() {
         if (!selectable) return;

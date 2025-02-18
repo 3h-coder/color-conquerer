@@ -1,4 +1,5 @@
 from enum import Enum
+from threading import Lock
 
 from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
@@ -40,6 +41,10 @@ class MatchHandlerUnit:
         )
 
         self.status = MatchStatus.WAITING_TO_START
+
+        # Some successive emit events need to be secured with a lock
+        # to ensure they do happen in the same "transaction"
+        self.lock = Lock()
 
         self._match_termination_service = MatchTerminationService(self)
 
@@ -124,8 +129,11 @@ class MatchHandlerUnit:
 
         # notify the clients
         notify_match_start(
-            self.get_turn_context_dto(for_new_turn=True),
-            self.match_context.room_id,
+            self.get_turn_context_dto(for_player1=True, for_new_turn=True),
+            self.get_turn_context_dto(for_player1=False, for_new_turn=True),
+            self.match_context.player1.individual_room_id,
+            self.match_context.player2.individual_room_id,
+            self.lock,
         )
 
     def cancel(self):
@@ -145,7 +153,7 @@ class MatchHandlerUnit:
         """
         self._match_termination_service.end_match(reason, winner_id, loser_id)
 
-    def get_turn_context_dto(self, for_new_turn=False):
+    def get_turn_context_dto(self, for_player1: bool, for_new_turn=False):
         return TurnContextDto(
             currentPlayerId=self.get_current_player().player_id,
             isPlayer1Turn=self.match_context.is_player1_turn,
@@ -154,7 +162,7 @@ class MatchHandlerUnit:
             ),
             durationInS=TURN_DURATION_IN_S,
             notifyTurnChange=for_new_turn,
-            updatedBoardArray=self.match_context.game_board.to_dto(),
+            updatedBoardArray=self.match_context.game_board.to_dto(for_player1),
             playerResourceBundle=PlayerResourceBundleDto(
                 self.match_context.player1.resources.to_dto(),
                 self.match_context.player2.resources.to_dto(),
@@ -244,6 +252,14 @@ class MatchHandlerUnit:
         The first and second elements in the tuple belong to the player1 and player2 respectively.
         """
         return self.match_context.get_both_player_resources()
+
+    def get_individual_player_rooms(self):
+        """
+        Gets the individual room id for both players.
+
+        The first and second room ids in the tuple belong to the player1 and player2 respectively.
+        """
+        return self.match_context.get_individual_player_rooms()
 
     def _get_remaining_turn_time(self):
         """
