@@ -5,6 +5,7 @@ from dto.coordinates_dto import CoordinatesDto
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.callbacks.callback_factory import get_callback
+from game_engine.models.actions.hooks.action_hook import ActionHook
 from game_engine.models.match_context import MatchContext
 
 _logger = get_configured_logger(__name__)
@@ -16,6 +17,7 @@ class Action:
     """
 
     DEFAULT_MANA_COST = 0
+    HOOKS: set[ActionHook] = set()
     CALLBACKS: set[ActionCallBackId] = set()
 
     def __init__(
@@ -52,20 +54,29 @@ class Action:
         """
         raise NotImplementedError
 
-    def check_callbacks(apply_action_func):
+    def trigger_hooks_and_check_callbacks(apply_action_func):
         @wraps(apply_action_func)
         def wrapper(self: "Action", match_context: MatchContext):
+            self._trigger_hooks(match_context)
+
             apply_action_func(self, match_context)
 
-            for callback_id in self.CALLBACKS:
-                callback = get_callback(callback_id, self)
-                if callback.can_be_triggered(match_context):
-                    _logger.debug(f"Adding the following callback {callback.ID}")
-                    self.callbacks_to_trigger.add(callback)
+            self._register_callbacks(match_context)
 
         return wrapper
 
-    @check_callbacks
+    def _trigger_hooks(self, match_context: MatchContext):
+        for hook in self.HOOKS:
+            hook.trigger(self, match_context)
+
+    def _register_callbacks(self, match_context: MatchContext):
+        for callback_id in self.CALLBACKS:
+            callback = get_callback(callback_id, self)
+            if callback.can_be_triggered(match_context):
+                _logger.debug(f"Adding the following callback {callback.ID}")
+                self.callbacks_to_trigger.add(callback)
+
+    @trigger_hooks_and_check_callbacks
     def apply(self, match_context: MatchContext):
         """
         Applies the action on the given board.

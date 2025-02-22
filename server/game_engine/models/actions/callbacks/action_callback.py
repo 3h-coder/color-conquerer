@@ -10,7 +10,8 @@ if TYPE_CHECKING:
 
 class ActionCallback:
     """
-    Defines an action that is indirectly triggered by another.
+    Defines an action that is indirectly triggered by another, and therefore
+    should be called after an action is performed.
     """
 
     ID = ActionCallBackId.NONE

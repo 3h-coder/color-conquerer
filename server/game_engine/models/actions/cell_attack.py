@@ -81,7 +81,7 @@ class CellAttack(CellAction):
             )
         return attacks
 
-    @Action.check_callbacks
+    @Action.trigger_hooks_and_check_callbacks
     def apply(self, match_context: MatchContext):
         """
         Triggers an attack between two cells on the board.

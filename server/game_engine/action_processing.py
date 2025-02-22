@@ -16,10 +16,6 @@ def process_action(action: Action, match_context: MatchContext) -> Action:
 
     _process_player_mana(player_resources, action)
 
-    if isinstance(action, (CellMovement, CellSpawn)):
-        game_board = match_context.game_board
-        _check_for_mana_bubble(player_resources, game_board, action.impacted_coords)
-
     action.apply(match_context)
 
     return action

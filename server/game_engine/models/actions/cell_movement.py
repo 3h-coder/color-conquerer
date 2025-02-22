@@ -4,6 +4,7 @@ from dto.match_action_dto import ActionType
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.cell_action import CellAction
+from game_engine.models.actions.hooks.mana_bubble_hook import ManaBubbleHook
 from game_engine.models.cell.cell import Cell
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
@@ -15,6 +16,7 @@ class CellMovement(CellAction):
     Represents a cell moving from one cell to another
     """
 
+    HOOKS = {ManaBubbleHook()}
     CALLBACKS = {ActionCallBackId.MINE_EXPLOSION}
 
     def __eq__(self, other):
@@ -100,7 +102,7 @@ class CellMovement(CellAction):
 
         return movements
 
-    @Action.check_callbacks
+    @Action.trigger_hooks_and_check_callbacks
     def apply(self, match_context: MatchContext):
         """
         Moves a cell from the given original coordinates to the given new coordinates.

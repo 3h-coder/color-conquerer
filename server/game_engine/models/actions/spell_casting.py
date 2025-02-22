@@ -74,6 +74,7 @@ class SpellCasting(Action):
 
         return possible_spell_targets
 
+    @Action.trigger_hooks_and_check_callbacks
     def apply(self, match_context):
         self.spell.invoke(
             coordinates=self.impacted_coords,
