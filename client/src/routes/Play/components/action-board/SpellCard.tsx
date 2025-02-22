@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { BombIcon, InfoIcon } from "../../../../assets/svg";
+import { InfoIcon } from "../../../../assets/svg";
 import { SvgContainer } from "../../../../components/containers";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
 import { SpellDto } from "../../../../dto/SpellDto";
 import { Events } from "../../../../enums/events";
 import { PlayerMode } from "../../../../enums/playerMode";
-import { SpellId } from "../../../../enums/spellId";
 import { socket, WHITE_SPACE } from "../../../../env";
+import { getSpellIcon } from "../shared";
 
 interface SpellCardProps {
     spell: SpellDto;
@@ -115,12 +115,4 @@ export default function SpellCard(props: SpellCardProps) {
     );
 }
 
-function getSpellIcon(spellId: number) {
-    switch (spellId) {
-        case SpellId.MINE_TRAP:
-            return <BombIcon />;
 
-        default:
-            return <></>;
-    }
-}

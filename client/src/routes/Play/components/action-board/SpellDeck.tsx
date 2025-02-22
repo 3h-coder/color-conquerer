@@ -4,7 +4,7 @@ import { SpellsDto } from "../../../../dto/SpellsDto";
 import { Events } from "../../../../enums/events";
 import { socket } from "../../../../env";
 import { developmentLog } from "../../../../utils/loggingUtils";
-import SpellCard from "../buttons/SpellCard";
+import SpellCard from "./SpellCard";
 
 export default function SpellDeck() {
     const [spells, setSpells] = useState<SpellDto[]>([]);

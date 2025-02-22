@@ -7,6 +7,7 @@ export function isOwned(cell: CellDto) {
   return cell.owner !== 0;
 }
 
+
 export function getCellStyle(cell: CellDto, isPlayer1: boolean) {
   const style: React.CSSProperties = {};
 

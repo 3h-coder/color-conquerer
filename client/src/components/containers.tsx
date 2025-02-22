@@ -30,3 +30,9 @@ export function CenteredContainer(props: ContainerProps) {
         </div>
     );
 }
+
+export function Separator(props: ContainerProps) {
+    const { style } = props;
+
+    return <div className="separator" style={style} />;
+}

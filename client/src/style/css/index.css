@@ -112,6 +112,11 @@ svg {
   fill: white;
 }
 
+.separator {
+  height: 0;
+  border-top: 0.1rem solid white;
+}
+
 /* #region Custom styles */
 
 .transparent {
@@ -339,6 +344,24 @@ svg {
 @keyframes fade-out {
   0% {
     opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in-out {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: var(--end-opacity, 1);
+  }
+  50% {
+    opacity: var(--end-opacity, 1);
+  }
+  75% {
+    opacity: var(--end-opacity, 1);
   }
   100% {
     opacity: 0;

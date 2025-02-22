@@ -1,25 +1,27 @@
 import { useEffect, useState } from "react";
-import OpponentTurnImage from "../../../assets/images/Your Opponent Turn.png";
-import YourTurnImage from "../../../assets/images/Your Turn.png";
-import { animateProcessedAction } from "../../../board-animations/main";
-import { ContainerProps } from "../../../components/containers";
-import { useMatchInfo } from "../../../contexts/MatchContext";
-import { usePlayerInfo } from "../../../contexts/PlayerContext";
-import { usePlayerMode } from "../../../contexts/PlayerModeContext";
-import { usePlayersGameInfo } from "../../../contexts/PlayersGameInfoContext";
-import { useTurnContext } from "../../../contexts/TurnContext";
-import { MessageDto } from "../../../dto/MessageDto";
-import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
-import { ProcessedActionDto } from "../../../dto/ProcessedActionDto";
-import { undefinedTurnContext } from "../../../dto/TurnContextDto";
-import { Events } from "../../../enums/events";
-import { EMPTY_STRING, socket } from "../../../env";
+import OpponentTurnImage from "../../../../assets/images/Your Opponent Turn.png";
+import YourTurnImage from "../../../../assets/images/Your Turn.png";
+import { animateProcessedAction } from "../../../../board-animations/main";
+import { ContainerProps } from "../../../../components/containers";
+import { useMatchInfo } from "../../../../contexts/MatchContext";
+import { usePlayerInfo } from "../../../../contexts/PlayerContext";
+import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
+import { usePlayersGameInfo } from "../../../../contexts/PlayersGameInfoContext";
+import { useTurnContext } from "../../../../contexts/TurnContext";
+import { MessageDto } from "../../../../dto/MessageDto";
+import { PartialSpellDto } from "../../../../dto/PartialSpellDto";
+import { PossibleActionsDto } from "../../../../dto/PossibleActionsDto";
+import { ProcessedActionDto } from "../../../../dto/ProcessedActionDto";
+import { undefinedTurnContext } from "../../../../dto/TurnContextDto";
+import { Events } from "../../../../enums/events";
+import { EMPTY_STRING, socket } from "../../../../env";
 import {
     getCellId,
-} from "../../../utils/cellUtils";
-import { developmentLog } from "../../../utils/loggingUtils";
+} from "../../../../utils/cellUtils";
+import { developmentLog } from "../../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 import GameError from "./GameError";
+import SpellAction from "./SpellAction";
 import TurnSwapImage from "./TurnSwapImage";
 
 export default function GameGrid() {
@@ -33,6 +35,7 @@ export default function GameGrid() {
     const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [actionErrorMessage, setActionErrorMessage] = useState(EMPTY_STRING);
+    const [actionSpell, setActionSpell] = useState<PartialSpellDto | null>(null);
 
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
     const [canDisplayPossibleActions, setCanDisplayPossibleActions] = useState(true);
@@ -131,7 +134,7 @@ export default function GameGrid() {
             setPlayerResourceBundle(processedActionDto.updatedTurnContext.playerResourceBundle);
 
             // Trigger animations
-            animateProcessedAction(processedActionDto.processedAction, isPlayer1, boardArray);
+            animateProcessedAction(processedActionDto.processedAction, isPlayer1, boardArray, setActionSpell);
 
             // Update the board array with the new cell info
             if (isMyTurn && processedActionDto.overridingTransientBoard) {
@@ -183,8 +186,14 @@ export default function GameGrid() {
                     </GridRow>
                 ))}
             </GridInner>
+            { /* Image whenever the turn changes */}
             {showTurnSwapImage && <TurnSwapImage imagePath={turnSwapImagePath} />}
+
+            { /* Error message from the server to display */}
             {actionErrorMessage && <GameError errorMessage={actionErrorMessage} />}
+
+            { /* Spell description card whenever a player casts a spell */}
+            {actionSpell && <SpellAction spell={actionSpell} />}
         </GridOuter>
     );
 }

@@ -1,4 +1,4 @@
-import EndTurnButton from "./buttons/EndTurnButton";
+import EndTurnButton from "./EndTurnButton";
 
 export default function RightSideControls() {
 
@@ -6,5 +6,5 @@ export default function RightSideControls() {
         <div className="right-side-controls-container">
             <EndTurnButton />
         </div>
-    )
+    );
 }

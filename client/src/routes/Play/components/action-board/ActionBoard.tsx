@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ContainerProps } from "../../../../components/containers";
-import SpawnButton from "../buttons/SpawnButton";
-import SpellToggleButton from "../buttons/SpellToggleButton";
+import SpawnButton from "./SpawnButton";
 import SpellDeck from "./SpellDeck";
+import SpellToggleButton from "./SpellToggleButton";
 
 export default function ActionBoard() {
     const [spellsVisible, setSpellsVisible] = useState(false);

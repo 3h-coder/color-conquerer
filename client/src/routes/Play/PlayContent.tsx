@@ -16,12 +16,12 @@ import { ModalIcon } from "../../enums/modalIcons";
 import { PlayerMode } from "../../enums/playerMode";
 import { constants, EMPTY_STRING, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
-import ActionBoard from "./components/action_board/ActionBoard";
-import GameGrid from "./components/GameGrid";
+import ActionBoard from "./components/action-board/ActionBoard";
+import GameGrid from "./components/game-grid/GameGrid";
 import GameTopInfo from "./components/GameTopInfo";
-import MyPlayerInfo from "./components/MyPlayerInfo";
-import OpponentInfo from "./components/OpponentInfo";
-import RightSideControls from "./components/RightSideControls";
+import MyPlayerInfo from "./components/player-info/MyPlayerInfo";
+import OpponentInfo from "./components/player-info/OpponentInfo";
+import RightSideControls from "./components/right-side-controls/RightSideControls";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -69,7 +69,6 @@ export default function PlayContent() {
         socket.emit(Events.CLIENT_READY);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchInfo, matchInfoLoading, playerId, playerInfoLoading]);
 
   // React to a turnInfo update
@@ -79,7 +78,6 @@ export default function PlayContent() {
     function resetPlayerModeOnTurnInfoUpdate() {
       setPlayerMode(PlayerMode.IDLE);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [turnInfo]);
 
   // Socket events
@@ -179,15 +177,27 @@ export default function PlayContent() {
     <PageContainer>
       {canRenderContent ? (
         <>
-          {turnInfo && <GameTopInfo />}
+          {/* The player whom it is the turn + turn time bar */}
+          <GameTopInfo />
+
           <MainInnerContainer>
+
+            {/* Opponent information (HP/MP) */}
             <OpponentInfo />
+
             <GameGrid />
+
+            {/* Player information (HP/MP) */}
             <MyPlayerInfo />
+
+            {/* Action board -> Spawning cells, casting spells, etc. */}
             <ActionBoard />
+
+            {/* Right side controls -> End turn, concede, etc. */}
             <RightSideContainer>
               <RightSideControls />
             </RightSideContainer>
+
           </MainInnerContainer>
         </>
       ) : (

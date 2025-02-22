@@ -1,14 +1,14 @@
-import { LandMineIcon, SwordIcon } from "../../../assets/svg";
-import { CellDto } from "../../../dto/CellDto";
-import { CellHiddenState, CellState, CellTransientState } from "../../../enums/cellState";
-import { Events } from "../../../enums/events";
-import { EMPTY_STRING, socket } from "../../../env";
-import { cellStyle } from "../../../style/constants";
+import { LandMineIcon, SwordIcon } from "../../../../assets/svg";
+import { CellDto } from "../../../../dto/CellDto";
+import { CellHiddenState, CellState, CellTransientState } from "../../../../enums/cellState";
+import { Events } from "../../../../enums/events";
+import { EMPTY_STRING, socket } from "../../../../env";
+import { cellStyle } from "../../../../style/constants";
 import {
     canBeTargetted,
     getCellStyle,
     isSelectable,
-} from "../../../utils/cellUtils";
+} from "../../../../utils/cellUtils";
 
 interface GameCellProps {
     id: string;
