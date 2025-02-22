@@ -375,6 +375,13 @@
     border: 0.1rem solid white;
 }
 
+.spell-card-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+}
+
 .spell-description {
     --end-opacity: 0.9;
     position: absolute;
