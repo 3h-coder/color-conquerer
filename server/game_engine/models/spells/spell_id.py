@@ -1,5 +1,5 @@
 from enum import IntEnum
 
 
-class Spell_ID(IntEnum):
+class SpellId(IntEnum):
     MINE_TRAP = 1

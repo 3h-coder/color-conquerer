@@ -1,15 +1,16 @@
 from typing import TYPE_CHECKING
 
 from dto.coordinates_dto import CoordinatesDto
+from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.spells.spell import Spell
-from game_engine.models.spells.spell_id import Spell_ID
+from game_engine.models.spells.spell_id import SpellId
 
 if TYPE_CHECKING:
     from game_engine.models.game_board import GameBoard
 
 
 class MineTrapSpell(Spell):
-    ID = Spell_ID.MINE_TRAP
+    ID = SpellId.MINE_TRAP
     NAME = "Mine Trap"
     DESCRIPTION = (
         "Place a mine trap on a non-occupied cell. "
@@ -39,7 +40,8 @@ class MineTrapSpell(Spell):
 
         return possible_targets
 
-    def invoke(self, coordinates: CoordinatesDto, board: "GameBoard"):
+    def invoke(
+        self, coordinates: CoordinatesDto, board: "GameBoard", invocator: CellOwner
+    ):
         cell = board.get(coordinates.rowIndex, coordinates.columnIndex)
-        cell.set_as_mine_trap()
-        return board
+        cell.set_as_mine_trap(invocator)

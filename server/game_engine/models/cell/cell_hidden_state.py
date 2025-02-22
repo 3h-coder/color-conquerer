@@ -8,5 +8,5 @@ class CellHiddenState(IntEnum):
     """
 
     NONE = 0
-    # Will explode when spwaned upon or moved into
+    # Will explode when spawned upon or moved into
     MINE_TRAP = 1

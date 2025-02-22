@@ -217,11 +217,7 @@ class MatchHandlerUnit:
 
     def get_current_player(self):
         """Gets the id of the player of whom it is the turn."""
-        return (
-            self.match_context.player1
-            if self.match_context.is_player1_turn
-            else self.match_context.player2
-        )
+        return self.match_context.get_current_player()
 
     def get_player(self, player_id: str):
         """

@@ -1,6 +1,6 @@
 from game_engine.models.spells.mine_trap_spell import MineTrapSpell
 from game_engine.models.spells.spell import Spell
-from game_engine.models.spells.spell_id import Spell_ID
+from game_engine.models.spells.spell_id import SpellId
 
 _SPELLS = {
     MineTrapSpell.ID: lambda: MineTrapSpell(),
@@ -16,4 +16,4 @@ def get_spell(spell_id: int) -> Spell:
 
 def get_initial_spell_deck():
     # TODO : fill with other spells
-    return {Spell_ID.MINE_TRAP: 5}
+    return {SpellId.MINE_TRAP: 5}

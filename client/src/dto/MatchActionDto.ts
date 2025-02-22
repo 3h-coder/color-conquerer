@@ -1,10 +1,13 @@
 import { ActionType } from "../enums/actionType";
 import { CoordinatesDto } from "./CoordinatesDto";
+import { PartialSpellDto } from "./PartialSpellDto";
 
 export interface MatchActionDto {
     player1: boolean;
     type: ActionType;
-    originatingCellCoords?: CoordinatesDto;
+    // Spell castings have no originating coordinates
+    originatingCellCoords: CoordinatesDto | null;
     impactedCoords: CoordinatesDto;
-    spellId: number;
+    // Only if the action type is spell
+    spell: PartialSpellDto | null;
 }

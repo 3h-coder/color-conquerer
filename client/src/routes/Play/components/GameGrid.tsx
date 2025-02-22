@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import OpponentTurnImage from "../../../assets/images/Your Opponent Turn.png";
 import YourTurnImage from "../../../assets/images/Your Turn.png";
+import { animateProcessedAction } from "../../../board-animations/main";
 import { ContainerProps } from "../../../components/containers";
 import { useMatchInfo } from "../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../contexts/PlayerContext";
@@ -10,9 +11,9 @@ import { useTurnContext } from "../../../contexts/TurnContext";
 import { MessageDto } from "../../../dto/MessageDto";
 import { PossibleActionsDto } from "../../../dto/PossibleActionsDto";
 import { ProcessedActionDto } from "../../../dto/ProcessedActionDto";
+import { undefinedTurnContext } from "../../../dto/TurnContextDto";
 import { Events } from "../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../env";
-import { animateProcessedAction } from "../../../utils/boardUtils";
 import {
     getCellId,
 } from "../../../utils/cellUtils";
@@ -20,7 +21,6 @@ import { developmentLog } from "../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 import GameError from "./GameError";
 import TurnSwapImage from "./TurnSwapImage";
-import { undefinedTurnContext } from "../../../dto/TurnContextDto";
 
 export default function GameGrid() {
     const { matchInfo } = useMatchInfo();
@@ -57,7 +57,6 @@ export default function GameGrid() {
             if (turnContext === undefinedTurnContext) return;
             setIsMyTurn(turnContext.currentPlayerId === playerId);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [turnContext]);
 
     // React to the isMyTurn change
@@ -89,7 +88,6 @@ export default function GameGrid() {
 
             return () => clearTimeout(timeout);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isMyTurn]);
 
     // Clear the error message ~1 second after it has been set

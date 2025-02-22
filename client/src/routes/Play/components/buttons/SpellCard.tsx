@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { InfoIcon } from "../../../../assets/svg";
+import { BombIcon, InfoIcon } from "../../../../assets/svg";
+import { SvgContainer } from "../../../../components/containers";
+import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
 import { SpellDto } from "../../../../dto/SpellDto";
-import { socket, WHITE_SPACE } from "../../../../env";
 import { Events } from "../../../../enums/events";
-import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { PlayerMode } from "../../../../enums/playerMode";
+import { SpellId } from "../../../../enums/spellId";
+import { socket, WHITE_SPACE } from "../../../../env";
 
 interface SpellCardProps {
     spell: SpellDto;
@@ -82,6 +84,8 @@ export default function SpellCard(props: SpellCardProps) {
         };
     }, [playerMode, canInteract]);
 
+    const iconSize = "1rem";
+
     return (
         <>
             <button
@@ -94,7 +98,12 @@ export default function SpellCard(props: SpellCardProps) {
                 onClick={onClick}
             >
                 <div className="spell-mana-cost">{spell.manaCost}</div>
-                <div>{spell.name} ({spell.count}/{spell.maxCount})</div>
+                <div className="spell-card-content">
+                    <SvgContainer style={{ width: iconSize, height: iconSize }}>
+                        {getSpellIcon(spell.id)}
+                    </SvgContainer>
+                    {spell.name} ({spell.count}/{spell.maxCount})
+                </div>
             </button>
             {showDescription &&
                 <div className="spell-description">
@@ -104,4 +113,14 @@ export default function SpellCard(props: SpellCardProps) {
                 </div>}
         </>
     );
+}
+
+function getSpellIcon(spellId: number) {
+    switch (spellId) {
+        case SpellId.MINE_TRAP:
+            return <BombIcon />;
+
+        default:
+            return <></>;
+    }
 }

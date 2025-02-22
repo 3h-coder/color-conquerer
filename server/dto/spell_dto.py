@@ -1,13 +1,9 @@
 from dataclasses import dataclass
 
-from dto.base_dto import BaseDto
+from dto.partial_spell_dto import PartialSpellDto
 
 
 @dataclass
-class SpellDto(BaseDto):
-    id: int
-    name: str
-    description: str
-    manaCost: int
+class SpellDto(PartialSpellDto):
     count: int
     maxCount: int

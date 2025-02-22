@@ -5,7 +5,7 @@ from dto.player_resources_dto import PlayerResourcesDto
 from dto.spell_dto import SpellDto
 from dto.spells_dto import SpellsDto
 from game_engine.models.spells.spell_factory import get_initial_spell_deck, get_spell
-from game_engine.models.spells.spell_id import Spell_ID
+from game_engine.models.spells.spell_id import SpellId
 
 
 @dataclass
@@ -20,7 +20,7 @@ class PlayerResources:
     max_mp: int
     current_mp: int
     # Spell id | count
-    spells: dict[Spell_ID, int]
+    spells: dict[SpellId, int]
 
     @staticmethod
     def get_initial():

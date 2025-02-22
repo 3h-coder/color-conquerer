@@ -1,8 +1,6 @@
-export interface SpellDto {
-    id: number;
-    name: string;
-    description: string;
-    manaCost: number;
+import { PartialSpellDto } from "./PartialSpellDto";
+
+export interface SpellDto extends PartialSpellDto {
     count: number;
     maxCount: number;
 }

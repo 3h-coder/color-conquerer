@@ -37,7 +37,7 @@ class CellSpawn(Action):
             type=ActionType.CELL_SPAWN,
             originatingCellCoords=None,
             impactedCoords=self.impacted_coords,
-            spellId=None,
+            spell=None,
         )
 
     @staticmethod

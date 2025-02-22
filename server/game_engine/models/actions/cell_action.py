@@ -22,5 +22,5 @@ class CellAction(Action):
             type=None,
             originatingCellCoords=self.originating_coords,
             impactedCoords=self.impacted_coords,
-            spellId=None,
+            spell=None,
         )

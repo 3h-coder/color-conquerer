@@ -53,6 +53,9 @@ class MatchContext:
             ),
         )
 
+    def get_current_player(self):
+        return self.player1 if self.is_player1_turn else self.player2
+
     def get_player_resources(self, player1: bool):
         return self.player1.resources if player1 else self.player2.resources
 

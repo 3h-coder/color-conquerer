@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from dto.cell_dto import CellDto
 from game_engine.models.cell.cell_hidden_state import CellHiddenState
+from game_engine.models.cell.cell_hidden_state_info import CellHiddenStateInfo
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
 from game_engine.models.cell.cell_transient_state import CellTransientState
@@ -15,7 +16,7 @@ class Cell:
     row_index: int
     column_index: int
     state: CellState
-    hidden_state: CellHiddenState
+    hidden_state_info: CellHiddenStateInfo
     transient_state: CellTransientState
     id: str
 
@@ -34,27 +35,18 @@ class Cell:
         return (
             f"Cell(owner: {self.owner}, is_master: {self.is_master}, "
             f"row_index: {self.row_index}, column_index: {self.column_index}, "
-            f"state: {self.state}, hidden_state: {self.hidden_state}, "
+            f"state: {self.state}, hidden_state_info: {self.hidden_state_info}, "
             f"transient_state: {self.transient_state}, id: {self.id})"
         )
 
     def to_dto(self, for_player1: bool | None):
-        hidden_state = CellHiddenState.NONE
-        if (
-            for_player1 is True
-            and self.belongs_to_player_1()
-            or for_player1 is False
-            and self.belongs_to_player_2()
-        ):
-            hidden_state = self.hidden_state
-
         return CellDto(
             owner=self.owner,
             isMaster=self.is_master,
             rowIndex=self.row_index,
             columnIndex=self.column_index,
             state=self.state,
-            hiddenState=hidden_state,
+            hiddenState=self._get_hidden_state(for_player1),
             transientState=self.transient_state,
         )
 
@@ -65,7 +57,7 @@ class Cell:
             row_index=self.row_index,
             column_index=self.column_index,
             state=self.state,
-            hidden_state=self.hidden_state,
+            hidden_state_info=self.hidden_state_info,
             transient_state=self.transient_state,
             id=self.id,
         )
@@ -78,7 +70,7 @@ class Cell:
             row_index=row_index,
             column_index=col_index,
             state=CellState.NONE,
-            hidden_state=CellHiddenState.NONE,
+            hidden_state_info=CellHiddenStateInfo.default(),
             transient_state=CellTransientState.NONE,
             id=None,
         )
@@ -88,7 +80,7 @@ class Cell:
         self.id = None
         self.is_master = False
         self.state = CellState.NONE
-        self.hidden_state = CellHiddenState.NONE
+        self.hidden_state_info = CellHiddenStateInfo.default()
         self.transient_state = CellTransientState.NONE
 
     def set_owned_by_player1(self, id: str = None):
@@ -141,7 +133,10 @@ class Cell:
         return self.state == CellState.MANA_BUBBLE
 
     def is_mine_trap(self):
-        return self.hidden_state == CellHiddenState.MINE_TRAP
+        return self.hidden_state_info.is_mine_trap()
+
+    def has_hidden_state(self):
+        return self.hidden_state_info.state != CellHiddenState.NONE
 
     def clear_state(self):
         self.state = CellState.NONE
@@ -167,5 +162,17 @@ class Cell:
     def set_as_mana_bubble(self):
         self.state = CellState.MANA_BUBBLE
 
-    def set_as_mine_trap(self):
-        self.hidden_state = CellHiddenState.MINE_TRAP
+    def set_as_mine_trap(self, owner: CellOwner):
+        self.hidden_state_info = CellHiddenStateInfo(
+            state=CellHiddenState.MINE_TRAP,
+            visible_to=owner,
+        )
+
+    def _get_hidden_state(self, for_player1: bool | None):
+        hidden_state = CellHiddenState.NONE
+        if (for_player1 is True and self.hidden_state_info.is_visible_to_player1()) or (
+            for_player1 is False and self.hidden_state_info.is_visible_to_player2()
+        ):
+            hidden_state = self.hidden_state_info.state
+
+        return hidden_state

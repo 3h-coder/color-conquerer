@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from game_engine.models.player_resources import PlayerResources
-from game_engine.models.spells.spell_id import Spell_ID
+from game_engine.models.spells.spell_id import SpellId
 
 
 @dataclass
@@ -18,7 +18,7 @@ class TurnState:
     # List of the ids of the cells that moved this turn
     movements: list[str]
     # List of the ids of the cells that were casted this turn
-    spells: list[Spell_ID]
+    spells: list[SpellId]
     player1_resources: PlayerResources
     player2_resources: PlayerResources
 
