@@ -1,5 +1,6 @@
 from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import ActionType
+from game_engine.models.actions.action import Action
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.cell.cell import Cell
 from game_engine.models.game_board import GameBoard
@@ -80,6 +81,7 @@ class CellAttack(CellAction):
             )
         return attacks
 
+    @Action.check_callbacks
     def apply(self, match_context: MatchContext):
         """
         Triggers an attack between two cells on the board.

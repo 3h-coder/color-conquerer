@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
+from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.cell.cell import Cell
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
@@ -15,6 +16,7 @@ class CellSpawn(Action):
     """
 
     DEFAULT_MANA_COST = 1
+    CALLBACKS = {ActionCallBackId.MINE_EXPLOSION}
 
     def __init__(self, from_player1: bool, impacted_coords: CoordinatesDto):
         super().__init__(
@@ -80,6 +82,7 @@ class CellSpawn(Action):
 
         return possible_spawns
 
+    @Action.check_callbacks
     def apply(self, match_context: MatchContext):
         """
         Spawns a cell at the given coordinates for the given player.

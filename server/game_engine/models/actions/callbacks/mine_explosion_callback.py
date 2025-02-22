@@ -1,9 +1,11 @@
+from typing import TYPE_CHECKING
+
 from dto.coordinates_dto import CoordinatesDto
-from game_engine.models.actions.action import Action
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
-from game_engine.models.actions.cell_movement import CellMovement
-from game_engine.models.actions.cell_spawn import CellSpawn
+
+if TYPE_CHECKING:
+    from game_engine.models.actions.action import Action
 
 
 class MineExplosionCallback(ActionCallback):
@@ -11,18 +13,14 @@ class MineExplosionCallback(ActionCallback):
     Deals damage to all cells around the land mine cell.
     """
 
-    ID = ActionCallBackId.MINE_TRAP
+    ID = ActionCallBackId.MINE_EXPLOSION
 
-    def __init__(self, parent_action: Action):
+    def __init__(self, parent_action: "Action"):
         super().__init__(parent_action)
         self.explosion_center_coords: CoordinatesDto | None = None
 
     def can_be_triggered(self, match_context):
         parent_action = self.parent_action
-        if not isinstance(parent_action, CellMovement) and not isinstance(
-            parent_action, CellSpawn
-        ):
-            return False
 
         self.explosion_center_coords = impacted_coords = parent_action.impacted_coords
         impacted_cell = match_context.game_board.get(

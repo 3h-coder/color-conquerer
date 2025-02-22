@@ -1,6 +1,8 @@
 from constants.game_constants import BOARD_SIZE
 from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import ActionType
+from game_engine.models.actions.action import Action
+from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.cell.cell import Cell
 from game_engine.models.game_board import GameBoard
@@ -12,6 +14,8 @@ class CellMovement(CellAction):
     """
     Represents a cell moving from one cell to another
     """
+
+    CALLBACKS = {ActionCallBackId.MINE_EXPLOSION}
 
     def __eq__(self, other):
         return (
@@ -96,6 +100,7 @@ class CellMovement(CellAction):
 
         return movements
 
+    @Action.check_callbacks
     def apply(self, match_context: MatchContext):
         """
         Moves a cell from the given original coordinates to the given new coordinates.
