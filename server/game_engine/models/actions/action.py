@@ -18,6 +18,13 @@ class Action:
         self.impacted_coords = impacted_coords
         self.mana_cost = self.DEFAULT_MANA_COST
 
+    def __repr__(self):
+        return (
+            f"<Action(from_player1={self.from_player1}, "
+            f"impacted_coords={self.impacted_coords}, "
+            f"mana_cost={self.mana_cost})>"
+        )
+
     def to_dto(self):
         raise NotImplementedError
 

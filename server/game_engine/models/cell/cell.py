@@ -31,12 +31,12 @@ class Cell:
     def __hash__(self):
         return hash(self.row_index, self.column_index, self.id)
 
-    def __str__(self):
+    def __repr__(self):
         return (
-            f"Cell(owner: {self.owner}, is_master: {self.is_master}, "
-            f"row_index: {self.row_index}, column_index: {self.column_index}, "
-            f"state: {self.state}, hidden_state_info: {self.hidden_state_info}, "
-            f"transient_state: {self.transient_state}, id: {self.id})"
+            f"<Cell(owner={self.owner!r}, is_master={self.is_master!r}, "
+            f"row_index={self.row_index!r}, column_index={self.column_index!r}, "
+            f"state={self.state!r}, hidden_state_info={self.hidden_state_info!r}, "
+            f"transient_state={self.transient_state!r}, id={self.id!r})>"
         )
 
     def to_dto(self, for_player1: bool | None):

@@ -19,6 +19,7 @@ class SpellCasting(Action):
     ):
         super().__init__(from_player1, impacted_coords)
         self.spell = spell
+        self.mana_cost = spell.mana_cost
 
     def __eq__(self, other):
         return (
