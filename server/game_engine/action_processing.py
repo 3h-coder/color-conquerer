@@ -32,16 +32,3 @@ def _process_player_mana(player_resources: PlayerResources, action: Action):
         raise ValueError(f"Tried to perform an action with not enough mana.")
 
     player_resources.current_mp -= action.mana_cost
-
-
-def _check_for_mana_bubble(
-    player_resources: PlayerResources,
-    game_board: GameBoard,
-    coords: CoordinatesDto,
-):
-    """
-    Increases the player's mana by one if the target cell is a mana bubble.
-    """
-    cell: Cell = game_board.get(coords.rowIndex, coords.columnIndex)
-    if cell.is_mana_bubble():
-        player_resources.current_mp += 1

@@ -34,7 +34,8 @@ class Action:
         return (
             f"<Action(from_player1={self.from_player1}, "
             f"impacted_coords={self.impacted_coords}, "
-            f"mana_cost={self.mana_cost})>"
+            f"mana_cost={self.mana_cost},"
+            f"callbacks_to_trigger={self.callbacks_to_trigger})>"
         )
 
     def to_dto(self):
@@ -42,6 +43,9 @@ class Action:
 
     def get_callbacks_dto(self):
         return [callback.to_dto() for callback in self.callbacks_to_trigger]
+
+    def has_callbacks_to_trigger(self):
+        return self.callbacks_to_trigger is not None and bool(self.callbacks_to_trigger)
 
     @staticmethod
     def create(*args, **kwargs) -> "Action":
@@ -65,6 +69,13 @@ class Action:
 
         return wrapper
 
+    @trigger_hooks_and_check_callbacks
+    def apply(self, match_context: MatchContext):
+        """
+        Applies the action on the given board.
+        """
+        raise NotImplementedError
+
     def _trigger_hooks(self, match_context: MatchContext):
         for hook in self.HOOKS:
             hook.trigger(self, match_context)
@@ -75,10 +86,3 @@ class Action:
             if callback.can_be_triggered(match_context):
                 _logger.debug(f"Adding the following callback {callback.ID}")
                 self.callbacks_to_trigger.add(callback)
-
-    @trigger_hooks_and_check_callbacks
-    def apply(self, match_context: MatchContext):
-        """
-        Applies the action on the given board.
-        """
-        raise NotImplementedError

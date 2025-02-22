@@ -11,9 +11,9 @@ class ActionProcessor:
     Note : Action validation should be done before calling this class's methods.
     """
 
-    def __init__(self, match_info: MatchContext):
+    def __init__(self, match_context: MatchContext):
         self._logger = get_configured_logger(__name__)
-        self._match_context = match_info
+        self._match_context = match_context
 
     def process_action(self, action: Action):
         """
@@ -30,3 +30,17 @@ class ActionProcessor:
                 f"Failed to process the action : {action}", exc_info=True
             )
             return None
+
+    def trigger_callbacks(self, action: Action, match_context: MatchContext):
+        triggered_callbacks = set()
+
+        for callback in action.callbacks_to_trigger:
+            try:
+                callback.trigger(match_context)
+                triggered_callbacks.add(callback)
+            except Exception as ex:
+                self._logger.critical(
+                    f"Failed to trigger the callback {callback.ID}", exc_info=True
+                )
+
+        return triggered_callbacks
