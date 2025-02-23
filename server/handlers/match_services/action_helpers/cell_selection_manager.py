@@ -29,6 +29,7 @@ class CellSelectionManager(ActionManager):
         self._logger = get_configured_logger(__name__)
         self._turn_state = self._match_actions_service.turn_state
 
+    @ActionManager.entry_point(with_turn_state_reset=True)
     def handle_cell_selection(self, cell_row: int, cell_col: int):
         """
         Handles the cell selection from the current player.
@@ -47,11 +48,6 @@ class CellSelectionManager(ActionManager):
         # the cell is idle
         else:
             self._handle_idle_cell_selection(cell, is_player_1)
-
-        self.send_response_to_client()
-
-        if self.get_server_mode() == ServerMode.SHOW_PROCESSED_ACTION:
-            self.set_player_as_idle()
 
     def _handle_own_cell_selection(self, cell: Cell, player1: bool):
         """

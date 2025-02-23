@@ -19,6 +19,7 @@ class SpellManager(ActionManager):
         super().__init__(match_actions_service)
         self._logger = get_configured_logger(__name__)
 
+    @ActionManager.entry_point
     def handle_spell_request(self, spell_id: int):
         player_mode = self.get_player_mode()
         selected_spell = self.get_selected_spell()
@@ -35,8 +36,6 @@ class SpellManager(ActionManager):
         else:
             self.set_player_as_idle()
             self._find_spell_possible_targets(spell_id)
-
-        self.send_response_to_client()
 
     @ActionManager.initialize_transient_board
     def _find_spell_possible_targets(self, spell_id: int):

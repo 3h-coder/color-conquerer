@@ -54,12 +54,40 @@ class ActionManager(TransientTurnStateHolder):
 
         return wrapper
 
+    def entry_point(with_turn_state_reset=False):
+        """
+        Decorator used to notify the clients after the function has been
+        invoked.
+        """
+
+        def decorator(func):
+            @functools.wraps(func)
+            def wrapper(self: "ActionManager", *args, **kwargs):
+                func(self, *args, **kwargs)
+
+                self.send_response_to_clients()
+
+                if (
+                    with_turn_state_reset
+                    and self.get_server_mode() == ServerMode.SHOW_PROCESSED_ACTION
+                ):
+                    self.set_player_as_idle()
+
+            return wrapper
+
+        # If "func" is passed directly (without parentheses), return the decorator applied to func
+        if callable(with_turn_state_reset):
+            # Treat "with_turn_state_reset" as the function
+            return decorator(with_turn_state_reset)
+        # Otherwise, return the decorator normally
+        return decorator
+
     def validate_and_process_action(
         self, action: Action, server_mode=ServerMode.SHOW_PROCESSED_ACTION
     ):
         self._match_actions_service.validate_and_process_action(action, server_mode)
 
-    def send_response_to_client(self):
+    def send_response_to_clients(self):
         """
         Crucial method.
 

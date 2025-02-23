@@ -25,7 +25,7 @@ class TransientTurnStateHolder:
 
         This is an effective reset of a player's action state.
 
-        Note : This will also reset any error message.
+        Note : This will also reset the error message.
         """
         self.transient_turn_state.reset()
 

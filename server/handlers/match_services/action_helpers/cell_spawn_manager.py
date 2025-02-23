@@ -18,6 +18,7 @@ class CellSpawnManager(ActionManager):
         super().__init__(match_actions_service)
         self._logger = get_configured_logger(__name__)
 
+    @ActionManager.entry_point
     def handle_spawn_toggle(self):
         """
         Handles the spawn/spawn cancellation request of a player.
@@ -36,8 +37,6 @@ class CellSpawnManager(ActionManager):
         elif player_mode == PlayerMode.SPELL_SELECTED:
             self.set_player_as_idle()
             self.find_possible_spawns()
-
-        self.send_response_to_client()
 
     @ActionManager.initialize_transient_board
     def find_possible_spawns(self, update_server_mode=True):

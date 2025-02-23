@@ -21,7 +21,7 @@ class ActionProcessor:
 
         This method should never fail, but is wrapped inside of a try except just in case.
 
-        Returns True if the action could be processed properly, false otherwise.
+        Returns the action object if the action could be processed properly, None otherwise.
         """
         try:
             return process_action(action, self._match_context)
