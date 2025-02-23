@@ -20,6 +20,6 @@ export function animateMineExplosion(callback: ActionCallbackDto, setActionSpell
     explosion.style.setProperty(expansionColorVariable, "blue");
     htmlCell.appendChild(explosion);
 
-    setActionSpell(parentAction.spell);
+    setActionSpell(callback.spellCause);
     cleanup(explosion, cleanupDelayInMs);
 }

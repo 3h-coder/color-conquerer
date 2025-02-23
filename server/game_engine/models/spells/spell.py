@@ -17,30 +17,37 @@ class Spell:
     Base class for all spells.
     """
 
+    ID = 0
+    NAME = ""
+    DESCRIPTION = ""
+    MANA_COST = 0
     ORIGINAL_COUNT = DEFAULT_SPELL_ORIGINAL_COUNT
-
-    def __init__(self, id: SpellId, name: str, description: str, mana_cost: int):
-        self.id = id
-        self.name = name
-        self.description = description
-        self.mana_cost = mana_cost
 
     def to_dto(self, count: int):
         return SpellDto(
-            id=self.id,
-            name=self.name,
-            description=self.description,
-            manaCost=self.mana_cost,
+            id=self.ID,
+            name=self.NAME,
+            description=self.DESCRIPTION,
+            manaCost=self.MANA_COST,
             count=count,
             maxCount=self.ORIGINAL_COUNT,
         )
 
     def to_partial_dto(self):
         return PartialSpellDto(
-            id=self.id,
-            name=self.name,
-            description=self.description,
-            manaCost=self.mana_cost,
+            id=self.ID,
+            name=self.NAME,
+            description=self.DESCRIPTION,
+            manaCost=self.MANA_COST,
+        )
+
+    @classmethod
+    def to_partial_dto(cls):
+        return PartialSpellDto(
+            id=cls.ID,
+            name=cls.NAME,
+            description=cls.DESCRIPTION,
+            manaCost=cls.MANA_COST,
         )
 
     def get_possible_targets(self, board: "GameBoard") -> list["Cell"]:

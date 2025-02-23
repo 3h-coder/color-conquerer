@@ -81,5 +81,4 @@ class Action:
         for callback_id in self.CALLBACKS:
             callback = get_callback(callback_id, self)
             if callback.can_be_triggered(match_context):
-                _logger.debug(f"Adding the following callback {callback.ID.name}")
                 self.callbacks_to_trigger.add(callback)

@@ -7,6 +7,7 @@ from game_engine.models.actions.callbacks.action_callback_id import ActionCallBa
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 from game_engine.models.player_resources import PlayerResources
+from game_engine.models.spells.spell import Spell
 
 if TYPE_CHECKING:
     from game_engine.models.actions.action import Action
@@ -19,6 +20,7 @@ class ActionCallback:
     """
 
     ID = ActionCallBackId.NONE
+    SPELL_CAUSE: type[Spell] | None = None
 
     def __init__(self, parent_action: "Action"):
         self.parent_action = parent_action
@@ -44,6 +46,11 @@ class ActionCallback:
         return ActionCallbackDto(
             id=self.ID,
             parentAction=self.parent_action.to_dto(),
+            spellCause=(
+                self.SPELL_CAUSE.to_partial_dto()
+                if self.SPELL_CAUSE is not None
+                else None
+            ),
             updatedGameContext=GameContextDto.from_action_callback(self, for_player1),
         )
 

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from dto.coordinates_dto import CoordinatesDto
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
+from game_engine.models.spells.mine_trap_spell import MineTrapSpell
 
 if TYPE_CHECKING:
     from game_engine.models.actions.action import Action
@@ -14,6 +15,7 @@ class MineExplosionCallback(ActionCallback):
     """
 
     ID = ActionCallBackId.MINE_EXPLOSION
+    SPELL_CAUSE = MineTrapSpell
 
     def __init__(self, parent_action: "Action"):
         super().__init__(parent_action)

@@ -19,14 +19,6 @@ class MineTrapSpell(Spell):
     )
     MANA_COST = 2
 
-    def __init__(self):
-        super().__init__(
-            id=self.ID,
-            name=self.NAME,
-            description=self.DESCRIPTION,
-            mana_cost=self.MANA_COST,
-        )
-
     def get_possible_targets(self, transient_board: "GameBoard"):
         possible_targets = []
 

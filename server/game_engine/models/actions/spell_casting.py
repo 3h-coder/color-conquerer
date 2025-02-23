@@ -19,17 +19,17 @@ class SpellCasting(Action):
     ):
         super().__init__(from_player1, impacted_coords)
         self.spell = spell
-        self.mana_cost = spell.mana_cost
+        self.mana_cost = spell.MANA_COST
 
     def __eq__(self, other):
         return (
             isinstance(other, SpellCasting)
-            and other.spell.id == self.spell.id
+            and other.spell.ID == self.spell.ID
             and other.impacted_coords == self.impacted_coords
         )
 
     def __hash__(self):
-        return hash((self.spell.id, self.impacted_coords))
+        return hash((self.spell.ID, self.impacted_coords))
 
     def to_dto(self):
         return MatchActionDto(
