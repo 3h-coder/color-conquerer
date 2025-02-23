@@ -28,7 +28,6 @@ class CellMovement(CellAction):
         )
 
     def __hash__(self):
-        print(f"Here's the dict of the class {self.__dict__}")
         return hash((self.cell_id, self.impacted_coords, self.originating_coords))
 
     def __repr__(self):

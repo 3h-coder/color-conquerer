@@ -34,7 +34,9 @@ class ActionCallback:
 
     def to_dto(self, for_player1: bool):
         return ActionCallbackDto(
-            self.ID, self.parent_action, self.updated_game_board.to_dto(for_player1)
+            self.ID,
+            self.parent_action.to_dto(),
+            self.updated_game_board.to_dto(for_player1),
         )
 
     def can_be_triggered(self, match_context: MatchContext):

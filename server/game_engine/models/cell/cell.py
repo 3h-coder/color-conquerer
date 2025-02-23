@@ -9,16 +9,26 @@ from game_engine.models.cell.cell_transient_state import CellTransientState
 from game_engine.models.player import Player
 
 
-@dataclass
 class Cell:
-    owner: CellOwner
-    is_master: bool
-    row_index: int
-    column_index: int
-    state: CellState
-    hidden_state_info: CellHiddenStateInfo
-    transient_state: CellTransientState
-    id: str
+    def __init__(
+        self,
+        owner: CellOwner,
+        is_master: bool,
+        row_index: int,
+        column_index: int,
+        state: CellState,
+        hidden_state_info: CellHiddenStateInfo,
+        transient_state: CellTransientState,
+        id: str,
+    ):
+        self.owner = owner
+        self.is_master = is_master
+        self.row_index = row_index
+        self.column_index = column_index
+        self.state = state
+        self.hidden_state_info = hidden_state_info
+        self.transient_state = transient_state
+        self.id = id
 
     def __eq__(self, other_cell):
         return (

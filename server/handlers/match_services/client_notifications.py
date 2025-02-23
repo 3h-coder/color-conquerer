@@ -83,7 +83,7 @@ def notify_triggered_callbacks(
         )
         _emit(
             Events.SERVER_ACTION_CALLBACKS,
-            action=action_callbacks_dto2.to_dict(),
+            action_callbacks_dto2.to_dict(),
             to=player2_room,
         )
 
