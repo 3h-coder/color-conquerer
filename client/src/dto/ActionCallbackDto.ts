@@ -1,9 +1,9 @@
 import { ActionCallbackId } from "../enums/actionCallbackId";
-import { CellDto } from "./CellDto";
+import { GameContextDto } from "./GameContextDto";
 import { MatchActionDto } from "./MatchActionDto";
 
 export interface ActionCallbackDto {
     id: ActionCallbackId;
     parentAction: MatchActionDto;
-    updatedGameBoard: CellDto[][];
+    updatedGameContext: GameContextDto;
 }

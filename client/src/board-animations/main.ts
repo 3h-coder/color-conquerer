@@ -3,6 +3,7 @@ import { ActionCallbacksDto } from "../dto/ActionCallbacksDto";
 import { CellDto } from "../dto/CellDto";
 import { MatchActionDto } from "../dto/MatchActionDto";
 import { PartialSpellDto } from "../dto/PartialSpellDto";
+import { PlayerResourceBundleDto } from "../dto/PlayerInfoBundleDto";
 import { ActionCallbackId } from "../enums/actionCallbackId";
 import { ActionType } from "../enums/actionType";
 import { handleCellClashAnimation } from "./attack";
@@ -42,11 +43,13 @@ export function animateProcessedAction(
 export function animateActionCallbacks(
     actionCallbacks: ActionCallbacksDto,
     setBoardArray: (boardArray: CellDto[][]) => void,
-    setActionSpell: (spellAction: PartialSpellDto | null) => void
+    setActionSpell: (spellAction: PartialSpellDto | null) => void,
+    setPlayerResourceBundle: (p: PlayerResourceBundleDto) => void
 ) {
     actionCallbacks.callbacks.forEach((callback) => {
         animateCallback(callback, setActionSpell);
-        setBoardArray(callback.updatedGameBoard);
+        setPlayerResourceBundle(callback.updatedGameContext.playerResourceBundle);
+        setBoardArray(callback.updatedGameContext.gameBoard);
     });
 }
 

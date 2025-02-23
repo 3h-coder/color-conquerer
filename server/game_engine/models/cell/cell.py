@@ -7,6 +7,7 @@ from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
 from game_engine.models.cell.cell_transient_state import CellTransientState
 from game_engine.models.player import Player
+from game_engine.models.player_resources import PlayerResources
 
 
 class Cell:
@@ -92,6 +93,25 @@ class Cell:
         self.state = CellState.NONE
         self.hidden_state_info = CellHiddenStateInfo.default()
         self.transient_state = CellTransientState.NONE
+
+    def damage(
+        self, player1_resources: PlayerResources, player2_resources: PlayerResources
+    ):
+        """
+        Damages a cell, affecting the player's hp if it's a master cell, destroying it otherwise.
+        """
+        if self.belongs_to_player_1() and self.is_master:
+            player1_resources.current_hp -= 1
+            if player1_resources.current_hp <= 0:
+                self.set_idle()
+
+        elif self.belongs_to_player_2() and self.is_master:
+            player2_resources.current_hp -= 1
+            if player2_resources.current_hp <= 0:
+                self.set_idle()
+
+        else:
+            self.set_idle()
 
     def set_owned_by_player1(self, id: str = None):
         if self.owner == CellOwner.PLAYER_1:

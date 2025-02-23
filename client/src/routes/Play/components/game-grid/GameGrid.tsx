@@ -150,7 +150,7 @@ export default function GameGrid() {
             if (isMyTurn)
                 setCanInteract(false);
             try {
-                animateActionCallbacks(actionCallbacks, setBoardArray, setActionSpell);
+                animateActionCallbacks(actionCallbacks, setBoardArray, setActionSpell, setPlayerResourceBundle);
             } finally {
                 if (isMyTurn)
                     setCanInteract(true);

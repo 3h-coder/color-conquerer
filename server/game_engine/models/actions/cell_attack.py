@@ -117,47 +117,9 @@ class CellAttack(CellAction):
         if attacking_cell.owner == target_cell.owner:
             return
 
-        attacking_is_master = attacking_cell.is_master
-        target_is_master = target_cell.is_master
-
-        player1_game_info = match_context.get_player_resources(player1=True)
-        player2_game_info = match_context.get_player_resources(player1=False)
-
-        attacker_game_info = (
-            player1_game_info
-            if attacking_cell.belongs_to_player_1()
-            else player2_game_info
-        )
-        target_game_info = (
-            player1_game_info
-            if attacker_game_info == player2_game_info
-            else player2_game_info
-        )
+        player1_resources, player2_resources = match_context.get_both_player_resources()
         # endregion
 
-        # 2 master cells clash
-        if attacking_is_master and target_is_master:
-            attacker_game_info.current_hp -= 1
-            target_game_info.current_hp -= 1
-
-        # master attack
-        elif attacking_is_master:
-            attacker_game_info.current_hp -= 1
-            target_cell.set_idle()  # target cell is destroyed
-
-        # attack on master
-        elif target_is_master:
-            target_game_info.current_hp -= 1
-            attacking_cell.set_idle()  # attacking cell is destroyed
-
-        # regular cell clash
-        else:
-            attacking_cell.set_idle()
-            target_cell.set_idle()
-
-        # The following code is technically not necessary as the game should end if a player's HP reaches 0,
-        # but it's a good practice to keep the board consistent.
-        if attacker_game_info.current_hp <= 0:
-            attacking_cell.set_idle()
-        if target_game_info.current_hp <= 0:
-            target_cell.set_idle()
+        # Cell clash
+        attacking_cell.damage(player1_resources, player2_resources)
+        target_cell.damage(player1_resources, player2_resources)

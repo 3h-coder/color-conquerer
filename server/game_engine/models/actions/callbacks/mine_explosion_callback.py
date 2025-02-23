@@ -28,7 +28,7 @@ class MineExplosionCallback(ActionCallback):
         )
         return impacted_cell.is_mine_trap()
 
-    @ActionCallback.update_game_board
+    @ActionCallback.update_game_board_and_player_resources
     def trigger(self, match_context):
         game_board = match_context.game_board
 
@@ -36,7 +36,7 @@ class MineExplosionCallback(ActionCallback):
             self.explosion_center_coords.rowIndex,
             self.explosion_center_coords.columnIndex,
         )
-        mine_trap_cell = game_board.get(row_index, column_index)
+        impacted_cell = game_board.get(row_index, column_index)
 
         neighbour_cells = match_context.game_board.get_neighbours(
             row_index, column_index
@@ -45,14 +45,10 @@ class MineExplosionCallback(ActionCallback):
 
         # Damage all neighbour cells
         for cell in neighbour_cells:
-            if cell.belongs_to_player_1() and cell.is_master:
-                player1_resources.current_hp -= 1
+            cell.damage(player1_resources, player2_resources)
 
-            elif cell.belongs_to_player_2() and cell.is_master:
-                player2_resources.current_hp -= 1
-
-            else:
-                cell.set_idle()
+        # Damage the cell itself
+        impacted_cell.damage(player1_resources, player2_resources)
 
         # The cell is not longer a mine trap
-        mine_trap_cell.hidden_state_info.reset()
+        impacted_cell.hidden_state_info.reset()
