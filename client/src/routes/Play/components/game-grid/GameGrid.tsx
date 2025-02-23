@@ -54,8 +54,8 @@ export default function GameGrid() {
         handleturnContextUpdate();
 
         function handleturnContextUpdate() {
-            setBoardArray(turnContext.updatedBoardArray);
-            setPlayerResourceBundle(turnContext.playerResourceBundle);
+            setBoardArray(turnContext.gameContext.gameBoard);
+            setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
             setActionErrorMessage(EMPTY_STRING);
 
             if (turnContext === undefinedTurnContext) return;
@@ -132,7 +132,7 @@ export default function GameGrid() {
             setPlayerMode(processedActionDto.playerMode);
 
             // Update the player info bundle to display the proper HP/MP values
-            setPlayerResourceBundle(processedActionDto.updatedTurnContext.playerResourceBundle);
+            setPlayerResourceBundle(processedActionDto.updatedGameContext.playerResourceBundle);
 
             // Trigger animations
             animateProcessedAction(processedActionDto.processedAction, isPlayer1, boardArray, setActionSpell);
@@ -142,7 +142,7 @@ export default function GameGrid() {
                 setBoardArray(processedActionDto.overridingTransientBoard);
                 triggerPossibleActionsAnimationSync();
             } else {
-                setBoardArray(processedActionDto.updatedTurnContext.updatedBoardArray);
+                setBoardArray(processedActionDto.updatedGameContext.gameBoard);
             }
         }
 
@@ -150,7 +150,7 @@ export default function GameGrid() {
             if (isMyTurn)
                 setCanInteract(false);
             try {
-                animateActionCallbacks(actionCallbacks, setBoardArray);
+                animateActionCallbacks(actionCallbacks, setBoardArray, setActionSpell);
             } finally {
                 if (isMyTurn)
                     setCanInteract(true);

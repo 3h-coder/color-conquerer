@@ -32,6 +32,9 @@ class ActionCallback:
     def __hash__(self):
         return hash((self.ID, self.parent_action))
 
+    def __repr__(self):
+        return f"<Callback : {self.ID.name}>"
+
     def to_dto(self, for_player1: bool):
         return ActionCallbackDto(
             self.ID,

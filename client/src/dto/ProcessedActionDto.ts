@@ -1,10 +1,10 @@
 import { CellDto } from "./CellDto";
+import { GameContextDto } from "./GameContextDto";
 import { MatchActionDto } from "./MatchActionDto";
-import { TurnContextDto } from "./TurnContextDto";
 
 export interface ProcessedActionDto {
     processedAction: MatchActionDto;
     playerMode: number;
-    updatedTurnContext: TurnContextDto;
+    updatedGameContext: GameContextDto;
     overridingTransientBoard: CellDto[][] | null;
 }

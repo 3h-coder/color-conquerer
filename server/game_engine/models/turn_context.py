@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dto.player_resources_bundle_dto import PlayerResourceBundleDto
+from dto.game_context_dto import GameContextDto
 from dto.turn_context_dto import TurnContextDto
 from game_engine.models.game_board import GameBoard
 from game_engine.models.turn_state import TurnState
@@ -23,9 +23,5 @@ class TurnContext:
             remainingTimeInS=self.remaining_time_in_s,
             durationInS=self.duration_in_s,
             notifyTurnChange=notify_turn_change,
-            updatedBoardArray=self.updated_board.to_dto(for_player1),
-            playerResourceBundle=PlayerResourceBundleDto(
-                player1Resources=self.current_state.player1_resources.to_dto(),
-                player2Resources=self.current_state.player2_resources.to_dto(),
-            ),
+            gameContext=GameContextDto.from_turn_context(self, for_player1),
         )

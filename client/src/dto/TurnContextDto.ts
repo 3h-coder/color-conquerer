@@ -1,6 +1,5 @@
 import { EMPTY_STRING } from "../env";
-import { CellDto } from "./CellDto";
-import { PlayerResourceBundleDto, undefinedPlayerResourceBundleDto } from "./PlayerInfoBundleDto";
+import { GameContextDto, undefinedGameContextDto } from "./GameContextDto";
 
 export interface TurnContextDto {
     currentPlayerId: string;
@@ -8,8 +7,7 @@ export interface TurnContextDto {
     remainingTimeInS: number;
     durationInS: number;
     notifyTurnChange: boolean;
-    updatedBoardArray: CellDto[][];
-    playerResourceBundle: PlayerResourceBundleDto;
+    gameContext: GameContextDto;
 }
 
 export const undefinedTurnContext: TurnContextDto = {
@@ -18,6 +16,5 @@ export const undefinedTurnContext: TurnContextDto = {
     remainingTimeInS: 0,
     durationInS: 0,
     notifyTurnChange: false,
-    updatedBoardArray: [],
-    playerResourceBundle: undefinedPlayerResourceBundleDto,
+    gameContext: undefinedGameContextDto
 };

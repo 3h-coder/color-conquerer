@@ -3,6 +3,7 @@ from threading import Lock
 
 from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
+from dto.game_context_dto import GameContextDto
 from dto.player_resources_bundle_dto import PlayerResourceBundleDto
 from dto.server_only.match_closure_dto import EndingReason
 from dto.turn_context_dto import TurnContextDto
@@ -162,12 +163,11 @@ class MatchHandlerUnit:
             ),
             durationInS=TURN_DURATION_IN_S,
             notifyTurnChange=for_new_turn,
-            updatedBoardArray=self.match_context.game_board.to_dto(for_player1),
-            playerResourceBundle=PlayerResourceBundleDto(
-                self.match_context.player1.resources.to_dto(),
-                self.match_context.player2.resources.to_dto(),
-            ),
+            gameContext=self.get_game_context_dto(for_player1),
         )
+
+    def get_game_context_dto(self, for_player1: bool):
+        return GameContextDto.from_match_context(self.match_context, for_player1)
 
     def set_player_as_idle(self, player_id: str):
         """

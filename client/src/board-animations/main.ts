@@ -39,17 +39,24 @@ export function animateProcessedAction(
     }
 }
 
-export function animateActionCallbacks(actionCallbacks: ActionCallbacksDto, setBoardArray: (boardArray: CellDto[][]) => void) {
+export function animateActionCallbacks(
+    actionCallbacks: ActionCallbacksDto,
+    setBoardArray: (boardArray: CellDto[][]) => void,
+    setActionSpell: (spellAction: PartialSpellDto | null) => void
+) {
     actionCallbacks.callbacks.forEach((callback) => {
-        animateCallback(callback);
+        animateCallback(callback, setActionSpell);
         setBoardArray(callback.updatedGameBoard);
     });
 }
 
-function animateCallback(callback: ActionCallbackDto) {
+function animateCallback(
+    callback: ActionCallbackDto,
+    setActionSpell: (spellAction: PartialSpellDto | null) => void
+) {
     switch (callback.id) {
         case ActionCallbackId.MINE_EXPLOSION:
-            animateMineExplosion(callback);
+            animateMineExplosion(callback, setActionSpell);
             break;
 
         default:

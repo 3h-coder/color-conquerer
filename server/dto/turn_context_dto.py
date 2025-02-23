@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
 from dto.cell_dto import CellDto
+from dto.game_context_dto import GameContextDto
 from dto.player_resources_bundle_dto import PlayerResourceBundleDto
 
 
@@ -12,5 +13,4 @@ class TurnContextDto(BaseDto):
     remainingTimeInS: int
     durationInS: int
     notifyTurnChange: bool
-    updatedBoardArray: list[list[CellDto]]
-    playerResourceBundle: PlayerResourceBundleDto
+    gameContext: GameContextDto
