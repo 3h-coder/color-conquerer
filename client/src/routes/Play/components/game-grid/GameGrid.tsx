@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import OpponentTurnImage from "../../../../assets/images/Your Opponent Turn.png";
 import YourTurnImage from "../../../../assets/images/Your Turn.png";
-import { animateProcessedAction } from "../../../../board-animations/main";
+import { animateActionCallbacks, animateProcessedAction } from "../../../../board-animations/main";
 import { ContainerProps } from "../../../../components/containers";
 import { useMatchInfo } from "../../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../../contexts/PlayerContext";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { usePlayersGameInfo } from "../../../../contexts/PlayersGameInfoContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
+import { ActionCallbacksDto } from "../../../../dto/ActionCallbacksDto";
 import { MessageDto } from "../../../../dto/MessageDto";
 import { PartialSpellDto } from "../../../../dto/PartialSpellDto";
 import { PossibleActionsDto } from "../../../../dto/PossibleActionsDto";
@@ -145,6 +146,17 @@ export default function GameGrid() {
             }
         }
 
+        function onServerActionCallbacks(actionCallbacks: ActionCallbacksDto) {
+            if (isMyTurn)
+                setCanInteract(false);
+            try {
+                animateActionCallbacks(actionCallbacks, setBoardArray);
+            } finally {
+                if (isMyTurn)
+                    setCanInteract(true);
+            }
+        }
+
         function onServerActionError(errorMessageDto: MessageDto) {
             const gameErrorMessage = errorMessageDto.message;
             developmentLog("Received the game error", gameErrorMessage);
@@ -155,11 +167,13 @@ export default function GameGrid() {
         socket.on(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
         socket.on(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
         socket.on(Events.SERVER_ACTION_ERROR, onServerActionError);
+        socket.on(Events.SERVER_ACTION_CALLBACKS, onServerActionCallbacks);
 
         return () => {
             socket.off(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
             socket.off(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
             socket.off(Events.SERVER_ACTION_ERROR, onServerActionError);
+            socket.off(Events.SERVER_ACTION_CALLBACKS, onServerActionCallbacks);
         };
     });
 

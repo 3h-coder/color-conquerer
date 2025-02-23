@@ -15,6 +15,10 @@ class CellHiddenStateInfo:
             state=CellHiddenState.NONE, visible_to=CellOwner.NONE
         )
 
+    def reset(self):
+        self.state = CellHiddenState.NONE
+        self.visible_to = CellOwner.NONE
+
     def is_visible_to_player1(self):
         return self.visible_to == CellOwner.PLAYER_1
 

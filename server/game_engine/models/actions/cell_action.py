@@ -1,5 +1,5 @@
 from dto.coordinates_dto import CoordinatesDto
-from dto.match_action_dto import ActionType, MatchActionDto
+from dto.match_action_dto import MatchActionDto
 from game_engine.models.actions.action import Action
 
 

@@ -3,12 +3,14 @@ from typing import TYPE_CHECKING
 
 from flask_socketio import emit
 
+from dto.action_callbacks_dto import ActionCallbacksDto
 from dto.message_dto import MessageDto
 from dto.partial_match_closure_dto import PartialMatchClosureDto
 from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_action_dto import ProcessedActionDto
 from dto.turn_context_dto import TurnContextDto
 from events.events import Events
+from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.player import Player
 from server_gate import get_server
 
@@ -62,6 +64,26 @@ def notify_processed_action(
         _emit(
             Events.SERVER_PROCESSED_ACTIONS,
             processed_actions_2.to_dict(),
+            to=player2_room,
+        )
+
+
+def notify_triggered_callbacks(
+    action_callbacks_dto1: ActionCallbacksDto,
+    action_callbacks_dto2: ActionCallbacksDto,
+    player1_room: str,
+    player2_room: str,
+    lock: Lock,
+):
+    with lock:
+        _emit(
+            Events.SERVER_ACTION_CALLBACKS,
+            action_callbacks_dto1.to_dict(),
+            to=player1_room,
+        )
+        _emit(
+            Events.SERVER_ACTION_CALLBACKS,
+            action=action_callbacks_dto2.to_dict(),
             to=player2_room,
         )
 

@@ -28,11 +28,16 @@ class MineExplosionCallback(ActionCallback):
         )
         return impacted_cell.is_mine_trap()
 
+    @ActionCallback.update_game_board
     def trigger(self, match_context):
+        game_board = match_context.game_board
+
         row_index, column_index = (
             self.explosion_center_coords.rowIndex,
             self.explosion_center_coords.columnIndex,
         )
+        mine_trap_cell = game_board.get(row_index, column_index)
+
         neighbour_cells = match_context.game_board.get_neighbours(
             row_index, column_index
         )
@@ -48,3 +53,6 @@ class MineExplosionCallback(ActionCallback):
 
             else:
                 cell.set_idle()
+
+        # The cell is not longer a mine trap
+        mine_trap_cell.hidden_state_info.reset()

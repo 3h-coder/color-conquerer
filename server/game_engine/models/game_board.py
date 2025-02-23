@@ -45,8 +45,13 @@ class GameBoard:
         return self.board[row_index][column_index]
 
     def clone_as_transient(self):
+        cloned_game_board = self.clone()
+        cloned_game_board.is_transient = True
+        return cloned_game_board
+
+    def clone(self):
         cloned_board = [[cell.clone() for cell in row] for row in self.board]
-        return GameBoard(cloned_board, is_transient=True)
+        return GameBoard(cloned_board, is_transient=False)
 
     def get_cells_owned_by_player(self, player1: bool):
         return [

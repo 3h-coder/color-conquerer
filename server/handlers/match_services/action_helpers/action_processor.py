@@ -31,12 +31,12 @@ class ActionProcessor:
             )
             return None
 
-    def trigger_callbacks(self, action: Action, match_context: MatchContext):
+    def trigger_callbacks(self, action: Action):
         triggered_callbacks = set()
 
         for callback in action.callbacks_to_trigger:
             try:
-                callback.trigger(match_context)
+                callback.trigger(self._match_context)
                 triggered_callbacks.add(callback)
             except Exception as ex:
                 self._logger.critical(

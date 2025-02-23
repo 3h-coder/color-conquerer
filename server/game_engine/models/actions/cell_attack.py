@@ -23,6 +23,16 @@ class CellAttack(CellAction):
     def __hash__(self):
         return hash((self.cell_id, self.impacted_coords, self.originating_coords))
 
+    def __repr__(self):
+        return (
+            f"<CellAttack(from_player1={self.from_player1}, "
+            f"impacted_coords={self.impacted_coords}, "
+            f"originating_coords={self.originating_coords}, "
+            f"cell_id={self.cell_id}, "
+            f"mana_cost={self.mana_cost}, "
+            f"callbacks_to_trigger={self.callbacks_to_trigger})>"
+        )
+
     def to_dto(self):
         match_action_dto = super().to_dto()
         match_action_dto.type = ActionType.CELL_ATTACK

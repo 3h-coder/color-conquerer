@@ -29,11 +29,20 @@ class CellSpawn(Action):
     def __eq__(self, other):
         return (
             isinstance(other, CellSpawn)
+            and other.from_player1 == self.from_player1
             and other.impacted_coords == self.impacted_coords
         )
 
     def __hash__(self):
-        return hash(self.impacted_coords)
+        return hash((self.from_player1, self.impacted_coords))
+
+    def __repr__(self):
+        return (
+            f"<CellSpawn(from_player1={self.from_player1}, "
+            f"impacted_coords={self.impacted_coords}, "
+            f"mana_cost={self.mana_cost}, "
+            f"callbacks_to_trigger={self.callbacks_to_trigger})>"
+        )
 
     def to_dto(self):
         return MatchActionDto(

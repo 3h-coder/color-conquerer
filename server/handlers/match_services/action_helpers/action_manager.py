@@ -2,6 +2,7 @@ import functools
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
+from dto.action_callbacks_dto import ActionCallbacksDto
 from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_action_dto import ProcessedActionDto
 from game_engine.models.actions.action import Action
@@ -14,6 +15,7 @@ from handlers.match_services.client_notifications import (
     notify_action_error,
     notify_possible_actions,
     notify_processed_action,
+    notify_triggered_callbacks,
 )
 
 if TYPE_CHECKING:
@@ -56,16 +58,25 @@ class ActionManager(TransientTurnStateHolder):
 
     def entry_point(with_turn_state_reset=False):
         """
-        Decorator used to notify the clients after the function has been
-        invoked.
+        Decorator used to gracefully handle action entry points.
+
+        This will notify both clients once the action is processed and will also
+        handle potential callbacks triggered by the processed action, notifying them
+        along the way.
         """
 
         def decorator(func):
             @functools.wraps(func)
             def wrapper(self: "ActionManager", *args, **kwargs):
+                # Action processing function
                 func(self, *args, **kwargs)
 
+                # Notify the clients for them to render/animate it
                 self.send_response_to_clients()
+
+                self.trigger_callbacks()
+
+                self.send_callbacks_to_clients()
 
                 if (
                     with_turn_state_reset
@@ -86,6 +97,9 @@ class ActionManager(TransientTurnStateHolder):
         self, action: Action, server_mode=ServerMode.SHOW_PROCESSED_ACTION
     ):
         self._match_actions_service.validate_and_process_action(action, server_mode)
+
+    def trigger_callbacks(self):
+        self._match_actions_service.trigger_callbacks()
 
     def send_response_to_clients(self):
         """
@@ -152,6 +166,27 @@ class ActionManager(TransientTurnStateHolder):
                 player2_room,
                 self._match.lock,
             )
+
+    def send_callbacks_to_clients(self):
+        callbacks = self.get_triggered_callbacks()
+        if not callbacks:
+            return
+
+        action_callbacks_dto1 = ActionCallbacksDto.from_callbacks(
+            callbacks, for_player1=True
+        )
+        action_callbacks_dto2 = ActionCallbacksDto.from_callbacks(
+            callbacks, for_player1=False
+        )
+        player1_room, player2_room = self._match.get_individual_player_rooms()
+
+        notify_triggered_callbacks(
+            action_callbacks_dto1,
+            action_callbacks_dto2,
+            player1_room,
+            player2_room,
+            self._match.lock,
+        )
 
     def _get_processed_action_dto(
         self, player_mode: PlayerMode, processed_action: Action, for_player1: bool

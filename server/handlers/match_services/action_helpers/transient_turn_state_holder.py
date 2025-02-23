@@ -1,4 +1,5 @@
 from game_engine.models.actions.action import Action
+from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.cell.cell import Cell
 from game_engine.models.spells.spell import Spell
 from handlers.match_services.action_helpers.player_mode import PlayerMode
@@ -40,6 +41,12 @@ class TransientTurnStateHolder:
 
     def set_processed_action(self, action: Action):
         self.transient_turn_state.processed_action = action
+
+    def get_triggered_callbacks(self):
+        return self.transient_turn_state.triggered_callbacks
+
+    def set_triggered_callbacks(self, callbacks: set[ActionCallback]):
+        self.transient_turn_state.triggered_callbacks = callbacks
 
     def get_player_mode(self):
         return self.transient_turn_state.player_mode

@@ -139,6 +139,17 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
 
         self._process_action(action, server_mode)
 
+    def trigger_callbacks(self):
+        processed_action = self.get_processed_action()
+        if processed_action is None or not processed_action.has_callbacks_to_trigger():
+            return
+
+        self._logger.debug(
+            f"Triggering the callbacks for the action : {processed_action}"
+        )
+        triggered_callbacks = self._action_processor.trigger_callbacks(processed_action)
+        self.set_triggered_callbacks(triggered_callbacks)
+
     def _process_action(
         self,
         action: Action,

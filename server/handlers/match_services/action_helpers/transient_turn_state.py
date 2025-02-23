@@ -1,4 +1,5 @@
 from game_engine.models.actions.action import Action
+from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.cell.cell import Cell
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.spell import Spell
@@ -21,6 +22,7 @@ class TransientTurnState:
         # Actions that have been validated and applied,
         # overridden each time a set of action is processed
         self.processed_action: Action | None = None
+        self.triggered_callbacks: set[ActionCallback] = set()
         self.player_mode = PlayerMode.IDLE
         self.server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
         # Board copy to save and send to the client the transient states
@@ -36,11 +38,15 @@ class TransientTurnState:
     def reset(self):
         self.player_mode = PlayerMode.IDLE
         self.server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
+
         self.possible_actions = set()
         self.processed_action = None
+        self.triggered_callbacks = set()
+
         self.transient_game_bard = None
         self.selected_cell = None
         self.selected_spell = None
+
         self.error_msg = ""
 
     def set_possible_actions(self, actions: set[Action], update_server_mode=True):

@@ -34,15 +34,12 @@ class Action:
         return (
             f"<Action(from_player1={self.from_player1}, "
             f"impacted_coords={self.impacted_coords}, "
-            f"mana_cost={self.mana_cost},"
+            f"mana_cost={self.mana_cost}, "
             f"callbacks_to_trigger={self.callbacks_to_trigger})>"
         )
 
     def to_dto(self):
         raise NotImplementedError
-
-    def get_callbacks_dto(self):
-        return [callback.to_dto() for callback in self.callbacks_to_trigger]
 
     def has_callbacks_to_trigger(self):
         return self.callbacks_to_trigger is not None and bool(self.callbacks_to_trigger)
@@ -84,5 +81,5 @@ class Action:
         for callback_id in self.CALLBACKS:
             callback = get_callback(callback_id, self)
             if callback.can_be_triggered(match_context):
-                _logger.debug(f"Adding the following callback {callback.ID}")
+                _logger.debug(f"Adding the following callback {callback.ID.name}")
                 self.callbacks_to_trigger.add(callback)
