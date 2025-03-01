@@ -1,4 +1,5 @@
 from functools import wraps
+from typing import Any, Generator
 
 from config.logging import get_configured_logger
 from dto.coordinates_dto import CoordinatesDto
@@ -28,21 +29,23 @@ class Action:
         self.from_player1 = from_player1
         self.impacted_coords = impacted_coords
         self.mana_cost = self.DEFAULT_MANA_COST
-        self.callbacks_to_trigger: set[ActionCallback] = set()
+        self._callbacks_to_trigger: set[ActionCallback] = set()
 
     def __repr__(self):
         return (
             f"<Action(from_player1={self.from_player1}, "
             f"impacted_coords={self.impacted_coords}, "
             f"mana_cost={self.mana_cost}, "
-            f"callbacks_to_trigger={self.callbacks_to_trigger})>"
+            f"callbacks_to_trigger={self._callbacks_to_trigger})>"
         )
 
     def to_dto(self):
         raise NotImplementedError
 
     def has_callbacks_to_trigger(self):
-        return self.callbacks_to_trigger is not None and bool(self.callbacks_to_trigger)
+        return self._callbacks_to_trigger is not None and bool(
+            self._callbacks_to_trigger
+        )
 
     @staticmethod
     def create(*args, **kwargs) -> "Action":
@@ -73,6 +76,14 @@ class Action:
         """
         raise NotImplementedError
 
+    def get_callbacks_to_trigger(self) -> Generator[ActionCallback, Any, None]:
+        """
+        Returns the callbacks to trigger in the order they should be triggered,
+        while emptying the internal list.
+        """
+        while self._callbacks_to_trigger:
+            yield self._callbacks_to_trigger.pop()
+
     def _trigger_hooks(self, match_context: MatchContext):
         for hook in self.HOOKS:
             hook.trigger(self, match_context)
@@ -81,4 +92,4 @@ class Action:
         for callback_id in self.CALLBACKS:
             callback = get_callback(callback_id, self)
             if callback.can_be_triggered(match_context):
-                self.callbacks_to_trigger.add(callback)
+                self._callbacks_to_trigger.add(callback)

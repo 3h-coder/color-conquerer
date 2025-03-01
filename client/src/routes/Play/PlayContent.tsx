@@ -26,7 +26,6 @@ import RightSideControls from "./components/right-side-controls/RightSideControl
 export default function PlayContent() {
   const navigate = useNavigate();
   const {
-    matchInfo,
     loading: matchInfoLoading,
     failedToResolve: failedToResolveMatchInfo,
   } = useMatchInfo();
@@ -69,7 +68,7 @@ export default function PlayContent() {
         socket.emit(Events.CLIENT_READY);
       }
     }
-  }, [matchInfo, matchInfoLoading, playerId, playerInfoLoading]);
+  }, [matchInfoLoading, playerInfoLoading]);
 
   // React to a turnInfo update
   useEffect(() => {
@@ -109,7 +108,7 @@ export default function PlayContent() {
       developmentLog("Received match ending ", matchClosureDto);
 
       setModalIcon(ModalIcon.None);
-      setModalText(getMatchEndingText(matchClosureDto));
+      setModalText(getMatchEndingText(playerId, matchClosureDto));
       setModalVisible(true);
       setModalExit(() => {
         return () => navigate("/");
@@ -156,21 +155,27 @@ export default function PlayContent() {
       socket.off(Events.SERVER_ERROR, onError);
       socket.off(Events.SERVER_REDIRECT, onRedirection);
     };
-  }, []);
+  }, [playerId]);
 
-  function getMatchEndingText(matchClosureDto: MatchClosureDto) {
-    if (matchClosureDto.endingReason === EndingReason.DRAW || !matchClosureDto.winner) return "Draw";
+  function getMatchEndingText(playerId: string, matchClosureDto: MatchClosureDto) {
+    if (matchClosureDto.endingReason === EndingReason.DRAW || !matchClosureDto.winner)
+      return "Draw";
 
     const isWinner = matchClosureDto.winner.playerId === playerId;
+
     if (matchClosureDto.endingReason === EndingReason.PLAYER_LEFT && isWinner)
       return "Your opponent left";
+
     else if (
       matchClosureDto.endingReason === EndingReason.NEVER_JOINED &&
       isWinner
     )
       return "Your opponent did not join the match";
-    else if (isWinner) return "Victory!";
-    else return "Defeat";
+
+    else if (isWinner)
+      return "Victory!";
+    else
+      return "Defeat";
   }
 
   return (

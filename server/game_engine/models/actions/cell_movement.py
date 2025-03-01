@@ -37,7 +37,7 @@ class CellMovement(CellAction):
             f"originating_coords={self.originating_coords}, "
             f"cell_id={self.cell_id}, "
             f"mana_cost={self.mana_cost}, "
-            f"callbacks_to_trigger={self.callbacks_to_trigger})>"
+            f"callbacks_to_trigger={self._callbacks_to_trigger})>"
         )
 
     def to_dto(self):

@@ -35,7 +35,7 @@ class ActionProcessor:
             return None
 
     def trigger_callbacks(self, action: Action):
-        for callback in action.callbacks_to_trigger:
+        for callback in action.get_callbacks_to_trigger():
             try:
                 callback.trigger(self._match_context)
 

@@ -41,7 +41,7 @@ class CellSpawn(Action):
             f"<CellSpawn(from_player1={self.from_player1}, "
             f"impacted_coords={self.impacted_coords}, "
             f"mana_cost={self.mana_cost}, "
-            f"callbacks_to_trigger={self.callbacks_to_trigger})>"
+            f"callbacks_to_trigger={self._callbacks_to_trigger})>"
         )
 
     def to_dto(self):

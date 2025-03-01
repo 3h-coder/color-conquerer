@@ -151,6 +151,7 @@ export default function GameGrid() {
                 setCanInteract(false);
             try {
                 await animateActionCallbacks(actionCallback, setBoardArray, setActionSpell, setPlayerResourceBundle);
+                triggerPossibleActionsAnimationSync();
             } finally {
                 if (isMyTurn)
                     setCanInteract(true);
@@ -213,12 +214,12 @@ export default function GameGrid() {
 }
 
 function GridOuter(props: ContainerProps) {
-    return <div className="grid-outer">{props.children}</div>;
+    return <div id="grid-outer">{props.children}</div>;
 }
 
 function GridInner(props: ContainerProps) {
     return (
-        <div className="grid-inner" style={props.style}>
+        <div id="grid-inner" style={props.style}>
             {props.children}
         </div>
     );

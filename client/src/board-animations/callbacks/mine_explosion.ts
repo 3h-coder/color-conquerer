@@ -24,9 +24,20 @@ export async function animateMineExplosion(callback: ActionCallbackDto, setActio
     await delay(1000);
 
     htmlCell.appendChild(explosion);
+    shakeGameGrid();
 
     setTimeout(() => {
         setActionSpell(null);
     }, 2500);
     cleanup(explosion, cleanupDelayInMs);
+}
+
+function shakeGameGrid() {
+    const shakeClass = "shake";
+    const gameGrid = document.getElementById("grid-outer");
+    if (!gameGrid)
+        return;
+
+    gameGrid.classList.add(shakeClass);
+    setTimeout(() => gameGrid.classList.remove(shakeClass), 500);
 }

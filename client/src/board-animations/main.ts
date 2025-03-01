@@ -5,6 +5,7 @@ import { PartialSpellDto } from "../dto/PartialSpellDto";
 import { PlayerResourceBundleDto } from "../dto/PlayerInfoBundleDto";
 import { ActionCallbackId } from "../enums/actionCallbackId";
 import { ActionType } from "../enums/actionType";
+import { developmentLog } from "../utils/loggingUtils";
 import { handleCellClashAnimation } from "./attack";
 import { animateMineExplosion } from "./callbacks/mine_explosion";
 import { handleCellMovementAnimation } from "./movement";
@@ -39,24 +40,25 @@ export function animateProcessedAction(
     }
 }
 
-export function animateActionCallbacks(
+export async function animateActionCallbacks(
     callback: ActionCallbackDto,
     setBoardArray: (boardArray: CellDto[][]) => void,
     setActionSpell: (spellAction: PartialSpellDto | null) => void,
     setPlayerResourceBundle: (p: PlayerResourceBundleDto) => void
 ) {
-    animateCallback(callback, setActionSpell);
     setPlayerResourceBundle(callback.updatedGameContext.playerResourceBundle);
+    await animateCallback(callback, setActionSpell);
+    developmentLog("Updating game context after animation");
     setBoardArray(callback.updatedGameContext.gameBoard);
 }
 
-function animateCallback(
+async function animateCallback(
     callback: ActionCallbackDto,
     setActionSpell: (spellAction: PartialSpellDto | null) => void
 ) {
     switch (callback.id) {
         case ActionCallbackId.MINE_EXPLOSION:
-            animateMineExplosion(callback, setActionSpell);
+            await animateMineExplosion(callback, setActionSpell);
             break;
 
         default:

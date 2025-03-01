@@ -81,12 +81,15 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         player2 = self.match_context.player2
 
         if self.match_context.both_players_are_dead():
+            self._logger.debug("Both died")
             self.match.end(EndingReason.DRAW)
 
         elif self.match_context.player1_is_dead():
+            self._logger.debug("player 1 died")
             self.match.end(EndingReason.PLAYER_WON, loser_id=player1.player_id)
 
         elif self.match_context.player2_is_dead():
+            self._logger.debug("player 2 died")
             self.match.end(EndingReason.PLAYER_WON, loser_id=player2.player_id)
 
     def reset_for_new_turn(self):
