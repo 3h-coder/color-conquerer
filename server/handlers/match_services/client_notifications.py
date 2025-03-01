@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from flask_socketio import emit
 
-from dto.action_callbacks_dto import ActionCallbacksDto
+from dto.action_callback_dto import ActionCallbackDto
 from dto.message_dto import MessageDto
 from dto.partial_match_closure_dto import PartialMatchClosureDto
 from dto.possible_actions_dto import PossibleActionsDto
@@ -68,22 +68,22 @@ def notify_processed_action(
         )
 
 
-def notify_triggered_callbacks(
-    action_callbacks_dto1: ActionCallbacksDto,
-    action_callbacks_dto2: ActionCallbacksDto,
+def notify_triggered_callback(
+    action_callback_dto1: ActionCallbackDto,
+    action_callback_dto2: ActionCallbackDto,
     player1_room: str,
     player2_room: str,
     lock: Lock,
 ):
     with lock:
         _emit(
-            Events.SERVER_ACTION_CALLBACKS,
-            action_callbacks_dto1.to_dict(),
+            Events.SERVER_ACTION_CALLBACK,
+            action_callback_dto1.to_dict(),
             to=player1_room,
         )
         _emit(
-            Events.SERVER_ACTION_CALLBACKS,
-            action_callbacks_dto2.to_dict(),
+            Events.SERVER_ACTION_CALLBACK,
+            action_callback_dto2.to_dict(),
             to=player2_room,
         )
 

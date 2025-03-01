@@ -3,7 +3,9 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from dto.server_only.match_closure_dto import EndingReason
+from game_engine.action_calculation import get_possible_spawns
 from game_engine.models.actions.action import Action
+from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.actions.cell_attack import CellAttack
 from game_engine.models.actions.cell_movement import CellMovement
 from handlers.match_services.action_helpers.action_processor import ActionProcessor
@@ -147,7 +149,13 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         self._logger.debug(
             f"Triggering the callbacks for the action : {processed_action}"
         )
-        triggered_callbacks = self._action_processor.trigger_callbacks(processed_action)
+        triggered_callbacks = set()
+        for callback in self._action_processor.trigger_callbacks(processed_action):
+            self._calculate_post_trigger_possible_actions()
+
+            triggered_callbacks.add(callback)
+            yield callback
+
         self.set_triggered_callbacks(triggered_callbacks)
 
     def _process_action(
@@ -171,9 +179,6 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
             self.set_error_message(ErrorMessages.INVALID_ACTION)
             return
 
-        self.set_error_message("")
-
-        self.set_processed_action(processed_action)
         self._register_processed_action(processed_action)
         self._calculate_post_processing_possible_actions()
 
@@ -181,6 +186,12 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         """
         Adds a processed action to the turn and match actions fields.
         """
+        # Set all the transient fields
+        self.set_processed_action(action)
+        self.set_error_message("")
+        self.set_transient_game_board(None)
+
+        # Register the action for record purposes
         current_turn = self.match_context.current_turn
         if current_turn not in self.actions_per_turn:
             self.actions_per_turn[current_turn] = []
@@ -197,12 +208,23 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         """
         Meant to be called right after action processing.
         """
-        self.set_transient_game_board(None)
         server_mode = self.get_server_mode()
-
         if server_mode != ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
             return
 
         player_mode = self.get_player_mode()
         if player_mode == PlayerMode.CELL_SPAWN:
             self._cell_spawn_manager.find_possible_spawns(update_server_mode=False)
+
+    def _calculate_post_trigger_possible_actions(self):
+        server_mode = self.get_server_mode()
+        if server_mode != ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
+            return
+
+        player_mode = self.get_player_mode()
+        if player_mode == PlayerMode.CELL_SPAWN:
+            self.set_transient_game_board(self._game_board.clone_as_transient())
+            possible_spawns = get_possible_spawns(
+                self.current_player.is_player_1, self.get_transient_game_board()
+            )
+            self.set_possible_actions(possible_spawns, update_server_mode=False)

@@ -31,5 +31,5 @@ class Events(StrEnum):
     SERVER_POSSIBLE_ACTIONS = "server-possibleActions"
     SERVER_PROCESSED_ACTIONS = "server-processedActions"
     SERVER_ACTION_ERROR = "server-actionError"
-    SERVER_ACTION_CALLBACKS = "server-action-callbacks"
+    SERVER_ACTION_CALLBACK = "server-action-callback"
     SERVER_MATCH_END = "server-matchEnd"

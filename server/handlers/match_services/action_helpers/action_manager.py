@@ -2,10 +2,10 @@ import functools
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
-from dto.action_callbacks_dto import ActionCallbacksDto
 from dto.possible_actions_dto import PossibleActionsDto
 from dto.processed_action_dto import ProcessedActionDto
 from game_engine.models.actions.action import Action
+from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from handlers.match_services.action_helpers.player_mode import PlayerMode
 from handlers.match_services.action_helpers.server_mode import ServerMode
 from handlers.match_services.action_helpers.transient_turn_state_holder import (
@@ -15,7 +15,7 @@ from handlers.match_services.client_notifications import (
     notify_action_error,
     notify_possible_actions,
     notify_processed_action,
-    notify_triggered_callbacks,
+    notify_triggered_callback,
 )
 
 if TYPE_CHECKING:
@@ -74,9 +74,8 @@ class ActionManager(TransientTurnStateHolder):
                 # Notify the clients for them to render/animate it
                 self.send_response_to_clients()
 
-                self.trigger_callbacks()
-
-                self.send_callbacks_to_clients()
+                for callback in self.trigger_callbacks():
+                    self.send_callback_to_clients(callback)
 
                 if (
                     with_turn_state_reset
@@ -99,7 +98,7 @@ class ActionManager(TransientTurnStateHolder):
         self._match_actions_service.validate_and_process_action(action, server_mode)
 
     def trigger_callbacks(self):
-        self._match_actions_service.trigger_callbacks()
+        return self._match_actions_service.trigger_callbacks()
 
     def send_response_to_clients(self):
         """
@@ -167,22 +166,26 @@ class ActionManager(TransientTurnStateHolder):
                 self._match.lock,
             )
 
-    def send_callbacks_to_clients(self):
-        callbacks = self.get_triggered_callbacks()
-        if not callbacks:
-            return
-
-        action_callbacks_dto1 = ActionCallbacksDto.from_callbacks(
-            callbacks, for_player1=True
-        )
-        action_callbacks_dto2 = ActionCallbacksDto.from_callbacks(
-            callbacks, for_player1=False
-        )
+    def send_callback_to_clients(self, callback: ActionCallback):
+        action_callback_dto1 = callback.to_dto(for_player1=True)
+        action_callback_dto2 = callback.to_dto(for_player1=False)
         player1_room, player2_room = self._match.get_individual_player_rooms()
+        server_mode = self.get_server_mode()
+        current_player = self.get_current_player()
 
-        notify_triggered_callbacks(
-            action_callbacks_dto1,
-            action_callbacks_dto2,
+        if server_mode == ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
+            if current_player.is_player_1:
+                action_callback_dto1.updatedGameContext.gameBoard = (
+                    self._get_client_friendly_transient_board(for_player1=True)
+                )
+            else:
+                action_callback_dto2.updatedGameContext.gameBoard = (
+                    self._get_client_friendly_transient_board(for_player1=False)
+                )
+
+        notify_triggered_callback(
+            action_callback_dto1,
+            action_callback_dto2,
             player1_room,
             player2_room,
             self._match.lock,

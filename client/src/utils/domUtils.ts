@@ -5,3 +5,7 @@
 export function cleanup(element: HTMLElement, delayInMs: number) {
     setTimeout(() => element.remove(), delayInMs);
 }
+
+export function delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

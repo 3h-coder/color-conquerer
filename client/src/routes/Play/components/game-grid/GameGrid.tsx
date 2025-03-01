@@ -8,7 +8,7 @@ import { usePlayerInfo } from "../../../../contexts/PlayerContext";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { usePlayersGameInfo } from "../../../../contexts/PlayersGameInfoContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
-import { ActionCallbacksDto } from "../../../../dto/ActionCallbacksDto";
+import { ActionCallbackDto } from "../../../../dto/ActionCallbackDto";
 import { MessageDto } from "../../../../dto/MessageDto";
 import { PartialSpellDto } from "../../../../dto/PartialSpellDto";
 import { PossibleActionsDto } from "../../../../dto/PossibleActionsDto";
@@ -146,11 +146,11 @@ export default function GameGrid() {
             }
         }
 
-        function onServerActionCallbacks(actionCallbacks: ActionCallbacksDto) {
+        async function onServerActionCallback(actionCallback: ActionCallbackDto) {
             if (isMyTurn)
                 setCanInteract(false);
             try {
-                animateActionCallbacks(actionCallbacks, setBoardArray, setActionSpell, setPlayerResourceBundle);
+                await animateActionCallbacks(actionCallback, setBoardArray, setActionSpell, setPlayerResourceBundle);
             } finally {
                 if (isMyTurn)
                     setCanInteract(true);
@@ -167,13 +167,13 @@ export default function GameGrid() {
         socket.on(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
         socket.on(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
         socket.on(Events.SERVER_ACTION_ERROR, onServerActionError);
-        socket.on(Events.SERVER_ACTION_CALLBACKS, onServerActionCallbacks);
+        socket.on(Events.SERVER_ACTION_CALLBACK, onServerActionCallback);
 
         return () => {
             socket.off(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
             socket.off(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
             socket.off(Events.SERVER_ACTION_ERROR, onServerActionError);
-            socket.off(Events.SERVER_ACTION_CALLBACKS, onServerActionCallbacks);
+            socket.off(Events.SERVER_ACTION_CALLBACK, onServerActionCallback);
         };
     });
 

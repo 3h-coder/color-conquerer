@@ -380,4 +380,17 @@ svg {
   }
 }
 
+@keyframes expansion-fade-out {
+  0% {
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+  }
+  100% {
+    width: var(--fade-out-percent, 400%);
+    height: var(--fade-out-percent, 400%);
+    opacity: 0;
+  }
+}
+
 /* #endregion Keyframes */

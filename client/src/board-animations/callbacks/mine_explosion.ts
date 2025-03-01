@@ -1,12 +1,12 @@
 import { ActionCallbackDto } from "../../dto/ActionCallbackDto";
 import { PartialSpellDto } from "../../dto/PartialSpellDto";
 import { getHtmlCell } from "../../utils/cellUtils";
-import { cleanup } from "../../utils/domUtils";
+import { cleanup, delay } from "../../utils/domUtils";
 
-export function animateMineExplosion(callback: ActionCallbackDto, setActionSpell: (spellAction: PartialSpellDto | null) => void) {
+export async function animateMineExplosion(callback: ActionCallbackDto, setActionSpell: (spellAction: PartialSpellDto | null) => void) {
     const styleClass = "cell-explosion";
     const expansionColorVariable = "--expansion-color";
-    const cleanupDelayInMs = 3000;
+    const cleanupDelayInMs = 380;
 
     const parentAction = callback.parentAction;
     const explosionCenter = parentAction.impactedCoords;
@@ -15,11 +15,18 @@ export function animateMineExplosion(callback: ActionCallbackDto, setActionSpell
     if (!htmlCell)
         return;
 
+    setActionSpell(callback.spellCause);
+
     const explosion = document.createElement("div");
     explosion.classList.add(styleClass);
     explosion.style.setProperty(expansionColorVariable, "blue");
+
+    await delay(1000);
+
     htmlCell.appendChild(explosion);
 
-    setActionSpell(callback.spellCause);
+    setTimeout(() => {
+        setActionSpell(null);
+    }, 2500);
     cleanup(explosion, cleanupDelayInMs);
 }

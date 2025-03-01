@@ -81,7 +81,10 @@ class Cell:
             row_index=row_index,
             column_index=col_index,
             state=CellState.NONE,
-            hidden_state_info=CellHiddenStateInfo.default(),
+            # hidden_state_info=CellHiddenStateInfo.default(),
+            hidden_state_info=CellHiddenStateInfo(
+                CellHiddenState.MINE_TRAP, visible_to=CellOwner.PLAYER_1
+            ),
             transient_state=CellTransientState.NONE,
             id=None,
         )
@@ -94,6 +97,15 @@ class Cell:
         self.hidden_state_info = CellHiddenStateInfo.default()
         self.transient_state = CellTransientState.NONE
 
+    def kill(self):
+        if not self.is_owned():
+            return
+
+        self.owner = CellOwner.NONE
+        self.id = None
+        self.is_master = False
+        self.state = CellState.NONE
+
     def damage(
         self, player1_resources: PlayerResources, player2_resources: PlayerResources
     ):
@@ -103,15 +115,15 @@ class Cell:
         if self.belongs_to_player_1() and self.is_master:
             player1_resources.current_hp -= 1
             if player1_resources.current_hp <= 0:
-                self.set_idle()
+                self.kill()
 
         elif self.belongs_to_player_2() and self.is_master:
             player2_resources.current_hp -= 1
             if player2_resources.current_hp <= 0:
-                self.set_idle()
+                self.kill()
 
         else:
-            self.set_idle()
+            self.kill()
 
     def set_owned_by_player1(self, id: str = None):
         if self.owner == CellOwner.PLAYER_1:
