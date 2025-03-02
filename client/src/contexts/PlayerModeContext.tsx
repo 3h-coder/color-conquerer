@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
 import { PlayerMode } from "../enums/playerMode";
 
@@ -8,7 +9,7 @@ interface PlayerModeContextObject {
 
 export const PlayerModeContext = createContext<PlayerModeContextObject>({
     playerMode: PlayerMode.IDLE,
-    setPlayerMode: (_mode: PlayerMode) => { },
+    setPlayerMode: () => { },
 });
 
 interface PlayerModeContextProviderProps {

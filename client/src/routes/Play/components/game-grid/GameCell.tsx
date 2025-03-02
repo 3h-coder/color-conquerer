@@ -1,6 +1,11 @@
+import React from "react";
 import { LandMineIcon, SwordIcon } from "../../../../assets/svg";
 import { CellDto } from "../../../../dto/CellDto";
-import { CellHiddenState, CellState, CellTransientState } from "../../../../enums/cellState";
+import {
+    CellHiddenState,
+    CellState,
+    CellTransientState,
+} from "../../../../enums/cellState";
 import { Events } from "../../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../../env";
 import { cellStyle } from "../../../../style/constants";
@@ -19,11 +24,13 @@ interface GameCellProps {
 }
 
 export default function GameCell(props: GameCellProps) {
-    const { id, isPlayer1, cellInfo, canInteract, canDisplayPossibleActions } = props;
+    const { id, isPlayer1, cellInfo, canInteract, canDisplayPossibleActions } =
+        props;
     const selectable = canInteract && isSelectable(cellInfo);
 
     const selected = cellInfo.transientState === CellTransientState.SELECTED;
-    const attackable = cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
+    const attackable =
+        cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
     const isManaBubble = cellInfo.state == CellState.MANA_BUBBLE;
     const isMineTrap = cellInfo.hiddenState == CellHiddenState.MINE_TRAP;
 
@@ -55,7 +62,7 @@ export default function GameCell(props: GameCellProps) {
             {selected && <SelectedIndicator />}
             {attackable && <AttackableIndicator isPlayer1={isPlayer1} />}
             {isManaBubble && <ManaBubble />}
-            {isMineTrap && <LandMine isPlayer1={isPlayer1} />}
+            {isMineTrap && <LandMine isPlayer1={isPlayer1} isBlinking={false} />}
         </div>
     );
 }
@@ -77,15 +84,35 @@ function AttackableIndicator({ isPlayer1 }: { isPlayer1: boolean; }) {
 }
 
 function ManaBubble() {
-    return (
-        <div className="mana-bubble absolute-positioning-centered" />
-    );
+    return <div className="mana-bubble absolute-positioning-centered" />;
 }
 
-function LandMine({ isPlayer1 }: { isPlayer1: boolean; }) {
+interface LandMineProps {
+    isPlayer1: boolean;
+    isBlinking: boolean;
+}
+
+export function LandMine(props: LandMineProps) {
+    const { isPlayer1, isBlinking } = props;
+
+    const blinkStyle: React.CSSProperties = {
+        ["--color1" as string]: "black",
+        ["--color2" as string]: "red",
+        ["--frequency" as string]: "0.2s",
+    };
+
     return (
-        <div className="land-mine absolute-positioning-centered">
-            <LandMineIcon style={{ fill: "black", transform: isPlayer1 ? "rotate(180deg)" : undefined }} />
+        <div
+            className="land-mine absolute-positioning-centered"
+        >
+            <LandMineIcon
+                style={{
+                    fill: "black",
+                    transform: isPlayer1 ? "rotate(180deg)" : undefined,
+                    animation: isBlinking ? "fill-blink 0.2s infinite" : EMPTY_STRING,
+                    ...blinkStyle
+                }}
+            />
         </div>
     );
 }

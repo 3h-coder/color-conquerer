@@ -420,4 +420,42 @@ svg {
   animation: shake 0.5s ease-in-out;
 }
 
+@keyframes color-blink {
+  0% {
+    color: var(--color1);
+  }
+  50% {
+    color: var(--color2);
+  }
+  100% {
+    color: var(--color1);
+  }
+}
+
+@keyframes fill-blink {
+  0% {
+    fill: var(--color1);
+  }
+  50% {
+    fill: var(--color2);
+  }
+  100% {
+    fill: var(--color1);
+  }
+}
+
+.color-blink {
+  --color1: white;
+  --color2: var(--pure-grey);
+  --frequency: 0.5s;
+  animation: color-blink var(--frequency, 0.5s) infinite;
+}
+
+.fill-blink {
+  --color1: white;
+  --color2: var(--pure-grey);
+  --frequency: 0.5s;
+  animation: fill-blink var(--frequency, 0.5s) infinite;
+}
+
 /* #endregion Keyframes */

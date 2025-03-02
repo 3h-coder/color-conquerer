@@ -14,6 +14,16 @@ export function developmentLog(message?: string, ...optionalParams: unknown[]) {
 
 }
 
+export function developmentWarn(message?: string, ...optionalParams: unknown[]) {
+    if (!isDevelopment) return;
+
+    if (optionalParams.length > 0) {
+        console.warn(message, ...optionalParams);
+    } else {
+        console.warn(message);
+    }
+}
+
 export function developmentErrorLog(message?: string, ...optionalParams: unknown[]) {
     if (!isDevelopment) return;
 

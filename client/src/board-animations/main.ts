@@ -12,6 +12,12 @@ import { handleCellMovementAnimation } from "./movement";
 import { handleCellSpawnAnimation } from "./spawn";
 import { handleSpellCastingAnimation } from "./spell";
 
+export interface GameStateSetters {
+    setBoardArray: (boardArray: CellDto[][]) => void;
+    setActionSpell: (spellAction: PartialSpellDto | null) => void;
+    setPlayerResourceBundle: (bundle: PlayerResourceBundleDto) => void;
+}
+
 export function animateProcessedAction(
     action: MatchActionDto,
     isPlayer1: boolean,
@@ -42,23 +48,23 @@ export function animateProcessedAction(
 
 export async function animateActionCallbacks(
     callback: ActionCallbackDto,
-    setBoardArray: (boardArray: CellDto[][]) => void,
-    setActionSpell: (spellAction: PartialSpellDto | null) => void,
-    setPlayerResourceBundle: (p: PlayerResourceBundleDto) => void
+    currentPlayerisPlayer1: boolean,
+    stateSetters: GameStateSetters
 ) {
-    setPlayerResourceBundle(callback.updatedGameContext.playerResourceBundle);
-    await animateCallback(callback, setActionSpell);
+    stateSetters.setPlayerResourceBundle(callback.updatedGameContext.playerResourceBundle);
+    await animateCallback(callback, currentPlayerisPlayer1, stateSetters.setActionSpell);
     developmentLog("Updating game context after animation");
-    setBoardArray(callback.updatedGameContext.gameBoard);
+    stateSetters.setBoardArray(callback.updatedGameContext.gameBoard);
 }
 
 async function animateCallback(
     callback: ActionCallbackDto,
+    currentPlayerisPlayer1: boolean,
     setActionSpell: (spellAction: PartialSpellDto | null) => void
 ) {
     switch (callback.id) {
         case ActionCallbackId.MINE_EXPLOSION:
-            await animateMineExplosion(callback, setActionSpell);
+            await animateMineExplosion(callback, currentPlayerisPlayer1, setActionSpell);
             break;
 
         default:

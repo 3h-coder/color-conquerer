@@ -1,14 +1,16 @@
 import { Emitter, EmitterConfigV3 } from "@pixi/particle-emitter";
 import { ParticleContainer, Texture } from "pixi.js";
+import { createRoot } from "react-dom/client";
 import sparkImage from "../../assets/images/spark.png";
 import { ActionCallbackDto } from "../../dto/ActionCallbackDto";
 import { PartialSpellDto } from "../../dto/PartialSpellDto";
 import { pixiApp } from "../../env";
+import { LandMine } from "../../routes/Play/components/game-grid/GameCell";
 import { getHtmlCell } from "../../utils/cellUtils";
 import { cleanup, cleanupStyleClass, delay } from "../../utils/domUtils";
 import { startEmitting } from "../../utils/pixiUtils";
 
-export async function animateMineExplosion(callback: ActionCallbackDto, setActionSpell: (spellAction: PartialSpellDto | null) => void) {
+export async function animateMineExplosion(callback: ActionCallbackDto, currentPlayerisPlayer1: boolean, setActionSpell: (spellAction: PartialSpellDto | null) => void) {
     const parentAction = callback.parentAction;
     const explosionCenter = parentAction.impactedCoords;
 
@@ -16,9 +18,12 @@ export async function animateMineExplosion(callback: ActionCallbackDto, setActio
     if (!htmlCell)
         return;
 
-    showSpellCauseDescription(setActionSpell, callback);
+    const mineBlinkingDurationInMs = 1000;
 
-    await delay(1000);
+    showSpellCauseDescription(setActionSpell, callback);
+    showBlinkingMine(htmlCell, currentPlayerisPlayer1, mineBlinkingDurationInMs);
+
+    await delay(mineBlinkingDurationInMs);
 
     triggerShockWave(htmlCell);
     triggerSparks(htmlCell);
@@ -28,6 +33,24 @@ export async function animateMineExplosion(callback: ActionCallbackDto, setActio
 function showSpellCauseDescription(setActionSpell: (spellAction: PartialSpellDto | null) => void, callback: ActionCallbackDto) {
     setActionSpell(callback.spellCause);
     setTimeout(() => setActionSpell(null), 3500);
+}
+
+function showBlinkingMine(htmlCell: HTMLElement, currentPlayerisPlayer1: boolean, lifetimeDurationInMs: number) {
+    const landMine = LandMine({ isPlayer1: currentPlayerisPlayer1, isBlinking: true });
+    const container = document.createElement("div");
+    // const existingLandMine = htmlCell.querySelector(".land-mine");
+    // if (existingLandMine)
+    //     existingLandMine.remove();
+
+    htmlCell.appendChild(container);
+    const root = createRoot(container);
+    root.render(landMine);
+
+    setTimeout(() => {
+        root.unmount(); // Properly unmount the React component
+        container.remove(); // Remove the container
+    }, lifetimeDurationInMs);
+
 }
 
 function triggerShockWave(htmlCell: HTMLElement) {
