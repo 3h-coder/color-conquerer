@@ -1,4 +1,5 @@
 import { io } from "socket.io-client";
+import { getPixiApp } from "./board-animations/pixi";
 
 export const isDevelopment = import.meta.env.DEV;
 
@@ -10,6 +11,8 @@ export const socket = io(API_URL, {
   autoConnect: false,
   withCredentials: true,
 });
+
+export const pixiApp = await getPixiApp();
 
 export const constants = {
   localStorageKeys: {
