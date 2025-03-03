@@ -1,3 +1,4 @@
+import AnimationContextProvider from "../../contexts/AnimationContext";
 import MatchContextProvider from "../../contexts/MatchContext";
 import PlayerContextProvider from "../../contexts/PlayerContext";
 import PlayerModeContextProvider from "../../contexts/PlayerModeContext";
@@ -8,17 +9,19 @@ import PlayContent from "./PlayContent";
 
 export default function Play() {
     return (
-        <MatchContextProvider>
-            <PlayerContextProvider>
-                <TurnInfoContextProvider>
-                    <PlayersResourcesContextProvider>
-                        <PlayerModeContextProvider>
-                            <PlayContent />
-                        </PlayerModeContextProvider>
-                    </PlayersResourcesContextProvider>
-                </TurnInfoContextProvider>
-            </PlayerContextProvider>
-        </MatchContextProvider>
+        <AnimationContextProvider>
+            <MatchContextProvider>
+                <PlayerContextProvider>
+                    <TurnInfoContextProvider>
+                        <PlayersResourcesContextProvider>
+                            <PlayerModeContextProvider>
+                                <PlayContent />
+                            </PlayerModeContextProvider>
+                        </PlayersResourcesContextProvider>
+                    </TurnInfoContextProvider>
+                </PlayerContextProvider>
+            </MatchContextProvider>
+        </AnimationContextProvider>
     );
 }
 

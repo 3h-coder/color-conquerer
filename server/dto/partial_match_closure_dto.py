@@ -17,8 +17,15 @@ class PartialMatchClosureDto(BaseDto):
 
     @staticmethod
     def from_match_closure_dto(match_closure_dto: "MatchClosureDto"):
+        winner_dto = (
+            match_closure_dto.winner.to_dto() if match_closure_dto.winner else None
+        )
+        loser_dto = (
+            match_closure_dto.loser.to_dto() if match_closure_dto.loser else None
+        )
+
         return PartialMatchClosureDto(
             endingReason=match_closure_dto.endingReason,
-            winner=match_closure_dto.winner.to_dto(),
-            loser=match_closure_dto.loser.to_dto(),
+            winner=winner_dto,
+            loser=loser_dto,
         )

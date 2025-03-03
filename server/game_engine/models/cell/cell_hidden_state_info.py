@@ -25,5 +25,8 @@ class CellHiddenStateInfo:
     def is_visible_to_player2(self):
         return self.visible_to == CellOwner.PLAYER_2
 
+    def is_visible_to_both(self):
+        return self.visible_to == CellOwner.BOTH
+
     def is_mine_trap(self):
         return self.state == CellHiddenState.MINE_TRAP

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ContainerProps } from "../../components/containers";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
+import { useAnimationContext } from "../../contexts/AnimationContext";
 import { useMatchInfo } from "../../contexts/MatchContext";
 import { usePlayerInfo } from "../../contexts/PlayerContext";
 import { usePlayerMode } from "../../contexts/PlayerModeContext";
@@ -34,6 +35,7 @@ export default function PlayContent() {
     loading: playerInfoLoading,
     failedToResolve: failedToResolvePlayerInfo,
   } = usePlayerInfo();
+  const { addEndOfAnimationCallback } = useAnimationContext();
   const { turnContext: turnInfo, setTurnContext: setTurnInfo } = useTurnContext();
   const { setPlayerMode } = usePlayerMode();
 
@@ -107,15 +109,19 @@ export default function PlayContent() {
     function onMatchEnded(matchClosureDto: MatchClosureDto) {
       developmentLog("Received match ending ", matchClosureDto);
 
-      setModalIcon(ModalIcon.None);
-      setModalText(getMatchEndingText(playerId, matchClosureDto));
-      setModalVisible(true);
-      setModalExit(() => {
-        return () => navigate("/");
-      });
+      addEndOfAnimationCallback(() => handleMatchEnding());
 
-      socket.emit(Events.CLIENT_CLEAR_SESSION);
-      socket.disconnect();
+      function handleMatchEnding() {
+        setModalIcon(ModalIcon.None);
+        setModalText(getMatchEndingText(playerId, matchClosureDto));
+        setModalVisible(true);
+        setModalExit(() => {
+          return () => navigate("/");
+        });
+
+        socket.emit(Events.CLIENT_CLEAR_SESSION);
+        socket.disconnect();
+      }
     }
 
     function onError(errorDto: ErrorDto) {
@@ -212,7 +218,7 @@ export default function PlayContent() {
         </>
       )}
       {modalVisible && (
-        <SingleButtonModal buttonText="OK" onClose={modalExit} icon={modalIcon}>
+        <SingleButtonModal buttonText="OK" onClose={modalExit} icon={modalIcon} style={{ animation: "slide-in 0.5s ease" }}>
           <h3 className="no-margin">{modalText}</h3>
         </SingleButtonModal>
       )}

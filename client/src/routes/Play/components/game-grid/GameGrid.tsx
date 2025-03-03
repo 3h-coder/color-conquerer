@@ -3,6 +3,7 @@ import OpponentTurnImage from "../../../../assets/images/Your Opponent Turn.png"
 import YourTurnImage from "../../../../assets/images/Your Turn.png";
 import { animateActionCallbacks, animateProcessedAction } from "../../../../board-animations/main";
 import { ContainerProps } from "../../../../components/containers";
+import { useAnimationContext } from "../../../../contexts/AnimationContext";
 import { useMatchInfo } from "../../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../../contexts/PlayerContext";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
@@ -26,6 +27,7 @@ import SpellAction from "./SpellAction";
 import TurnSwapImage from "./TurnSwapImage";
 
 export default function GameGrid() {
+    const { signalAnimationStart, signalAnimationEnd } = useAnimationContext();
     const { matchInfo } = useMatchInfo();
     const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnContext, canInteract, setCanInteract } = useTurnContext();
@@ -150,9 +152,12 @@ export default function GameGrid() {
             if (isMyTurn)
                 setCanInteract(false);
             try {
+                signalAnimationStart();
                 await animateActionCallbacks(actionCallback, isPlayer1, { setBoardArray, setActionSpell, setPlayerResourceBundle });
                 triggerPossibleActionsAnimationSync();
             } finally {
+                signalAnimationEnd();
+
                 if (isMyTurn)
                     setCanInteract(true);
             }

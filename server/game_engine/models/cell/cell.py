@@ -81,10 +81,7 @@ class Cell:
             row_index=row_index,
             column_index=col_index,
             state=CellState.NONE,
-            # hidden_state_info=CellHiddenStateInfo.default(),
-            hidden_state_info=CellHiddenStateInfo(
-                CellHiddenState.MINE_TRAP, visible_to=CellOwner.PLAYER_1
-            ),
+            hidden_state_info=CellHiddenStateInfo.default(),
             transient_state=CellTransientState.NONE,
             id=None,
         )
@@ -205,15 +202,33 @@ class Cell:
         self.state = CellState.MANA_BUBBLE
 
     def set_as_mine_trap(self, owner: CellOwner):
+        visible_to = owner
+
+        if self.hidden_state_info.is_mine_trap():
+            if self.hidden_state_info.is_visible_to_both():
+                visible_to = CellOwner.BOTH
+            elif (
+                self.hidden_state_info.is_visible_to_player1()
+                and owner == CellOwner.PLAYER_2
+            ):
+                visible_to = CellOwner.BOTH
+            elif (
+                self.hidden_state_info.is_visible_to_player2()
+                and owner == CellOwner.PLAYER_1
+            ):
+                visible_to = CellOwner.BOTH
+
         self.hidden_state_info = CellHiddenStateInfo(
             state=CellHiddenState.MINE_TRAP,
-            visible_to=owner,
+            visible_to=visible_to,
         )
 
     def _get_hidden_state(self, for_player1: bool | None):
         hidden_state = CellHiddenState.NONE
-        if (for_player1 is True and self.hidden_state_info.is_visible_to_player1()) or (
-            for_player1 is False and self.hidden_state_info.is_visible_to_player2()
+        if (
+            self.hidden_state_info.is_visible_to_both()
+            or (for_player1 is True and self.hidden_state_info.is_visible_to_player1())
+            or (for_player1 is False and self.hidden_state_info.is_visible_to_player2())
         ):
             hidden_state = self.hidden_state_info.state
 
