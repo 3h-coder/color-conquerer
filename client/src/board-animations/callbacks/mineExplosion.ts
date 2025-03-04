@@ -86,16 +86,16 @@ function triggerSparks(htmlCell: HTMLElement) {
     explosionContainer.x = cellCenterX;
     explosionContainer.y = cellCenterY;
 
-    const emitterLifetimeInSec = 0.3;
+    const emitterLifetimeInSec = 0.2;
 
     const particleConfig: EmitterConfigV3 = {
         lifetime: {
             min: 0.5,
             max: 0.5
         },
-        frequency: 0.008,
+        frequency: 0.0001,
         emitterLifetime: emitterLifetimeInSec,
-        maxParticles: 1000,
+        maxParticles: 30,
         addAtBack: false,
         pos: {
             x: 0,

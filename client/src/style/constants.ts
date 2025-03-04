@@ -14,7 +14,6 @@ export const colors = {
 export const cellStyle = {
     className: "cell",
     selectableClassName: "selectable",
-    selectedClassName: "selected",
     hoveredClassName: "hovered",
     possibleActionClassName: "possible-action",
     absPositionClassName: "absolute-positioning-centered"

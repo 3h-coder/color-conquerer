@@ -82,6 +82,9 @@ class Cell:
             column_index=col_index,
             state=CellState.NONE,
             hidden_state_info=CellHiddenStateInfo.default(),
+            # hidden_state_info=CellHiddenStateInfo(
+            #     state=CellHiddenState.MINE_TRAP, visible_to=CellOwner.BOTH
+            # ),
             transient_state=CellTransientState.NONE,
             id=None,
         )

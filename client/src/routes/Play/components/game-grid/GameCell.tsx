@@ -12,7 +12,7 @@ import { cellStyle } from "../../../../style/constants";
 import {
     canBeTargetted,
     getCellStyle,
-    isSelectable,
+    isSelectable
 } from "../../../../utils/cellUtils";
 
 interface GameCellProps {
@@ -24,13 +24,11 @@ interface GameCellProps {
 }
 
 export default function GameCell(props: GameCellProps) {
-    const { id, isPlayer1, cellInfo, canInteract, canDisplayPossibleActions } =
-        props;
+    const { id, isPlayer1, cellInfo, canInteract, canDisplayPossibleActions } = props;
     const selectable = canInteract && isSelectable(cellInfo);
 
     const selected = cellInfo.transientState === CellTransientState.SELECTED;
-    const attackable =
-        cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
+    const attackable = cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
     const isManaBubble = cellInfo.state == CellState.MANA_BUBBLE;
     const isMineTrap = cellInfo.hiddenState == CellHiddenState.MINE_TRAP;
 

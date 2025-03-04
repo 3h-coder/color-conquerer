@@ -7,16 +7,18 @@ export function isOwned(cell: CellDto) {
   return cell.owner !== 0;
 }
 
-
 export function getCellStyle(cell: CellDto, isPlayer1: boolean) {
+  const backgroundColorVariable = "--bg";
   const style: React.CSSProperties = {};
 
   if (canBeTargetted(cell)) {
-    style.backgroundColor = colors.cell.ownCellActionPossible;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    (style as any)[backgroundColorVariable] = colors.cell.ownCellActionPossible;
   } else if (cell.state === CellState.FRESHLY_SPAWNED) {
-    style.backgroundColor = getFreshlySpawnedCellColor(cell, isPlayer1);
+    (style as any)[backgroundColorVariable] = getFreshlySpawnedCellColor(cell, isPlayer1);
   } else {
-    style.backgroundColor = getCellColor(cell, isPlayer1);
+    (style as any)[backgroundColorVariable] = getCellColor(cell, isPlayer1);
+    /* eslint-enable @typescript-eslint/no-explicit-any */
   }
 
   return style;

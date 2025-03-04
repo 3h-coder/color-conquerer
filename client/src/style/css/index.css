@@ -471,4 +471,15 @@ svg {
   animation: fill-blink var(--frequency, 0.5s) infinite;
 }
 
+@keyframes border-angle-rotate {
+  from { --border-angle: 0deg; }
+  to { --border-angle: 360deg; }
+}
+
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
 /* #endregion Keyframes */

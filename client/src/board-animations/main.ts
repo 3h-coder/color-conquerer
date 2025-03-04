@@ -7,7 +7,7 @@ import { ActionCallbackId } from "../enums/actionCallbackId";
 import { ActionType } from "../enums/actionType";
 import { developmentLog } from "../utils/loggingUtils";
 import { handleCellClashAnimation } from "./attack";
-import { animateMineExplosion } from "./callbacks/mine_explosion";
+import { animateMineExplosion } from "./callbacks/mineExplosion";
 import { handleCellMovementAnimation } from "./movement";
 import { handleCellSpawnAnimation } from "./spawn";
 import { handleSpellCastingAnimation } from "./spell";

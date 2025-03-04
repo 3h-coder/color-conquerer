@@ -167,7 +167,8 @@
 /* #region Cells*/
 
 .cell {
-    background-color: white;
+    --bg: white;
+    background-color: var(--bg);
     border: 0.1rem solid var(--primary-grey1);
     width: max(25px, 4vmin);
     height: max(25px, 4vmin);
@@ -203,13 +204,21 @@
 }
 
 .selected-indicator {
+    --border-angle: 0deg;
     width: 100%;
     height: 100%;
-    border: 0.15rem solid blue;
-    background-color: transparent;
-
-    animation: pulse-up-fade 0.8s infinite alternate;
-    transition: all 0.2s ease-in-out;
+    border: 0.2rem solid transparent;
+    background: linear-gradient(var(--bg), var(--bg)) padding-box,
+    conic-gradient(
+        from var(--border-angle),
+        var(--sky-blue1) 0deg,
+        blue 90deg,
+        var(--sky-blue1) 180deg,
+        blue 270deg,
+        var(--sky-blue1) 360deg
+      ) border-box;
+    
+    animation: border-angle-rotate 1.8s infinite linear;
 }
 
 .attackable-indicator {
