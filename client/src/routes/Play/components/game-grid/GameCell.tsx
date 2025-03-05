@@ -39,9 +39,9 @@ export default function GameCell(props: GameCellProps) {
     }
 
     const allClassNames = [
-        selectable ? cellStyle.selectableClassName : EMPTY_STRING,
+        selectable ? cellStyle.classNames.selectable : EMPTY_STRING,
         canDisplayPossibleActions && canBeTargetted(cellInfo)
-            ? cellStyle.possibleActionClassName
+            ? cellStyle.classNames.possibleAction
             : EMPTY_STRING,
     ];
     const classes = `${cellStyle.className} ${allClassNames.join(" ")}`.trim();
@@ -67,7 +67,7 @@ export default function GameCell(props: GameCellProps) {
 
 function SelectedIndicator() {
     return (
-        <div className={`selected-indicator ${cellStyle.absPositionClassName}`} />
+        <div className={`selected-indicator ${cellStyle.classNames.absPosition}`} />
     );
 }
 
@@ -75,7 +75,7 @@ function AttackableIndicator({ isPlayer1 }: { isPlayer1: boolean; }) {
     const rotateStyle = isPlayer1 ? "rotate(180deg)" : undefined;
 
     return (
-        <div className={`attackable-indicator ${cellStyle.absPositionClassName}`}>
+        <div className={`attackable-indicator ${cellStyle.classNames.absPosition}`}>
             <SwordIcon style={{ transform: rotateStyle }} />
         </div>
     );

@@ -34,15 +34,15 @@ export function clearCellColor(rowIndex: number, colIndex: number) {
 function clearHTMLCellStyle(htmlCell: HTMLElement) {
   htmlCell.style.backgroundColor = colors.cell.idle;
   htmlCell.style.animation = EMPTY_STRING;
-  htmlCell.classList.remove(cellStyle.hoveredClassName);
+  htmlCell.classList.remove(cellStyle.classNames.hovered);
 }
 
 export function colorHoveredCell(cell: CellDto) {
-  addClassName(cell.rowIndex, cell.columnIndex, cellStyle.hoveredClassName);
+  addClassName(cell.rowIndex, cell.columnIndex, cellStyle.classNames.hovered);
 }
 
 export function decolorHoveredCell(cell: CellDto) {
-  removeClassName(cell.rowIndex, cell.columnIndex, cellStyle.hoveredClassName);
+  removeClassName(cell.rowIndex, cell.columnIndex, cellStyle.classNames.hovered);
 }
 
 function getCellColor(cell: CellDto, isPlayer1: boolean) {

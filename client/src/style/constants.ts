@@ -13,8 +13,10 @@ export const colors = {
 
 export const cellStyle = {
     className: "cell",
-    selectableClassName: "selectable",
-    hoveredClassName: "hovered",
-    possibleActionClassName: "possible-action",
-    absPositionClassName: "absolute-positioning-centered"
+    classNames: {
+        selectable: "selectable",
+        hovered: "hovered",
+        possibleAction: "possible-action",
+        absPosition: "absolute-positioning-centered"
+    },
 };
