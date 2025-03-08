@@ -1,18 +1,15 @@
 from functools import wraps
-from typing import Any, Generator
 
-from config.logging import get_configured_logger
 from dto.coordinates_dto import CoordinatesDto
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.callbacks.callback_factory import get_callback
+from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
 from game_engine.models.actions.hooks.action_hook import ActionHook
 from game_engine.models.match_context import MatchContext
 
-_logger = get_configured_logger(__name__)
 
-
-class Action:
+class Action(WithCallbacks):
     """
     Base class for all actions
     """
@@ -26,6 +23,7 @@ class Action:
         from_player1: bool,
         impacted_coords: CoordinatesDto,
     ):
+        super().__init__()
         self.from_player1 = from_player1
         self.impacted_coords = impacted_coords
         self.mana_cost = self.DEFAULT_MANA_COST
@@ -41,11 +39,6 @@ class Action:
 
     def to_dto(self):
         raise NotImplementedError
-
-    def has_callbacks_to_trigger(self):
-        return self._callbacks_to_trigger is not None and bool(
-            self._callbacks_to_trigger
-        )
 
     @staticmethod
     def create(*args, **kwargs) -> "Action":
@@ -65,7 +58,7 @@ class Action:
 
             apply_action_func(self, match_context)
 
-            self._register_callbacks(match_context)
+            self.register_callbacks(match_context)
 
         return wrapper
 
@@ -76,20 +69,12 @@ class Action:
         """
         raise NotImplementedError
 
-    def get_callbacks_to_trigger(self) -> Generator[ActionCallback, Any, None]:
-        """
-        Returns the callbacks to trigger in the order they should be triggered,
-        while emptying the internal list.
-        """
-        while self._callbacks_to_trigger:
-            yield self._callbacks_to_trigger.pop()
-
-    def _trigger_hooks(self, match_context: MatchContext):
-        for hook in self.HOOKS:
-            hook.trigger(self, match_context)
-
-    def _register_callbacks(self, match_context: MatchContext):
+    def register_callbacks(self, match_context: MatchContext):
         for callback_id in self.CALLBACKS:
             callback = get_callback(callback_id, self)
             if callback.can_be_triggered(match_context):
                 self._callbacks_to_trigger.add(callback)
+
+    def _trigger_hooks(self, match_context: MatchContext):
+        for hook in self.HOOKS:
+            hook.trigger(self, match_context)

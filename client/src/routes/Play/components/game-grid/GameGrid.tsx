@@ -28,7 +28,7 @@ import TurnSwapImage from "./TurnSwapImage";
 import "./styles/GameGrid.css";
 
 export default function GameGrid() {
-    const { signalAnimationStart, signalAnimationEnd } = useAnimationContext();
+    const { animationOngoing, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
     const { matchInfo } = useMatchInfo();
     const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnContext, canInteract, setCanInteract } = useTurnContext();
@@ -43,6 +43,8 @@ export default function GameGrid() {
 
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
     const [canDisplayPossibleActions, setCanDisplayPossibleActions] = useState(true);
+
+    const callbackAnimationQueue: ActionCallbackDto[] = [];
 
     /** Used to force cells to restart their animations all together synchronously */
     function triggerPossibleActionsAnimationSync() {
@@ -150,11 +152,20 @@ export default function GameGrid() {
         }
 
         async function onServerActionCallback(actionCallback: ActionCallbackDto) {
+            developmentLog("Received the action callback", actionCallback);
+
+            callbackAnimationQueue.push(actionCallback);
+            if (animationOngoing)
+                return;
+
             if (isMyTurn)
                 setCanInteract(false);
             try {
                 signalAnimationStart();
-                await animateActionCallbacks(actionCallback, isPlayer1, { setBoardArray, setActionSpell, setPlayerResourceBundle });
+                while (callbackAnimationQueue.length > 0) {
+                    const actionCallback = callbackAnimationQueue.shift();
+                    await animateActionCallbacks(actionCallback!, isPlayer1, { setBoardArray, setActionSpell, setPlayerResourceBundle });
+                }
                 triggerPossibleActionsAnimationSync();
             } finally {
                 signalAnimationEnd();

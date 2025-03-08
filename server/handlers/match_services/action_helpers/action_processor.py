@@ -3,6 +3,7 @@ from typing import Callable
 from config.logging import get_configured_logger
 from game_engine.action_processing import process_action
 from game_engine.models.actions.action import Action
+from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 
@@ -34,12 +35,15 @@ class ActionProcessor:
             )
             return None
 
-    def trigger_callbacks(self, action: Action):
-        for callback in action.get_callbacks_to_trigger():
+    def trigger_callbacks(self, action_or_callback: WithCallbacks):
+        for callback in action_or_callback.get_callbacks_to_trigger():
             try:
                 callback.trigger(self._match_context)
 
                 yield callback
+
+                # recursively trigger the callbacks of the callback
+                yield from self.trigger_callbacks(callback)
             except Exception as ex:
                 self._logger.critical(
                     f"Failed to trigger the callback {callback.ID}", exc_info=True

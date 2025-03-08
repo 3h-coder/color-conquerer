@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from dto.cell_dto import CellDto
+from dto.coordinates_dto import CoordinatesDto
 from game_engine.models.cell.cell_hidden_state import CellHiddenState
 from game_engine.models.cell.cell_hidden_state_info import CellHiddenStateInfo
 from game_engine.models.cell.cell_owner import CellOwner
@@ -73,6 +74,9 @@ class Cell:
             id=self.id,
         )
 
+    def get_coordinates(self):
+        return CoordinatesDto(self.row_index, self.column_index)
+
     @staticmethod
     def get_default_idle_cell(row_index: int, col_index: int):
         return Cell(
@@ -81,10 +85,10 @@ class Cell:
             row_index=row_index,
             column_index=col_index,
             state=CellState.NONE,
-            hidden_state_info=CellHiddenStateInfo.default(),
-            # hidden_state_info=CellHiddenStateInfo(
-            #     state=CellHiddenState.MINE_TRAP, visible_to=CellOwner.BOTH
-            # ),
+            # hidden_state_info=CellHiddenStateInfo.default(),
+            hidden_state_info=CellHiddenStateInfo(
+                state=CellHiddenState.MINE_TRAP, visible_to=CellOwner.BOTH
+            ),
             transient_state=CellTransientState.NONE,
             id=None,
         )

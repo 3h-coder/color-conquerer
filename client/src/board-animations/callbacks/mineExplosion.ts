@@ -9,21 +9,28 @@ import { LandMine } from "../../routes/Play/components/game-grid/GameCell";
 import { getHtmlCell } from "../../utils/cellUtils";
 import { cleanup, cleanupStyleClass, delay } from "../../utils/domUtils";
 import { startEmitting } from "../../utils/pixiUtils";
+import { ActionCallbackId } from "../../enums/actionCallbackId";
 
 export async function animateMineExplosion(callback: ActionCallbackDto, currentPlayerisPlayer1: boolean, setActionSpell: (spellAction: PartialSpellDto | null) => void) {
-    const parentAction = callback.parentAction;
-    const explosionCenter = parentAction.impactedCoords;
+    if (!callback.impactedCoords)
+        return;
 
-    const htmlCell = getHtmlCell(explosionCenter.rowIndex, explosionCenter.columnIndex);
+    const { rowIndex, columnIndex } = callback.impactedCoords;
+    const htmlCell = getHtmlCell(rowIndex, columnIndex);
     if (!htmlCell)
         return;
 
     const mineBlinkingDurationInMs = 1000;
 
-    showSpellCauseDescription(setActionSpell, callback);
-    showBlinkingMine(htmlCell, currentPlayerisPlayer1, mineBlinkingDurationInMs);
-
-    await delay(mineBlinkingDurationInMs);
+    // Show the spell that caused the mine explosion and the blinking mine
+    // only if it's not triggered from a callback (i.e. another mine explosion)
+    if (callback.parentCallbackId == ActionCallbackId.NONE) {
+        showSpellCauseDescription(setActionSpell, callback);
+        showBlinkingMine(htmlCell, currentPlayerisPlayer1, mineBlinkingDurationInMs);
+        await delay(mineBlinkingDurationInMs);
+    } else {
+        await delay(100);
+    }
 
     triggerShockWave(htmlCell);
     triggerSparks(htmlCell);

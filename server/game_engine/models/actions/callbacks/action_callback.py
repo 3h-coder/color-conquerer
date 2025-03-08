@@ -1,9 +1,12 @@
 from functools import wraps
 from typing import TYPE_CHECKING
 
+from config.logging import get_configured_logger
 from dto.action_callback_dto import ActionCallbackDto
 from dto.game_context_dto import GameContextDto
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
+from game_engine.models.actions.callbacks.callback_factory import get_callback
+from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 from game_engine.models.player_resources import PlayerResources
@@ -12,8 +15,10 @@ from game_engine.models.spells.spell import Spell
 if TYPE_CHECKING:
     from game_engine.models.actions.action import Action
 
+_logger = get_configured_logger(__name__)
 
-class ActionCallback:
+
+class ActionCallback(WithCallbacks):
     """
     Defines an action that is indirectly triggered by another, and therefore
     should be called after an action is performed.
@@ -22,12 +27,17 @@ class ActionCallback:
     ID = ActionCallBackId.NONE
     SPELL_CAUSE: type[Spell] | None = None
 
-    def __init__(self, parent_action: "Action"):
+    def __init__(
+        self, parent_action: "Action", parent_callback: "ActionCallback" = None
+    ):
+        super().__init__()
         self.parent_action = parent_action
+        self.parent_callback = parent_callback
         self.updated_game_board: GameBoard | None = None
         self.updated_player_resources: (
             tuple[PlayerResources, PlayerResources] | None
         ) = None
+        self._callbacks_to_trigger: set["ActionCallback"] = set()
 
     def __eq__(self, other):
         return (
@@ -46,16 +56,36 @@ class ActionCallback:
         return ActionCallbackDto(
             id=self.ID,
             parentAction=self.parent_action.to_dto(),
+            parentCallbackId=(
+                self.parent_callback.ID
+                if self.parent_callback
+                else ActionCallBackId.NONE
+            ),
             spellCause=(
                 self.SPELL_CAUSE.to_partial_dto()
                 if self.SPELL_CAUSE is not None
                 else None
             ),
+            impactedCoords=self.parent_action.impacted_coords,
             updatedGameContext=GameContextDto.from_action_callback(self, for_player1),
         )
 
     def can_be_triggered(self, match_context: MatchContext):
         raise NotImplementedError
+
+    def check_for_callbacks(trigger_func):
+        """
+        Decorator to automatically register eventual callbacks
+        after the callback has triggered.
+        """
+
+        @wraps(trigger_func)
+        def wrapper(self: "ActionCallback", match_context: MatchContext):
+            trigger_func(self, match_context)
+
+            self.register_callbacks(match_context)
+
+        return wrapper
 
     def update_game_board_and_player_resources(trigger_func):
         """
@@ -72,6 +102,7 @@ class ActionCallback:
 
         return wrapper
 
+    @check_for_callbacks
     @update_game_board_and_player_resources
     def trigger(self, match_context: MatchContext):
         raise NotImplementedError
