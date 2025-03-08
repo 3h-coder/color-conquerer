@@ -1,7 +1,7 @@
 import { ContainerProps } from "../../components/containers";
 import HomeErrorContextProvider from "../../contexts/HomeErrorContext";
 import HomeStateContextProvider from "../../contexts/HomeStateContext";
-import '../../style/css/Home.css';
+import './Home.css';
 import HomeError from "./components/HomeError";
 import HomeTopMessage from "./components/HomeTopMessage";
 import PlayButton from "./components/PlayButton";

@@ -31,13 +31,16 @@ function animateCellClash(
 
     if (!htmlCell || !otherHtmlCell) return;
 
+    const computedCell = getComputedStyle(htmlCell);
+    const computedOtherCell = getComputedStyle(otherHtmlCell);
+
     const expansion1 = document.createElement("div");
     expansion1.classList.add(styleClass);
-    expansion1.style.setProperty(expansionColorVariable, htmlCell.style.backgroundColor);
+    expansion1.style.setProperty(expansionColorVariable, computedCell.backgroundColor);
 
     const expansion2 = document.createElement("div");
     expansion2.classList.add(styleClass);
-    expansion2.style.setProperty(expansionColorVariable, otherHtmlCell.style.backgroundColor);
+    expansion2.style.setProperty(expansionColorVariable, computedOtherCell.backgroundColor);
 
     htmlCell.appendChild(expansion1);
     otherHtmlCell.appendChild(expansion2);

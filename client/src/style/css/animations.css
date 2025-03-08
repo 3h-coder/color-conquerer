@@ -1,0 +1,247 @@
+@keyframes appear-growing {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes appear-growing-long {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes pulse2 {
+    0% {
+      width: 100%;
+      height: 100%;
+    }
+    50% {
+      width: 120%;
+      height: 120%;
+    }
+    100% {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  
+  @keyframes pulse-up-fade {
+    0% {
+      width: 100%;
+      height: 100%;
+      opacity: 1;
+    }
+    25% {
+      width: 112.5%;
+      height: 112.5%;
+      opacity: 0.75;
+    }
+    50% {
+      width: 125%;
+      height: 125%;
+      opacity: 0.5;
+    }
+    75% {
+      width: 137.5%;
+      height: 137.5%;
+      opacity: 0.25;
+    }
+    100% {
+      width: 150%;
+      height: 150%;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes glow {
+    0% {
+      box-shadow: 0 0 1vmin var(--primary-pink1);
+    }
+    50% {
+      box-shadow: 0 0 2vmin var(--primary-pink1);
+    }
+    100% {
+      box-shadow: 0 0 3vmin var(--primary-pink1);
+    }
+  }
+  
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: var(--end-opacity, 1);
+    }
+  }
+  
+  @keyframes half-fade-in {
+    0% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fade-out {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  
+  @keyframes fade-in-out {
+    0% {
+      opacity: 0;
+    }
+    25% {
+      opacity: var(--end-opacity, 1);
+    }
+    50% {
+      opacity: var(--end-opacity, 1);
+    }
+    75% {
+      opacity: var(--end-opacity, 1);
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  
+  @keyframes shadow-expansion-fade {
+    0% {
+      box-shadow: 0 0 0 var(--expansion-color);
+    }
+    50% {
+      box-shadow: 0 0 3rem 0.1rem var(--expansion-color);
+    }
+    100% {
+      box-shadow: 0 0 4rem 0.2rem var(--expansion-color);
+    }
+  }
+  
+  @keyframes expansion-fade-out {
+    0% {
+      width: 100%;
+      height: 100%;
+      opacity: 1;
+    }
+    100% {
+      width: var(--fade-out-percent, 400%);
+      height: var(--fade-out-percent, 400%);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+  }
+  
+  .shake {
+    animation: shake 0.5s ease-in-out;
+  }
+  
+  @keyframes slide-in {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  
+  .slide-in {
+    animation: slide-in 0.5s ease;
+  }
+  
+  @keyframes color-blink {
+    0% {
+      color: var(--color1);
+    }
+    50% {
+      color: var(--color2);
+    }
+    100% {
+      color: var(--color1);
+    }
+  }
+  
+  @keyframes fill-blink {
+    0% {
+      fill: var(--color1);
+    }
+    50% {
+      fill: var(--color2);
+    }
+    100% {
+      fill: var(--color1);
+    }
+  }
+  
+  .color-blink {
+    --color1: white;
+    --color2: var(--pure-grey);
+    --frequency: 0.5s;
+    animation: color-blink var(--frequency, 0.5s) infinite;
+  }
+  
+  .fill-blink {
+    --color1: white;
+    --color2: var(--pure-grey);
+    --frequency: 0.5s;
+    animation: fill-blink var(--frequency, 0.5s) infinite;
+  }
+  
+  @keyframes border-angle-rotate {
+    from { --border-angle: 0deg; }
+    to { --border-angle: 360deg; }
+  }
+  
+  @property --border-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+  

@@ -77,16 +77,25 @@ function triggerSparks(htmlCell: HTMLElement) {
     const explosionContainer = new ParticleContainer();
     pixiApp.stage.addChild(explosionContainer);
 
-    // Get the cell's position relative to the viewport
+    // Get the game container position
+    const gameContainer = pixiApp.view.parentElement;
+    const containerRect = gameContainer.getBoundingClientRect();
+
+    // Get the cell's position relative to the container
     const cellRect = htmlCell.getBoundingClientRect();
-    const cellCenterX = cellRect.left + cellRect.width / 2;
-    const cellCenterY = cellRect.top + cellRect.height / 2;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-    // Convert to Pixi.js coordinate space
-    explosionContainer.x = cellCenterX;
-    explosionContainer.y = cellCenterY;
+    // Calculate position relative to game container
+    const cellCenterX = (cellRect.left - containerRect.left + scrollLeft) + cellRect.width / 2;
+    const cellCenterY = (cellRect.top - containerRect.top + scrollTop) + cellRect.height / 2;
 
-    const emitterLifetimeInSec = 0.2;
+    // Apply device pixel ratio correction
+    const dpr = window.devicePixelRatio || 1;
+    explosionContainer.x = cellCenterX / dpr;
+    explosionContainer.y = cellCenterY / dpr;
+
+    const emitterLifetimeInSec = 0.4;
 
     const particleConfig: EmitterConfigV3 = {
         lifetime: {
@@ -109,7 +118,7 @@ function triggerSparks(htmlCell: HTMLElement) {
                         // Let them fade out over time
                         list: [
                             { time: 0, value: 0.8 },
-                            { time: 1, value: 0.1 }
+                            { time: 1, value: 0.05 }
                         ]
                     }
                 }
@@ -121,7 +130,7 @@ function triggerSparks(htmlCell: HTMLElement) {
                         // Let them get slower over time
                         list: [
                             { time: 0, value: 200 },
-                            { time: 1, value: 100 }
+                            { time: 1, value: 50 }
                         ]
                     }
                 }
@@ -133,7 +142,7 @@ function triggerSparks(htmlCell: HTMLElement) {
                         // Let them shrink over time
                         list: [
                             { time: 0, value: 0.02 },
-                            { time: 1, value: 0.01 }
+                            { time: 1, value: 0.007 }
                         ]
                     },
                     minMult: 1
