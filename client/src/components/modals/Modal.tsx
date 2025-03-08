@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { BugIcon, InfoIcon, WarningTriangleIcon, XMarkIcon } from "../../assets/svg";
 import { ModalIcon } from "../../enums/modalIcons";
 import { SvgContainer } from "../containers";
+import { HTMLElements } from "../../env";
 
 export interface ModalProps {
     style?: React.CSSProperties;
@@ -52,19 +53,19 @@ function Icon(props: IconProps) {
     let actualIcon: JSX.Element;
     switch (icon) {
         case ModalIcon.Info:
-            actualIcon = <InfoIcon />
+            actualIcon = <InfoIcon />;
             break;
 
         case ModalIcon.Warning:
-            actualIcon = <WarningTriangleIcon />
+            actualIcon = <WarningTriangleIcon />;
             break;
 
         case ModalIcon.Error:
-            actualIcon = <BugIcon />
+            actualIcon = <BugIcon />;
             break;
 
         default:
-            actualIcon = <></>
+            actualIcon = <></>;
             break;
     }
 
@@ -96,14 +97,14 @@ function CloseButton(props: CloseButtonProps) {
                 <XMarkIcon />
             </SvgContainer>
         </button>
-    )
+    );
 }
 
 function getModalRoot() {
     const modalRootId = "modal-root";
     let modalRoot = document.getElementById(modalRootId);
     if (!modalRoot) {
-        modalRoot = document.createElement("div");
+        modalRoot = document.createElement(HTMLElements.div);
         modalRoot.id = modalRootId;
         document.body.appendChild(modalRoot);
     }

@@ -12,12 +12,16 @@ export const socket = io(API_URL, {
   withCredentials: true,
 });
 
-export const pixiApp = await getPixiApp();
+export const pixiApp = getPixiApp();
 
 export const constants = {
   localStorageKeys: {
     homeError: "homeError",
   }
+};
+
+export const HTMLElements = {
+  div: "div",
 };
 
 export const EMPTY_STRING = "";

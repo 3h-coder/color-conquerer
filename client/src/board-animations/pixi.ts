@@ -1,27 +1,33 @@
 import { Application } from "pixi.js";
+import { HTMLElements } from "../env";
 
 let app: Application | undefined;
 
 /** Returns the single pixi application instance used for advanced animations */
-export async function getPixiApp() {
+export function getPixiApp() {
     if (!app) {
-        app = await createPixiApp();
+        app = createPixiApp();
     }
 
     return app;
 }
 
-async function createPixiApp() {
+function createPixiApp() {
     const app = new Application({
         resizeTo: window,
         backgroundAlpha: 0,
         resolution: window.devicePixelRatio || 1,
     });
 
-    const div = document.createElement("div");
-    div.classList.add("pixi-overlay");
-    div.appendChild(app.view);
-    document.getElementById("pixi-root")?.appendChild(div);
-
+    createPixiOverlay(app);
     return app;
 }
+
+/** Sets up the pixi canvas element into the page */
+function createPixiOverlay(app: Application) {
+    const pixiOverlay = document.createElement(HTMLElements.div);
+    pixiOverlay.classList.add("pixi-overlay");
+    pixiOverlay.appendChild(app.view);
+    document.getElementById("pixi-root")?.appendChild(pixiOverlay);
+}
+

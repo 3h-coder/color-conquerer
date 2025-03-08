@@ -1,6 +1,6 @@
 import { MatchActionDto } from "../dto/MatchActionDto";
 import { getHtmlCell } from "../utils/cellUtils";
-import { cleanup } from "../utils/domUtils";
+import { triggerAuraEffect } from "./common";
 
 export function handleCellClashAnimation(action: MatchActionDto) {
     const attackerCoords = action.originatingCellCoords;
@@ -22,29 +22,11 @@ function animateCellClash(
     otherRowIndex: number,
     otherColIndex: number
 ) {
-    const styleClass = "cell-clash-or-spawn-indicator";
-    const expansionColorVariable = "--expansion-color";
-    const cleanupDelayInMs = 2000;
-
     const htmlCell = getHtmlCell(rowIndex, colIndex);
     const otherHtmlCell = getHtmlCell(otherRowIndex, otherColIndex);
 
     if (!htmlCell || !otherHtmlCell) return;
 
-    const computedCell = getComputedStyle(htmlCell);
-    const computedOtherCell = getComputedStyle(otherHtmlCell);
-
-    const expansion1 = document.createElement("div");
-    expansion1.classList.add(styleClass);
-    expansion1.style.setProperty(expansionColorVariable, computedCell.backgroundColor);
-
-    const expansion2 = document.createElement("div");
-    expansion2.classList.add(styleClass);
-    expansion2.style.setProperty(expansionColorVariable, computedOtherCell.backgroundColor);
-
-    htmlCell.appendChild(expansion1);
-    otherHtmlCell.appendChild(expansion2);
-
-    cleanup(expansion1, cleanupDelayInMs);
-    cleanup(expansion2, cleanupDelayInMs);
+    triggerAuraEffect(htmlCell, () => getComputedStyle(htmlCell).backgroundColor);
+    triggerAuraEffect(otherHtmlCell, () => getComputedStyle(otherHtmlCell).backgroundColor);
 }

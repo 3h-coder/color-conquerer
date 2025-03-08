@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 import sparkImage from "../../assets/images/spark.png";
 import { ActionCallbackDto } from "../../dto/ActionCallbackDto";
 import { PartialSpellDto } from "../../dto/PartialSpellDto";
-import { pixiApp } from "../../env";
+import { HTMLElements, pixiApp } from "../../env";
 import { LandMine } from "../../routes/Play/components/game-grid/GameCell";
 import { getHtmlCell } from "../../utils/cellUtils";
 import { cleanup, cleanupStyleClass, delay } from "../../utils/domUtils";
@@ -37,7 +37,7 @@ function showSpellCauseDescription(setActionSpell: (spellAction: PartialSpellDto
 
 function showBlinkingMine(htmlCell: HTMLElement, currentPlayerisPlayer1: boolean, lifetimeDurationInMs: number) {
     const landMine = LandMine({ isPlayer1: currentPlayerisPlayer1, isBlinking: true });
-    const container = document.createElement("div");
+    const container = document.createElement(HTMLElements.div);
     // const existingLandMine = htmlCell.querySelector(".land-mine");
     // if (existingLandMine)
     //     existingLandMine.remove();
@@ -56,7 +56,7 @@ function showBlinkingMine(htmlCell: HTMLElement, currentPlayerisPlayer1: boolean
 function triggerShockWave(htmlCell: HTMLElement) {
     const cleanupDelayInMs = 380;
 
-    const explosion = document.createElement("div");
+    const explosion = document.createElement(HTMLElements.div);
     explosion.classList.add("cell-explosion");
 
     htmlCell.appendChild(explosion);
@@ -79,12 +79,14 @@ function triggerSparks(htmlCell: HTMLElement) {
 
     // Get the game container position
     const gameContainer = pixiApp.view.parentElement;
+    if (!gameContainer)
+        return;
     const containerRect = gameContainer.getBoundingClientRect();
 
     // Get the cell's position relative to the container
     const cellRect = htmlCell.getBoundingClientRect();
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
     // Calculate position relative to game container
     const cellCenterX = (cellRect.left - containerRect.left + scrollLeft) + cellRect.width / 2;
