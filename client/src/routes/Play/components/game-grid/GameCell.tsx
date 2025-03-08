@@ -14,6 +14,7 @@ import {
     getCellStyle,
     isSelectable
 } from "../../../../utils/cellUtils";
+import "./styles/GameCell.css";
 
 interface GameCellProps {
     id: string;

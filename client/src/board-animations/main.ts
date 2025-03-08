@@ -51,10 +51,14 @@ export async function animateActionCallbacks(
     currentPlayerisPlayer1: boolean,
     stateSetters: GameStateSetters
 ) {
-    stateSetters.setPlayerResourceBundle(callback.updatedGameContext.playerResourceBundle);
-    await animateCallback(callback, currentPlayerisPlayer1, stateSetters.setActionSpell);
-    developmentLog("Updating game context after animation");
-    stateSetters.setBoardArray(callback.updatedGameContext.gameBoard);
+    const { setPlayerResourceBundle, setActionSpell, setBoardArray } = stateSetters;
+
+    setPlayerResourceBundle(callback.updatedGameContext.playerResourceBundle);
+
+    await animateCallback(callback, currentPlayerisPlayer1, setActionSpell);
+
+    developmentLog("Callback animation over, updating the board");
+    setBoardArray(callback.updatedGameContext.gameBoard);
 }
 
 async function animateCallback(

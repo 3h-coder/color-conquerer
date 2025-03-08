@@ -1,0 +1,28 @@
+.game-top-info-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: max(15px, 2vmin);
+    margin-bottom: max(15px, 2vmin);
+}
+
+.whose-turn-label {
+    margin: 0;
+}
+
+.countdown-bar-outer {
+    border-radius: 1rem;
+    border: 0.15rem solid white;
+    width: 40%;
+    height: max(20px, 3vmin);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.countdown-bar-inner {
+    border: 0.15rem solid transparent;
+    background-color: var(--primary-grey2);
+    height: 100%;
+    box-sizing: border-box;
+    transition: all 0.1s ease-in-out;
+}

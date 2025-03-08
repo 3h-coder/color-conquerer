@@ -1,4 +1,5 @@
 import { EMPTY_STRING } from "../../../../env";
+import "./styles/PlayerHPAndMPInfo.css";
 
 
 interface PlayerHPAndMPInfoProps {

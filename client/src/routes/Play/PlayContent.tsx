@@ -19,7 +19,7 @@ import { constants, EMPTY_STRING, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
 import ActionBoard from "./components/action-board/ActionBoard";
 import GameGrid from "./components/game-grid/GameGrid";
-import GameTopInfo from "./components/GameTopInfo";
+import GameTopInfo from "./components/game-top-info/GameTopInfo";
 import MyPlayerInfo from "./components/player-info/MyPlayerInfo";
 import OpponentInfo from "./components/player-info/OpponentInfo";
 import RightSideControls from "./components/right-side-controls/RightSideControls";

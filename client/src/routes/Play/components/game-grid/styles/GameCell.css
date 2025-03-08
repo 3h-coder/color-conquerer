@@ -1,0 +1,116 @@
+.cell {
+    --bg: white;
+    background-color: var(--bg);
+    border: 0.1rem solid var(--primary-grey1);
+    width: max(25px, 4vmin);
+    height: max(25px, 4vmin);
+    transition: background-color 0.1s;
+    position: relative;
+}
+
+.selectable {
+    cursor: pointer;
+}
+
+.selectable:hover {
+    border: 0.1rem solid blue;
+}
+
+/* Meant to be used on idle cells */
+.possible-action {
+    animation: half-fade-in 1s infinite alternate-reverse;
+}
+
+.hovered {
+    border: 0.1rem solid red;
+}
+
+.absolute-positioning-centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    box-sizing: border-box;
+
+    /* Centering */
+    transform: translate(-50%, -50%);
+}
+
+.selected-indicator {
+    --border-angle: 0deg;
+    width: 100%;
+    height: 100%;
+    border: 0.2rem solid transparent;
+    background: linear-gradient(var(--bg), var(--bg)) padding-box,
+    conic-gradient(
+        from var(--border-angle),
+        var(--sky-blue1) 0deg,
+        blue 90deg,
+        var(--sky-blue1) 180deg,
+        blue 270deg,
+        var(--sky-blue1) 360deg
+      ) border-box;
+    
+    animation: border-angle-rotate 1.8s infinite linear;
+}
+
+.attackable-indicator {
+    width: 70%;
+    height: 70%;
+    background-color: transparent;
+    animation: fade-in 1s infinite alternate-reverse;
+}
+
+.cell-clash-or-spawn-indicator {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    z-index: 1;
+
+    animation: shadow-expansion-fade 0.6s ease-in-out;
+}
+
+.cell-explosion {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 50%;
+    left: 50%;
+    background-color: transparent;
+    border-radius: 50%;
+    border: 0.1rem solid var(--pure-grey);
+    z-index: 1;
+
+    /* Centering */
+    transform: translate(-50%, -50%);
+    animation: expansion-fade-out 0.4s ease-in-out;
+}
+
+.mana-bubble {
+    width: 75%;
+    height: 75%;
+    border-radius: 50%;
+    background: linear-gradient(
+        180deg,
+    var(--mana-blue),
+    var(--sky-blue1),
+    var(--sky-blue2)
+    );
+}
+
+.mana-bubble-pop {
+    width: 100%;
+    height: 100%;
+    background-color: var(--mana-blue);
+    border-radius: 50%;
+    opacity: 0.5;
+    box-shadow: 0 0 1rem 0 var(--mana-blue);
+
+    animation: pulse-up-fade 0.7s ease-in-out;
+}
+
+.land-mine {
+    width: 90%;
+    height: 90%;
+    z-index: 1;
+}

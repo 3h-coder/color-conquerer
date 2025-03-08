@@ -1,4 +1,5 @@
 import EndTurnButton from "./EndTurnButton";
+import "./styles/RightSideControls.css";
 
 export default function RightSideControls() {
 

@@ -25,6 +25,7 @@ import GameCell from "./GameCell";
 import GameError from "./GameError";
 import SpellAction from "./SpellAction";
 import TurnSwapImage from "./TurnSwapImage";
+import "./styles/GameGrid.css";
 
 export default function GameGrid() {
     const { signalAnimationStart, signalAnimationEnd } = useAnimationContext();

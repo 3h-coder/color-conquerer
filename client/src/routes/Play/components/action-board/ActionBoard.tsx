@@ -3,6 +3,7 @@ import { ContainerProps } from "../../../../components/containers";
 import SpawnButton from "./SpawnButton";
 import SpellDeck from "./SpellDeck";
 import SpellToggleButton from "./SpellToggleButton";
+import "./styles/ActionBoard.css";
 
 export default function ActionBoard() {
     const [spellsVisible, setSpellsVisible] = useState(false);
