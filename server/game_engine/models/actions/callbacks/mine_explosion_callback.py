@@ -73,17 +73,14 @@ class MineExplosionCallback(ActionCallback):
 
         processed_mines = set()
         explosions_per_radius = {}
-        self.scan_for_neighbour_mines(
+        self._scan_for_neighbour_mines(
             game_board, row_index, col_index, processed_mines, explosions_per_radius
         )
+        # add the explosion callbacks from the closest ones to the farthest ones
         for radius in explosions_per_radius:
             self._callbacks_to_trigger += explosions_per_radius[radius]
 
-        _logger.debug(
-            f"Found a total of {len(self._callbacks_to_trigger)} explosion callbacks"
-        )
-
-    def scan_for_neighbour_mines(
+    def _scan_for_neighbour_mines(
         self,
         game_board: GameBoard,
         row_index: int,
@@ -92,7 +89,8 @@ class MineExplosionCallback(ActionCallback):
         explosions_per_radius: dict[int, list["MineExplosionCallback"]],
     ):
         """
-        Will recursively scan the neighbour mines to add chained explosions.
+        Will recursively scan the neighbour mines to add chained explosions
+        into the given dictionary.
         """
         current_mine_key = (row_index, col_index)
         if current_mine_key in processed_mines:
@@ -114,7 +112,7 @@ class MineExplosionCallback(ActionCallback):
             callback.can_trigger_callbacks = False
             explosions_per_radius[radius].append(callback)
 
-            self.scan_for_neighbour_mines(
+            self._scan_for_neighbour_mines(
                 game_board,
                 neighbour.row_index,
                 neighbour.column_index,
