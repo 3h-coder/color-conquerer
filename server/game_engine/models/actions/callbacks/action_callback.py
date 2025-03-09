@@ -37,7 +37,7 @@ class ActionCallback(WithCallbacks):
         self.updated_player_resources: (
             tuple[PlayerResources, PlayerResources] | None
         ) = None
-        self._callbacks_to_trigger: set["ActionCallback"] = set()
+        self.can_trigger_callbacks = True
 
     def __eq__(self, other):
         return (
@@ -83,7 +83,8 @@ class ActionCallback(WithCallbacks):
         def wrapper(self: "ActionCallback", match_context: MatchContext):
             trigger_func(self, match_context)
 
-            self.register_callbacks(match_context)
+            if self.can_trigger_callbacks:
+                self.register_callbacks(match_context)
 
         return wrapper
 

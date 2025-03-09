@@ -27,7 +27,6 @@ class Action(WithCallbacks):
         self.from_player1 = from_player1
         self.impacted_coords = impacted_coords
         self.mana_cost = self.DEFAULT_MANA_COST
-        self._callbacks_to_trigger: set[ActionCallback] = set()
 
     def __repr__(self):
         return (
@@ -73,7 +72,7 @@ class Action(WithCallbacks):
         for callback_id in self.CALLBACKS:
             callback = get_callback(callback_id, self)
             if callback.can_be_triggered(match_context):
-                self._callbacks_to_trigger.add(callback)
+                self._callbacks_to_trigger.append(callback)
 
     def _trigger_hooks(self, match_context: MatchContext):
         for hook in self.HOOKS:

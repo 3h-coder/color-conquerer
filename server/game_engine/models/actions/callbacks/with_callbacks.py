@@ -16,7 +16,7 @@ class WithCallbacks:
     CALLBACKS: set[ActionCallBackId] = set()
 
     def __init__(self):
-        self._callbacks_to_trigger: set["ActionCallback"] = set()
+        self._callbacks_to_trigger: list["ActionCallback"] = []
 
     def has_callbacks_to_trigger(self):
         return self._callbacks_to_trigger is not None and bool(
@@ -28,8 +28,14 @@ class WithCallbacks:
         Returns the callbacks to trigger in the order they should be triggered,
         while emptying the internal list.
         """
-        while self._callbacks_to_trigger:
-            yield self._callbacks_to_trigger.pop()
+        # Convert to set and back to list to ensure uniqueness while preserving latest order
+        unique_callbacks = list(set(self._callbacks_to_trigger))
+        # Sort by original position to maintain discovery order
+        unique_callbacks.sort(key=lambda x: self._callbacks_to_trigger.index(x))
+        # empty the callbacks list
+        self._callbacks_to_trigger = []
+        while unique_callbacks:
+            yield unique_callbacks.pop(0)
 
     def register_callbacks(self, match_context: MatchContext):
         raise NotImplementedError

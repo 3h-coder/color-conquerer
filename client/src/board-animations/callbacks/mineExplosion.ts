@@ -150,7 +150,7 @@ function triggerSparks(htmlCell: HTMLElement) {
                     scale: {
                         // Let them shrink over time
                         list: [
-                            { time: 0, value: 0.02 },
+                            { time: 0, value: 0.01 },
                             { time: 1, value: 0.007 }
                         ]
                     },

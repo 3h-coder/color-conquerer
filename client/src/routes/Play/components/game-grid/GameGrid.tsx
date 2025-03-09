@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import OpponentTurnImage from "../../../../assets/images/Your Opponent Turn.png";
 import YourTurnImage from "../../../../assets/images/Your Turn.png";
-import { animateActionCallbacks, animateProcessedAction } from "../../../../board-animations/main";
+import { animateActionCallbacks as animateActionCallback, animateProcessedAction } from "../../../../board-animations/main";
 import { ContainerProps } from "../../../../components/containers";
 import { useAnimationContext } from "../../../../contexts/AnimationContext";
 import { useMatchInfo } from "../../../../contexts/MatchContext";
@@ -44,7 +44,7 @@ export default function GameGrid() {
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
     const [canDisplayPossibleActions, setCanDisplayPossibleActions] = useState(true);
 
-    const callbackAnimationQueue: ActionCallbackDto[] = [];
+    const callbackAnimationQueueRef = useRef<ActionCallbackDto[]>([]);
 
     /** Used to force cells to restart their animations all together synchronously */
     function triggerPossibleActionsAnimationSync() {
@@ -98,6 +98,31 @@ export default function GameGrid() {
             return () => clearTimeout(timeout);
         }
     }, [isMyTurn]);
+
+    // Action callbacks animations
+    useEffect(() => {
+        if (!animationOngoing)
+            return;
+
+        animateActionCallbacks();
+
+        async function animateActionCallbacks() {
+            if (isMyTurn)
+                setCanInteract(false);
+            try {
+                while (callbackAnimationQueueRef.current.length > 0) {
+                    const actionCallback = callbackAnimationQueueRef.current.shift();
+                    await animateActionCallback(actionCallback!, isPlayer1, { setBoardArray, setActionSpell, setPlayerResourceBundle });
+                }
+                triggerPossibleActionsAnimationSync();
+            } finally {
+                signalAnimationEnd();
+
+                if (isMyTurn)
+                    setCanInteract(true);
+            }
+        }
+    }, [animationOngoing]);
 
     // Clear the error message ~1 second after it has been set
     useEffect(() => {
@@ -154,25 +179,9 @@ export default function GameGrid() {
         async function onServerActionCallback(actionCallback: ActionCallbackDto) {
             developmentLog("Received the action callback", actionCallback);
 
-            callbackAnimationQueue.push(actionCallback);
-            if (animationOngoing)
-                return;
-
-            if (isMyTurn)
-                setCanInteract(false);
-            try {
+            callbackAnimationQueueRef.current.push(actionCallback);
+            if (!animationOngoing)
                 signalAnimationStart();
-                while (callbackAnimationQueue.length > 0) {
-                    const actionCallback = callbackAnimationQueue.shift();
-                    await animateActionCallbacks(actionCallback!, isPlayer1, { setBoardArray, setActionSpell, setPlayerResourceBundle });
-                }
-                triggerPossibleActionsAnimationSync();
-            } finally {
-                signalAnimationEnd();
-
-                if (isMyTurn)
-                    setCanInteract(true);
-            }
         }
 
         function onServerActionError(errorMessageDto: MessageDto) {
