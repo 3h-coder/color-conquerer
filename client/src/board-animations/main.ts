@@ -21,6 +21,7 @@ export interface GameStateSetters {
 export function animateProcessedAction(
     action: MatchActionDto,
     isPlayer1: boolean,
+    isMyTurn: boolean,
     boardArray: CellDto[][],
     setActionSpell: (spellAction: PartialSpellDto | null) => void
 ) {
@@ -38,7 +39,7 @@ export function animateProcessedAction(
             break;
 
         case ActionType.PLAYER_SPELL:
-            handleSpellCastingAnimation(action, setActionSpell);
+            handleSpellCastingAnimation(action, setActionSpell, isMyTurn);
             break;
 
         default:

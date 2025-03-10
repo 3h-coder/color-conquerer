@@ -25,7 +25,7 @@ export default function ActionBoard() {
 
 function ActionBoardContainer(props: ContainerProps) {
     return (
-        <div className="action-board-container">
+        <div id="action-board-container">
             {props.children}
         </div>
     );

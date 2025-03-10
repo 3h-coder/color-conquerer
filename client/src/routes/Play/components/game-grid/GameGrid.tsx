@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import OpponentTurnImage from "../../../../assets/images/Your Opponent Turn.png";
 import YourTurnImage from "../../../../assets/images/Your Turn.png";
 import { animateActionCallbacks as animateActionCallback, animateProcessedAction } from "../../../../board-animations/main";
@@ -165,7 +165,7 @@ export default function GameGrid() {
             setPlayerResourceBundle(processedActionDto.updatedGameContext.playerResourceBundle);
 
             // Trigger animations
-            animateProcessedAction(processedActionDto.processedAction, isPlayer1, boardArray, setActionSpell);
+            animateProcessedAction(processedActionDto.processedAction, isPlayer1, isMyTurn, boardArray, setActionSpell);
 
             // Update the board array with the new cell info
             if (isMyTurn && processedActionDto.overridingTransientBoard) {

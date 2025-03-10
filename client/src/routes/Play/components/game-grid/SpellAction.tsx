@@ -1,5 +1,7 @@
 import { ContainerProps, Separator, SvgContainer } from "../../../../components/containers";
+
 import { PartialSpellDto } from "../../../../dto/PartialSpellDto";
+import { localStorageKeys } from "../../../../env";
 import { getSpellIcon } from "../shared";
 
 interface SpellActionProps {
@@ -8,21 +10,26 @@ interface SpellActionProps {
 
 export default function SpellAction(props: SpellActionProps) {
     const { spell } = props;
-
+    // We're not using extractKey as this component gets re-rendered when
+    // the user selects a cell of their own
+    const titleText = localStorage.getItem(localStorageKeys.playPage.spellActionDescription);
     const iconSize = "1.2rem";
 
     return (
-        <div className="action-spell-description">
-            <HeaderSection>
-                <SvgContainer style={{ width: iconSize, height: iconSize }}>
-                    {getSpellIcon(spell.id)}
-                </SvgContainer>
-                {spell.name}
-            </HeaderSection>
-            <Separator style={{ marginBottom: "max(1vmin, 5px)" }} />
-            {spell.description}
-            <div className="spell-mana-cost">
-                {spell.manaCost}
+        <div id="action-spell-description-outer">
+            {titleText && <h3>{titleText}</h3>}
+            <div id="action-spell-description-inner">
+                <HeaderSection>
+                    <SvgContainer style={{ width: iconSize, height: iconSize }}>
+                        {getSpellIcon(spell.id)}
+                    </SvgContainer>
+                    {spell.name}
+                </HeaderSection>
+                <Separator style={{ marginBottom: "max(1vmin, 5px)" }} />
+                {spell.description}
+                <div className="spell-mana-cost">
+                    {spell.manaCost}
+                </div>
             </div>
         </div>
     );

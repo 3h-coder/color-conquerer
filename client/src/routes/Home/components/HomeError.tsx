@@ -2,21 +2,21 @@ import { useEffect, useState } from "react";
 import { XMarkIcon } from "../../../assets/svg";
 import { SvgContainer } from "../../../components/containers";
 import { useHomeError } from "../../../contexts/HomeErrorContext";
-import { constants, EMPTY_STRING } from "../../../env";
+import { EMPTY_STRING, localStorageKeys } from "../../../env";
 import { extractKey } from "../../../utils/localStorageUtils";
 
 export default function HomeError() {
     const { error, setHomeError } = useHomeError();
     const [display, setDisplay] = useState(false);
     const [errorFromLocalStorage] = useState(() => {
-        return extractKey(constants.localStorageKeys.homeError);
+        return extractKey(localStorageKeys.homePage.error);
     });
 
     useEffect(() => {
         if (error || errorFromLocalStorage) {
             setDisplay(true);
         }
-    }, [error, errorFromLocalStorage])
+    }, [error, errorFromLocalStorage]);
 
     function onClose() {
         setDisplay(false);

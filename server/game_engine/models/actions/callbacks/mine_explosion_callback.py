@@ -11,8 +11,6 @@ from game_engine.models.spells.mine_trap_spell import MineTrapSpell
 if TYPE_CHECKING:
     from game_engine.models.actions.action import Action
 
-_logger = get_configured_logger(__name__)
-
 
 class MineExplosionCallback(ActionCallback):
     """
@@ -26,6 +24,7 @@ class MineExplosionCallback(ActionCallback):
 
     def __init__(self, parent_action: "Action", parent_callback: ActionCallback = None):
         super().__init__(parent_action, parent_callback)
+        self._logger = get_configured_logger(__name__)
         self.explosion_center_coords: CoordinatesDto | None = None
 
     def __eq__(self, other):
@@ -74,51 +73,15 @@ class MineExplosionCallback(ActionCallback):
         processed_mines = set()
         explosions_per_radius = {}
         self._scan_for_neighbour_mines(
-            game_board, row_index, col_index, processed_mines, explosions_per_radius
+            game_board,
+            (row_index, col_index),
+            (row_index, col_index),
+            processed_mines,
+            explosions_per_radius,
         )
         # add the explosion callbacks from the closest ones to the farthest ones
         for radius in explosions_per_radius:
             self._callbacks_to_trigger += explosions_per_radius[radius]
-
-    def _scan_for_neighbour_mines(
-        self,
-        game_board: GameBoard,
-        row_index: int,
-        col_index: int,
-        processed_mines: set,
-        explosions_per_radius: dict[int, list["MineExplosionCallback"]],
-    ):
-        """
-        Will recursively scan the neighbour mines to add chained explosions
-        into the given dictionary.
-        """
-        current_mine_key = (row_index, col_index)
-        if current_mine_key in processed_mines:
-            return
-
-        processed_mines.add(current_mine_key)
-        radius = len(explosions_per_radius.keys()) + 1
-        if radius not in explosions_per_radius:
-            explosions_per_radius[radius] = []
-
-        neighbours = game_board.get_neighbours(row_index, col_index)
-        mine_neighbours = [
-            neighbour for neighbour in neighbours if neighbour.is_mine_trap()
-        ]
-
-        for neighbour in mine_neighbours:
-            callback = MineExplosionCallback(self.parent_action, self)
-            callback.explosion_center_coords = neighbour.get_coordinates()
-            callback.can_trigger_callbacks = False
-            explosions_per_radius[radius].append(callback)
-
-            self._scan_for_neighbour_mines(
-                game_board,
-                neighbour.row_index,
-                neighbour.column_index,
-                processed_mines,
-                explosions_per_radius,
-            )
 
     @ActionCallback.check_for_callbacks
     @ActionCallback.update_game_board_and_player_resources
@@ -145,3 +108,51 @@ class MineExplosionCallback(ActionCallback):
 
         # The cell is not longer a mine trap
         impacted_cell.hidden_state_info.reset()
+
+    def _scan_for_neighbour_mines(
+        self,
+        game_board: GameBoard,
+        coords: tuple[int, int],
+        origin_coords: tuple[int, int],
+        processed_mines: set,
+        explosions_per_radius: dict[int, list["MineExplosionCallback"]],
+    ):
+        """
+        Will recursively scan the neighbour mines to add chained explosions
+        into the given dictionary.
+        """
+        current_mine_coords = coords
+        if current_mine_coords in processed_mines:
+            return
+
+        processed_mines.add(current_mine_coords)
+
+        row_index, col_index = coords
+        origin_row, origin_col = origin_coords
+
+        # Calculate Manhattan distance from origin explosion
+        current_radius = abs(row_index - origin_row) + abs(col_index - origin_col)
+        if current_radius > 0:  # Don't add the origin mine
+            if current_radius not in explosions_per_radius:
+                explosions_per_radius[current_radius] = []
+
+            callback = MineExplosionCallback(self.parent_action, self)
+            callback.explosion_center_coords = game_board.get(
+                row_index, col_index
+            ).get_coordinates()
+            callback.can_trigger_callbacks = False
+            explosions_per_radius[current_radius].append(callback)
+
+        neighbours = game_board.get_neighbours(row_index, col_index)
+        mine_neighbours = [
+            neighbour for neighbour in neighbours if neighbour.is_mine_trap()
+        ]
+
+        for neighbour in mine_neighbours:
+            self._scan_for_neighbour_mines(
+                game_board,
+                (neighbour.row_index, neighbour.column_index),
+                (origin_row, origin_col),
+                processed_mines,
+                explosions_per_radius,
+            )

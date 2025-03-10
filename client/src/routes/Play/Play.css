@@ -22,7 +22,7 @@
     width: fit-content;
     display: flex;
 
-    @media (max-width: 570px) {
+    @media (max-width: var(--screen-width-small1)) {
         display: none;
     }
 }

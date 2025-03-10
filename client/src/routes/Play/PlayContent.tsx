@@ -15,7 +15,7 @@ import { TurnContextDto } from "../../dto/TurnContextDto";
 import { Events } from "../../enums/events";
 import { ModalIcon } from "../../enums/modalIcons";
 import { PlayerMode } from "../../enums/playerMode";
-import { constants, EMPTY_STRING, socket } from "../../env";
+import { EMPTY_STRING, localStorageKeys, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
 import ActionBoard from "./components/action-board/ActionBoard";
 import GameGrid from "./components/game-grid/GameGrid";
@@ -59,7 +59,7 @@ export default function PlayContent() {
 
       if (failedToResolveMatchInfo || failedToResolvePlayerInfo) {
         localStorage.setItem(
-          constants.localStorageKeys.homeError,
+          localStorageKeys.homePage.error,
           "Failed to connect to your match"
         );
         navigate("/");

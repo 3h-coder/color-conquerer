@@ -23,6 +23,13 @@
   --spacing-small2: max(8px, 1vmin);
   --spacing-medium1: max(12px, 1.5vmin);
   --spacing-medium2: max(16px, 2vmin);
+
+  /*screens (does not work for media queries - only here as an indicator)*/
+  --screen-width-very-small: 400px;
+  --screen-width-small1: 570px;
+  --screen-width-small2: 760px;
+  --screen-width-medium: 1200px;
+  --screen-width-large: 1900px;
   
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-size: max(16px, calc(0.5rem + 1vmin));

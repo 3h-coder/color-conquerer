@@ -1,4 +1,4 @@
-.action-board-container {
+#action-board-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -102,21 +102,6 @@
     z-index: 1;
 
     animation: fade-in 0.3s ease-in-out forwards;
-}
-
-.action-spell-description {
-    --end-opacity: 0.95;
-    --animation-duration: 3.6s; /* Default duration */
-    position: absolute;
-    width: max(40%, 120px);
-    height: fit-content;
-    left: 85%;
-    background-color: var(--deep-blue);
-    padding: var(--spacing-small2);
-    border-radius: 0.5rem;
-    z-index: 1;
-
-    animation: glow 1s ease-in-out infinite alternate, fade-in-out var(--animation-duration) ease-out;
 }
 
 .casted-spell-header {

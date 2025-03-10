@@ -144,7 +144,7 @@ class CellMovement(CellAction):
             cell_new_coords.set_owned_by_player2(cell_id)
             cell_new_coords.is_master = is_master
 
-        cell_original_coords.set_idle()
+        cell_original_coords.kill()
         cell_new_coords.clear_state()
 
     @staticmethod

@@ -4,12 +4,12 @@ import { createRoot } from "react-dom/client";
 import sparkImage from "../../assets/images/spark.png";
 import { ActionCallbackDto } from "../../dto/ActionCallbackDto";
 import { PartialSpellDto } from "../../dto/PartialSpellDto";
-import { HTMLElements, pixiApp } from "../../env";
+import { ActionCallbackId } from "../../enums/actionCallbackId";
+import { HTMLElements, localStorageKeys, pixiApp } from "../../env";
 import { LandMine } from "../../routes/Play/components/game-grid/GameCell";
 import { getHtmlCell } from "../../utils/cellUtils";
 import { cleanup, cleanupStyleClass, delay } from "../../utils/domUtils";
 import { startEmitting } from "../../utils/pixiUtils";
-import { ActionCallbackId } from "../../enums/actionCallbackId";
 
 export async function animateMineExplosion(callback: ActionCallbackDto, currentPlayerisPlayer1: boolean, setActionSpell: (spellAction: PartialSpellDto | null) => void) {
     if (!callback.impactedCoords)
@@ -20,16 +20,15 @@ export async function animateMineExplosion(callback: ActionCallbackDto, currentP
     if (!htmlCell)
         return;
 
-    const mineBlinkingDurationInMs = 1000;
-
     // Show the spell that caused the mine explosion and the blinking mine
     // only if it's not triggered from a callback (i.e. another mine explosion)
     if (callback.parentCallbackId == ActionCallbackId.NONE) {
+        const mineBlinkingDurationInMs = 1000;
         showSpellCauseDescription(setActionSpell, callback);
         showBlinkingMine(htmlCell, currentPlayerisPlayer1, mineBlinkingDurationInMs);
         await delay(mineBlinkingDurationInMs);
     } else {
-        await delay(100);
+        await delay(50);
     }
 
     triggerShockWave(htmlCell);
@@ -38,6 +37,8 @@ export async function animateMineExplosion(callback: ActionCallbackDto, currentP
 }
 
 function showSpellCauseDescription(setActionSpell: (spellAction: PartialSpellDto | null) => void, callback: ActionCallbackDto) {
+    // Prevent the action description card from showing the main title
+    localStorage.removeItem(localStorageKeys.playPage.spellActionDescription);
     setActionSpell(callback.spellCause);
     setTimeout(() => setActionSpell(null), 3500);
 }
@@ -150,7 +151,7 @@ function triggerSparks(htmlCell: HTMLElement) {
                     scale: {
                         // Let them shrink over time
                         list: [
-                            { time: 0, value: 0.01 },
+                            { time: 0, value: 0.015 },
                             { time: 1, value: 0.007 }
                         ]
                     },

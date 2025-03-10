@@ -1,8 +1,9 @@
 import { MatchActionDto } from "../dto/MatchActionDto";
 import { PartialSpellDto } from "../dto/PartialSpellDto";
+import { localStorageKeys } from "../env";
 import { developmentErrorLog } from "../utils/loggingUtils";
 
-export function handleSpellCastingAnimation(action: MatchActionDto, setActionSpell: (spellAction: PartialSpellDto | null) => void) {
+export function handleSpellCastingAnimation(action: MatchActionDto, setActionSpell: (spellAction: PartialSpellDto | null) => void, isMyTurn: boolean) {
     const spellAction = action.spell;
     if (!spellAction) {
         developmentErrorLog(`The spell of the action was ${spellAction}, cannot animate`);
@@ -11,6 +12,8 @@ export function handleSpellCastingAnimation(action: MatchActionDto, setActionSpe
 
     const cleanupDelayInMs = 3500;
 
+    const spellActionDescriptionTitle = isMyTurn ? "You used" : "Your opponent used";
+    localStorage.setItem(localStorageKeys.playPage.spellActionDescription, spellActionDescriptionTitle);
     setActionSpell(spellAction);
     setTimeout(() => {
         setActionSpell(null);

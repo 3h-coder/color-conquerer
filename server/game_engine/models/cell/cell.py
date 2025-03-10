@@ -109,6 +109,7 @@ class Cell:
         self.id = None
         self.is_master = False
         self.state = CellState.NONE
+        self.transient_state = CellTransientState.NONE
 
     def damage(
         self, player1_resources: PlayerResources, player2_resources: PlayerResources
