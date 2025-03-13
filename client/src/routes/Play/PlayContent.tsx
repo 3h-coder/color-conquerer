@@ -22,7 +22,7 @@ import GameGrid from "./components/game-grid/GameGrid";
 import GameTopInfo from "./components/game-top-info/GameTopInfo";
 import MyPlayerInfo from "./components/player-info/MyPlayerInfo";
 import OpponentInfo from "./components/player-info/OpponentInfo";
-import RightSideControls from "./components/right-side-controls/RightSideControls";
+import SideControls from "./components/side-controls/SideControls";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -36,17 +36,17 @@ export default function PlayContent() {
     failedToResolve: failedToResolvePlayerInfo,
   } = usePlayerInfo();
   const { addEndOfAnimationCallback } = useAnimationContext();
-  const { turnContext: turnInfo, setTurnContext: setTurnInfo } = useTurnContext();
+  const { turnContext: turnInfo, setTurnContext: setTurnInfo } =
+    useTurnContext();
   const { setPlayerMode } = usePlayerMode();
-
 
   const [waitingText, setWaitingText] = useState(EMPTY_STRING);
   const [canRenderContent, setCanRenderContent] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [modalText, setModalText] = useState(EMPTY_STRING);
   const [modalIcon, setModalIcon] = useState(ModalIcon.None);
   const [modalExit, setModalExit] = useState<() => unknown>(() => {
-    return () => setModalVisible(false);
+    return () => setModalOpen(false);
   });
 
   // Connect to the server on mount/rendering
@@ -114,7 +114,7 @@ export default function PlayContent() {
       function handleMatchEnding() {
         setModalIcon(ModalIcon.None);
         setModalText(getMatchEndingText(playerId, matchClosureDto));
-        setModalVisible(true);
+        setModalOpen(true);
         setModalExit(() => {
           return () => navigate("/");
         });
@@ -129,7 +129,7 @@ export default function PlayContent() {
 
       setModalIcon(ModalIcon.Error);
       setModalText(errorDto.error);
-      setModalVisible(true);
+      setModalOpen(true);
 
       if (errorDto.socketConnectionKiller) {
         socket.disconnect();
@@ -163,36 +163,41 @@ export default function PlayContent() {
     };
   }, [playerId]);
 
-  function getMatchEndingText(playerId: string, matchClosureDto: MatchClosureDto) {
-    if (matchClosureDto.endingReason === EndingReason.DRAW || !matchClosureDto.winner)
+  function getMatchEndingText(
+    playerId: string,
+    matchClosureDto: MatchClosureDto
+  ) {
+    if (
+      matchClosureDto.endingReason === EndingReason.DRAW ||
+      !matchClosureDto.winner
+    )
       return "Draw";
 
     const isWinner = matchClosureDto.winner.playerId === playerId;
 
     if (matchClosureDto.endingReason === EndingReason.PLAYER_LEFT && isWinner)
       return "Your opponent left";
-
     else if (
       matchClosureDto.endingReason === EndingReason.NEVER_JOINED &&
       isWinner
     )
       return "Your opponent did not join the match";
-
-    else if (isWinner)
-      return "Victory!";
-    else
-      return "Defeat";
+    else if (isWinner) return "Victory!";
+    else return "Defeat";
   }
 
   return (
     <PageContainer>
       {canRenderContent ? (
-        <>
+        <MainOuterContainer>
+          {/* Right side controls -> End turn, concede, etc. */}
+          {/* These controls are displayed on top on small screens */}
+          <SideControls />
+
           {/* The player whom it is the turn + turn time bar */}
           <GameTopInfo />
 
           <MainInnerContainer>
-
             {/* Opponent information (HP/MP) */}
             <OpponentInfo />
 
@@ -203,25 +208,23 @@ export default function PlayContent() {
 
             {/* Action board -> Spawning cells, casting spells, etc. */}
             <ActionBoard />
-
-            {/* Right side controls -> End turn, concede, etc. */}
-            <RightSideContainer>
-              <RightSideControls />
-            </RightSideContainer>
-
           </MainInnerContainer>
-        </>
+        </MainOuterContainer>
       ) : (
         <>
           <LoadingSpinner className="initial-loading" />
           <h3>{waitingText}</h3>
         </>
       )}
-      {modalVisible && (
-        <SingleButtonModal buttonText="OK" onClose={modalExit} icon={modalIcon} style={{ animation: "slide-in 0.5s ease" }}>
-          <h3 className="no-margin">{modalText}</h3>
-        </SingleButtonModal>
-      )}
+      <SingleButtonModal
+        isOpenState={[modalOpen, setModalOpen]}
+        buttonText="OK"
+        onClose={modalExit}
+        icon={modalIcon}
+        style={{ animation: "slide-in 0.5s ease" }}
+      >
+        <h3 className="no-margin">{modalText}</h3>
+      </SingleButtonModal>
     </PageContainer>
   );
 }
@@ -230,10 +233,10 @@ function PageContainer(props: ContainerProps) {
   return <div className="page-container">{props.children}</div>;
 }
 
-function MainInnerContainer(props: ContainerProps) {
-  return <div className="main-inner-container">{props.children}</div>;
+function MainOuterContainer(props: ContainerProps) {
+  return <div id="main-outer-container">{props.children}</div>;
 }
 
-function RightSideContainer(props: ContainerProps) {
-  return <div className="right-side-container">{props.children}</div>;
+function MainInnerContainer(props: ContainerProps) {
+  return <div id="main-inner-container">{props.children}</div>;
 }

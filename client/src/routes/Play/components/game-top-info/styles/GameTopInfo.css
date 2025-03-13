@@ -1,4 +1,4 @@
-.game-top-info-container {
+#game-top-info-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -21,7 +21,7 @@
 
 .countdown-bar-inner {
     border: 0.15rem solid transparent;
-    background-color: var(--primary-grey2);
+    background-color: var(--primary-grey3);
     height: 100%;
     box-sizing: border-box;
     transition: all 0.1s ease-in-out;

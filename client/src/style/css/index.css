@@ -9,9 +9,11 @@
   --primary-purple3: rgba(98, 12, 226);
   --primary-pink1: rgb(188, 89, 227);
   --primary-grey1: rgb(200, 200, 200);
-  --primary-grey2: rgb(193, 187, 235);
+  --primary-grey2: rgb(150, 150, 150);
+  --primary-grey3: rgb(193, 187, 235);
   --greyish-purple: rgb(93, 83, 151);
   --greyish-blue: rgb(106, 154, 175);
+  --primary-black: rgb(26, 26, 26);
   --deep-blue: rgb(0, 60, 128);
   --mana-blue: aqua;
   --sky-blue1: rgb(87, 193, 231);
@@ -27,7 +29,8 @@
   /*screens (does not work for media queries - only here as an indicator)*/
   --screen-width-very-small: 400px;
   --screen-width-small1: 570px;
-  --screen-width-small2: 760px;
+  --screen-width-small2: 660px;
+  --screen-width-small3: 760px;
   --screen-width-medium: 1200px;
   --screen-width-large: 1900px;
   
@@ -87,20 +90,18 @@ h4 {
   line-height: 1.1;
 }
 
-button,
-.button {
-  border-radius: 8px;
-  border: 0.1rem solid transparent;
+button, .button {
+  border-radius: 0.6rem;
+  border: 0.16rem solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--primary-black);
   cursor: pointer;
   transition: all 0.25s ease;
 }
-button:hover,
-.button:hover {
+button:hover,.button:hover {
   border-color: white;
 }
 button:focus,
@@ -108,13 +109,31 @@ button:focus,
 .button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-button:disabled,
-.button:disabled {
+button:disabled, .button:disabled {
   border: 0.1rem solid transparent;
   cursor: default;
 }
 
-button:disabled svg, .button:disabled svg {
+.button-secondary {
+  border-radius: 0.6rem;
+  border: 0.16rem solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.button-secondary:hover {
+  color: white;
+  background-color: var(--primary-black);
+}
+
+button:disabled svg,
+.button:disabled svg,
+.button-secondary svg {
   fill: grey;
 }
 
@@ -187,7 +206,7 @@ svg {
   margin: auto;
 }
 
-.modal-overlay {
+#modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -199,7 +218,7 @@ svg {
   align-items: center;
 }
 
-.modal-container {
+#modal-container {
   display: flex;
   flex-direction: column;
   background-color: var(--primary-purple2);
@@ -211,7 +230,7 @@ svg {
   z-index: 100;
 }
 
-.modal-header {
+#modal-header {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
@@ -219,7 +238,7 @@ svg {
   margin-bottom: 0.5em;
 }
 
-.modal-footer {
+#modal-footer {
   display: inline-flex;
   align-items: center;
   justify-content: center;

@@ -6,13 +6,35 @@ interface SingleButtonModalProps extends ModalProps {
 }
 
 export default function SingleButtonModal(props: SingleButtonModalProps) {
-    const { style, title, children, enableClosing, onClose, icon, buttonText, buttonAction } = props;
+    const {
+        isOpenState,
+        style,
+        title,
+        children,
+        enableClosing,
+        onClose,
+        icon,
+        buttonText,
+        buttonAction,
+    } = props;
 
     return (
-        <Modal style={style} title={title} enableClosing={enableClosing} onClose={onClose} icon={icon}>
+        <Modal
+            isOpenState={isOpenState}
+            style={style}
+            title={title}
+            enableClosing={enableClosing}
+            onClose={onClose}
+            icon={icon}
+        >
             {children}
-            <div className="modal-footer">
-                {enableClosing !== false && <button onClick={buttonAction === undefined ? onClose : buttonAction}>{buttonText}</button>}
+            <div id="modal-footer">
+                {enableClosing !== false && (
+                    // If the buttonAction is not defined, just call onClose
+                    <button onClick={buttonAction === undefined ? onClose : buttonAction}>
+                        {buttonText}
+                    </button>
+                )}
             </div>
         </Modal>
     );

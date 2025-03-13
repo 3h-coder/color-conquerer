@@ -5,7 +5,11 @@
     margin: auto;
 }
 
-.main-inner-container {
+#main-outer-container {
+    position: relative;
+}
+
+#main-inner-container {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -13,18 +17,6 @@
     padding: max(10px, 4vmin);
     border-radius: 1rem;
     box-shadow: 0 0 3vmin 0.25vmin rgba(0, 0, 0, 0.2);
-}
-
-.right-side-container {
-    position: absolute;
-    top: 0;
-    left: 100%;
-    width: fit-content;
-    display: flex;
-
-    @media (max-width: var(--screen-width-small1)) {
-        display: none;
-    }
 }
 
 .initial-loading {

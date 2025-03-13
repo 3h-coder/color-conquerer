@@ -1,0 +1,32 @@
+#side-controls-container-outer {
+    position: absolute;
+    top: 40%;
+    left: 100%;
+    width: fit-content;
+    height: fit-content;
+
+    @media (max-width: 660px) {
+        position: relative;
+        top: 0;
+        left: 0;
+    }
+}
+
+#side-controls-container-inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium2);
+    margin-left: var(--spacing-medium2);
+    width: fit-content;
+
+    @media (max-width: 660px) {
+        flex-direction: row;
+        margin-left: 0;
+        margin-bottom: var(--spacing-medium2);
+    }
+}
+
+
+.end-turn {
+    white-space: nowrap;
+}

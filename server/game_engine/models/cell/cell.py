@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from dto.cell_dto import CellDto
 from dto.coordinates_dto import CoordinatesDto
 from game_engine.models.cell.cell_hidden_state import CellHiddenState
@@ -87,7 +85,7 @@ class Cell:
             state=CellState.NONE,
             hidden_state_info=CellHiddenStateInfo.default(),
             # hidden_state_info=CellHiddenStateInfo(
-            #     state=CellHiddenState.MINE_TRAP, visible_to=CellOwner.BOTH
+            #     state=CellHiddenState.MINE_TRAP, visible_to=CellOwner.PLAYER_1
             # ),
             transient_state=CellTransientState.NONE,
             id=None,

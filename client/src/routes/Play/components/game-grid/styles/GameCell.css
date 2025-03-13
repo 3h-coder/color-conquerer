@@ -1,7 +1,7 @@
 .cell {
     --bg: white;
     background-color: var(--bg);
-    border: 0.1rem solid var(--primary-grey1);
+    border: 0.1rem solid var(--primary-grey2);
     width: max(25px, 4vmin);
     height: max(25px, 4vmin);
     transition: background-color 0.1s;

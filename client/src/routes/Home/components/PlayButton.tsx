@@ -26,7 +26,7 @@ export default function PlayButton() {
         () => { }
     );
     const [mainButtonText, setMainButtonText] = useState(EMPTY_STRING);
-    const [modalVisible, setModalVisible] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
     const intendedDisconnection = useRef(false);
 
     const queuePlayerDto: QueuePlayerDto = {
@@ -75,7 +75,7 @@ export default function PlayButton() {
         function onError(errorDto: ErrorDto) {
             developmentErrorLog("An error occured", errorDto);
 
-            setModalVisible(false);
+            setModalOpen(false);
 
             if (errorDto.socketConnectionKiller) socket.disconnect();
 
@@ -84,7 +84,7 @@ export default function PlayButton() {
         }
 
         function onDisconnect() {
-            setModalVisible(false);
+            setModalOpen(false);
             if (!intendedDisconnection) {
                 setHomeError("The connexion with the server has been lost");
             }
@@ -116,7 +116,7 @@ export default function PlayButton() {
     }, []);
 
     function requestMultiplayerMatch() {
-        setModalVisible(true);
+        setModalOpen(true);
         intendedDisconnection.current = false;
 
         if (!socket.connected) socket.connect();
@@ -126,7 +126,7 @@ export default function PlayButton() {
     }
 
     function cancelMultiplayerMatchRequest() {
-        setModalVisible(false);
+        setModalOpen(false);
         intendedDisconnection.current = true;
 
         developmentLog("Queue player dto in cancellation", queuePlayerDto);
@@ -144,14 +144,13 @@ export default function PlayButton() {
                     {mainButtonText}
                 </button>
             </div>
-            {modalVisible && (
-                <SingleButtonModal
-                    onClose={cancelMultiplayerMatchRequest}
-                    buttonText="Cancel"
-                >
-                    <OpponentSearch />
-                </SingleButtonModal>
-            )}
+            <SingleButtonModal
+                isOpenState={[modalOpen, setModalOpen]}
+                onClose={cancelMultiplayerMatchRequest}
+                buttonText="Cancel"
+            >
+                <OpponentSearch />
+            </SingleButtonModal>
         </>
     );
 }

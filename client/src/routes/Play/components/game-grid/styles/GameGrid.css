@@ -6,7 +6,10 @@
     align-items: center;
     width: fit-content;
     height: fit-content;
+    /* should be the same as the cell's border */
+    border: 0.1rem solid var(--primary-grey2);
     margin: max(15px, 2vmin) 0 max(15px, 2vmin) 0;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 0.3125rem 0.9375rem;
 }
 
 #grid-inner {

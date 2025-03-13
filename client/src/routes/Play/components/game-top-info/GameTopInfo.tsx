@@ -26,7 +26,7 @@ function GameTopInfoContainer(props: GameTopInfoContainerProps) {
     const { children } = props;
 
     return (
-        <div className="game-top-info-container">
+        <div id="game-top-info-container">
             {children}
         </div>
     );

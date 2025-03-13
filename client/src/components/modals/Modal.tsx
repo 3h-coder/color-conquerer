@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 import { BugIcon, InfoIcon, WarningTriangleIcon, XMarkIcon } from "../../assets/svg";
 import { ModalIcon } from "../../enums/modalIcons";
-import { SvgContainer } from "../containers";
 import { HTMLElements } from "../../env";
+import { SvgContainer } from "../containers";
 
 export interface ModalProps {
+    isOpenState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
     style?: React.CSSProperties;
     title?: string;
     children?: React.ReactNode;
@@ -15,21 +16,20 @@ export interface ModalProps {
 }
 
 export default function Modal(props: ModalProps) {
-    const { style, title, children, enableClosing, onClose, icon } = props;
-    const [isOpen, setIsOpen] = useState(true);
+    const { isOpenState, style, title, children, enableClosing, onClose, icon } = props;
+    const [isOpen, setIsOpen] = isOpenState;
 
     function closeModal() {
+        setIsOpen(false);
         if (onClose !== undefined)
             onClose();
-
-        setIsOpen(false);
     }
 
     return ReactDOM.createPortal(
         isOpen && (
-            <div className="modal-overlay">
-                <div className="modal-container" style={style}>
-                    <div className="modal-header">
+            <div id="modal-overlay">
+                <div id="modal-container" style={style}>
+                    <div id="modal-header">
                         <Icon icon={icon ?? ModalIcon.None} />
                         <h4 style={{ margin: 0 }}>{title}</h4>
                         {enableClosing !== false && <CloseButton onClick={closeModal} />}

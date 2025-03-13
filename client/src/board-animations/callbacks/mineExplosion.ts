@@ -28,7 +28,9 @@ export async function animateMineExplosion(callback: ActionCallbackDto, currentP
         showBlinkingMine(htmlCell, currentPlayerisPlayer1, mineBlinkingDurationInMs);
         await delay(mineBlinkingDurationInMs);
     } else {
-        await delay(50);
+        const mineBlinkingDurationInMs = 100;
+        showBlinkingMine(htmlCell, currentPlayerisPlayer1, mineBlinkingDurationInMs);
+        await delay(mineBlinkingDurationInMs);
     }
 
     triggerShockWave(htmlCell);
