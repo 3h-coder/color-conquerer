@@ -5,10 +5,12 @@ from dto.base_dto import BaseDto
 from game_engine.models.player import Player
 
 
+# ⚠️ This enum is shared with the client
 class EndingReason(StrEnum):
-    PLAYER_LEFT = "player left"
-    PLAYER_WON = "player won"
+    PLAYER_VICTORY = "player won"
     DRAW = "draw"
+    PLAYER_CONCEDED = "player conceded"
+    PLAYER_LEFT = "player left"
     NEVER_JOINED = "player never joined the match"
 
 

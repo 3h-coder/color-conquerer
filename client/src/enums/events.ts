@@ -23,5 +23,6 @@ export enum Events {
     SERVER_PROCESSED_ACTIONS = "server-processedActions",
     SERVER_ACTION_ERROR = "server-actionError",
     SERVER_ACTION_CALLBACK = "server-action-callback",
+    CLIENT_MATCH_CONCEDE = "client-match-concede",
     SERVER_MATCH_END = "server-matchEnd",
 }

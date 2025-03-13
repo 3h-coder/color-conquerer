@@ -1,3 +1,5 @@
+from functools import wraps
+
 from flask import request, session
 from flask_socketio import emit, join_room
 
@@ -6,9 +8,11 @@ from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_
 from dto.cell_dto import CellDto
 from dto.message_dto import MessageDto
 from dto.player_dto import PlayerDto
+from dto.server_only.match_closure_dto import EndingReason
 from events.events import Events
 from exceptions.server_error import ServerError
 from game_engine.models.player import Player
+from handlers.match_handler_unit import MatchHandlerUnit
 from server_gate import get_match_handler, get_session_cache_handler
 from utils import session_utils
 
@@ -30,6 +34,44 @@ def only_if_in_match(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def only_if_current_turn(error_log_msg: str):
+    """
+    Decorator that only allows the execution of an action if the
+    player requesting it is the current player (i.e. the player whose turn it is)
+    """
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            room_id = _get_session_variable(ROOM_ID)
+            player_info: Player = _get_session_variable(PLAYER_INFO)
+            match = get_match_handler().get_unit(room_id)
+
+            if match is None:
+                _logger.critical("Could not process the action as there is no match")
+                return
+
+            player_id = player_info.player_id
+            if not match.get_current_player().player_id == player_id:
+                if not error_log_msg:
+                    error_log_msg = (
+                        "Cannot not process the action as it is not the player's turn"
+                    )
+                _logger.error(error_log_msg)
+                return
+
+            func(match, *args, **kwargs)
+
+        return wrapper
+
+    # If "func" is passed directly (without parentheses), return the decorator applied to func
+    if callable(error_log_msg):
+        # Treat "error_log_msg" as the function
+        return decorator(error_log_msg)
+    # Otherwise, return the decorator normally
+    return decorator
 
 
 def handle_client_ready():
@@ -105,24 +147,66 @@ def handle_client_spells_request():
 
 
 @only_if_in_match
-def handle_turn_end():
+@only_if_current_turn(
+    "The end of turn can only be requested by the player whose turn it is"
+)
+def handle_turn_end(match: MatchHandlerUnit):
     """
     Sent by the client when a player choose's to end their turn by clicking
     the end turn button.
     """
-    room_id = _get_session_variable(ROOM_ID)
+    match.force_turn_swap()
+
+
+@only_if_in_match
+def handle_match_concede():
+    """
+    Receives the client match concession request, and ends the match.
+    """
     player_info: Player = _get_session_variable(PLAYER_INFO)
-    _logger.info(f"({request.remote_addr}) | Turn swap requested")
+    player_id = player_info.player_id
+    room_id = _get_session_variable(ROOM_ID)
 
     match_handler = get_match_handler()
-
     match = match_handler.get_unit(room_id)
-    if not match.get_current_player().player_id == player_info.player_id:
-        _logger.error(
-            "The end of turn can only be requested by the player whose turn it is"
-        )
-        return
-    match.force_turn_swap()
+
+    match.end(EndingReason.PLAYER_CONCEDED, loser_id=player_id)
+
+
+@only_if_in_match
+@only_if_current_turn(
+    "Cannot process the click of the player as it is the turn of their opponent"
+)
+def handle_cell_click(match: MatchHandlerUnit, data: dict):
+    """
+    Receives the client cell click, and notifies the client accordingly.
+    """
+    cell_info = CellDto.from_dict(data)
+    _logger.info(f"({request.remote_addr}) | Received cell click event -> {cell_info}")
+    row, col = cell_info.rowIndex, cell_info.columnIndex
+    match.handle_cell_selection(row, col)
+
+
+@only_if_in_match
+@only_if_current_turn(
+    "Cannot process the spawn request as it is the turn of their opponent"
+)
+def handle_spawn_button(match: MatchHandlerUnit):
+    """
+    Receives the client's request to spawn a unit.
+    """
+    match.handle_spawn_button()
+
+
+@only_if_in_match
+@only_if_current_turn(
+    "Cannot process the spell request of the player as it is the turn of their opponent"
+)
+def handle_spell_button(match: MatchHandlerUnit, spell_id: int):
+    """
+    Receives the client's request to use a spell.
+    """
+    match.handle_spell_button(spell_id)
 
 
 def handle_session_clearing():
@@ -131,68 +215,6 @@ def handle_session_clearing():
     Clears all the match related session variables so they may queue for a new match.
     """
     session_utils.clear_match_info()
-
-
-@only_if_in_match
-def handle_cell_click(data: dict):
-    """
-    Receives the client cell click, and notifies the client accordingly.
-    """
-    room_id = _get_session_variable(ROOM_ID)
-    player_info: Player = _get_session_variable(PLAYER_INFO)
-    match = get_match_handler().get_unit(room_id)
-
-    player_id = player_info.player_id
-    if not match.get_current_player().player_id == player_id:
-        _logger.error(
-            f"Cannot process the click of the player {player_id} as it is the turn of their opponent"
-        )
-        return
-
-    cell_info = CellDto.from_dict(data)
-    _logger.info(f"({request.remote_addr}) | Received cell click event -> {cell_info}")
-    row, col = cell_info.rowIndex, cell_info.columnIndex
-    match.handle_cell_selection(row, col)
-
-
-@only_if_in_match
-def handle_spawn_button():
-    """
-    Receives the client's request to spawn a unit.
-    """
-    _logger.info(f"({request.remote_addr}) | Received cell spawn button toggle event")
-    room_id = _get_session_variable(ROOM_ID)
-    player_info: Player = _get_session_variable(PLAYER_INFO)
-    match = get_match_handler().get_unit(room_id)
-
-    player_id = player_info.player_id
-    if not match.get_current_player().player_id == player_id:
-        _logger.error(
-            f"Cannot process the spawn request of the player {player_id} as it is the turn of their opponent"
-        )
-        return
-
-    match.handle_spawn_button()
-
-
-@only_if_in_match
-def handle_spell_button(spell_id: int):
-    """
-    Receives the client's request to use a spell.
-    """
-    _logger.info(f"({request.remote_addr}) | Received spell button toggle event")
-    room_id = _get_session_variable(ROOM_ID)
-    player_info: Player = _get_session_variable(PLAYER_INFO)
-    match = get_match_handler().get_unit(room_id)
-
-    player_id = player_info.player_id
-    if not match.get_current_player().player_id == player_id:
-        _logger.error(
-            f"Cannot process the spell request of the player {player_id} as it is the turn of their opponent"
-        )
-        return
-
-    match.handle_spell_button(spell_id)
 
 
 def _join_socket_rooms(room_id: str, player_info: Player):

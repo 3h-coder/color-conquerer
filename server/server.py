@@ -13,6 +13,7 @@ from events.match_events import (
     handle_cell_click,
     handle_client_ready,
     handle_client_spells_request,
+    handle_match_concede,
     handle_session_clearing,
     handle_spawn_button,
     handle_spell_button,
@@ -57,6 +58,7 @@ class Server:
         self._add_listener(Events.CLIENT_QUEUE_REGISTER, handle_queue_registration)
         self._add_listener(Events.CLIENT_READY, handle_client_ready)
         self._add_listener(Events.CLIENT_TURN_END, handle_turn_end)
+        self._add_listener(Events.CLIENT_MATCH_CONCEDE, handle_match_concede)
         self._add_listener(Events.CLIENT_CELL_CLICK, handle_cell_click)
         self._add_listener(Events.CLIENT_SPAWN_BUTTON, handle_spawn_button)
         self._add_listener(Events.CLIENT_SPELL_BUTTON, handle_spell_button)

@@ -1,10 +1,12 @@
 import { PlayerDto } from "./PlayerDto";
 
 export enum EndingReason {
-    PLAYER_LEFT = "player left",
-    PLAYER_WON = "player won",
+    PLAYER_VICTORY = "player won",
     DRAW = "draw",
+    PLAYER_LEFT = "player left",
+    PLAYER_CONCEDED = "player conceded",
     NEVER_JOINED = "player never joined the match"
+
 }
 
 export interface MatchClosureDto {

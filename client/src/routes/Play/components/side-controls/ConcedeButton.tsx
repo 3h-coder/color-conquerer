@@ -1,5 +1,7 @@
 import { useState } from "react";
 import DoubleButtonModal from "../../../../components/modals/DoubleButtonModal";
+import { Events } from "../../../../enums/events";
+import { socket } from "../../../../env";
 
 export default function ConcedeButton() {
     const [modalOpen, setModalOpen] = useState(false);
@@ -14,7 +16,8 @@ export default function ConcedeButton() {
     }
 
     function onCondeceConfirmed() {
-        // Nothing for now
+        setModalOpen(false);
+        socket.emit(Events.CLIENT_MATCH_CONCEDE);
     }
 
     function onCancel() {

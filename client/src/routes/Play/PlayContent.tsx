@@ -167,22 +167,25 @@ export default function PlayContent() {
     playerId: string,
     matchClosureDto: MatchClosureDto
   ) {
-    if (
-      matchClosureDto.endingReason === EndingReason.DRAW ||
-      !matchClosureDto.winner
-    )
+    const endingReason = matchClosureDto.endingReason;
+
+    if (endingReason === EndingReason.DRAW || !matchClosureDto.winner)
       return "Draw";
 
     const isWinner = matchClosureDto.winner.playerId === playerId;
 
-    if (matchClosureDto.endingReason === EndingReason.PLAYER_LEFT && isWinner)
+    if (endingReason === EndingReason.PLAYER_LEFT && isWinner)
       return "Your opponent left";
-    else if (
-      matchClosureDto.endingReason === EndingReason.NEVER_JOINED &&
-      isWinner
-    )
+
+    else if (endingReason === EndingReason.NEVER_JOINED && isWinner)
       return "Your opponent did not join the match";
-    else if (isWinner) return "Victory!";
+
+    else if (endingReason === EndingReason.PLAYER_CONCEDED && isWinner)
+      return "Your opponent gave up";
+
+    else if (isWinner)
+      return "Victory!";
+
     else return "Defeat";
   }
 
