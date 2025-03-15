@@ -7,6 +7,7 @@ from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.mine_trap_spell import MineTrapSpell
+from utils.perf_utils import with_performance_logging
 
 if TYPE_CHECKING:
     from game_engine.models.actions.action import Action
@@ -63,6 +64,7 @@ class MineExplosionCallback(ActionCallback):
         )
         return impacted_cell.is_mine_trap()
 
+    @with_performance_logging
     def register_callbacks(self, match_context):
         game_board = match_context.game_board
         row_index, col_index = (

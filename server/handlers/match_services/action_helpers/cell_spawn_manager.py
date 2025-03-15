@@ -4,6 +4,7 @@ from config.logging import get_configured_logger
 from game_engine.action_calculation import get_possible_spawns
 from handlers.match_services.action_helpers.action_manager import ActionManager
 from handlers.match_services.action_helpers.player_mode import PlayerMode
+from utils.perf_utils import with_performance_logging
 
 if TYPE_CHECKING:
     from handlers.match_services.match_actions_service import MatchActionsService
