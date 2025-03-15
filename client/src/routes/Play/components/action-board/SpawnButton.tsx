@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LocationPinIcon } from "../../../../assets/svg";
 import { SvgContainer } from "../../../../components/containers";
 import { useTurnContext } from "../../../../contexts/TurnContext";
@@ -6,6 +6,7 @@ import { Events } from "../../../../enums/events";
 import { socket } from "../../../../env";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { PlayerMode } from "../../../../enums/playerMode";
+import { throttle } from "../../../../utils/throttlingUtils";
 
 export default function SpawnButton() {
     const { canInteract } = useTurnContext();
@@ -15,9 +16,11 @@ export default function SpawnButton() {
     const iconSize = "max(10px, 0.8vmin)";
     const [text, setText] = useState(`Spawn (${buttonKey})`);
 
-    function onClick() {
-        socket.emit(Events.CLIENT_SPAWN_BUTTON);
-    }
+    const onClick = useCallback(
+        throttle(() => {
+            socket.emit(Events.CLIENT_SPAWN_BUTTON);
+        }, 100), []
+    );
 
     useEffect(() => {
         if (playerMode === PlayerMode.CELL_SPAWN) {
