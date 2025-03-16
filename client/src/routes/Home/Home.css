@@ -13,7 +13,7 @@
   text-align: center;
 }
 
-.home-buttons-container, .opponent-search-container {
+#home-buttons-container, #opponent-search-container {
   display: flex;
   align-items: center;
   gap: max(10px, 1vmin);

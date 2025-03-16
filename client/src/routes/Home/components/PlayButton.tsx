@@ -135,7 +135,7 @@ export default function PlayButton() {
 
     return (
         <>
-            <div className="home-buttons-container">
+            <div id="home-buttons-container">
                 <button
                     onClick={mainButtonFunction}
                     style={{ opacity: mainButtonVisible ? 1 : 0 }}
