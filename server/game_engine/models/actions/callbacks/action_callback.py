@@ -66,7 +66,7 @@ class ActionCallback(WithCallbacks):
                 if self.SPELL_CAUSE is not None
                 else None
             ),
-            impactedCoords=self.parent_action.impacted_coords,
+            impactedCoords=list(self.parent_action.impacted_coords),
             updatedGameContext=GameContextDto.from_action_callback(self, for_player1),
         )
 

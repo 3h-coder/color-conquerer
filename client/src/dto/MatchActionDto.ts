@@ -7,7 +7,7 @@ export interface MatchActionDto {
     type: ActionType;
     // Spell castings have no originating coordinates
     originatingCellCoords: CoordinatesDto | null;
-    impactedCoords: CoordinatesDto;
+    impactedCoords: CoordinatesDto[];
     // Only if the action type is spell
     spell: PartialSpellDto | null;
 }

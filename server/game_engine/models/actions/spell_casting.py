@@ -14,7 +14,7 @@ class SpellCasting(Action):
     def __init__(
         self,
         from_player1: bool,
-        impacted_coords: bool,
+        impacted_coords: set[CoordinatesDto],
         spell: Spell,
     ):
         super().__init__(from_player1, impacted_coords)
@@ -29,14 +29,14 @@ class SpellCasting(Action):
         )
 
     def __hash__(self):
-        return hash((self.spell.ID, self.impacted_coords))
+        return hash((self.spell.ID, frozenset(self.impacted_coords)))
 
     def to_dto(self):
         return MatchActionDto(
             player1=self.from_player1,
             type=ActionType.PLAYER_SPELL,
             originatingCellCoords=None,
-            impactedCoords=self.impacted_coords,
+            impactedCoords=list(self.impacted_coords),
             # Note : the spell here must be partial to not
             # contain the count number as it will be sent to both clients
             spell=self.spell.to_partial_dto(),
@@ -46,7 +46,7 @@ class SpellCasting(Action):
     def create(from_player1: bool, spell: Spell, row_index: int, column_index: int):
         return SpellCasting(
             from_player1=from_player1,
-            impacted_coords=CoordinatesDto(row_index, column_index),
+            impacted_coords=set([CoordinatesDto(row_index, column_index)]),
             spell=spell,
         )
 

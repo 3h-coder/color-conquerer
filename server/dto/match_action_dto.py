@@ -11,5 +11,5 @@ class MatchActionDto(BaseDto):
     player1: bool
     type: ActionType
     originatingCellCoords: CoordinatesDto
-    impactedCoords: CoordinatesDto
+    impactedCoords: list[CoordinatesDto]
     spell: PartialSpellDto | None

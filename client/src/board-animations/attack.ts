@@ -7,7 +7,9 @@ export function handleCellClashAnimation(action: MatchActionDto) {
     if (!attackerCoords)
         return;
 
-    const targetCoords = action.impactedCoords;
+    const targetCoords = action.impactedCoords.pop();
+    if (!targetCoords)
+        return;
 
     animateCellClash(
         attackerCoords.rowIndex,

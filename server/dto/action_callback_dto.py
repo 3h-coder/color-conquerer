@@ -14,5 +14,5 @@ class ActionCallbackDto(BaseDto):
     parentAction: MatchActionDto
     parentCallbackId: ActionCallBackId
     spellCause: PartialSpellDto | None
-    impactedCoords: CoordinatesDto | None
+    impactedCoords: list[CoordinatesDto] | None
     updatedGameContext: GameContextDto

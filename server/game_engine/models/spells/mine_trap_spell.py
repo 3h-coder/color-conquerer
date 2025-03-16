@@ -33,7 +33,10 @@ class MineTrapSpell(Spell):
         return possible_targets
 
     def invoke(
-        self, coordinates: CoordinatesDto, board: "GameBoard", invocator: CellOwner
+        self, coordinates: set[CoordinatesDto], board: "GameBoard", invocator: CellOwner
     ):
-        cell = board.get(coordinates.rowIndex, coordinates.columnIndex)
+        coords = next(
+            iter(coordinates)
+        )  # There should only be one element in coordinates
+        cell = board.get(coords.rowIndex, coords.columnIndex)
         cell.set_as_mine_trap(invocator)

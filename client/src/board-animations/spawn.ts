@@ -5,7 +5,9 @@ import { getHtmlCell, getOwnedCellColor } from "../utils/cellUtils";
 import { animateManaBubblePop, triggerAuraEffect } from "./common";
 
 export function handleCellSpawnAnimation(action: MatchActionDto, isPlayer1: boolean, boardArray: CellDto[][]) {
-    const newCellCoordinates = action.impactedCoords;
+    const newCellCoordinates = action.impactedCoords.pop();
+    if (!newCellCoordinates)
+        return;
     const targetCell = boardArray[newCellCoordinates.rowIndex][newCellCoordinates.columnIndex];
     const cellOfMine = isPlayer1 === action.player1;
 
