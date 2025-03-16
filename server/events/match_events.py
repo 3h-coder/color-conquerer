@@ -55,11 +55,11 @@ def only_if_current_turn(error_log_msg: str):
 
             player_id = player_info.player_id
             if not match.get_current_player().player_id == player_id:
-                if not error_log_msg:
-                    error_log_msg = (
-                        "Cannot not process the action as it is not the player's turn"
-                    )
-                _logger.error(error_log_msg)
+                default_msg = "Cannot process the action as it is not the player's turn"
+                log_message = (
+                    error_log_msg if error_log_msg is not None else default_msg
+                )
+                _logger.error(log_message)
                 return
 
             func(match, *args, **kwargs)

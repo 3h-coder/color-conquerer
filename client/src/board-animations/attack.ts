@@ -4,7 +4,8 @@ import { triggerAuraEffect } from "./common";
 
 export function handleCellClashAnimation(action: MatchActionDto) {
     const attackerCoords = action.originatingCellCoords;
-    if (!attackerCoords) return;
+    if (!attackerCoords)
+        return;
 
     const targetCoords = action.impactedCoords;
 
@@ -25,7 +26,8 @@ function animateCellClash(
     const htmlCell = getHtmlCell(rowIndex, colIndex);
     const otherHtmlCell = getHtmlCell(otherRowIndex, otherColIndex);
 
-    if (!htmlCell || !otherHtmlCell) return;
+    if (!htmlCell || !otherHtmlCell)
+        return;
 
     triggerAuraEffect(htmlCell, () => getComputedStyle(htmlCell).backgroundColor);
     triggerAuraEffect(otherHtmlCell, () => getComputedStyle(otherHtmlCell).backgroundColor);

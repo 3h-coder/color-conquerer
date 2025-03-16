@@ -60,7 +60,7 @@ export default function GameCell(props: GameCellProps) {
             {/* <span style={{ position: "absolute", fontSize: "px", color: "black" }}>{`[${rowIndex}, ${columnIndex}]`}</span> */}
             {selected && <SelectedIndicator />}
             {attackable && <AttackableIndicator isPlayer1={isPlayer1} />}
-            {isManaBubble && <ManaBubble />}
+            {isManaBubble && <ManaBubble isPlayer1={isPlayer1} />}
             {isMineTrap && <LandMine isPlayer1={isPlayer1} isBlinking={false} />}
         </div>
     );
@@ -82,8 +82,18 @@ function AttackableIndicator({ isPlayer1 }: { isPlayer1: boolean; }) {
     );
 }
 
-function ManaBubble() {
-    return <div className="mana-bubble absolute-positioning-centered" />;
+function ManaBubble({ isPlayer1 }: { isPlayer1: boolean; }) {
+    const rotateStyle = isPlayer1 ? "rotate(180deg)" : undefined;
+    const description = "Gain an extra mana point when moving to this cell or spawning on it";
+    return (
+        <div className={`mana-bubble`}>
+            <div className="mana-bubble-description">
+                <div style={{ transform: rotateStyle }}>
+                    {description}
+                </div>
+            </div>
+        </div>
+    );
 }
 
 interface LandMineProps {

@@ -87,15 +87,43 @@
 }
 
 .mana-bubble {
+    position: relative;
+    top: 50%;
+    left: 50%;
     width: 75%;
     height: 75%;
     border-radius: 50%;
+    z-index: 1;
     background: linear-gradient(
         180deg,
     var(--mana-blue),
     var(--sky-blue1),
     var(--sky-blue2)
     );
+
+    transform: translate(-50%, -50%);
+}
+
+.mana-bubble div {
+    display: none;
+}
+
+.mana-bubble:hover div {
+    display: block;
+}
+
+.mana-bubble-description {
+    --end-opacity: 0.9;
+    position: absolute;
+    top: 120%;
+    left: -100%;
+    width: max(5vmin, 120px);
+    height: fit-content;
+    padding: var(--spacing-small2);
+    background-color: var(--deep-blue);
+    border-radius: 0.5rem;
+
+    animation: fade-in 0.4s ease-in-out forwards;
 }
 
 .mana-bubble-pop {
