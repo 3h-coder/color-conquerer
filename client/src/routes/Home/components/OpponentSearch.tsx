@@ -6,7 +6,7 @@ export default function OpponentSearch() {
     return (
         <div className="opponent-search-container">
             <LoadingSpinner style={{ width: loadingSpinnerDimensions, height: loadingSpinnerDimensions }} />
-            <h3 className="adaptive-font-size no-margin">Searching for an opponent...</h3>
+            <h3 className="no-margin">Searching for an opponent...</h3>
         </div>
     );
 }

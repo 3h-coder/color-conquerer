@@ -12,7 +12,9 @@ export default function GameTopInfo() {
 
     return (
         <GameTopInfoContainer>
-            <h3 className="whose-turn-label adaptive-font-size">{whoseTurnMessage}</h3>
+            <h3 id="whose-turn-label">
+                {whoseTurnMessage}
+            </h3>
             <TimeCountDownBar turnInfoDto={turnInfo} />
         </GameTopInfoContainer>
     );

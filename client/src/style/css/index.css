@@ -36,7 +36,7 @@
   
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-size: max(16px, calc(0.5rem + 1vmin));
-  line-height: 1.5;
+  line-height: 1.4;
   font-weight: 400;
 
   color-scheme: light dark;
@@ -71,22 +71,22 @@ a {
 }
 
 h1 {
-  font-size: max(32px, calc(0.5rem + 4vmin));
+  font-size: 2rem;
   line-height: 1.1;
 }
 
 h2 {
-  font-size: max(28px, calc(0.5rem + 3vmin));
+  font-size: 1.5rem;
   line-height: 1.1;
 }
 
 h3 {
-  font-size: max(24px, calc(0.5rem + 2vmin));
+  font-size: 1.17rem;
   line-height: 1.1;
 }
 
 h4 {
-  font-size: max(20px, calc(0.5rem + 1.5vmin));
+  font-size: 1rem;
   line-height: 1.1;
 }
 
@@ -172,17 +172,6 @@ svg {
   width: fit-content;
   height: fit-content;
   padding: 0;
-}
-
-.adaptive-font-size {
-
-  @media (max-width: 760px) {
-    font-size: large;
-  }
-
-  @media (max-width: 400px) {
-    font-size: medium;
-  }
 }
 
 .pulse {

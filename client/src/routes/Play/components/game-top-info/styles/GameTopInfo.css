@@ -6,7 +6,7 @@
     margin-bottom: max(15px, 2vmin);
 }
 
-.whose-turn-label {
+#whose-turn-label {
     margin: 0;
 }
 
