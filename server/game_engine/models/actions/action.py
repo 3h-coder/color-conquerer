@@ -1,11 +1,10 @@
 from functools import wraps
 
-from dto.coordinates_dto import CoordinatesDto
-from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.callbacks.callback_factory import get_callback
 from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
 from game_engine.models.actions.hooks.action_hook import ActionHook
+from game_engine.models.coordinates import Coordinates
 from game_engine.models.match_context import MatchContext
 
 
@@ -21,7 +20,7 @@ class Action(WithCallbacks):
     def __init__(
         self,
         from_player1: bool,
-        impacted_coords: CoordinatesDto,
+        impacted_coords: Coordinates,
     ):
         super().__init__()
         self.from_player1 = from_player1

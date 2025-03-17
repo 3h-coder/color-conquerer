@@ -1,5 +1,5 @@
-from dto.coordinates_dto import CoordinatesDto
 from game_engine.models.cell.cell_owner import CellOwner
+from game_engine.models.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.spell import Spell
 from game_engine.models.spells.spell_id import SpellId
@@ -17,6 +17,6 @@ class ShieldFormationSpell(Spell):
         return possible_targets
 
     def invoke(
-        self, coordinates: set[CoordinatesDto], board: "GameBoard", invocator: CellOwner
+        self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
     ):
         pass  # nothing for now

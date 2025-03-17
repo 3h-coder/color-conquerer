@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
-from dto.coordinates_dto import CoordinatesDto
 from game_engine.models.cell.cell_owner import CellOwner
+from game_engine.models.coordinates import Coordinates
 from game_engine.models.spells.spell import Spell
 from game_engine.models.spells.spell_id import SpellId
 
@@ -33,7 +33,7 @@ class MineTrapSpell(Spell):
         return possible_targets
 
     def invoke(
-        self, coordinates: CoordinatesDto, board: "GameBoard", invocator: CellOwner
+        self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
     ):
-        cell = board.get(coordinates.rowIndex, coordinates.columnIndex)
+        cell = board.get(coordinates.row_index, coordinates.column_index)
         cell.set_as_mine_trap(invocator)

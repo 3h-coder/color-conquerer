@@ -1,7 +1,7 @@
-from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
 from game_engine.models.cell.cell_owner import CellOwner
+from game_engine.models.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.spell import Spell
 
@@ -36,7 +36,7 @@ class SpellCasting(Action):
             player1=self.from_player1,
             type=ActionType.PLAYER_SPELL,
             originatingCellCoords=None,
-            impactedCoords=self.impacted_coords,
+            impactedCoords=self.impacted_coords.to_dto(),
             # Note : the spell here must be partial to not
             # contain the count number as it will be sent to both clients
             spell=self.spell.to_partial_dto(),
@@ -46,7 +46,7 @@ class SpellCasting(Action):
     def create(from_player1: bool, spell: Spell, row_index: int, column_index: int):
         return SpellCasting(
             from_player1=from_player1,
-            impacted_coords=CoordinatesDto(row_index, column_index),
+            impacted_coords=Coordinates(row_index, column_index),
             spell=spell,
         )
 

@@ -1,5 +1,4 @@
 from config.logging import get_configured_logger
-from dto.coordinates_dto import CoordinatesDto
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.cell_movement import CellMovement
 from game_engine.models.actions.cell_spawn import CellSpawn

@@ -1,11 +1,11 @@
 from constants.game_constants import BOARD_SIZE
-from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import ActionType
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.actions.hooks.mana_bubble_hook import ManaBubbleHook
 from game_engine.models.cell.cell import Cell
+from game_engine.models.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 from utils.board_utils import is_out_of_bounds
@@ -57,8 +57,8 @@ class CellMovement(CellAction):
         return CellMovement(
             from_player1=from_player1,
             cell_id=cell_id,
-            impacted_coords=CoordinatesDto(new_row_index, new_column_index),
-            originating_coords=CoordinatesDto(row_index, column_index),
+            impacted_coords=Coordinates(new_row_index, new_column_index),
+            originating_coords=Coordinates(row_index, column_index),
         )
 
     @staticmethod
@@ -124,14 +124,14 @@ class CellMovement(CellAction):
         target_coords = self.impacted_coords
 
         cell_original_coords = game_board.get(
-            originating_coords.rowIndex, originating_coords.columnIndex
+            originating_coords.row_index, originating_coords.column_index
         )
 
         if not cell_original_coords.is_owned():
             return
 
         cell_new_coords = game_board.get(
-            target_coords.rowIndex, target_coords.columnIndex
+            target_coords.row_index, target_coords.column_index
         )
         cell_id = cell_original_coords.id
         is_master = cell_original_coords.is_master
@@ -167,8 +167,8 @@ class CellMovement(CellAction):
                 master_cell.id,
                 master_cell.row_index,
                 master_cell.column_index,
-                move.impacted_coords.rowIndex,
-                move.impacted_coords.columnIndex,
+                move.impacted_coords.row_index,
+                move.impacted_coords.column_index,
             )
             for move in additional_movements
         }

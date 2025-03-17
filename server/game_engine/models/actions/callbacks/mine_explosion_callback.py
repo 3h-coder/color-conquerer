@@ -2,9 +2,9 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from dto.action_callback_dto import ActionCallbackDto
-from dto.coordinates_dto import CoordinatesDto
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
+from game_engine.models.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.mine_trap_spell import MineTrapSpell
 from utils.perf_utils import with_performance_logging
@@ -26,7 +26,7 @@ class MineExplosionCallback(ActionCallback):
     def __init__(self, parent_action: "Action", parent_callback: ActionCallback = None):
         super().__init__(parent_action, parent_callback)
         self._logger = get_configured_logger(__name__)
-        self.explosion_center_coords: CoordinatesDto | None = None
+        self.explosion_center_coords: Coordinates | None = None
 
     def __eq__(self, other):
         return (
@@ -49,7 +49,7 @@ class MineExplosionCallback(ActionCallback):
 
     def to_dto(self, for_player1: bool):
         dto: ActionCallbackDto = super().to_dto(for_player1)
-        dto.impactedCoords = self.explosion_center_coords
+        dto.impactedCoords = self.explosion_center_coords.to_dto()
         return dto
 
     def can_be_triggered(self, match_context):
@@ -60,7 +60,7 @@ class MineExplosionCallback(ActionCallback):
 
         self.explosion_center_coords = impacted_coords = parent_action.impacted_coords
         impacted_cell = match_context.game_board.get(
-            impacted_coords.rowIndex, impacted_coords.columnIndex
+            impacted_coords.row_index, impacted_coords.column_index
         )
         return impacted_cell.is_mine_trap()
 
@@ -68,8 +68,8 @@ class MineExplosionCallback(ActionCallback):
     def register_callbacks(self, match_context):
         game_board = match_context.game_board
         row_index, col_index = (
-            self.explosion_center_coords.rowIndex,
-            self.explosion_center_coords.columnIndex,
+            self.explosion_center_coords.row_index,
+            self.explosion_center_coords.column_index,
         )
 
         processed_mines = set()
@@ -91,8 +91,8 @@ class MineExplosionCallback(ActionCallback):
         game_board = match_context.game_board
 
         row_index, column_index = (
-            self.explosion_center_coords.rowIndex,
-            self.explosion_center_coords.columnIndex,
+            self.explosion_center_coords.row_index,
+            self.explosion_center_coords.column_index,
         )
         impacted_cell = game_board.get(row_index, column_index)
 

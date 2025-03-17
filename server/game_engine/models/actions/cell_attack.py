@@ -1,8 +1,8 @@
-from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import ActionType
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.cell.cell import Cell
+from game_engine.models.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 
@@ -49,8 +49,8 @@ class CellAttack(CellAction):
     ):
         return CellAttack(
             from_player1=from_player1,
-            impacted_coords=CoordinatesDto(attack_row_index, attack_column_index),
-            originating_coords=CoordinatesDto(row_index, column_index),
+            impacted_coords=Coordinates(attack_row_index, attack_column_index),
+            originating_coords=Coordinates(row_index, column_index),
             cell_id=cell_id,
         )
 
@@ -101,12 +101,12 @@ class CellAttack(CellAction):
         target_coords = self.impacted_coords
 
         attacking_row_index, attacking_col_index = (
-            attacker_coords.rowIndex,
-            attacker_coords.columnIndex,
+            attacker_coords.row_index,
+            attacker_coords.column_index,
         )
         target_row_index, target_col_index = (
-            target_coords.rowIndex,
-            target_coords.columnIndex,
+            target_coords.row_index,
+            target_coords.column_index,
         )
 
         board = match_context.game_board

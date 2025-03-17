@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
 from constants.game_constants import DEFAULT_SPELL_ORIGINAL_COUNT
-from dto.coordinates_dto import CoordinatesDto
 from dto.partial_spell_dto import PartialSpellDto
 from dto.spell_dto import SpellDto
 from game_engine.models.cell.cell_owner import CellOwner
+from game_engine.models.coordinates import Coordinates
 from game_engine.models.spells.spell_id import SpellId
 
 if TYPE_CHECKING:
@@ -54,6 +54,6 @@ class Spell:
         raise NotImplementedError
 
     def invoke(
-        self, coordinates: CoordinatesDto, board: "GameBoard", invocator: CellOwner
+        self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
     ):
         raise NotImplementedError

@@ -1,10 +1,10 @@
 from dto.cell_dto import CellDto
-from dto.coordinates_dto import CoordinatesDto
 from game_engine.models.cell.cell_hidden_state import CellHiddenState
 from game_engine.models.cell.cell_hidden_state_info import CellHiddenStateInfo
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
 from game_engine.models.cell.cell_transient_state import CellTransientState
+from game_engine.models.coordinates import Coordinates
 from game_engine.models.player import Player
 from game_engine.models.player_resources import PlayerResources
 
@@ -73,7 +73,7 @@ class Cell:
         )
 
     def get_coordinates(self):
-        return CoordinatesDto(self.row_index, self.column_index)
+        return Coordinates(self.row_index, self.column_index)
 
     @staticmethod
     def get_default_idle_cell(row_index: int, col_index: int):

@@ -1,6 +1,6 @@
-from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import MatchActionDto
 from game_engine.models.actions.action import Action
+from game_engine.models.coordinates import Coordinates
 
 
 class CellAction(Action):
@@ -9,7 +9,7 @@ class CellAction(Action):
         self,
         from_player1: bool,
         impacted_coords: bool,
-        originating_coords: CoordinatesDto,
+        originating_coords: Coordinates,
         cell_id: str,
     ):
         super().__init__(from_player1, impacted_coords)
@@ -20,7 +20,7 @@ class CellAction(Action):
         return MatchActionDto(
             player1=self.from_player1,
             type=None,
-            originatingCellCoords=self.originating_coords,
-            impactedCoords=self.impacted_coords,
+            originatingCellCoords=self.originating_coords.to_dto(),
+            impactedCoords=self.impacted_coords.to_dto(),
             spell=None,
         )

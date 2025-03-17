@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-from dto.coordinates_dto import CoordinatesDto
 from dto.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.hooks.mana_bubble_hook import ManaBubbleHook
 from game_engine.models.cell.cell import Cell
+from game_engine.models.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 
@@ -20,7 +20,7 @@ class CellSpawn(Action):
     HOOKS = {ManaBubbleHook()}
     CALLBACKS = {ActionCallBackId.MINE_EXPLOSION}
 
-    def __init__(self, from_player1: bool, impacted_coords: CoordinatesDto):
+    def __init__(self, from_player1: bool, impacted_coords: Coordinates):
         super().__init__(
             from_player1=from_player1,
             impacted_coords=impacted_coords,
@@ -49,7 +49,7 @@ class CellSpawn(Action):
             player1=self.from_player1,
             type=ActionType.CELL_SPAWN,
             originatingCellCoords=None,
-            impactedCoords=self.impacted_coords,
+            impactedCoords=self.impacted_coords.to_dto(),
             spell=None,
         )
 
@@ -57,7 +57,7 @@ class CellSpawn(Action):
     def create(from_player1: bool, row_index: int, column_index: int):
         return CellSpawn(
             from_player1=from_player1,
-            impacted_coords=CoordinatesDto(row_index, column_index),
+            impacted_coords=Coordinates(row_index, column_index),
         )
 
     @staticmethod
@@ -100,7 +100,7 @@ class CellSpawn(Action):
         """
         target_coords = self.impacted_coords
         cell = match_context.game_board.get(
-            target_coords.rowIndex, target_coords.columnIndex
+            target_coords.row_index, target_coords.column_index
         )
         if self.from_player1:
             cell.set_owned_by_player1()
