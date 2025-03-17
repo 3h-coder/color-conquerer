@@ -7,13 +7,15 @@ export function isOwned(cell: CellDto) {
   return cell.owner !== 0;
 }
 
-export function getCellStyle(cell: CellDto, isPlayer1: boolean) {
+export function getCellBackgroundColor(cell: CellDto, isPlayer1: boolean) {
   const backgroundColorVariable = "--bg";
   const style: React.CSSProperties = {};
 
-  if (canBeTargetted(cell)) {
+  if (canBeSpawnedOrMovedInto(cell)) {
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    (style as any)[backgroundColorVariable] = colors.cell.ownCellActionPossible;
+    (style as any)[backgroundColorVariable] = colors.cell.movementOrSpawnPossible;
+  } else if (isNotOwnedAndCanBeSpellTargetted(cell)) {
+    (style as any)[backgroundColorVariable] = colors.cell.spellTargettingPossible;
   } else if (cell.state === CellState.FRESHLY_SPAWNED) {
     (style as any)[backgroundColorVariable] = getFreshlySpawnedCellColor(cell, isPlayer1);
   } else {
@@ -100,14 +102,22 @@ export function isSelectable(cell: CellDto) {
   return cell.owner !== 0 || cell.transientState !== CellTransientState.NONE;
 }
 
-/**
- * Returns true if the cell can be targetted by a spell, a spawn or a move.
- */
-export function canBeTargetted(cell: CellDto) {
+export function canBeSpawnedOrMovedInto(cell: CellDto) {
   return (
     cell.transientState === CellTransientState.CAN_BE_MOVED_INTO ||
-    cell.transientState === CellTransientState.CAN_BE_SPAWNED_INTO ||
-    cell.transientState === CellTransientState.CAN_BE_SPELL_TARGETTED
+    cell.transientState === CellTransientState.CAN_BE_SPAWNED_INTO
+  );
+}
+
+export function isNotOwnedAndCanBeSpellTargetted(cell: CellDto) {
+  return (
+    cell.owner === 0 && cell.transientState === CellTransientState.CAN_BE_SPELL_TARGETTED
+  );
+}
+
+export function isOwnedAndCanBeSpellTargetted(cell: CellDto) {
+  return (
+    cell.owner !== 0 && cell.transientState === CellTransientState.CAN_BE_SPELL_TARGETTED
   );
 }
 

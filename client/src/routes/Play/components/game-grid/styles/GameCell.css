@@ -16,9 +16,26 @@
     border: 0.1rem solid blue;
 }
 
-/* Meant to be used on idle cells */
-.possible-action {
+.spawn-or-move-possible, .possible-spell-target {
     animation: half-fade-in 1s infinite alternate-reverse;
+}
+
+.possible-spell-target-indicator {
+    --border-angle: 0deg;
+    width: 101%;
+    height: 101%;
+    border: 0.2rem solid transparent;
+    background: linear-gradient(var(--bg), var(--bg)) padding-box,
+    conic-gradient(
+        from var(--border-angle),
+        var(--primary-purple3) 0deg,
+        var(--primary-pink1) 90deg,
+        var(--primary-purple3) 180deg,
+        var(--primary-pink1) 270deg,
+        var(--primary-purple3) 360deg
+      ) border-box;
+    box-sizing: border-box;
+    animation: border-angle-rotate 1.8s infinite linear;
 }
 
 .hovered {

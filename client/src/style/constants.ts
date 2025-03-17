@@ -3,11 +3,12 @@ export const colors = {
         idle: "white",
         opponentMaster: "red",
         ownMaster: "blue",
-        own: "rgb(79, 139, 242, 1)", // lighter blue
-        opponent: "rgb(247, 111, 111, 1)", // lighter red
-        ownCellActionPossible: "rgb(168, 213, 234, 1)", // slightly lighter blue
-        ownCellFreshlySpawned: "rgb(144, 183, 249, 1)", // even lighter blue
-        opponentCellFreshlySpawned: "rgb(249, 152, 152, 1)", // even lighter red
+        own: "rgb(79, 139, 242)", // lighter blue
+        opponent: "rgb(247, 111, 111)", // lighter red
+        movementOrSpawnPossible: "rgb(168, 213, 234)", // slightly lighter blue
+        spellTargettingPossible: "rgb(248, 208, 239)",
+        ownCellFreshlySpawned: "rgb(144, 183, 249)", // even lighter blue
+        opponentCellFreshlySpawned: "rgb(249, 152, 152)", // even lighter red
     },
 };
 
@@ -16,7 +17,8 @@ export const cellStyle = {
     classNames: {
         selectable: "selectable",
         hovered: "hovered",
-        possibleAction: "possible-action",
+        spawnOrMovePossible: "spawn-or-move-possible",
+        possibleSpellTarget: "possible-spell-target",
         absPosition: "absolute-positioning-centered"
     },
 };

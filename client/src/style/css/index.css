@@ -130,7 +130,7 @@ button:focus,
   outline: 4px auto -webkit-focus-ring-color;
 }
 button:disabled, .button:disabled {
-  border: 0.1rem solid transparent;
+  border: 0.16rem solid transparent;
   cursor: default;
 }
 
