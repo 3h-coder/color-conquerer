@@ -28,9 +28,7 @@ class CellMovement(CellAction):
         )
 
     def __hash__(self):
-        return hash(
-            (self.cell_id, frozenset(self.impacted_coords), self.originating_coords)
-        )
+        return hash((self.cell_id, self.impacted_coords, self.originating_coords))
 
     def __repr__(self):
         return (
@@ -59,7 +57,7 @@ class CellMovement(CellAction):
         return CellMovement(
             from_player1=from_player1,
             cell_id=cell_id,
-            impacted_coords=set([CoordinatesDto(new_row_index, new_column_index)]),
+            impacted_coords=CoordinatesDto(new_row_index, new_column_index),
             originating_coords=CoordinatesDto(row_index, column_index),
         )
 
@@ -123,7 +121,7 @@ class CellMovement(CellAction):
         """
         game_board = match_context.game_board
         originating_coords = self.originating_coords
-        target_coords = next(iter(self.impacted_coords))
+        target_coords = self.impacted_coords
 
         cell_original_coords = game_board.get(
             originating_coords.rowIndex, originating_coords.columnIndex
@@ -155,7 +153,7 @@ class CellMovement(CellAction):
         target_cell: Cell,
         player1: bool,
         transient_game_board: GameBoard,
-    ) -> set["CellMovement"]:
+    ):
         """
         Gets the additional movements that a master cell may perform from a primary direction
         neighbour cell.
@@ -163,23 +161,17 @@ class CellMovement(CellAction):
         additional_movements: set[CellMovement] = CellMovement.calculate(
             target_cell, player1, transient_game_board
         )
-
-        result = set()
-
-        for move in additional_movements:
-            coords = next(iter(move.impacted_coords))
-            result.add(
-                CellMovement.create(
-                    player1,
-                    master_cell.id,
-                    master_cell.row_index,
-                    master_cell.column_index,
-                    coords.rowIndex,
-                    coords.columnIndex,
-                )
+        return {
+            CellMovement.create(
+                player1,
+                master_cell.id,
+                master_cell.row_index,
+                master_cell.column_index,
+                move.impacted_coords.rowIndex,
+                move.impacted_coords.columnIndex,
             )
-
-        return result
+            for move in additional_movements
+        }
 
     @staticmethod
     def _is_valid_movement_target(

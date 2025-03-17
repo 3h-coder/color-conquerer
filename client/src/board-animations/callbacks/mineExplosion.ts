@@ -15,11 +15,7 @@ export async function animateMineExplosion(callback: ActionCallbackDto, currentP
     if (!callback.impactedCoords)
         return;
 
-    const impactedCoords = callback.impactedCoords.pop();
-    if (!impactedCoords)
-        return;
-    const { rowIndex, columnIndex } = impactedCoords;
-
+    const { rowIndex, columnIndex } = callback.impactedCoords;
     const htmlCell = getHtmlCell(rowIndex, columnIndex);
     if (!htmlCell)
         return;

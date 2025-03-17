@@ -49,7 +49,7 @@ class MineExplosionCallback(ActionCallback):
 
     def to_dto(self, for_player1: bool):
         dto: ActionCallbackDto = super().to_dto(for_player1)
-        dto.impactedCoords = [self.explosion_center_coords]
+        dto.impactedCoords = self.explosion_center_coords
         return dto
 
     def can_be_triggered(self, match_context):
@@ -58,9 +58,7 @@ class MineExplosionCallback(ActionCallback):
 
         parent_action = self.parent_action
 
-        self.explosion_center_coords = impacted_coords = next(
-            iter(parent_action.impacted_coords)
-        )
+        self.explosion_center_coords = impacted_coords = parent_action.impacted_coords
         impacted_cell = match_context.game_board.get(
             impacted_coords.rowIndex, impacted_coords.columnIndex
         )

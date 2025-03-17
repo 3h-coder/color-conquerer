@@ -21,7 +21,7 @@ class Action(WithCallbacks):
     def __init__(
         self,
         from_player1: bool,
-        impacted_coords: set[CoordinatesDto],
+        impacted_coords: CoordinatesDto,
     ):
         super().__init__()
         self.from_player1 = from_player1

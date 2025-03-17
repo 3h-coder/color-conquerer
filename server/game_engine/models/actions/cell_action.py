@@ -21,6 +21,6 @@ class CellAction(Action):
             player1=self.from_player1,
             type=None,
             originatingCellCoords=self.originating_coords,
-            impactedCoords=list(self.impacted_coords),
+            impactedCoords=self.impacted_coords,
             spell=None,
         )

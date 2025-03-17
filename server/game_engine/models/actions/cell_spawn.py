@@ -34,7 +34,7 @@ class CellSpawn(Action):
         )
 
     def __hash__(self):
-        return hash((self.from_player1, frozenset(self.impacted_coords)))
+        return hash((self.from_player1, self.impacted_coords))
 
     def __repr__(self):
         return (
@@ -49,7 +49,7 @@ class CellSpawn(Action):
             player1=self.from_player1,
             type=ActionType.CELL_SPAWN,
             originatingCellCoords=None,
-            impactedCoords=list(self.impacted_coords),
+            impactedCoords=self.impacted_coords,
             spell=None,
         )
 
@@ -57,7 +57,7 @@ class CellSpawn(Action):
     def create(from_player1: bool, row_index: int, column_index: int):
         return CellSpawn(
             from_player1=from_player1,
-            impacted_coords=set([CoordinatesDto(row_index, column_index)]),
+            impacted_coords=CoordinatesDto(row_index, column_index),
         )
 
     @staticmethod
@@ -98,7 +98,7 @@ class CellSpawn(Action):
         """
         Spawns a cell at the given coordinates for the given player.
         """
-        target_coords = next(iter(self.impacted_coords))
+        target_coords = self.impacted_coords
         cell = match_context.game_board.get(
             target_coords.rowIndex, target_coords.columnIndex
         )

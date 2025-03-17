@@ -54,6 +54,6 @@ class Spell:
         raise NotImplementedError
 
     def invoke(
-        self, coordinates: set[CoordinatesDto], board: "GameBoard", invocator: CellOwner
+        self, coordinates: CoordinatesDto, board: "GameBoard", invocator: CellOwner
     ):
         raise NotImplementedError

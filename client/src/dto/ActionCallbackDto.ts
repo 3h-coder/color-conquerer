@@ -9,6 +9,6 @@ export interface ActionCallbackDto {
     parentAction: MatchActionDto;
     parentCallbackId: ActionCallbackId;
     spellCause: PartialSpellDto | null;
-    impactedCoords: CoordinatesDto[] | null;
+    impactedCoords: CoordinatesDto | null;
     updatedGameContext: GameContextDto;
 }

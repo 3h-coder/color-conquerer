@@ -21,9 +21,7 @@ class CellAttack(CellAction):
         )
 
     def __hash__(self):
-        return hash(
-            (self.cell_id, frozenset(self.impacted_coords), self.originating_coords)
-        )
+        return hash((self.cell_id, self.impacted_coords, self.originating_coords))
 
     def __repr__(self):
         return (
@@ -51,9 +49,7 @@ class CellAttack(CellAction):
     ):
         return CellAttack(
             from_player1=from_player1,
-            impacted_coords=set(
-                [CoordinatesDto(attack_row_index, attack_column_index)]
-            ),
+            impacted_coords=CoordinatesDto(attack_row_index, attack_column_index),
             originating_coords=CoordinatesDto(row_index, column_index),
             cell_id=cell_id,
         )
@@ -102,7 +98,7 @@ class CellAttack(CellAction):
         """
         # region Variable setup
         attacker_coords = self.originating_coords
-        target_coords = next(iter(self.impacted_coords))
+        target_coords = self.impacted_coords
 
         attacking_row_index, attacking_col_index = (
             attacker_coords.rowIndex,

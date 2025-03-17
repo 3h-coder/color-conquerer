@@ -8,7 +8,7 @@ class ManaBubbleHook(ActionHook):
 
     def trigger(self, action, match_context):
         game_board = match_context.game_board
-        target_coords = next(iter(action.impacted_coords))
+        target_coords = action.impacted_coords
         target_cell = game_board.get(target_coords.rowIndex, target_coords.columnIndex)
 
         if not target_cell.is_mana_bubble():
