@@ -53,22 +53,24 @@ class SpellCasting(Action):
     @staticmethod
     def calculate(
         spell: Spell,
-        from_player1: bool,  # not used for now
+        from_player1: bool,
         transient_game_board: GameBoard,
     ):
         """
         Returns a set of spell casting actions that can be performed on a cell.
         """
         possible_spell_targets: set[SpellCasting] = set()
-        possible_targets = spell.get_possible_targets(transient_game_board)
+        possible_targets = spell.get_possible_targets(
+            transient_game_board, from_player1
+        )
 
-        for target in possible_targets:
+        for target_coordinates in possible_targets:
             possible_spell_targets.add(
                 SpellCasting.create(
                     from_player1,
                     spell,
-                    target.row_index,
-                    target.column_index,
+                    target_coordinates.row_index,
+                    target_coordinates.column_index,
                 )
             )
 

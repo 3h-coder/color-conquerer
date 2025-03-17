@@ -19,8 +19,8 @@ class MineTrapSpell(Spell):
     )
     MANA_COST = 2
 
-    def get_possible_targets(self, transient_board: "GameBoard"):
-        possible_targets = []
+    def get_possible_targets(self, transient_board: "GameBoard", _):
+        possible_targets: list[Coordinates] = []
 
         for row in transient_board.board:
             for cell in row:
@@ -28,7 +28,7 @@ class MineTrapSpell(Spell):
                     continue
 
                 cell.set_can_be_spell_targetted()
-                possible_targets.append(cell)
+                possible_targets.append(cell.get_coordinates())
 
         return possible_targets
 

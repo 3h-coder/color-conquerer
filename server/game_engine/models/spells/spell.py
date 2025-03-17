@@ -50,7 +50,9 @@ class Spell:
             manaCost=cls.MANA_COST,
         )
 
-    def get_possible_targets(self, board: "GameBoard") -> list["Cell"]:
+    def get_possible_targets(
+        self, board: "GameBoard", from_player1: bool
+    ) -> list[Coordinates]:
         raise NotImplementedError
 
     def invoke(
