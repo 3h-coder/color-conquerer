@@ -4,8 +4,7 @@ from enum import IntEnum
 class CellTransientState(IntEnum):
     """
     The transient states are temporary and meant to be sent to
-    the player whose turn it is to inform him of the
-    possible actions he can take.
+    the player whose turn it is to inform them of the possible actions they can take.
     """
 
     NONE = 0

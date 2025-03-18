@@ -104,7 +104,7 @@ class TurnWatcherService(ServiceBase):
         )
         for cell in current_player_cells:
             if cell.is_freshly_spawned():
-                cell.clear_state()
+                cell.clear_core_state()
 
     def _increment_current_player_MP(self):
         """

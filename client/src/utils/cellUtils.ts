@@ -1,5 +1,6 @@
 import { CellDto } from "../dto/CellDto";
-import { CellState, CellTransientState } from "../enums/cellState";
+import { CellState, CellStateUtils } from "../enums/cellState";
+import { CellTransientState } from "../enums/cellTransientState";
 import { EMPTY_STRING } from "../env";
 import { cellStyle, colors } from "../style/constants";
 
@@ -16,7 +17,7 @@ export function getCellBackgroundColor(cell: CellDto, isPlayer1: boolean) {
     (style as any)[backgroundColorVariable] = colors.cell.movementOrSpawnPossible;
   } else if (isNotOwnedAndCanBeSpellTargetted(cell)) {
     (style as any)[backgroundColorVariable] = colors.cell.spellTargettingPossible;
-  } else if (cell.state === CellState.FRESHLY_SPAWNED) {
+  } else if (CellStateUtils.contains(cell.state, CellState.FRESHLY_SPAWNED)) {
     (style as any)[backgroundColorVariable] = getFreshlySpawnedCellColor(cell, isPlayer1);
   } else {
     (style as any)[backgroundColorVariable] = getCellColor(cell, isPlayer1);

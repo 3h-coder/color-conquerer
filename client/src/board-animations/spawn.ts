@@ -1,6 +1,6 @@
 import { CellDto } from "../dto/CellDto";
 import { MatchActionDto } from "../dto/MatchActionDto";
-import { CellState } from "../enums/cellState";
+import { CellState, CellStateUtils } from "../enums/cellState";
 import { getHtmlCell, getOwnedCellColor } from "../utils/cellUtils";
 import { animateManaBubblePop, triggerAuraEffect } from "./common";
 
@@ -11,7 +11,7 @@ export function handleCellSpawnAnimation(action: MatchActionDto, isPlayer1: bool
 
     animateCellSpawn(newCellCoordinates.rowIndex, newCellCoordinates.columnIndex, cellOfMine);
 
-    if (targetCell.state === CellState.MANA_BUBBLE)
+    if (CellStateUtils.contains(targetCell.state, CellState.MANA_BUBBLE))
         animateManaBubblePop(newCellCoordinates.rowIndex, newCellCoordinates.columnIndex);
 }
 

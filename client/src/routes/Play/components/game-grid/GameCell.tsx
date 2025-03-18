@@ -1,11 +1,12 @@
 import React from "react";
 import { LandMineIcon, SwordIcon } from "../../../../assets/svg";
 import { CellDto } from "../../../../dto/CellDto";
+import { CellHiddenState } from "../../../../enums/cellHiddenState";
 import {
-    CellHiddenState,
     CellState,
-    CellTransientState,
+    CellStateUtils,
 } from "../../../../enums/cellState";
+import { CellTransientState } from "../../../../enums/cellTransientState";
 import { Events } from "../../../../enums/events";
 import { EMPTY_STRING, socket, WHITE_SPACE } from "../../../../env";
 import { cellStyle } from "../../../../style/constants";
@@ -33,7 +34,7 @@ export default function GameCell(props: GameCellProps) {
     const selected = cellInfo.transientState === CellTransientState.SELECTED;
     const attackable = cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
     const canBeSpellTargetted = cellInfo.transientState === CellTransientState.CAN_BE_SPELL_TARGETTED;
-    const isManaBubble = cellInfo.state == CellState.MANA_BUBBLE;
+    const isManaBubble = CellStateUtils.contains(cellInfo.state, CellState.MANA_BUBBLE);
     const isMineTrap = cellInfo.hiddenState == CellHiddenState.MINE_TRAP;
 
     function onCellClick() {

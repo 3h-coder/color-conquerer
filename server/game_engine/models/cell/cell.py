@@ -67,10 +67,20 @@ class Cell:
             row_index=self.row_index,
             column_index=self.column_index,
             state=self.state,
-            hidden_state_info=self.hidden_state_info,
+            hidden_state_info=self.hidden_state_info.clone(),
             transient_state=self.transient_state,
             id=self.id,
         )
+
+    def copy_state(self, other: "Cell"):
+        self.owner = other.owner
+        self.is_master = other.is_master
+        self.row_index = other.row_index
+        self.column_index = other.column_index
+        self.state = other.state
+        self.hidden_state_info = other.hidden_state_info.clone()
+        self.transient_state = other.transient_state
+        self.id = other.id
 
     def get_coordinates(self):
         return Coordinates(self.row_index, self.column_index)
@@ -171,20 +181,23 @@ class Cell:
             and other_cell.owner != self.owner
         )
 
+    def clear_state(self):
+        self.state = CellState.NONE
+
+    def clear_core_state(self):
+        self.state = self.state.core_states_cleared()
+
     def is_freshly_spawned(self):
-        return self.state == CellState.FRESHLY_SPAWNED
+        return self.state.contains(CellState.FRESHLY_SPAWNED)
 
     def is_mana_bubble(self):
-        return self.state == CellState.MANA_BUBBLE
+        return self.state.contains(CellState.MANA_BUBBLE)
 
     def is_mine_trap(self):
         return self.hidden_state_info.is_mine_trap()
 
     def has_hidden_state(self):
         return self.hidden_state_info.state != CellHiddenState.NONE
-
-    def clear_state(self):
-        self.state = CellState.NONE
 
     def set_selected(self):
         self.transient_state = CellTransientState.SELECTED
@@ -202,10 +215,10 @@ class Cell:
         self.transient_state = CellTransientState.CAN_BE_SPELL_TARGETTED
 
     def set_freshly_spawned(self):
-        self.state = CellState.FRESHLY_SPAWNED
+        self.state = self.state.with_core_state(CellState.FRESHLY_SPAWNED)
 
     def set_as_mana_bubble(self):
-        self.state = CellState.MANA_BUBBLE
+        self.state = self.state.with_core_state(CellState.MANA_BUBBLE)
 
     def set_as_mine_trap(self, owner: CellOwner):
         visible_to = owner

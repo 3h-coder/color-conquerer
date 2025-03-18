@@ -15,6 +15,9 @@ class CellHiddenStateInfo:
             state=CellHiddenState.NONE, visible_to=CellOwner.NONE
         )
 
+    def clone(self):
+        return CellHiddenStateInfo(self.state, self.visible_to)
+
     def reset(self):
         self.state = CellHiddenState.NONE
         self.visible_to = CellOwner.NONE

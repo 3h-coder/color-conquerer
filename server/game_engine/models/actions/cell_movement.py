@@ -133,19 +133,7 @@ class CellMovement(CellAction):
         cell_new_coords = game_board.get(
             target_coords.row_index, target_coords.column_index
         )
-        cell_id = cell_original_coords.id
-        is_master = cell_original_coords.is_master
-
-        if cell_original_coords.belongs_to_player_1():
-            cell_new_coords.set_owned_by_player1(cell_id)
-            cell_new_coords.is_master = is_master
-
-        elif cell_original_coords.belongs_to_player_2():
-            cell_new_coords.set_owned_by_player2(cell_id)
-            cell_new_coords.is_master = is_master
-
-        cell_original_coords.kill()
-        cell_new_coords.clear_state()
+        CellMovement._transfer_cell(cell_original_coords, cell_new_coords)
 
     @staticmethod
     def _calculate_extra_master_movements(
@@ -199,6 +187,21 @@ class CellMovement(CellAction):
 
         else:
             return not target_cell.is_owned()
+
+    @staticmethod
+    def _transfer_cell(old_cell: Cell, new_cell: Cell):
+        # Information from the new cell that should be reapplied
+        # after the state copy
+        new_cell_coords = new_cell.get_coordinates()
+        new_cell_hidden_state_info = new_cell.hidden_state_info
+
+        new_cell.copy_state(old_cell)
+
+        # Apply back the information that we saved
+        new_cell.row_index, new_cell.column_index = new_cell_coords.as_tuple()
+        new_cell.hidden_state_info = new_cell_hidden_state_info
+
+        old_cell.kill()
 
     @staticmethod
     def _is_out_of_bounds(index: int):
