@@ -206,6 +206,9 @@ def handle_spell_button(match: MatchHandlerUnit, spell_id: int):
     """
     Receives the client's request to use a spell.
     """
+    _logger.info(
+        f"({request.remote_addr}) | Received the spell request -> spell id : {spell_id}"
+    )
     match.handle_spell_button(spell_id)
 
 

@@ -25,6 +25,8 @@ class CellState(IntFlag):
 
     # region Modifier states (can be combined)
 
+    SHIELDED = 1 << 8
+
     # endregion
 
     # region Methods

@@ -35,7 +35,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: max(5px, 0.5vmin);
+    gap: var(--spacing-small2);
     margin-top: var(--spacing-medium1);
 }
 

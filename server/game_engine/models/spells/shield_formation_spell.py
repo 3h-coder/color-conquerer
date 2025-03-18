@@ -1,10 +1,14 @@
-from game_engine.models.cell.cell import Cell
+from typing import TYPE_CHECKING
+
 from game_engine.models.cell.cell_owner import CellOwner
+from game_engine.models.cell.cell_state import CellState
 from game_engine.models.cell.cell_transient_state import CellTransientState
 from game_engine.models.coordinates import Coordinates
-from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.spell import Spell
 from game_engine.models.spells.spell_id import SpellId
+
+if TYPE_CHECKING:
+    from game_engine.models.game_board import GameBoard
 
 
 class ShieldFormationSpell(Spell):
@@ -16,7 +20,7 @@ class ShieldFormationSpell(Spell):
     def __init__(self):
         super().__init__()
         # Each cell is bound to a specific square
-        self._squares_of_cells: list[Coordinates] = []
+        self._squares_of_cells: list[list[Coordinates]] = []
 
     def get_possible_targets(self, transient_board: "GameBoard", from_player1: bool):
         possible_targets: list[Coordinates] = []
@@ -68,4 +72,12 @@ class ShieldFormationSpell(Spell):
     def invoke(
         self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
     ):
-        pass  # nothing for now
+        corresponding_square: list[Coordinates] = []
+        for square in self._squares_of_cells:
+            if coordinates in square:
+                corresponding_square = square
+                break
+
+        for cell_coords in corresponding_square:
+            cell = board.get(cell_coords.row_index, cell_coords.column_index)
+            cell.state.add_modifier(CellState.SHIELDED)
