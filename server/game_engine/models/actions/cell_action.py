@@ -23,4 +23,5 @@ class CellAction(Action):
             originatingCellCoords=self.originating_coords.to_dto(),
             impactedCoords=self.impacted_coords.to_dto(),
             spell=None,
+            metadata=None,
         )

@@ -51,6 +51,7 @@ class CellSpawn(Action):
             originatingCellCoords=None,
             impactedCoords=self.impacted_coords.to_dto(),
             spell=None,
+            metadata=None,
         )
 
     @staticmethod
