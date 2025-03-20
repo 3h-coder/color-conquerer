@@ -1,4 +1,4 @@
-import { MatchActionDto } from "../dto/MatchActionDto";
+import { MatchActionDto } from "../dto/actions/MatchActionDto";
 import { getHtmlCell } from "../utils/cellUtils";
 import { triggerAuraEffect } from "./common";
 

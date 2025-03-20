@@ -1,4 +1,4 @@
-import { ErrorDto } from "../dto/ErrorDto";
+import { ErrorDto } from "../dto/misc/ErrorDto";
 import { API_URL, isDevelopment } from "../env";
 
 export const DEFAULT_HEADERS: Record<string, string> = {
@@ -35,7 +35,7 @@ export function callFetch(
             .then(async (response) => {
                 if (response.ok) {
                     resolve(response);
-                // The server returned an error
+                    // The server returned an error
                 } else {
                     // The server's errors should always return a JSON in the form of {error: <error message>}
                     const responseJson: ErrorDto = await response.json();

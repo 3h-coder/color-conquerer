@@ -1,6 +1,6 @@
-import { EMPTY_STRING } from "../env";
-import { CellDto } from "./CellDto";
-import { PlayerResourceBundleDto, undefinedPlayerResourceBundleDto } from "./PlayerInfoBundleDto";
+import { EMPTY_STRING } from "../../env";
+import { CellDto } from "../misc/CellDto";
+import { PlayerResourceBundleDto, undefinedPlayerResourceBundleDto } from "../player/PlayerInfoBundleDto";
 
 export interface MatchContextDto {
     id: string;

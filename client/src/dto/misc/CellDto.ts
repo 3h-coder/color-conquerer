@@ -1,6 +1,6 @@
-import { CellHiddenState } from "../enums/cellHiddenState";
-import { CellState } from "../enums/cellState";
-import { CellTransientState } from "../enums/cellTransientState";
+import { CellHiddenState } from "../../enums/cellHiddenState";
+import { CellState } from "../../enums/cellState";
+import { CellTransientState } from "../../enums/cellTransientState";
 
 export interface CellDto {
     owner: number;

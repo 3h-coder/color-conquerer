@@ -1,5 +1,5 @@
-import { CellDto } from "./CellDto";
-import { PlayerResourceBundleDto, undefinedPlayerResourceBundleDto } from "./PlayerInfoBundleDto";
+import { CellDto } from "../misc/CellDto";
+import { PlayerResourceBundleDto, undefinedPlayerResourceBundleDto } from "../player/PlayerInfoBundleDto";
 
 export interface GameContextDto {
     gameBoard: CellDto[][];

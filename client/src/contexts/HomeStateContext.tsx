@@ -1,20 +1,20 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { HomeState } from "../enums/homeState";
-import { HomeStateDto } from "../dto/HomeStateDto";
-import { developmentErrorLog } from "../utils/loggingUtils";
-import { ParseErrorDto } from "../dto/ErrorDto";
 import { fetchHomeState } from "../api/home";
-import { useUser } from "./UserContext";
+import { HomeStateDto } from "../dto/gameState/HomeStateDto";
+import { ParseErrorDto } from "../dto/misc/ErrorDto";
+import { HomeState } from "../enums/homeState";
 import { EMPTY_STRING } from "../env";
+import { developmentErrorLog } from "../utils/loggingUtils";
+import { useUser } from "./UserContext";
 
 const defaultHomeState: HomeStateDto = {
     state: HomeState.PLAY,
     topMessage: EMPTY_STRING,
     clearMatchSession: false
-}
+};
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const HomeStateContext = createContext({ homeState: defaultHomeState, setHomeState: (_state: HomeStateDto) => { }, loading: false })
+const HomeStateContext = createContext({ homeState: defaultHomeState, setHomeState: (_state: HomeStateDto) => { }, loading: false });
 
 interface HomeStateContextProps {
     children?: React.ReactNode;

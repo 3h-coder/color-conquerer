@@ -1,8 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import {
-    PlayerResourceBundleDto,
-    undefinedPlayerResourceBundleDto,
-} from "../dto/PlayerInfoBundleDto";
+import { PlayerResourceBundleDto, undefinedPlayerResourceBundleDto } from "../dto/player/PlayerInfoBundleDto";
 
 interface PlayerResourcesContextObject {
     playerResourceBundle: PlayerResourceBundleDto;

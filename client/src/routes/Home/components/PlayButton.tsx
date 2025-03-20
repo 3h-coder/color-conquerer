@@ -4,7 +4,7 @@ import SingleButtonModal from "../../../components/modals/SingleButtonModal";
 import { useHomeError } from "../../../contexts/HomeErrorContext";
 import { useHomeState } from "../../../contexts/HomeStateContext";
 import { useUser } from "../../../contexts/UserContext";
-import { ErrorDto } from "../../../dto/ErrorDto";
+import { ErrorDto } from "../../../dto/misc/ErrorDto";
 import { QueuePlayerDto } from "../../../dto/QueuePlayerDto";
 import { Events } from "../../../enums/events";
 import { HomeState } from "../../../enums/homeState";

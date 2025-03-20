@@ -1,4 +1,4 @@
-import { EMPTY_STRING } from "../env";
+import { EMPTY_STRING } from "../../env";
 import { GameContextDto, undefinedGameContextDto } from "./GameContextDto";
 
 export interface TurnContextDto {

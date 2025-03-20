@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { initSession } from "../api/session";
-import UserDto from "../dto/UserDto";
+import UserDto from "../dto/player/UserDto";
 
 
 export const guestUser: UserDto = {

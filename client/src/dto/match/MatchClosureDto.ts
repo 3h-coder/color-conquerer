@@ -1,4 +1,4 @@
-import { PlayerDto } from "./PlayerDto";
+import { PlayerDto } from "../player/PlayerDto";
 
 export enum EndingReason {
     PLAYER_VICTORY = "player won",

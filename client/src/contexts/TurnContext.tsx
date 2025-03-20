@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
-import { TurnContextDto, undefinedTurnContext as undefinedTurnContext } from "../dto/TurnContextDto";
+import { TurnContextDto, undefinedTurnContext } from "../dto/gameState/TurnContextDto";
 
 interface TurnContextObject {
     turnContext: TurnContextDto;

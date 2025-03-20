@@ -1,4 +1,4 @@
-import { CellDto } from "../../../../dto/CellDto";
+import { CellDto } from "../../../../dto/misc/CellDto";
 import { CellTransientState } from "../../../../enums/cellTransientState";
 import { Events } from "../../../../enums/events";
 import { EMPTY_STRING, socket, WHITE_SPACE } from "../../../../env";

@@ -1,6 +1,6 @@
-import { ActionType } from "../enums/actionType";
-import { CoordinatesDto } from "./CoordinatesDto";
-import { PartialSpellDto } from "./PartialSpellDto";
+import { ActionType } from "../../enums/actionType";
+import { CoordinatesDto } from "../misc/CoordinatesDto";
+import { PartialSpellDto } from "../spell/PartialSpellDto";
 
 export interface MatchActionDto {
     player1: boolean;

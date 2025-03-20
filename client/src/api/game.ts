@@ -1,5 +1,5 @@
-import { MatchContextDto } from "../dto/MatchContextDto";
-import { PlayerDto } from "../dto/PlayerDto";
+import { MatchContextDto } from "../dto/match/MatchContextDto";
+import { PlayerDto } from "../dto/player/PlayerDto";
 import { DEFAULT_HEADERS, fetchAs } from "./fetch";
 
 export async function fetchPlayerInfo() {

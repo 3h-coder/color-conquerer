@@ -1,6 +1,6 @@
 import { ContainerProps, Separator, SvgContainer } from "../../../../components/containers";
 
-import { PartialSpellDto } from "../../../../dto/PartialSpellDto";
+import { PartialSpellDto } from "../../../../dto/spell/PartialSpellDto";
 import { localStorageKeys } from "../../../../env";
 import { getSpellIcon } from "../shared";
 

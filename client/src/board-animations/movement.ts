@@ -1,5 +1,5 @@
 import { CellDto } from "../dto/CellDto";
-import { MatchActionDto } from "../dto/MatchActionDto";
+import { MatchActionDto } from "../dto/actions/MatchActionDto";
 import { CellState, CellStateUtils } from "../enums/cellState";
 import { animateManaBubblePop } from "./common";
 

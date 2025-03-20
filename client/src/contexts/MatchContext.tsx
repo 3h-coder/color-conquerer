@@ -7,11 +7,11 @@ import {
     useState,
 } from "react";
 import { fetchMatchInfo } from "../api/game";
-import { ParseErrorDto } from "../dto/ErrorDto";
 import {
     MatchContextDto,
     undefinedMatch,
-} from "../dto/MatchContextDto";
+} from "../dto/match/MatchContextDto";
+import { ParseErrorDto } from "../dto/misc/ErrorDto";
 import { developmentErrorLog } from "../utils/loggingUtils";
 import { useUser } from "./UserContext";
 

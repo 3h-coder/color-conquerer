@@ -3,7 +3,7 @@ import { InfoIcon } from "../../../../assets/svg";
 import { SvgContainer } from "../../../../components/containers";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
-import { SpellDto } from "../../../../dto/SpellDto";
+import { SpellDto } from "../../../../dto/spell/SpellDto";
 import { Events } from "../../../../enums/events";
 import { PlayerMode } from "../../../../enums/playerMode";
 import { socket, WHITE_SPACE } from "../../../../env";

@@ -1,5 +1,5 @@
-import { MatchActionDto } from "../dto/MatchActionDto";
-import { PartialSpellDto } from "../dto/PartialSpellDto";
+import { MatchActionDto } from "../dto/actions/MatchActionDto";
+import { PartialSpellDto } from "../dto/spell/PartialSpellDto";
 import { localStorageKeys } from "../env";
 import { developmentErrorLog } from "../utils/loggingUtils";
 

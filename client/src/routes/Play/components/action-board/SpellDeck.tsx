@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { SpellDto } from "../../../../dto/SpellDto";
-import { SpellsDto } from "../../../../dto/SpellsDto";
+import { SpellDto } from "../../../../dto/spell/SpellDto";
+import { SpellsDto } from "../../../../dto/spell/SpellsDto";
 import { Events } from "../../../../enums/events";
 import { socket } from "../../../../env";
 import { developmentLog } from "../../../../utils/loggingUtils";

@@ -1,5 +1,5 @@
 import { LandMineIcon, SwordIcon } from "../../../../assets/svg";
-import { CellDto } from "../../../../dto/CellDto";
+import { CellDto } from "../../../../dto/misc/CellDto";
 import { CellHiddenState } from "../../../../enums/cellHiddenState";
 import { CellState, CellStateUtils } from "../../../../enums/cellState";
 import { CellTransientState } from "../../../../enums/cellTransientState";
