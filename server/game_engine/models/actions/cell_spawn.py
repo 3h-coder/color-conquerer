@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dto.match_action_dto import ActionType, MatchActionDto
+from dto.actions.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.hooks.mana_bubble_hook import ManaBubbleHook

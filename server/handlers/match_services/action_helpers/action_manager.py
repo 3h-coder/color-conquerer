@@ -2,8 +2,8 @@ import functools
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
-from dto.possible_actions_dto import PossibleActionsDto
-from dto.processed_action_dto import ProcessedActionDto
+from dto.actions.possible_actions_dto import PossibleActionsDto
+from dto.actions.processed_action_dto import ProcessedActionDto
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from handlers.match_services.action_helpers.player_mode import PlayerMode

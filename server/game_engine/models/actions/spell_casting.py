@@ -1,4 +1,4 @@
-from dto.match_action_dto import ActionType, MatchActionDto
+from dto.actions.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.coordinates import Coordinates

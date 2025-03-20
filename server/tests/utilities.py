@@ -5,8 +5,8 @@ Utility methods for test setup and execution.
 from flask.testing import FlaskClient
 
 from application import Application
-from dto.queue_player_dto import QueuePlayerDto
-from dto.user_dto import UserDto
+from dto.player.queue_player_dto import QueuePlayerDto
+from dto.player.user_dto import UserDto
 from server import Server
 
 # region Mocks

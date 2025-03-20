@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from dto.base_dto import BaseDto
-from dto.coordinates_dto import CoordinatesDto
-from dto.partial_spell_dto import PartialSpellDto
+from dto.match.coordinates_dto import CoordinatesDto
+from dto.spell.partial_spell_dto import PartialSpellDto
 from game_engine.models.actions.action_type import ActionType
 
 

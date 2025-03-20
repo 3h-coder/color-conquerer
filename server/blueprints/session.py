@@ -3,7 +3,7 @@ import uuid
 from flask import Blueprint, current_app, jsonify, request, session
 
 from constants.session_variables import ROOM_ID, SESSION_ID
-from dto.boolean_dto import BooleanDto
+from dto.misc.boolean_dto import BooleanDto
 from middlewares.error_handler import handle_error
 from server_gate import get_match_handler, get_session_cache_handler
 from utils import session_utils

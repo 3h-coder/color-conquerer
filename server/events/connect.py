@@ -3,7 +3,7 @@ from flask_socketio import emit
 
 from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
-from dto.message_dto import MessageDto
+from dto.misc.message_dto import MessageDto
 from events.events import Events
 from game_engine.models.player import Player
 from server_gate import get_connection_handler, get_match_handler

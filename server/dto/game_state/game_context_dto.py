@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from dto.base_dto import BaseDto
-from dto.cell_dto import CellDto
-from dto.player_resources_bundle_dto import PlayerResourceBundleDto
+from dto.misc.cell_dto import CellDto
+from dto.player.player_resources_bundle_dto import PlayerResourceBundleDto
 
 if TYPE_CHECKING:
     from game_engine.models.actions.callbacks.action_callback import ActionCallback

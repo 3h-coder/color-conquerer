@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 
 from constants.game_constants import DEFAULT_SPELL_ORIGINAL_COUNT
-from dto.partial_spell_dto import PartialSpellDto
-from dto.spell_dto import SpellDto
+from dto.spell.partial_spell_dto import PartialSpellDto
+from dto.spell.spell_dto import SpellDto
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.coordinates import Coordinates
 from game_engine.models.spells.spell_id import SpellId

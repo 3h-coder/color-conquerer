@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dto.partial_spell_dto import PartialSpellDto
+from dto.spell.partial_spell_dto import PartialSpellDto
 
 
 @dataclass

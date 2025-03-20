@@ -20,10 +20,9 @@ interface GameCellProps {
 }
 
 export default function GameCell(props: GameCellProps) {
-    const { id, isPlayer1, cellInfo, canInteract, canDisplayPossibleActions } =
-        props;
-    const selectable = canInteract && isSelectable(cellInfo);
+    const { id, isPlayer1, cellInfo, canInteract, canDisplayPossibleActions } = props;
 
+    const selectable = canInteract && isSelectable(cellInfo);
     const canBeSpellTargetted = cellInfo.transientState === CellTransientState.CAN_BE_SPELL_TARGETTED;
 
     function onCellClick() {

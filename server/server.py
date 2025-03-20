@@ -5,7 +5,7 @@ from flask import Flask
 from flask_socketio import SocketIO, emit
 
 from config.logging import get_configured_logger
-from dto.error_dto import ErrorDto
+from dto.misc.error_dto import ErrorDto
 from events.connect import handle_connection
 from events.disconnect import handle_disconnection
 from events.events import Events

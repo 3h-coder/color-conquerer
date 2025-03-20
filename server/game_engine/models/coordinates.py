@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dto.coordinates_dto import CoordinatesDto
+from dto.match.coordinates_dto import CoordinatesDto
 
 
 @dataclass(frozen=True)

@@ -3,10 +3,10 @@ from threading import Lock
 
 from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
-from dto.game_context_dto import GameContextDto
-from dto.player_resources_bundle_dto import PlayerResourceBundleDto
+from dto.game_state.game_context_dto import GameContextDto
+from dto.game_state.turn_context_dto import TurnContextDto
+from dto.player.player_resources_bundle_dto import PlayerResourceBundleDto
 from dto.server_only.match_closure_dto import EndingReason
-from dto.turn_context_dto import TurnContextDto
 from game_engine.models.match_context import MatchContext
 from game_engine.models.room import Room
 from game_engine.models.turn_state import TurnState

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
-from dto.cell_dto import CellDto
-from dto.player_dto import PlayerDto
+from dto.misc.cell_dto import CellDto
+from dto.player.player_dto import PlayerDto
 
 
 @dataclass

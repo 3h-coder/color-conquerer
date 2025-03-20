@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Callable
 
 from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
-from dto.turn_context_dto import TurnContextDto
+from dto.game_state.turn_context_dto import TurnContextDto
 from handlers.match_services.client_notifications import notify_turn_swap
 from handlers.match_services.service_base import ServiceBase
 

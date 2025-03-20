@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
 from constants.game_constants import MAX_HP_VALUE, MAX_MP_VALUE
-from dto.player_resources_dto import PlayerResourcesDto
-from dto.spell_dto import SpellDto
-from dto.spells_dto import SpellsDto
+from dto.player.player_resources_dto import PlayerResourcesDto
+from dto.spell.spell_dto import SpellDto
+from dto.spell.spells_dto import SpellsDto
 from game_engine.models.spells.spell_factory import get_initial_spell_deck, get_spell
 from game_engine.models.spells.spell_id import SpellId
 

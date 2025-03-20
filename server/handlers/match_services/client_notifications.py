@@ -3,12 +3,12 @@ from typing import TYPE_CHECKING
 
 from flask_socketio import emit
 
-from dto.action_callback_dto import ActionCallbackDto
-from dto.message_dto import MessageDto
-from dto.partial_match_closure_dto import PartialMatchClosureDto
-from dto.possible_actions_dto import PossibleActionsDto
-from dto.processed_action_dto import ProcessedActionDto
-from dto.turn_context_dto import TurnContextDto
+from dto.actions.action_callback_dto import ActionCallbackDto
+from dto.actions.possible_actions_dto import PossibleActionsDto
+from dto.actions.processed_action_dto import ProcessedActionDto
+from dto.game_state.turn_context_dto import TurnContextDto
+from dto.match.partial_match_closure_dto import PartialMatchClosureDto
+from dto.misc.message_dto import MessageDto
 from events.events import Events
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.player import Player

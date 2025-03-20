@@ -3,7 +3,7 @@ from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from dto.base_dto import BaseDto
-from dto.player_dto import PlayerDto
+from dto.player.player_dto import PlayerDto
 
 if TYPE_CHECKING:
     from dto.server_only.match_closure_dto import MatchClosureDto

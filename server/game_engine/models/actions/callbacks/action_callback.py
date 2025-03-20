@@ -2,8 +2,8 @@ from functools import wraps
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
-from dto.action_callback_dto import ActionCallbackDto
-from dto.game_context_dto import GameContextDto
+from dto.actions.action_callback_dto import ActionCallbackDto
+from dto.game_state.game_context_dto import GameContextDto
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.callbacks.callback_factory import get_callback
 from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks

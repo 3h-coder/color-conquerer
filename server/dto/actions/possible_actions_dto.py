@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
-from dto.cell_dto import CellDto
+from dto.misc.cell_dto import CellDto
 
 
 @dataclass

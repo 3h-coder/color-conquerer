@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from dto.game_context_dto import GameContextDto
-from dto.turn_context_dto import TurnContextDto
+from dto.game_state.game_context_dto import GameContextDto
+from dto.game_state.turn_context_dto import TurnContextDto
 from game_engine.models.game_board import GameBoard
 from game_engine.models.turn_state import TurnState
 

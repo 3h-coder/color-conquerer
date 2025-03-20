@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dto.player_resources_dto import PlayerResourcesDto
+from dto.player.player_resources_dto import PlayerResourcesDto
 from game_engine.models.match_context import MatchContext
 from game_engine.models.turn_state import TurnState
 

@@ -4,7 +4,7 @@ import pytest
 from flask import session
 
 from constants.session_variables import ROOM_ID, SESSION_ID
-from dto.queue_player_dto import QueuePlayerDto
+from dto.player.queue_player_dto import QueuePlayerDto
 from events.events import Events
 from exceptions.queue_error import QueueError
 from server import Server

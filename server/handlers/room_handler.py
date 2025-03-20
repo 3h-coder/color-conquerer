@@ -1,5 +1,5 @@
 from config.logging import get_configured_logger
-from dto.queue_player_dto import QueuePlayerDto
+from dto.player.queue_player_dto import QueuePlayerDto
 from game_engine.models.room import Room
 from utils.id_generation_utils import generate_id
 

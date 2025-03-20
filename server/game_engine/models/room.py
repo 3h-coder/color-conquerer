@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dto.queue_player_dto import QueuePlayerDto
+from dto.player.queue_player_dto import QueuePlayerDto
 from game_engine.models.player import Player
 
 

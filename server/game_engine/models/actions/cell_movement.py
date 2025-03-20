@@ -1,5 +1,5 @@
 from constants.game_constants import BOARD_SIZE
-from dto.match_action_dto import ActionType
+from dto.actions.match_action_dto import ActionType
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.cell_action import CellAction

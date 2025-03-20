@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION
-from dto.partial_match_closure_dto import PartialMatchClosureDto
+from dto.match.partial_match_closure_dto import PartialMatchClosureDto
 from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
 from handlers.match_services.client_notifications import notify_match_ending
 from handlers.match_services.service_base import ServiceBase
