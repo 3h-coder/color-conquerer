@@ -17,6 +17,7 @@ import { ProcessedActionDto } from "../../../../dto/ProcessedActionDto";
 import { undefinedTurnContext } from "../../../../dto/TurnContextDto";
 import { Events } from "../../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../../env";
+import { cellStyle } from "../../../../style/constants";
 import {
     getCellId,
 } from "../../../../utils/cellUtils";
@@ -205,7 +206,7 @@ export default function GameGrid() {
     });
 
     const gridStyle: React.CSSProperties = {
-        transform: `${isPlayer1 ? "rotate(180deg)" : undefined}`,
+        transform: `${isPlayer1 ? cellStyle.rotate180deg : undefined}`,
         gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`,
     };
 

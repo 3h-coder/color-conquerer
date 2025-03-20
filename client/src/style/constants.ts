@@ -14,6 +14,7 @@ export const colors = {
 
 export const cellStyle = {
     className: "cell",
+    rotate180deg: "rotate(180deg)",
     classNames: {
         selectable: "selectable",
         hovered: "hovered",

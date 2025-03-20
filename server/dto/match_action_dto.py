@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 from dto.base_dto import BaseDto
 from dto.coordinates_dto import CoordinatesDto
@@ -13,3 +14,4 @@ class MatchActionDto(BaseDto):
     originatingCellCoords: CoordinatesDto
     impactedCoords: CoordinatesDto
     spell: PartialSpellDto | None
+    metadata: Any

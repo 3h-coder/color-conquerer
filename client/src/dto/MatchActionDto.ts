@@ -10,4 +10,5 @@ export interface MatchActionDto {
     impactedCoords: CoordinatesDto;
     // Only if the action type is spell
     spell: PartialSpellDto | null;
+    metadata: unknown;
 }
