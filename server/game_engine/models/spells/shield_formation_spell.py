@@ -24,12 +24,17 @@ class ShieldFormationSpell(Spell):
         # Each cell is bound to a specific square.
         # A cell can overlap on multiple squares, so we will have to choose which square
         # it is associated with.
-
         # The cooordinates key represent the cell, the int value represents the square index in _cell_squares list
-        self._cell_per_square: dict[Coordinates, int] = {}
+        self._square_per_cell: dict[Coordinates, int] = {}
         self._cell_squares: list[list[Coordinates]] = []
 
+        # Temporary field for calculations
+        self._already_associated_cells: set[Coordinates] = set()
+
     def get_possible_targets(self, transient_board: "GameBoard", from_player1: bool):
+        if len(self._already_associated_cells) > 0:
+            self._already_associated_cells = set()
+
         possible_targets: list[Coordinates] = []
         cell_pool = transient_board.get_cells_owned_by_player(from_player1)
 
@@ -41,6 +46,9 @@ class ShieldFormationSpell(Spell):
             row = top_left_cell.row_index
             col = top_left_cell.column_index
 
+            if (row, col) in self._already_associated_cells:
+                continue
+
             largest_valid_square = self._find_largest_valid_square(
                 cell_coordinates, row, col
             )
@@ -50,12 +58,19 @@ class ShieldFormationSpell(Spell):
                 self._cell_squares.append(largest_valid_square)
                 possible_targets.extend(largest_valid_square)
 
+                for cell in largest_valid_square:
+                    if cell in self._already_associated_cells:
+                        continue
+
+                    self._already_associated_cells.add(cell)
+                    self._square_per_cell[cell] = len(self._cell_squares) - 1
+
         return possible_targets
 
     def invoke(
         self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
     ):
-        corresponding_square_index = self._cell_per_square[coordinates]
+        corresponding_square_index = self._square_per_cell[coordinates]
         corresponding_square = self._cell_squares[corresponding_square_index]
 
         for cell_coords in corresponding_square:
@@ -63,16 +78,16 @@ class ShieldFormationSpell(Spell):
             cell.state.add_modifier(CellState.SHIELDED)
 
     def get_metadata_dto(self):
-        square_per_coordinates: dict[str, int] = {}
         squares_dto: list[list[CoordinatesDto]] = []
 
-        for square_index, square in enumerate(self._cell_squares):
-            square_dto = [coords.to_dto() for coords in square]
-            squares_dto.append(square_dto)
+        squares_dto = [
+            [coords.to_dto() for coords in square] for square in self._cell_squares
+        ]
 
-            for coords in square:
-                coord_key = f"{coords.row_index},{coords.column_index}"
-                square_per_coordinates[coord_key] = square_index
+        square_per_coordinates = {
+            f"{cell.row_index},{cell.column_index}": square_index
+            for (cell, square_index) in self._square_per_cell.items()
+        }
 
         return ShieldFormationMetadataDto(
             squarePerCoordinates=square_per_coordinates, squares=squares_dto

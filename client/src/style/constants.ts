@@ -15,6 +15,9 @@ export const colors = {
 export const cellStyle = {
     className: "cell",
     rotate180deg: "rotate(180deg)",
+    variableNames: {
+        backgroundColor: "--bg"
+    },
     classNames: {
         selectable: "selectable",
         hovered: "hovered",
@@ -22,4 +25,8 @@ export const cellStyle = {
         possibleSpellTarget: "possible-spell-target",
         absPosition: "absolute-positioning-centered"
     },
+};
+
+export const cellAttributes = {
+    squareId: "data-square-id"
 };

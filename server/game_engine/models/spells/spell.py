@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from constants.game_constants import DEFAULT_SPELL_ORIGINAL_COUNT
 from dto.spell.partial_spell_dto import PartialSpellDto
@@ -60,5 +60,5 @@ class Spell:
     ):
         raise NotImplementedError
 
-    def get_metadata_dto(self):
+    def get_metadata_dto(self) -> None | Any:
         return None

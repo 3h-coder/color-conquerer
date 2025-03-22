@@ -54,3 +54,4 @@ class SpellManager(ActionManager):
         self.set_player_mode(PlayerMode.SPELL_SELECTED)
         self.set_selected_spell(spell)
         self.set_possible_actions(possible_spell_invocations)
+        self.set_possible_actions_metadata(spell.get_metadata_dto())

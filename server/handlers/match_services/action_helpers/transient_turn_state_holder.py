@@ -36,6 +36,12 @@ class TransientTurnStateHolder:
     def set_possible_actions(self, actions: set[Action], update_server_mode=True):
         self.transient_turn_state.set_possible_actions(actions, update_server_mode)
 
+    def get_possible_actions_metadata(self):
+        return self.transient_turn_state.possible_actions_metadata
+
+    def set_possible_actions_metadata(self, metadata):
+        self.transient_turn_state.possible_actions_metadata = metadata
+
     def get_processed_action(self):
         return self.transient_turn_state.processed_action
 

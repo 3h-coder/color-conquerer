@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import OpponentTurnImage from "../../../../assets/images/Your Opponent Turn.png";
 import YourTurnImage from "../../../../assets/images/Your Turn.png";
-import { animateActionCallbacks as animateActionCallback, animateProcessedAction } from "../../../../board-animations/main";
+import { animateActionCallbacks as animateActionCallback, animateProcessedAction, handlePossibleActionsAdditionalData } from "../../../../board-animations/main";
 import { ContainerProps } from "../../../../components/containers";
 import { useAnimationContext } from "../../../../contexts/AnimationContext";
 import { useMatchInfo } from "../../../../contexts/MatchContext";
@@ -18,7 +18,9 @@ import { PartialSpellDto } from "../../../../dto/spell/PartialSpellDto";
 import { Events } from "../../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../../env";
 import { cellStyle } from "../../../../style/constants";
+import { create2DArray } from "../../../../utils/arrayUtils";
 import {
+    AttachedCellBehavior,
     getCellId,
 } from "../../../../utils/cellUtils";
 import { developmentLog } from "../../../../utils/loggingUtils";
@@ -44,6 +46,10 @@ export default function GameGrid() {
 
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
     const [canDisplayPossibleActions, setCanDisplayPossibleActions] = useState(true);
+    const [attachedCellBehaviors, setAttachedCellBehaviors] = useState<(AttachedCellBehavior | undefined)[][]>(
+        create2DArray<AttachedCellBehavior>(matchInfo.boardArray[0].length)
+    );
+
 
     const callbackAnimationQueueRef = useRef<ActionCallbackDto[]>([]);
 
@@ -72,6 +78,7 @@ export default function GameGrid() {
     // React to the isMyTurn change
     useEffect(() => {
         controlInteractionEnabling();
+        resetNonPermanentBehaviors();
 
         // Allows/disallows the player to interact with elements such as the game cells
         // or the end turn button according to whether it is their turn or not and if the
@@ -97,6 +104,17 @@ export default function GameGrid() {
             }, 2000);
 
             return () => clearTimeout(timeout);
+        }
+
+        function resetNonPermanentBehaviors() {
+            setAttachedCellBehaviors(prev => {
+                const newBehaviors = prev.map(row =>
+                    row.map(behavior =>
+                        behavior?.isPermanent ? behavior : undefined
+                    )
+                );
+                return newBehaviors;
+            });
         }
     }, [isMyTurn]);
 
@@ -150,8 +168,12 @@ export default function GameGrid() {
             // Update the player mode for the dependent components to react to
             setPlayerMode(possibleActions.playerMode);
 
+            const transientBoardArray = possibleActions.transientBoardArray;
             // Apply the new coloring and selectable cells
-            setBoardArray(possibleActions.transientBoardArray);
+            setBoardArray(transientBoardArray);
+
+            if (possibleActions.additionalData)
+                handlePossibleActionsAdditionalData(possibleActions, setAttachedCellBehaviors);
 
             triggerPossibleActionsAnimationSync();
         }
@@ -223,6 +245,7 @@ export default function GameGrid() {
                                 cellInfo={cellInfo}
                                 canInteract={canInteract}
                                 canDisplayPossibleActions={canDisplayPossibleActions}
+                                attachedBehavior={attachedCellBehaviors[rowIndex][colIndex]}
                             />
                         ))}
                     </GridRow>

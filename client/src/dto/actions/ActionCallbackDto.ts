@@ -1,8 +1,9 @@
-import { ActionCallbackId } from "../enums/actionCallbackId";
-import { CoordinatesDto } from "./CoordinatesDto";
-import { GameContextDto } from "./GameContextDto";
+import { ActionCallbackId } from "../../enums/actionCallbackId";
+import { GameContextDto } from "../gameState/GameContextDto";
+import { CoordinatesDto } from "../misc/CoordinatesDto";
+import { PartialSpellDto } from "../spell/PartialSpellDto";
 import { MatchActionDto } from "./MatchActionDto";
-import { PartialSpellDto } from "./PartialSpellDto";
+
 
 export interface ActionCallbackDto {
     id: ActionCallbackId;

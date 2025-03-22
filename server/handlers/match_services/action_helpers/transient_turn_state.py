@@ -1,3 +1,5 @@
+from typing import Any
+
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.cell.cell import Cell
@@ -19,6 +21,7 @@ class TransientTurnState:
     def __init__(self):
         # Used to confirm whether an action can be done or not
         self.possible_actions: set[Action] = set()
+        self.possible_actions_metadata: Any = None
         # Actions that have been validated and applied,
         # overridden each time a set of action is processed
         self.processed_action: Action | None = None
@@ -40,6 +43,7 @@ class TransientTurnState:
         self.server_mode = ServerMode.SHOW_POSSIBLE_ACTIONS
 
         self.possible_actions = set()
+        self.possible_actions_metadata = None
         self.processed_action = None
         self.triggered_callbacks = set()
 

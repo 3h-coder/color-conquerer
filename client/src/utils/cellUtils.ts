@@ -1,15 +1,22 @@
-import { CellDto } from "../dto/CellDto";
+import { CellDto } from "../dto/misc/CellDto";
 import { CellState, CellStateUtils } from "../enums/cellState";
 import { CellTransientState } from "../enums/cellTransientState";
 import { EMPTY_STRING } from "../env";
 import { cellStyle, colors } from "../style/constants";
+
+export interface AttachedCellBehavior {
+  // Temporary behaviors will automatically be upon turn swapping
+  isPermanent: boolean;
+  mouseEnter?: () => void;
+  mouseLeave?: () => void;
+}
 
 export function isOwned(cell: CellDto) {
   return cell.owner !== 0;
 }
 
 export function getCellBackgroundColor(cell: CellDto, isPlayer1: boolean) {
-  const backgroundColorVariable = "--bg";
+  const backgroundColorVariable = cellStyle.variableNames.backgroundColor;
   const style: React.CSSProperties = {};
 
   if (canBeSpawnedOrMovedInto(cell)) {
@@ -48,51 +55,11 @@ export function decolorHoveredCell(cell: CellDto) {
   removeClassName(cell.rowIndex, cell.columnIndex, cellStyle.classNames.hovered);
 }
 
-function getCellColor(cell: CellDto, isPlayer1: boolean) {
-  if (!isOwned(cell)) return colors.cell.idle;
-
-  const ownPlayer = isPlayer1 ? 1 : 2;
-
-  if (cell.owner === ownPlayer)
-    return cell.isMaster ? colors.cell.ownMaster : colors.cell.own;
-
-  return cell.isMaster ? colors.cell.opponentMaster : colors.cell.opponent;
-}
-
 export function getOwnedCellColor(isMaster: boolean, ownCell: boolean) {
   if (ownCell)
     return isMaster ? colors.cell.ownMaster : colors.cell.own;
 
   return isMaster ? colors.cell.opponentMaster : colors.cell.opponent;
-}
-
-function getFreshlySpawnedCellColor(
-  cell: CellDto,
-  isPlayer1: boolean
-) {
-  const ownPlayer = isPlayer1 ? 1 : 2;
-
-  return cell.owner === ownPlayer
-    ? colors.cell.ownCellFreshlySpawned
-    : colors.cell.opponentCellFreshlySpawned;
-}
-
-function addClassName(rowIndex: number, colIndex: number, className: string) {
-  const htmlCell = getHtmlCell(rowIndex, colIndex);
-  if (!htmlCell) return;
-
-  htmlCell.classList.add(className);
-}
-
-function removeClassName(
-  rowIndex: number,
-  colIndex: number,
-  className: string
-) {
-  const htmlCell = getHtmlCell(rowIndex, colIndex);
-  if (!htmlCell) return;
-
-  htmlCell.classList.remove(className);
 }
 
 export function getHtmlCell(rowIndex: number, columnIndex: number) {
@@ -124,4 +91,44 @@ export function isOwnedAndCanBeSpellTargetted(cell: CellDto) {
 
 export function getCellId(rowIndex: number, colIndex: number) {
   return `c-${rowIndex}-${colIndex}`;
+}
+
+function getCellColor(cell: CellDto, isPlayer1: boolean) {
+  if (!isOwned(cell)) return colors.cell.idle;
+
+  const ownPlayer = isPlayer1 ? 1 : 2;
+
+  if (cell.owner === ownPlayer)
+    return cell.isMaster ? colors.cell.ownMaster : colors.cell.own;
+
+  return cell.isMaster ? colors.cell.opponentMaster : colors.cell.opponent;
+}
+
+function getFreshlySpawnedCellColor(
+  cell: CellDto,
+  isPlayer1: boolean
+) {
+  const ownPlayer = isPlayer1 ? 1 : 2;
+
+  return cell.owner === ownPlayer
+    ? colors.cell.ownCellFreshlySpawned
+    : colors.cell.opponentCellFreshlySpawned;
+}
+
+function addClassName(rowIndex: number, colIndex: number, className: string) {
+  const htmlCell = getHtmlCell(rowIndex, colIndex);
+  if (!htmlCell) return;
+
+  htmlCell.classList.add(className);
+}
+
+function removeClassName(
+  rowIndex: number,
+  colIndex: number,
+  className: string
+) {
+  const htmlCell = getHtmlCell(rowIndex, colIndex);
+  if (!htmlCell) return;
+
+  htmlCell.classList.remove(className);
 }

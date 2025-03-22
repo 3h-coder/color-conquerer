@@ -116,15 +116,17 @@ class ActionManager(TransientTurnStateHolder):
         player_mode = self.get_player_mode()
         server_mode = self.get_server_mode()
         processed_action = self.get_processed_action()
+        possible_actions_metadata = self.get_possible_actions_metadata()
 
         # Send the possible actions
         if server_mode == ServerMode.SHOW_POSSIBLE_ACTIONS:
             notify_possible_actions(
                 PossibleActionsDto(
-                    player_mode,
-                    self._get_client_friendly_transient_board(
+                    playerMode=player_mode,
+                    transientBoardArray=self._get_client_friendly_transient_board(
                         current_player.is_player_1
                     ),
+                    additionalData=possible_actions_metadata,
                 )
             )
             return

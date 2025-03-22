@@ -9,10 +9,6 @@ from dto.misc.cell_dto import CellDto
 
 @dataclass
 class ProcessedActionDto(BaseDto):
-    """
-    Meant to be sent to the client.
-    """
-
     processedAction: MatchActionDto
     playerMode: int
     updatedGameContext: GameContextDto
