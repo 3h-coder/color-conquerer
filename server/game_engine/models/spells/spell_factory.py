@@ -1,3 +1,4 @@
+from constants.game_constants import DEFAULT_SPELL_ORIGINAL_COUNT
 from game_engine.models.spells.mine_trap_spell import MineTrapSpell
 from game_engine.models.spells.shield_formation_spell import ShieldFormationSpell
 from game_engine.models.spells.spell import Spell
@@ -17,5 +18,5 @@ def get_spell(spell_id: int) -> Spell:
 
 
 def get_initial_spell_deck():
-    # TODO : fill with other spells
-    return {SpellId.MINE_TRAP: 5, SpellId.SHIELD_FORMATION: 5}
+    spell_count = DEFAULT_SPELL_ORIGINAL_COUNT
+    return {SpellId.MINE_TRAP: spell_count, SpellId.SHIELD_FORMATION: spell_count}

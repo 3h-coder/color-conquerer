@@ -72,16 +72,6 @@ class Cell:
             id=self.id,
         )
 
-    def copy_state(self, other: "Cell"):
-        self.owner = other.owner
-        self.is_master = other.is_master
-        self.row_index = other.row_index
-        self.column_index = other.column_index
-        self.state = other.state
-        self.hidden_state_info = other.hidden_state_info.clone()
-        self.transient_state = other.transient_state
-        self.id = other.id
-
     def get_coordinates(self):
         return Coordinates(self.row_index, self.column_index)
 
@@ -101,6 +91,60 @@ class Cell:
             id=None,
         )
 
+    def clear_state(self):
+        self.state = CellState.NONE
+
+    def clear_core_state(self):
+        self.state = self.state.core_states_cleared()
+
+    # region ==is==
+
+    def is_owned(self):
+        return self.owner != CellOwner.NONE
+
+    def is_hostile_to(self, other_cell: "Cell"):
+        return (
+            self.owner != CellOwner.NONE
+            and other_cell.owner != CellOwner.NONE
+            and other_cell.owner != self.owner
+        )
+
+    def belongs_to_player_1(self):
+        return self.owner == CellOwner.PLAYER_1
+
+    def belongs_to_player_2(self):
+        return self.owner == CellOwner.PLAYER_2
+
+    def belongs_to(self, player: Player):
+        return (
+            self.owner == CellOwner.PLAYER_1
+            if player.is_player_1
+            else self.owner == CellOwner.PLAYER_2
+        )
+
+    def is_freshly_spawned(self):
+        return self.state.contains(CellState.FRESHLY_SPAWNED)
+
+    def is_mana_bubble(self):
+        return self.state.contains(CellState.MANA_BUBBLE)
+
+    def is_shielded(self):
+        return self.state.contains(CellState.SHIELDED)
+
+    def is_mine_trap(self):
+        return self.hidden_state_info.is_mine_trap()
+
+    # endregion
+
+    # region ==has==
+
+    def has_hidden_state(self):
+        return self.hidden_state_info.state != CellHiddenState.NONE
+
+    # endregion
+
+    # region ==set/do==
+
     def set_idle(self):
         self.owner = CellOwner.NONE
         self.id = None
@@ -119,12 +163,28 @@ class Cell:
         self.state = CellState.NONE
         self.transient_state = CellTransientState.NONE
 
+    def copy_state(self, other: "Cell"):
+        self.owner = other.owner
+        self.is_master = other.is_master
+        self.row_index = other.row_index
+        self.column_index = other.column_index
+        self.state = other.state
+        self.hidden_state_info = other.hidden_state_info.clone()
+        self.transient_state = other.transient_state
+        self.id = other.id
+
     def damage(
         self, player1_resources: PlayerResources, player2_resources: PlayerResources
     ):
         """
         Damages a cell, affecting the player's hp if it's a master cell, destroying it otherwise.
+
+        Remark : If the cell is shielded, the shield gets poped instead.
         """
+        if self.is_shielded():
+            self.pop_shield()
+            return
+
         if self.belongs_to_player_1() and self.is_master:
             player1_resources.current_hp -= 1
             if player1_resources.current_hp <= 0:
@@ -157,47 +217,6 @@ class Cell:
         self.owner = CellOwner.PLAYER_2
         self.id = id if id else generate_id(Cell)
         self.is_master = False
-
-    def is_owned(self):
-        return self.owner != CellOwner.NONE
-
-    def belongs_to_player_1(self):
-        return self.owner == CellOwner.PLAYER_1
-
-    def belongs_to_player_2(self):
-        return self.owner == CellOwner.PLAYER_2
-
-    def belongs_to(self, player: Player):
-        return (
-            self.owner == CellOwner.PLAYER_1
-            if player.is_player_1
-            else self.owner == CellOwner.PLAYER_2
-        )
-
-    def is_hostile_to(self, other_cell: "Cell"):
-        return (
-            self.owner != CellOwner.NONE
-            and other_cell.owner != CellOwner.NONE
-            and other_cell.owner != self.owner
-        )
-
-    def clear_state(self):
-        self.state = CellState.NONE
-
-    def clear_core_state(self):
-        self.state = self.state.core_states_cleared()
-
-    def is_freshly_spawned(self):
-        return self.state.contains(CellState.FRESHLY_SPAWNED)
-
-    def is_mana_bubble(self):
-        return self.state.contains(CellState.MANA_BUBBLE)
-
-    def is_mine_trap(self):
-        return self.hidden_state_info.is_mine_trap()
-
-    def has_hidden_state(self):
-        return self.hidden_state_info.state != CellHiddenState.NONE
 
     def set_selected(self):
         self.transient_state = CellTransientState.SELECTED
@@ -241,6 +260,11 @@ class Cell:
             state=CellHiddenState.MINE_TRAP,
             visible_to=visible_to,
         )
+
+    def pop_shield(self):
+        self.state.remove_modifier(CellState.SHIELDED)
+
+    # endregion
 
     def _get_hidden_state(self, for_player1: bool | None):
         hidden_state = CellHiddenState.NONE

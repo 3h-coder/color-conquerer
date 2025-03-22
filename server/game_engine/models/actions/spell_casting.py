@@ -40,7 +40,7 @@ class SpellCasting(Action):
             # Note : the spell here must be partial to not
             # contain the count number as it will be sent to both clients
             spell=self.spell.to_partial_dto(),
-            metadata=None,
+            metadata=self.spell.get_metadata_dto(),
         )
 
     @staticmethod

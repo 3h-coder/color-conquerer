@@ -59,3 +59,6 @@ class Spell:
         self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
     ):
         raise NotImplementedError
+
+    def get_metadata_dto(self):
+        return None
