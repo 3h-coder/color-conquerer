@@ -64,8 +64,9 @@ export default function GameGrid() {
     }
 
     useEffect(() => {
-        const cleanup = onEmit(() => {
-            resetAttachedCellBehaviors();
+        const cleanup = onEmit((event, _args) => {
+            if (event !== Events.CLIENT_CELL_CLICK)
+                resetAttachedCellBehaviors();
         });
 
         return cleanup;

@@ -18,7 +18,7 @@ import { developmentErrorLog } from "../utils/loggingUtils";
 import { useUser } from "./UserContext";
 import { socket } from "../env";
 
-type EmitCallback = () => void;
+type EmitCallback = (event: string, ...args: unknown[]) => void;
 
 interface MatchContextObject {
     matchInfo: MatchContextDto;
@@ -63,7 +63,7 @@ export default function MatchContextProvider(props: MatchContextProviderProps) {
     const emit = useCallback((event: string, ...args: unknown[]) => {
         socket.emit(event, ...args);
 
-        emitCallbacks.current.forEach(callback => callback());
+        emitCallbacks.current.forEach(callback => callback(event, ...args));
     }, []);
 
     useEffect(() => {
