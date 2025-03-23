@@ -5,8 +5,6 @@ import { EMPTY_STRING } from "../env";
 import { cellStyle, colors } from "../style/constants";
 
 export interface AttachedCellBehavior {
-  // Temporary behaviors will automatically be upon turn swapping
-  isPermanent: boolean;
   mouseEnter?: () => void;
   mouseLeave?: () => void;
 }

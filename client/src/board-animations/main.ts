@@ -10,6 +10,7 @@ import {
 import { PartialSpellDto } from "../dto/spell/PartialSpellDto";
 import { ActionCallbackId } from "../enums/actionCallbackId";
 import { ActionType } from "../enums/actionType";
+import { EMPTY_STRING } from "../env";
 import { cellAttributes, cellStyle, colors } from "../style/constants";
 import { AttachedCellBehavior, getHtmlCell } from "../utils/cellUtils";
 import { developmentLog } from "../utils/loggingUtils";
@@ -93,21 +94,25 @@ export function handlePossibleActionsAdditionalData(
             htmlCell.setAttribute(cellAttributes.squareId, squareId);
 
             const selectorQuery = `.${cellStyle.className}[${cellAttributes.squareId}="${squareId}"]`;
-            const originalBackgroundColor = htmlCell.style.getPropertyValue(cellStyle.variableNames.backgroundColor);
             const attachedCellBehavior: AttachedCellBehavior = {
-                isPermanent: false,
                 mouseEnter: () => {
                     document.querySelectorAll(selectorQuery)
                         .forEach(cell => {
-                            cell.classList.add(cellStyle.classNames.possibleSpellTarget);
-                            (cell as HTMLElement).style.setProperty(cellStyle.variableNames.backgroundColor, colors.cell.spellTargettingPossible);
+                            const htmlCellElement = cell as HTMLElement;
+                            // Store the original color as a data attribute before changing it
+                            htmlCellElement.dataset.originalColor = htmlCellElement.style.getPropertyValue(cellStyle.variableNames.backgroundColor);
+                            htmlCellElement.classList.add(cellStyle.classNames.possibleSpellTarget);
+                            htmlCellElement.style.setProperty(cellStyle.variableNames.backgroundColor, colors.cell.spellTargettingPossible);
                         });
                 },
                 mouseLeave: () => {
                     document.querySelectorAll(selectorQuery)
                         .forEach(cell => {
-                            cell.classList.remove(cellStyle.classNames.possibleSpellTarget);
-                            (cell as HTMLElement).style.setProperty(cellStyle.variableNames.backgroundColor, originalBackgroundColor);
+                            const htmlCellElement = cell as HTMLElement;
+                            htmlCellElement.classList.remove(cellStyle.classNames.possibleSpellTarget);
+                            // Restore the original color from the data attribute
+                            const originalBackgroundColor = htmlCellElement.dataset.originalColor || EMPTY_STRING;
+                            htmlCellElement.style.setProperty(cellStyle.variableNames.backgroundColor, originalBackgroundColor);
                         });
                 }
             };
