@@ -19,32 +19,45 @@ export default function GameCellModifier(props: GameCellModifierProps) {
     const { cellInfo, isPlayer1 } = props;
 
     const selected = cellInfo.transientState === CellTransientState.SELECTED;
-    const attackable = cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
-    const isManaBubble = CellStateUtils.contains(cellInfo.state, CellState.MANA_BUBBLE);
+    const attackable =
+        cellInfo.transientState === CellTransientState.CAN_BE_ATTACKED;
+    const isManaBubble = CellStateUtils.contains(
+        cellInfo.state,
+        CellState.MANA_BUBBLE
+    );
     const isMineTrap = cellInfo.hiddenState == CellHiddenState.MINE_TRAP;
+    const isShielded = CellStateUtils.contains(
+        cellInfo.state,
+        CellState.SHIELDED
+    );
     // If not owned, a background color is being applied to the cell instead
     const ownedAndCanBeSpellTargetted = isOwnedAndCanBeSpellTargetted(cellInfo);
 
     return (
         <>
             {selected && <SelectedIndicator />}
-            {attackable && <AttackableIndicator isPlayer1={isPlayer1} />}
-            {isManaBubble && <ManaBubble isPlayer1={isPlayer1} />}
-            {isMineTrap && <LandMine isPlayer1={isPlayer1} isBlinking={false} />}
+            {attackable && <AttackableIndicator rotateIcon={isPlayer1} />}
+            {isManaBubble && <ManaBubble rotateIcon={isPlayer1} />}
+            {isMineTrap && <LandMine rotateIcon={isPlayer1} isBlinking={false} />}
+            {isShielded && <Shield />}
             {ownedAndCanBeSpellTargetted && <SpellTargetIndicator />}
         </>
     );
+}
 
+interface WithIconProps {
+    rotateIcon: boolean;
 }
 
 function SelectedIndicator() {
     return (
-        <div className={`selected-indicator ${cellStyle.classNames.absPosition}`} />
+        <div className="selected-indicator" />
     );
 }
 
-function AttackableIndicator({ isPlayer1 }: { isPlayer1: boolean; }) {
-    const rotateStyle = isPlayer1 ? cellStyle.rotate180deg : undefined;
+function AttackableIndicator(props: WithIconProps) {
+    const { rotateIcon } = props;
+    const rotateStyle = rotateIcon ? cellStyle.rotate180deg : undefined;
 
     return (
         <div className={`attackable-indicator ${cellStyle.classNames.absPosition}`}>
@@ -54,12 +67,16 @@ function AttackableIndicator({ isPlayer1 }: { isPlayer1: boolean; }) {
 }
 
 function SpellTargetIndicator() {
-    return <div className={`possible-spell-target-indicator ${cellStyle.classNames.absPosition}`} />;
+    return (
+        <div className="possible-spell-target-indicator" />
+    );
 }
 
-function ManaBubble({ isPlayer1 }: { isPlayer1: boolean; }) {
-    const rotateStyle = isPlayer1 ? cellStyle.rotate180deg : undefined;
-    const description = "Gain an extra mana point when moving to this cell or spawning on it";
+function ManaBubble(props: WithIconProps) {
+    const { rotateIcon } = props;
+    const rotateStyle = rotateIcon ? cellStyle.rotate180deg : undefined;
+    const description =
+        "Gain an extra mana point when moving to this cell or spawning on it";
 
     return (
         <div className="mana-bubble">
@@ -70,13 +87,12 @@ function ManaBubble({ isPlayer1 }: { isPlayer1: boolean; }) {
     );
 }
 
-interface LandMineProps {
-    isPlayer1: boolean;
+interface LandMineProps extends WithIconProps {
     isBlinking: boolean;
 }
 
 export function LandMine(props: LandMineProps) {
-    const { isPlayer1, isBlinking } = props;
+    const { rotateIcon, isBlinking } = props;
 
     const blinkStyle: React.CSSProperties = {
         ["--color1" as string]: "black",
@@ -85,15 +101,23 @@ export function LandMine(props: LandMineProps) {
     };
 
     return (
-        <div className="land-mine absolute-positioning-centered">
+        <div className={`land-mine ${cellStyle.classNames.absPosition}`}>
             <LandMineIcon
                 style={{
                     fill: "black",
-                    transform: isPlayer1 ? cellStyle.rotate180deg : undefined,
+                    transform: rotateIcon ? cellStyle.rotate180deg : undefined,
                     animation: isBlinking ? "fill-blink 0.2s infinite" : EMPTY_STRING,
                     ...blinkStyle,
                 }}
             />
+        </div>
+    );
+}
+
+export function Shield() {
+
+    return (
+        <div className={`shield `}>
         </div>
     );
 }

@@ -262,7 +262,7 @@ class Cell:
         )
 
     def pop_shield(self):
-        self.state.remove_modifier(CellState.SHIELDED)
+        self.state = self.state.remove_modifier(CellState.SHIELDED)
 
     # endregion
 

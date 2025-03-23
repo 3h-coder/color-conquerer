@@ -18,6 +18,7 @@ import { PartialSpellDto } from "../../../../dto/spell/PartialSpellDto";
 import { Events } from "../../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../../env";
 import { cellStyle } from "../../../../style/constants";
+import { handlePossibleActionsAdditionalData } from "../../../../utils/actionHintUtils";
 import { create2DArray } from "../../../../utils/arrayUtils";
 import {
     AttachedCellBehavior,
@@ -29,7 +30,6 @@ import GameError from "./GameError";
 import SpellAction from "./SpellAction";
 import TurnSwapImage from "./TurnSwapImage";
 import "./styles/GameGrid.css";
-import { handlePossibleActionsAdditionalData } from "../../../../utils/actionHintUtils";
 
 export default function GameGrid() {
     const { matchInfo, onEmit } = useMatchContext();
@@ -48,11 +48,17 @@ export default function GameGrid() {
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
     const [canDisplayPossibleActions, setCanDisplayPossibleActions] = useState(true);
     const [attachedCellBehaviors, setAttachedCellBehaviors] = useState<(AttachedCellBehavior | undefined)[][]>(
-        create2DArray<AttachedCellBehavior>(matchInfo.boardArray[0].length)
+        create2DArray<AttachedCellBehavior>(matchInfo.boardArray.length)
     );
 
-    function resetAttachedCellBehaviors() {
-        setAttachedCellBehaviors(create2DArray<AttachedCellBehavior>(matchInfo.boardArray[0].length));
+    function cleanupAttachedCellBehaviors() {
+        attachedCellBehaviors.forEach(row => {
+            row.forEach(behavior => {
+                if (behavior?.isActive)
+                    behavior?.cleanup?.();
+            });
+        });
+        setAttachedCellBehaviors(create2DArray<AttachedCellBehavior>(matchInfo.boardArray.length));
     }
 
     const callbackAnimationQueueRef = useRef<ActionCallbackDto[]>([]);
@@ -66,7 +72,7 @@ export default function GameGrid() {
     useEffect(() => {
         const cleanup = onEmit((event, _args) => {
             if (event !== Events.CLIENT_CELL_CLICK)
-                resetAttachedCellBehaviors();
+                cleanupAttachedCellBehaviors();
         });
 
         return cleanup;
@@ -81,7 +87,7 @@ export default function GameGrid() {
     // - Enable/disable button interactions
     useEffect(() => {
         handleTurnContextAndInteraction();
-        resetAttachedCellBehaviors();
+        cleanupAttachedCellBehaviors();
 
         function handleTurnContextAndInteraction() {
             // Handle turnContext update
@@ -180,6 +186,8 @@ export default function GameGrid() {
         function onServerProcessedActions(processedActionDto: ProcessedActionDto) {
             developmentLog("Received the processed actions", processedActionDto);
 
+            cleanupAttachedCellBehaviors();
+
             // Update the player mode for the dependent components to react to
             setPlayerMode(processedActionDto.playerMode);
 
@@ -243,7 +251,7 @@ export default function GameGrid() {
                                 isPlayer1={isPlayer1}
                                 cellInfo={cellInfo}
                                 canInteract={canInteract}
-                                canDisplayPossibleActions={canDisplayPossibleActions}
+                                canDisplayAnimations={canDisplayPossibleActions}
                                 attachedBehavior={attachedCellBehaviors[rowIndex][colIndex]}
                             />
                         ))}

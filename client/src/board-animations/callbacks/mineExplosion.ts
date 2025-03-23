@@ -46,7 +46,7 @@ function showSpellCauseDescription(setActionSpell: (spellAction: PartialSpellDto
 }
 
 function showBlinkingMine(htmlCell: HTMLElement, currentPlayerisPlayer1: boolean, lifetimeDurationInMs: number) {
-    const landMine = LandMine({ isPlayer1: currentPlayerisPlayer1, isBlinking: true });
+    const landMine = LandMine({ rotateIcon: currentPlayerisPlayer1, isBlinking: true });
     const container = document.createElement(HTMLElements.div);
     // const existingLandMine = htmlCell.querySelector(".land-mine");
     // if (existingLandMine)

@@ -47,7 +47,7 @@ class CellState(IntFlag):
     def is_core_state(self):
         return bool(self & CellState.CORE_STATES)
 
-    def add_modifier(self, modifier: "CellState") -> "CellState":
+    def with_modifier(self, modifier: "CellState") -> "CellState":
         if modifier.is_core_state():
             raise ValueError("Cannot add a core state as modifier")
         return self | modifier

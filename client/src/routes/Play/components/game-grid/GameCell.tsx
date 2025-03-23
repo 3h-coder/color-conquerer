@@ -18,7 +18,7 @@ interface GameCellProps {
     isPlayer1: boolean;
     cellInfo: CellDto;
     canInteract: boolean;
-    canDisplayPossibleActions: boolean;
+    canDisplayAnimations: boolean;
     attachedBehavior?: AttachedCellBehavior;
 }
 
@@ -30,7 +30,7 @@ export default function GameCell(props: GameCellProps) {
         isPlayer1,
         cellInfo,
         canInteract,
-        canDisplayPossibleActions,
+        canDisplayAnimations,
         attachedBehavior
     } = props;
 
@@ -40,10 +40,10 @@ export default function GameCell(props: GameCellProps) {
 
     const allClassNames = [
         selectable ? cellStyle.classNames.selectable : EMPTY_STRING,
-        canDisplayPossibleActions && canBeSpawnedOrMovedInto(cellInfo)
+        canDisplayAnimations && canBeSpawnedOrMovedInto(cellInfo)
             ? cellStyle.classNames.spawnOrMovePossible
             : EMPTY_STRING,
-        canDisplayPossibleActions && canBeSpellTargetted
+        canDisplayAnimations && canBeSpellTargetted
             ? cellStyle.classNames.possibleSpellTarget
             : EMPTY_STRING,
     ];

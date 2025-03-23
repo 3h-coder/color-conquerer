@@ -23,9 +23,10 @@
 
 .possible-spell-target-indicator {
     --border-angle: 0deg;
-    width: 101%;
-    height: 101%;
+    width: 100%;
+    height: 100%;
     border: 0.2rem solid transparent;
+    position: absolute;
     background: linear-gradient(var(--bg), var(--bg)) padding-box,
     conic-gradient(
         from var(--border-angle),
@@ -58,6 +59,7 @@
     width: 100%;
     height: 100%;
     border: 0.2rem solid transparent;
+    position: absolute;
     background: linear-gradient(var(--bg), var(--bg)) padding-box,
     conic-gradient(
         from var(--border-angle),
@@ -69,6 +71,8 @@
       ) border-box;
     
     animation: border-angle-rotate 1.8s infinite linear;
+    box-sizing: border-box;
+    z-index: 1;
 }
 
 .attackable-indicator {
@@ -76,6 +80,7 @@
     height: 70%;
     background-color: transparent;
     animation: fade-in 1s infinite alternate-reverse;
+    z-index: 1;
 }
 
 .cell-clash-or-spawn-indicator {
@@ -159,4 +164,49 @@
     width: 90%;
     height: 90%;
     z-index: 1;
+}
+
+.shield {
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    position: absolute;
+    border: 0.16rem solid rgba(255, 255, 255, 0.7);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-sizing: border-box;
+}
+
+.shield::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 200%;
+    height: 40%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    animation: reflection 4s infinite linear;
+}
+
+/* Reflection Animation */
+@keyframes reflection {
+    0% {
+        transform: translateX(-100%) rotate(45deg);
+    }
+    50% {
+        transform: translateX(300%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(300%) rotate(45deg);
+    }
 }

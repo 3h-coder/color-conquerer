@@ -32,8 +32,20 @@ function handleSquareHints(
 
         const squareIndex = value;
         const square = squares[squareIndex];
+
+        function cleanupStyles(coords: { rowIndex: number, columnIndex: number; }) {
+            const htmlCellElement = getHtmlCell(coords.rowIndex, coords.columnIndex);
+            if (!htmlCellElement)
+                return;
+            htmlCellElement.classList.remove(cellStyle.classNames.possibleSpellTarget);
+            const originalBackgroundColor = htmlCellElement.dataset.originalColor || EMPTY_STRING;
+            htmlCellElement.style.setProperty(cellStyle.variableNames.backgroundColor, originalBackgroundColor);
+        }
+
         const attachedCellBehavior: AttachedCellBehavior = {
+            isActive: false,
             mouseEnter: () => {
+                attachedCellBehavior.isActive = true;
                 square.forEach(coords => {
                     const htmlCellElement = getHtmlCell(coords.rowIndex, coords.columnIndex);
                     if (!htmlCellElement)
@@ -44,15 +56,12 @@ function handleSquareHints(
                 });
             },
             mouseLeave: () => {
-                square.forEach(coords => {
-                    const htmlCellElement = getHtmlCell(coords.rowIndex, coords.columnIndex);
-                    if (!htmlCellElement)
-                        return;
-                    htmlCellElement.classList.remove(cellStyle.classNames.possibleSpellTarget);
-                    // Restore the original color from the data attribute
-                    const originalBackgroundColor = htmlCellElement.dataset.originalColor || EMPTY_STRING;
-                    htmlCellElement.style.setProperty(cellStyle.variableNames.backgroundColor, originalBackgroundColor);
-                });
+                attachedCellBehavior.isActive = false;
+                square.forEach(cleanupStyles);
+            },
+            cleanup: () => {
+                attachedCellBehavior.isActive = false;
+                square.forEach(cleanupStyles);
             }
         };
         attachedCellBehaviors[key] = attachedCellBehavior;

@@ -4,6 +4,9 @@ export enum CellState {
     // Core states (mutually exclusive)
     FRESHLY_SPAWNED = 1 << 0,
     MANA_BUBBLE = 1 << 1,
+
+    // Modifier states (can be combined)
+    SHIELDED = 1 << 8
 }
 
 // Computed constants

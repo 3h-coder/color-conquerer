@@ -5,8 +5,10 @@ import { EMPTY_STRING } from "../env";
 import { cellStyle, colors } from "../style/constants";
 
 export interface AttachedCellBehavior {
+  isActive?: boolean;
   mouseEnter?: () => void;
   mouseLeave?: () => void;
+  cleanup?: () => void;
 }
 
 export function isOwned(cell: CellDto) {
