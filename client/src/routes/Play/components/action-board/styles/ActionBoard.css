@@ -46,9 +46,40 @@
     justify-content: center;
     align-items: center;
     padding: var(--spacing-small2);
-    min-height: max(25px, 3vmin);
+    width: max(40px, 4vmin);
+    height: max(40px, 4vmin);
     background-color: var(--deep-blue);
     box-shadow: 0 0 0.5rem 0.08rem rgb(0, 0, 0, 0.1);
+    white-space: nowrap;
+
+    transition: width 0.2s ease-in-out;
+}
+
+.spell-card:enabled:hover {
+    width: max(220px, 15vmin);
+    transition: width 0.2s ease-in-out;
+}
+
+
+.spell-card:disabled .spell-mana-cost{
+    background: none;
+    background-color: var(--greyish-blue);
+}
+
+.spell-card:hovered .spell-mana-cost {
+    border: 0.1rem solid white;
+}
+
+.spell-card-content {
+    min-width: 0; /* Allow content to shrink */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+}
+
+.spell-card-name-and-count {
+    animation: fade-in 0.3s ease-in-out;
 }
 
 .spell-mana-cost {
@@ -70,24 +101,8 @@
     width: var(--spacing-medium1);
     height: var(--spacing-medium1);
 
-    transform: translate(30%, -30%);
+    transform: translate(45%, -45%);
     transition: all 0.25s ease;
-}
-
-.spell-card:disabled .spell-mana-cost{
-    background: none;
-    background-color: var(--greyish-blue);
-}
-
-.spell-card:hovered .spell-mana-cost {
-    border: 0.1rem solid white;
-}
-
-.spell-card-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.2rem;
 }
 
 .spell-description {

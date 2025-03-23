@@ -25,6 +25,8 @@
   --spacing-small2: max(8px, 1vmin);
   --spacing-medium1: max(12px, 1.5vmin);
   --spacing-medium2: max(16px, 2vmin);
+  --spacing-medium3: max(24px, 3vmin);
+  --spacing-medium4: max(30px, 3.5vmin);
 
   /*screens (does not work for media queries - only here as an indicator)*/
   --screen-width-very-small: 400px;

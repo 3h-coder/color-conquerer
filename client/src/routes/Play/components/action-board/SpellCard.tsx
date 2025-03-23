@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { InfoIcon } from "../../../../assets/svg";
 import { SvgContainer } from "../../../../components/containers";
+import { useMatchContext } from "../../../../contexts/MatchContext";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
 import { SpellDto } from "../../../../dto/spell/SpellDto";
@@ -8,7 +9,6 @@ import { Events } from "../../../../enums/events";
 import { PlayerMode } from "../../../../enums/playerMode";
 import { WHITE_SPACE } from "../../../../env";
 import { getSpellIcon } from "../shared";
-import { useMatchContext } from "../../../../contexts/MatchContext";
 
 interface SpellCardProps {
     spell: SpellDto;
@@ -104,7 +104,9 @@ export default function SpellCard(props: SpellCardProps) {
                     <SvgContainer style={{ width: iconSize, height: iconSize }}>
                         {getSpellIcon(spell.id)}
                     </SvgContainer>
-                    {spell.name} ({spell.count}/{spell.maxCount})
+                    <span className="spell-card-name-and-count" style={{ display: showDescription ? "block" : "none" }}>
+                        {spell.name} {spell.count}/{spell.maxCount}
+                    </span>
                 </div>
             </button>
             {showDescription &&
