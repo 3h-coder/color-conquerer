@@ -4,7 +4,7 @@ import { ContainerProps } from "../../components/containers";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { useAnimationContext } from "../../contexts/AnimationContext";
-import { useMatchInfo } from "../../contexts/MatchContext";
+import { useMatchContext } from "../../contexts/MatchContext";
 import { usePlayerInfo } from "../../contexts/PlayerContext";
 import { usePlayerMode } from "../../contexts/PlayerModeContext";
 import { useTurnContext } from "../../contexts/TurnContext";
@@ -29,7 +29,7 @@ export default function PlayContent() {
   const {
     loading: matchInfoLoading,
     failedToResolve: failedToResolveMatchInfo,
-  } = useMatchInfo();
+  } = useMatchContext();
   const {
     playerId,
     loading: playerInfoLoading,

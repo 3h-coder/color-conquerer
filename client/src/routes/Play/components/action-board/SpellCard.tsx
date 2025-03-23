@@ -6,8 +6,9 @@ import { useTurnContext } from "../../../../contexts/TurnContext";
 import { SpellDto } from "../../../../dto/spell/SpellDto";
 import { Events } from "../../../../enums/events";
 import { PlayerMode } from "../../../../enums/playerMode";
-import { socket, WHITE_SPACE } from "../../../../env";
+import { WHITE_SPACE } from "../../../../env";
 import { getSpellIcon } from "../shared";
+import { useMatchContext } from "../../../../contexts/MatchContext";
 
 interface SpellCardProps {
     spell: SpellDto;
@@ -15,6 +16,7 @@ interface SpellCardProps {
 
 export default function SpellCard(props: SpellCardProps) {
     const { spell } = props;
+    const { emit } = useMatchContext();
     const { canInteract } = useTurnContext();
     const { playerMode } = usePlayerMode();
     const [showDescription, setShowDescription] = useState(false);
@@ -64,7 +66,7 @@ export default function SpellCard(props: SpellCardProps) {
     }
 
     function onClick() {
-        socket.emit(Events.CLIENT_SPELL_BUTTON, spell.id);
+        emit(Events.CLIENT_SPELL_BUTTON, spell.id);
     }
 
     // Use the escape key to cancel the spell selection

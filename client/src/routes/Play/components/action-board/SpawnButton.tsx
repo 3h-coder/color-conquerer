@@ -3,12 +3,13 @@ import { LocationPinIcon } from "../../../../assets/svg";
 import { SvgContainer } from "../../../../components/containers";
 import { useTurnContext } from "../../../../contexts/TurnContext";
 import { Events } from "../../../../enums/events";
-import { socket } from "../../../../env";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { PlayerMode } from "../../../../enums/playerMode";
 import { throttle } from "../../../../utils/throttlingUtils";
+import { useMatchContext } from "../../../../contexts/MatchContext";
 
 export default function SpawnButton() {
+    const { emit } = useMatchContext();
     const { canInteract } = useTurnContext();
     const { playerMode } = usePlayerMode();
 
@@ -18,7 +19,7 @@ export default function SpawnButton() {
 
     const onClick = useCallback(
         throttle(() => {
-            socket.emit(Events.CLIENT_SPAWN_BUTTON);
+            emit(Events.CLIENT_SPAWN_BUTTON);
         }, 100), []
     );
 

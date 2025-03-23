@@ -4,7 +4,7 @@ import YourTurnImage from "../../../../assets/images/Your Turn.png";
 import { animateActionCallbacks as animateActionCallback, animateProcessedAction, handlePossibleActionsAdditionalData } from "../../../../board-animations/main";
 import { ContainerProps } from "../../../../components/containers";
 import { useAnimationContext } from "../../../../contexts/AnimationContext";
-import { useMatchInfo } from "../../../../contexts/MatchContext";
+import { useMatchContext } from "../../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../../contexts/PlayerContext";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { usePlayersGameInfo } from "../../../../contexts/PlayersGameInfoContext";
@@ -31,11 +31,11 @@ import TurnSwapImage from "./TurnSwapImage";
 import "./styles/GameGrid.css";
 
 export default function GameGrid() {
-    const { animationOngoing, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
-    const { matchInfo } = useMatchInfo();
+    const { matchInfo, onEmit } = useMatchContext();
     const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnContext, canInteract, setCanInteract } = useTurnContext();
     const { setPlayerResourceBundle } = usePlayersGameInfo();
+    const { animationOngoing, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
     const { setPlayerMode } = usePlayerMode();
 
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
@@ -50,6 +50,9 @@ export default function GameGrid() {
         create2DArray<AttachedCellBehavior>(matchInfo.boardArray[0].length)
     );
 
+    function resetAttachedCellBehaviors() {
+        setAttachedCellBehaviors(create2DArray<AttachedCellBehavior>(matchInfo.boardArray[0].length));
+    }
 
     const callbackAnimationQueueRef = useRef<ActionCallbackDto[]>([]);
 
@@ -59,64 +62,58 @@ export default function GameGrid() {
         setTimeout(() => setCanDisplayPossibleActions(true), 100); // Force a reflow
     }
 
+    useEffect(() => {
+        const cleanup = onEmit(() => {
+            resetAttachedCellBehaviors();
+        });
+
+        return cleanup;
+    }, [onEmit]);
+
     // React to a turnContext update (from either a turn change or a page refresh)
     // - Set the board array
     // - Set the players game infos (HP/MP)
+    // - Reset the error message
+    // - Reset the attached cell behaviors
+    // - Show the turn swap image
+    // - Enable/disable button interactions
     useEffect(() => {
-        handleturnContextUpdate();
+        handleTurnContextAndInteraction();
+        resetAttachedCellBehaviors();
 
-        function handleturnContextUpdate() {
+        function handleTurnContextAndInteraction() {
+            // Handle turnContext update
             setBoardArray(turnContext.gameContext.gameBoard);
             setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
             setActionErrorMessage(EMPTY_STRING);
 
-            if (turnContext === undefinedTurnContext) return;
-            setIsMyTurn(turnContext.currentPlayerId === playerId);
-        }
-    }, [turnContext]);
+            if (turnContext === undefinedTurnContext)
+                return;
 
-    // React to the isMyTurn change
-    useEffect(() => {
-        controlInteractionEnabling();
-        resetNonPermanentBehaviors();
+            const isCurrentPlayerTurn = turnContext.currentPlayerId === playerId;
+            setIsMyTurn(isCurrentPlayerTurn);
 
-        // Allows/disallows the player to interact with elements such as the game cells
-        // or the end turn button according to whether it is their turn or not and if the
-        // turn swap animation is done running.
-        function controlInteractionEnabling() {
+            // Control interaction enabling
             setCanInteract(false);
 
-            // If not a turn change, the user may interact immediately
-            // if it's their turn (typically after a page refresh)
             if (!turnContext.notifyTurnChange) {
-                setCanInteract(isMyTurn);
+                setCanInteract(isCurrentPlayerTurn);
                 return;
             }
 
             // Trigger the turn swap image animation
-            setTurnSwapImagePath(isMyTurn ? YourTurnImage : OpponentTurnImage);
+            setTurnSwapImagePath(isCurrentPlayerTurn ? YourTurnImage : OpponentTurnImage);
             setShowTurnSwapImage(true);
 
-            // The user must wait for the turn image animation to end before they can interact
+            // Wait for the turn image animation to end before allowing interaction
             const timeout = setTimeout(() => {
                 setShowTurnSwapImage(false);
-                setCanInteract(isMyTurn);
+                setCanInteract(isCurrentPlayerTurn);
             }, 2000);
 
             return () => clearTimeout(timeout);
         }
-
-        function resetNonPermanentBehaviors() {
-            setAttachedCellBehaviors(prev => {
-                const newBehaviors = prev.map(row =>
-                    row.map(behavior =>
-                        behavior?.isPermanent ? behavior : undefined
-                    )
-                );
-                return newBehaviors;
-            });
-        }
-    }, [isMyTurn]);
+    }, [turnContext, playerId]);
 
     // Action callbacks animations
     useEffect(() => {

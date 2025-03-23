@@ -1,7 +1,8 @@
+import { useMatchContext } from "../../../../contexts/MatchContext";
 import { CellDto } from "../../../../dto/misc/CellDto";
 import { CellTransientState } from "../../../../enums/cellTransientState";
 import { Events } from "../../../../enums/events";
-import { EMPTY_STRING, socket, WHITE_SPACE } from "../../../../env";
+import { EMPTY_STRING, WHITE_SPACE } from "../../../../env";
 import { cellStyle } from "../../../../style/constants";
 import {
     AttachedCellBehavior,
@@ -22,6 +23,8 @@ interface GameCellProps {
 }
 
 export default function GameCell(props: GameCellProps) {
+    const { emit } = useMatchContext();
+
     const {
         id,
         isPlayer1,
@@ -53,7 +56,7 @@ export default function GameCell(props: GameCellProps) {
     function onCellClick() {
         if (!selectable) return;
 
-        socket.emit(Events.CLIENT_CELL_CLICK, cellInfo);
+        emit(Events.CLIENT_CELL_CLICK, cellInfo);
     }
 
     const onMouseEnter = attachedBehavior?.mouseEnter;
