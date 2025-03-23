@@ -66,6 +66,7 @@ class CellMovement(CellAction):
         cell: Cell,
         player1: bool,
         transient_game_board: GameBoard,
+        allow_extra_movements: bool = True,
     ):
         """
         Returns the list of movements that an owned cell can perform.
@@ -79,16 +80,18 @@ class CellMovement(CellAction):
             new_col_index = column_index + direction[1]
 
             if not CellMovement._is_valid_movement_target(
-                new_row_index, new_col_index, cell, transient_game_board
+                new_row_index,
+                new_col_index,
+                cell,
+                transient_game_board,
             ):
                 continue
 
             target_cell: Cell = transient_game_board.get(new_row_index, new_col_index)
 
-            # Master cell extra steps
-            if cell.is_master:
+            if allow_extra_movements:
                 movements = movements.union(
-                    CellMovement._calculate_extra_master_movements(
+                    CellMovement._calculate_extra_movements(
                         cell, target_cell, player1, transient_game_board
                     )
                 )
@@ -136,8 +139,8 @@ class CellMovement(CellAction):
         CellMovement._transfer_cell(cell_original_coords, cell_new_coords)
 
     @staticmethod
-    def _calculate_extra_master_movements(
-        master_cell: Cell,
+    def _calculate_extra_movements(
+        cell: Cell,
         target_cell: Cell,
         player1: bool,
         transient_game_board: GameBoard,
@@ -147,14 +150,14 @@ class CellMovement(CellAction):
         neighbour cell.
         """
         additional_movements: set[CellMovement] = CellMovement.calculate(
-            target_cell, player1, transient_game_board
+            target_cell, player1, transient_game_board, False
         )
         return {
             CellMovement.create(
                 player1,
-                master_cell.id,
-                master_cell.row_index,
-                master_cell.column_index,
+                cell.id,
+                cell.row_index,
+                cell.column_index,
                 move.impacted_coords.row_index,
                 move.impacted_coords.column_index,
             )
@@ -163,16 +166,17 @@ class CellMovement(CellAction):
 
     @staticmethod
     def _is_valid_movement_target(
-        row_index, col_index, cell_to_move: Cell, game_board: GameBoard
+        row_index,
+        col_index,
+        cell_to_move: Cell,
+        game_board: GameBoard,
     ):
         """
-        A valid movement target is :
+        A valid movement target is:
 
         • Not out of bounds
 
-        • Not an owned cell if cell_to_move is not the master cell
-
-        • Not an enemy cell if cell_to_move is the master cell
+        • Not an enemy cell
         """
 
         if CellMovement._is_out_of_bounds(row_index) or CellMovement._is_out_of_bounds(
@@ -181,12 +185,7 @@ class CellMovement(CellAction):
             return False
 
         target_cell = game_board.get(row_index, col_index)
-
-        if cell_to_move.is_master:
-            return not target_cell.is_hostile_to(cell_to_move)
-
-        else:
-            return not target_cell.is_owned()
+        return not target_cell.is_hostile_to(cell_to_move)
 
     @staticmethod
     def _transfer_cell(old_cell: Cell, new_cell: Cell):
