@@ -27,11 +27,8 @@ class SpellManager(ActionManager):
         if player_mode == PlayerMode.IDLE:
             self._find_spell_possible_targets(spell_id)
 
-        elif player_mode == PlayerMode.SPELL_SELECTED:
-            if spell_id == selected_spell.ID:
-                self.set_player_as_idle()
-            else:
-                self._find_spell_possible_targets(spell_id)
+        elif player_mode == PlayerMode.SPELL_SELECTED and spell_id == selected_spell.ID:
+            self.set_player_as_idle()
 
         else:
             self.set_player_as_idle()

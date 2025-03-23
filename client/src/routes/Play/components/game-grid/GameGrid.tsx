@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import OpponentTurnImage from "../../../../assets/images/Your Opponent Turn.png";
 import YourTurnImage from "../../../../assets/images/Your Turn.png";
-import { animateActionCallbacks as animateActionCallback, animateProcessedAction, handlePossibleActionsAdditionalData } from "../../../../board-animations/main";
+import { animateActionCallbacks as animateActionCallback, animateProcessedAction } from "../../../../board-animations/main";
 import { ContainerProps } from "../../../../components/containers";
 import { useAnimationContext } from "../../../../contexts/AnimationContext";
 import { useMatchContext } from "../../../../contexts/MatchContext";
@@ -29,6 +29,7 @@ import GameError from "./GameError";
 import SpellAction from "./SpellAction";
 import TurnSwapImage from "./TurnSwapImage";
 import "./styles/GameGrid.css";
+import { handlePossibleActionsAdditionalData } from "../../../../utils/actionHintUtils";
 
 export default function GameGrid() {
     const { matchInfo, onEmit } = useMatchContext();

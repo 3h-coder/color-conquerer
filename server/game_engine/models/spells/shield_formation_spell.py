@@ -84,6 +84,7 @@ class ShieldFormationSpell(Spell):
             [coords.to_dto() for coords in square] for square in self._cell_squares
         ]
 
+        # ⚠️ The key format "row_index,col_index" is being used by the client
         square_per_coordinates = {
             f"{cell.row_index},{cell.column_index}": square_index
             for (cell, square_index) in self._square_per_cell.items()

@@ -1,18 +1,10 @@
 import { ActionCallbackDto } from "../dto/actions/ActionCallbackDto";
 import { MatchActionDto } from "../dto/actions/MatchActionDto";
-import { PossibleActionsDto } from "../dto/actions/PossibleActionsDto";
 import { CellDto } from "../dto/misc/CellDto";
 import { PlayerResourceBundleDto } from "../dto/player/PlayerInfoBundleDto";
-import {
-    isShieldFormationMetadata,
-    ShieldFormationMetadataDto,
-} from "../dto/spell/metadata/ShieldFormationMetadataDto";
 import { PartialSpellDto } from "../dto/spell/PartialSpellDto";
 import { ActionCallbackId } from "../enums/actionCallbackId";
 import { ActionType } from "../enums/actionType";
-import { EMPTY_STRING } from "../env";
-import { cellAttributes, cellStyle, colors } from "../style/constants";
-import { AttachedCellBehavior, getHtmlCell } from "../utils/cellUtils";
 import { developmentLog } from "../utils/loggingUtils";
 import { handleCellClashAnimation } from "./attack";
 import { animateMineExplosion } from "./callbacks/mineExplosion";
@@ -70,65 +62,6 @@ export async function animateActionCallbacks(
 
     developmentLog("Callback animation over, updating the board");
     setBoardArray(callback.updatedGameContext.gameBoard);
-}
-
-export function handlePossibleActionsAdditionalData(
-    possibleActions: PossibleActionsDto,
-    setAttachedCellBehaviors: React.Dispatch<React.SetStateAction<(AttachedCellBehavior | undefined)[][]>>
-) {
-    const additionalData = possibleActions.additionalData;
-
-    if (isShieldFormationMetadata(additionalData)) {
-        const shieldFormationMetadata = additionalData as ShieldFormationMetadataDto;
-        const squarePerCoordinates = shieldFormationMetadata.squarePerCoordinates;
-        const attachedCellBehaviors: Record<string, AttachedCellBehavior> = {};
-
-
-        Object.entries(squarePerCoordinates).forEach(([key, value]) => {
-            const [rowIndex, columnIndex] = key.split(',').map(Number);
-            const htmlCell = getHtmlCell(rowIndex, columnIndex);
-            if (!htmlCell)
-                return;
-
-            const squareId = value.toString();
-            htmlCell.setAttribute(cellAttributes.squareId, squareId);
-
-            const selectorQuery = `.${cellStyle.className}[${cellAttributes.squareId}="${squareId}"]`;
-            const attachedCellBehavior: AttachedCellBehavior = {
-                mouseEnter: () => {
-                    document.querySelectorAll(selectorQuery)
-                        .forEach(cell => {
-                            const htmlCellElement = cell as HTMLElement;
-                            // Store the original color as a data attribute before changing it
-                            htmlCellElement.dataset.originalColor = htmlCellElement.style.getPropertyValue(cellStyle.variableNames.backgroundColor);
-                            htmlCellElement.classList.add(cellStyle.classNames.possibleSpellTarget);
-                            htmlCellElement.style.setProperty(cellStyle.variableNames.backgroundColor, colors.cell.spellTargettingPossible);
-                        });
-                },
-                mouseLeave: () => {
-                    document.querySelectorAll(selectorQuery)
-                        .forEach(cell => {
-                            const htmlCellElement = cell as HTMLElement;
-                            htmlCellElement.classList.remove(cellStyle.classNames.possibleSpellTarget);
-                            // Restore the original color from the data attribute
-                            const originalBackgroundColor = htmlCellElement.dataset.originalColor || EMPTY_STRING;
-                            htmlCellElement.style.setProperty(cellStyle.variableNames.backgroundColor, originalBackgroundColor);
-                        });
-                }
-            };
-            attachedCellBehaviors[key] = attachedCellBehavior;
-        });
-
-        setAttachedCellBehaviors(prev => {
-            const newState = prev;
-            Object.entries(attachedCellBehaviors).forEach(([key, value]) => {
-                const [rowIndex, columnIndex] = key.split(',').map(Number);
-                newState[rowIndex][columnIndex] = value;
-            });
-
-            return newState;
-        });
-    }
 }
 
 async function animateCallback(
