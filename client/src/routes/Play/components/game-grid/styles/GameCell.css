@@ -83,6 +83,7 @@
     z-index: 1;
 }
 
+
 .cell-clash-or-spawn-indicator {
     position: absolute;
     width: 100%;
@@ -107,6 +108,13 @@
     /* Centering */
     transform: translate(-50%, -50%);
     animation: expansion-fade-out 0.4s ease-in-out;
+}
+
+.moving-cell {
+    animation: move-cell 0.4s ease-out forwards;
+    position: absolute;
+    pointer-events: none;
+    z-index: 10;
 }
 
 .mana-bubble {
@@ -196,6 +204,17 @@
     );
     transform: rotate(45deg);
     animation: reflection 4s infinite linear;
+}
+
+@keyframes move-cell {
+    0% {
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--target-x), var(--target-y));
+        opacity: 0;
+    }
 }
 
 /* Reflection Animation */
