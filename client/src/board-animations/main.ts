@@ -53,8 +53,7 @@ export async function animateActionCallbacks(
     stateSetters: GameStateSetters
 ) {
     developmentLog("Animating callback", callback);
-    const { setPlayerResourceBundle, setActionSpell, setBoardArray } =
-        stateSetters;
+    const { setPlayerResourceBundle, setActionSpell, setBoardArray } = stateSetters;
 
     setPlayerResourceBundle(callback.updatedGameContext.playerResourceBundle);
 

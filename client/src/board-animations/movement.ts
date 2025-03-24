@@ -41,8 +41,9 @@ export function handleCellMovementAnimation(action: MatchActionDto, boardArray: 
     // Remove clone after animation
     setTimeout(() => {
         clone.remove();
-        if (CellStateUtils.contains(targetCell.state, CellState.MANA_BUBBLE)) {
-            animateManaBubblePop(targetCoords.rowIndex, targetCoords.columnIndex);
-        }
     }, 400);
+
+    if (CellStateUtils.contains(targetCell.state, CellState.MANA_BUBBLE)) {
+        animateManaBubblePop(targetCoords.rowIndex, targetCoords.columnIndex);
+    }
 }

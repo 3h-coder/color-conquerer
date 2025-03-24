@@ -91,7 +91,7 @@
     background-color: transparent;
     z-index: 1;
 
-    animation: shadow-expansion-fade 0.6s ease-in-out;
+    animation: shadow-expansion-fade 0.4s ease-in-out;
 }
 
 .cell-explosion {
@@ -111,10 +111,10 @@
 }
 
 .moving-cell {
-    animation: move-cell 0.4s ease-out forwards;
     position: absolute;
     pointer-events: none;
     z-index: 10;
+    animation: move-cell 0.4s ease-out forwards;
 }
 
 .mana-bubble {

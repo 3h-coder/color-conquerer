@@ -4,7 +4,7 @@ import { cleanup } from "../utils/domUtils";
 
 export function animateManaBubblePop(rowIndex: number, colIndex: number) {
   const styleClasses = ["mana-bubble-pop", "absolute-positioning-centered"];
-  const cleanupDelayInMs = 650;
+  const cleanupDelayInMs = 450;
 
   const htmlCell = getHtmlCell(rowIndex, colIndex);
 
