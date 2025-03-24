@@ -19,16 +19,14 @@ import { Events } from "../../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../../env";
 import { cellStyle } from "../../../../style/constants";
 import { handlePossibleActionsAdditionalData } from "../../../../utils/actionHintUtils";
-import { create2DArray } from "../../../../utils/arrayUtils";
-import {
-    AttachedCellBehavior,
-    getCellId,
-} from "../../../../utils/cellUtils";
+import { getCellId } from "../../../../utils/cellUtils";
 import { developmentLog } from "../../../../utils/loggingUtils";
 import GameCell from "./GameCell";
 import GameError from "./GameError";
 import SpellAction from "./SpellAction";
 import TurnSwapImage from "./TurnSwapImage";
+import { useAttachedCellBehaviors } from "./hooks/useAttachedCellBehaviors";
+import { useCellEffectSync } from "./hooks/useCellEffectSync";
 import "./styles/GameGrid.css";
 
 export default function GameGrid() {
@@ -46,28 +44,14 @@ export default function GameGrid() {
     const [actionSpell, setActionSpell] = useState<PartialSpellDto | null>(null);
 
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
-    const [canDisplayPossibleActions, setCanDisplayPossibleActions] = useState(true);
-    const [attachedCellBehaviors, setAttachedCellBehaviors] = useState<(AttachedCellBehavior | undefined)[][]>(
-        create2DArray<AttachedCellBehavior>(matchInfo.boardArray.length)
-    );
-
-    function cleanupAttachedCellBehaviors() {
-        attachedCellBehaviors.forEach(row => {
-            row.forEach(behavior => {
-                if (behavior?.isActive)
-                    behavior?.cleanup?.();
-            });
-        });
-        setAttachedCellBehaviors(create2DArray<AttachedCellBehavior>(matchInfo.boardArray.length));
-    }
+    const { canDisplayCellEffects, triggerCellEffectSync } = useCellEffectSync();
+    const {
+        attachedCellBehaviors,
+        setAttachedCellBehaviors,
+        cleanupAttachedCellBehaviors
+    } = useAttachedCellBehaviors(matchInfo.boardArray.length);
 
     const callbackAnimationQueueRef = useRef<ActionCallbackDto[]>([]);
-
-    /** Used to force cells to restart their animations all together synchronously */
-    function triggerPossibleActionsAnimationSync() {
-        setCanDisplayPossibleActions(false);
-        setTimeout(() => setCanDisplayPossibleActions(true), 100); // Force a reflow
-    }
 
     useEffect(() => {
         const cleanup = onEmit((event, _args) => {
@@ -138,7 +122,7 @@ export default function GameGrid() {
                     const actionCallback = callbackAnimationQueueRef.current.shift();
                     await animateActionCallback(actionCallback!, isPlayer1, { setBoardArray, setActionSpell, setPlayerResourceBundle });
                 }
-                triggerPossibleActionsAnimationSync();
+                triggerCellEffectSync();
             } finally {
                 signalAnimationEnd();
 
@@ -180,7 +164,7 @@ export default function GameGrid() {
             if (possibleActions.additionalData)
                 handlePossibleActionsAdditionalData(possibleActions, setAttachedCellBehaviors);
 
-            triggerPossibleActionsAnimationSync();
+            triggerCellEffectSync();
         }
 
         function onServerProcessedActions(processedActionDto: ProcessedActionDto) {
@@ -200,7 +184,7 @@ export default function GameGrid() {
             // Update the board array with the new cell info
             if (isMyTurn && processedActionDto.overridingTransientBoard) {
                 setBoardArray(processedActionDto.overridingTransientBoard);
-                triggerPossibleActionsAnimationSync();
+                triggerCellEffectSync();
             } else {
                 setBoardArray(processedActionDto.updatedGameContext.gameBoard);
             }
@@ -251,7 +235,7 @@ export default function GameGrid() {
                                 isPlayer1={isPlayer1}
                                 cellInfo={cellInfo}
                                 canInteract={canInteract}
-                                canDisplayAnimations={canDisplayPossibleActions}
+                                canDisplayEffects={canDisplayCellEffects}
                                 attachedBehavior={attachedCellBehaviors[rowIndex][colIndex]}
                             />
                         ))}

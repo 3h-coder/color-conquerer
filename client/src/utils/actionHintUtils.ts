@@ -15,6 +15,10 @@ export function handlePossibleActionsAdditionalData(
     }
 }
 
+/**
+ * Handles the square hints for the shield formation spell.
+ * Shows the square that will be affected by the spell when hovering over the cell.
+ */
 function handleSquareHints(
     shieldFormationMetadata: ShieldFormationMetadataDto,
     setAttachedCellBehaviors: React.Dispatch<React.SetStateAction<(AttachedCellBehavior | undefined)[][]>>

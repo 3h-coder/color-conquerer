@@ -18,7 +18,7 @@ interface GameCellProps {
     isPlayer1: boolean;
     cellInfo: CellDto;
     canInteract: boolean;
-    canDisplayAnimations: boolean;
+    canDisplayEffects: boolean;
     attachedBehavior?: AttachedCellBehavior;
 }
 
@@ -30,7 +30,7 @@ export default function GameCell(props: GameCellProps) {
         isPlayer1,
         cellInfo,
         canInteract,
-        canDisplayAnimations,
+        canDisplayEffects,
         attachedBehavior
     } = props;
 
@@ -40,16 +40,14 @@ export default function GameCell(props: GameCellProps) {
 
     const allClassNames = [
         selectable ? cellStyle.classNames.selectable : EMPTY_STRING,
-        canDisplayAnimations && canBeSpawnedOrMovedInto(cellInfo)
+        canDisplayEffects && canBeSpawnedOrMovedInto(cellInfo)
             ? cellStyle.classNames.spawnOrMovePossible
             : EMPTY_STRING,
-        canDisplayAnimations && canBeSpellTargetted
+        canDisplayEffects && canBeSpellTargetted
             ? cellStyle.classNames.possibleSpellTarget
             : EMPTY_STRING,
     ];
-    const classes = `${cellStyle.className} ${allClassNames.join(
-        WHITE_SPACE
-    )}`.trim();
+    const classes = `${cellStyle.className} ${allClassNames.join(WHITE_SPACE)}`.trim();
 
     const computedBackgroundColor = getCellBackgroundColor(cellInfo, isPlayer1);
 
