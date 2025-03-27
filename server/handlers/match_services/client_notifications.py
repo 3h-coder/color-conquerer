@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 from flask_socketio import emit
 
 from dto.actions.action_callback_dto import ActionCallbackDto
-from dto.actions.action_error_dto import ActionErrorDto
 from dto.actions.possible_actions_dto import PossibleActionsDto
 from dto.actions.processed_action_dto import ProcessedActionDto
 from dto.game_state.turn_context_dto import TurnContextDto
@@ -87,8 +86,8 @@ def notify_triggered_callback(
         )
 
 
-def notify_action_error(action_error_dto: ActionErrorDto):
-    emit(Events.SERVER_ACTION_ERROR, action_error_dto.to_dict())
+def notify_action_error(error_msg: str):
+    emit(Events.SERVER_ACTION_ERROR, MessageDto(error_msg).to_dict())
 
 
 def notify_match_ending(match_closure_info: PartialMatchClosureDto, room_id: str):

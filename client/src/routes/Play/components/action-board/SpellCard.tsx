@@ -66,6 +66,8 @@ export default function SpellCard(props: SpellCardProps) {
     }
 
     function onClick() {
+        if (!canInteract) return;
+
         emit(Events.CLIENT_SPELL_BUTTON, spell.id);
     }
 

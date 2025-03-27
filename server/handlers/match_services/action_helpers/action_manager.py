@@ -2,7 +2,6 @@ import functools
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
-from dto.actions.action_error_dto import ActionErrorDto
 from dto.actions.possible_actions_dto import PossibleActionsDto
 from dto.actions.processed_action_dto import ProcessedActionDto
 from game_engine.models.actions.action import Action
@@ -51,8 +50,7 @@ class ActionManager(TransientTurnStateHolder):
 
         @functools.wraps(func)
         def wrapper(self: "ActionManager", *args, **kwargs):
-            if self.get_transient_game_board() is None:
-                self.set_transient_game_board(self._game_board.clone_as_transient())
+            self.set_transient_game_board(self._game_board.clone_as_transient())
             return func(self, *args, **kwargs)
 
         return wrapper
@@ -113,13 +111,7 @@ class ActionManager(TransientTurnStateHolder):
 
         if error_msg := self.get_error_message():
             self._logger.debug(f"Sending to the client the error message : {error_msg}")
-            notify_action_error(
-                ActionErrorDto(
-                    error=error_msg,
-                    playerMode=player_mode,
-                    gameBoard=self._game_board.to_dto(current_player.is_player_1),
-                )
-            )
+            notify_action_error(error_msg)
             self.set_error_message(None)
             return
 

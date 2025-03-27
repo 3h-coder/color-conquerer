@@ -22,7 +22,7 @@ class Spell:
     DESCRIPTION = ""
     MANA_COST = 0
     ORIGINAL_COUNT = DEFAULT_SPELL_ORIGINAL_COUNT
-    ERROR_MESSAGE = "Invalid spell invocation"
+    CONDITION_NOT_MET_ERROR_MESSAGE = "Cannot cast this spell"
 
     def to_dto(self, count: int):
         return SpellDto(

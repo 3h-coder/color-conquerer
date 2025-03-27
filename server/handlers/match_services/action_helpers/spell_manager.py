@@ -27,14 +27,10 @@ class SpellManager(ActionManager):
         player_mode = self.get_player_mode()
         selected_spell = self.get_selected_spell()
 
-        if player_mode == PlayerMode.IDLE:
-            self._find_spell_possible_targets(spell_id)
-
-        elif player_mode == PlayerMode.SPELL_SELECTED and spell_id == selected_spell.ID:
+        if player_mode == PlayerMode.SPELL_SELECTED and spell_id == selected_spell.ID:
             self.set_player_as_idle()
 
         else:
-            self.set_player_as_idle()
             self._find_spell_possible_targets(spell_id)
 
     @ActionManager.initialize_transient_board
@@ -55,7 +51,7 @@ class SpellManager(ActionManager):
         )
 
         if not possible_spell_invocations:
-            self.set_error_message(spell.ERROR_MESSAGE)
+            self.set_error_message(spell.CONDITION_NOT_MET_ERROR_MESSAGE)
             return
 
         self.set_player_mode(PlayerMode.SPELL_SELECTED)

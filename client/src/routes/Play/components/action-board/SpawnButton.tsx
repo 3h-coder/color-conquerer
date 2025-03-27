@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { LocationPinIcon } from "../../../../assets/svg";
 import { SvgContainer } from "../../../../components/containers";
+import { useMatchContext } from "../../../../contexts/MatchContext";
+import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
 import { Events } from "../../../../enums/events";
-import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { PlayerMode } from "../../../../enums/playerMode";
 import { throttle } from "../../../../utils/throttlingUtils";
-import { useMatchContext } from "../../../../contexts/MatchContext";
 
 export default function SpawnButton() {
     const { emit } = useMatchContext();

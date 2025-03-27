@@ -10,10 +10,10 @@ import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { usePlayersGameInfo } from "../../../../contexts/PlayersGameInfoContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
 import { ActionCallbackDto } from "../../../../dto/actions/ActionCallbackDto";
-import { ActionErrorDto } from "../../../../dto/actions/ActionErrrorDto";
 import { PossibleActionsDto } from "../../../../dto/actions/PossibleActionsDto";
 import { ProcessedActionDto } from "../../../../dto/actions/ProcessedActionDto";
 import { undefinedTurnContext } from "../../../../dto/gameState/TurnContextDto";
+import { MessageDto } from "../../../../dto/misc/MessageDto";
 import { PartialSpellDto } from "../../../../dto/spell/PartialSpellDto";
 import { Events } from "../../../../enums/events";
 import { EMPTY_STRING, socket } from "../../../../env";
@@ -198,13 +198,11 @@ export default function GameGrid() {
                 signalAnimationStart();
         }
 
-        function onServerActionError(actionErrorDto: ActionErrorDto) {
-            developmentLog("Received the game error", actionErrorDto);
+        function onServerActionError(errorMessageDto: MessageDto) {
+            const errorMessage = errorMessageDto.message;
+            developmentLog("Received the action error", errorMessage);
 
-            // Update all states in a single batch
-            setBoardArray(actionErrorDto.gameBoard);
-            setPlayerMode(actionErrorDto.playerMode);
-            setActionErrorMessage(actionErrorDto.error);
+            setActionErrorMessage(errorMessage);
         }
 
         socket.on(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
