@@ -33,7 +33,7 @@ export function handleCellMovementAnimation(action: MatchActionDto, boardArray: 
     clone.style.top = `${sourceBounds.top}px`;
     clone.style.width = `${sourceBounds.width}px`;
     clone.style.height = `${sourceBounds.height}px`;
-    clone.classList.add('moving-cell');
+    clone.classList.add('moving-cell-effect');
 
     // Add clone to body
     document.body.appendChild(clone);

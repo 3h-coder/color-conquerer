@@ -3,7 +3,7 @@ import { getHtmlCell } from "../utils/cellUtils";
 import { cleanup } from "../utils/domUtils";
 
 export function animateManaBubblePop(rowIndex: number, colIndex: number) {
-  const styleClasses = ["mana-bubble-pop", "absolute-positioning-centered"];
+  const styleClasses = ["mana-bubble-pop-effect", "absolute-positioning-centered"];
   const cleanupDelayInMs = 450;
 
   const htmlCell = getHtmlCell(rowIndex, colIndex);
@@ -19,7 +19,7 @@ export function animateManaBubblePop(rowIndex: number, colIndex: number) {
 }
 
 export function triggerAuraEffect(htmlCell: HTMLElement, colorRetriavalFunction: () => string) {
-  const styleClass = "cell-clash-or-spawn-indicator";
+  const styleClass = "clash-or-spawn-effect";
   const expansionColorVariable = "--expansion-color";
   const cleanupDelayInMs = 2000;
 

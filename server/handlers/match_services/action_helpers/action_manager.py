@@ -2,6 +2,7 @@ import functools
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
+from dto.actions.action_error_dto import ActionErrorDto
 from dto.actions.possible_actions_dto import PossibleActionsDto
 from dto.actions.processed_action_dto import ProcessedActionDto
 from game_engine.models.actions.action import Action
@@ -107,13 +108,21 @@ class ActionManager(TransientTurnStateHolder):
         Let's the client know the server's response to the player's request allowing it to render
         subsequent animations properly.
         """
+        player_mode = self.get_player_mode()
+        current_player = self.get_current_player()
+
         if error_msg := self.get_error_message():
             self._logger.debug(f"Sending to the client the error message : {error_msg}")
-            notify_action_error(error_msg)
+            notify_action_error(
+                ActionErrorDto(
+                    error=error_msg,
+                    playerMode=player_mode,
+                    gameBoard=self._game_board.to_dto(current_player.is_player_1),
+                )
+            )
+            self.set_error_message(None)
             return
 
-        current_player = self.get_current_player()
-        player_mode = self.get_player_mode()
         server_mode = self.get_server_mode()
         processed_action = self.get_processed_action()
         possible_actions_metadata = self.get_possible_actions_metadata()

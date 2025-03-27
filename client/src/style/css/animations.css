@@ -120,7 +120,7 @@
   
   @keyframes fade-out {
     0% {
-      opacity: 1;
+      opacity: var(--start-opacity, 1);
     }
     100% {
       opacity: 0;

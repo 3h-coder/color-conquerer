@@ -67,7 +67,7 @@ function triggerShockWave(htmlCell: HTMLElement) {
     const cleanupDelayInMs = 380;
 
     const explosion = document.createElement(HTMLElements.div);
-    explosion.classList.add("cell-explosion");
+    explosion.classList.add("shockwave-effect");
 
     htmlCell.appendChild(explosion);
     cleanup(explosion, cleanupDelayInMs);

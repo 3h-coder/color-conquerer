@@ -29,7 +29,7 @@ function handleSquareHints(
 
 
     Object.entries(squarePerCoordinates).forEach(([key, value]) => {
-        const [rowIndex, columnIndex] = key.split(',').map(Number);
+        const [rowIndex, columnIndex] = extractCoordsFromKey(key);
         const htmlCell = getHtmlCell(rowIndex, columnIndex);
         if (!htmlCell)
             return;
@@ -74,10 +74,18 @@ function handleSquareHints(
     setAttachedCellBehaviors(prev => {
         const newState = prev;
         Object.entries(attachedCellBehaviors).forEach(([key, value]) => {
-            const [rowIndex, columnIndex] = key.split(',').map(Number);
+            const [rowIndex, columnIndex] = extractCoordsFromKey(key);
             newState[rowIndex][columnIndex] = value;
         });
 
         return newState;
     });
+}
+
+export function extractCoordsFromKey(key: string) {
+    return key.split(',').map(Number);
+}
+
+export function convertCoordsToKey(rowIndex: number, columnIndex: number) {
+    return `${rowIndex},${columnIndex}`;
 }

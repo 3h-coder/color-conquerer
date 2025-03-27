@@ -18,6 +18,7 @@ class MineTrapSpell(Spell):
         "dealing 1 damage to all adjacent cells."
     )
     MANA_COST = 2
+    ERROR_MESSAGE = "You must select a non owned cell"
 
     def get_possible_targets(self, transient_board: "GameBoard", _):
         possible_targets: list[Coordinates] = []

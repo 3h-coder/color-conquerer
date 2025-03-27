@@ -18,6 +18,7 @@ class ShieldFormationSpell(Spell):
     NAME = "Shield formation"
     DESCRIPTION = "Select a square cell formation to apply a shield to each."
     MANA_COST = 3
+    ERROR_MESSAGE = "You do not have any square of cells to shield"
 
     def __init__(self):
         super().__init__()
