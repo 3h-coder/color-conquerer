@@ -43,9 +43,8 @@ class ShieldFormationSpell(Spell):
         cell_coordinates = {(cell.row_index, cell.column_index) for cell in cell_pool}
 
         # For each cell, try to form squares treating it as the top-left corner
-        for top_left_cell in cell_pool:
-            row = top_left_cell.row_index
-            col = top_left_cell.column_index
+        for top_left_cell_coords in cell_coordinates:
+            row, col = top_left_cell_coords
 
             if (row, col) in self._already_associated_cells:
                 continue
@@ -99,7 +98,7 @@ class ShieldFormationSpell(Spell):
 
     def _find_largest_valid_square(
         self, cell_coordinates: Coordinates, row: int, col: int
-    ):
+    ) -> None | list[Coordinates]:
         size = 1
         largest_valid_square: list[Coordinates] = None
         while True:
