@@ -1,3 +1,4 @@
+from config.logging import get_configured_logger
 from game_engine.models.actions.cell_attack import CellAttack
 from game_engine.models.actions.cell_movement import CellMovement
 from game_engine.models.actions.cell_spawn import CellSpawn
@@ -6,6 +7,8 @@ from game_engine.models.cell.cell import Cell
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.spell import Spell
 from game_engine.models.turn_state import TurnState
+
+_logger = get_configured_logger(__name__)
 
 
 def get_possible_movements_and_attacks(
@@ -36,8 +39,25 @@ def get_possible_spell_castings(
 
 
 def _has_already_moved_this_turn(cell: Cell, turn_state: TurnState):
-    return cell is not None and cell.id in turn_state.movements
+    _logger.debug("Determining if the cell has already moved this turn")
+
+    if cell.id not in turn_state.movements:
+        _logger.debug("Cell has not moved this turn")
+        return False
+
+    if cell.is_accelerated():
+        _logger.debug("Cell is accelerated")
+        _logger.debug(f"Cell has moved {turn_state.movements[cell.id]} times")
+        return turn_state.movements[cell.id] == 2
+    _logger.debug("Cell is not accelerated")
+    _logger.debug(f"Cell has moved {turn_state.movements[cell.id]} times")
+    return turn_state.movements[cell.id] == 1
 
 
 def _has_already_attacked_this_turn(cell: Cell, turn_state: TurnState):
-    return cell is not None and cell.id in turn_state.attacks
+    if cell.id not in turn_state.attacks:
+        return False
+
+    if cell.is_accelerated():
+        return turn_state.attacks[cell.id] == 2
+    return turn_state.attacks[cell.id] == 1

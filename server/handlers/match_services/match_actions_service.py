@@ -202,10 +202,10 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         self.actions_per_turn[current_turn].append(action)
 
         if isinstance(action, CellMovement):
-            self.turn_state.movements.append(action.cell_id)
+            self.turn_state.register_movement(action.cell_id)
 
         elif isinstance(action, CellAttack):
-            self.turn_state.attacks.append(action.cell_id)
+            self.turn_state.register_attack(action.cell_id)
 
     def _calculate_post_processing_possible_actions(self):
         """

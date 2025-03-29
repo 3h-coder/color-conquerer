@@ -75,7 +75,7 @@ class ShieldFormationSpell(Spell):
 
         for cell_coords in corresponding_square:
             cell = board.get(cell_coords.row_index, cell_coords.column_index)
-            cell.state = cell.state.with_modifier(CellState.SHIELDED)
+            cell.add_modifier(CellState.SHIELDED)
 
     def get_metadata_dto(self):
         squares_dto: list[list[CoordinatesDto]] = []

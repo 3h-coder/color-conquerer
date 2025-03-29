@@ -25,7 +25,12 @@ class CellState(IntFlag):
 
     # region Modifier states (can be combined)
 
+    # The shield will cancel the next damage the cell will take
+    # (if any) and will be removed afterwards
     SHIELDED = 1 << 8
+
+    # The cell can move and attack twice this turn
+    ACCELERATED = 1 << 9
 
     # endregion
 

@@ -4,6 +4,7 @@ from config.logging import get_configured_logger
 from dto.misc.coordinates_dto import CoordinatesDto
 from dto.spell.metadata.celerity_metadata_dto import CelerityMetadataDto
 from game_engine.models.cell.cell_owner import CellOwner
+from game_engine.models.cell.cell_state import CellState
 from game_engine.models.cell.cell_transient_state import CellTransientState
 from game_engine.models.coordinates import Coordinates
 from game_engine.models.spells.spell import Spell
@@ -75,7 +76,7 @@ class CeleritySpell(Spell):
 
         for cell_coords in diagonal:
             cell = board.get(cell_coords.row_index, cell_coords.column_index)
-            # cell.add_celerity_state()
+            cell.add_modifier(CellState.ACCELERATED)
 
     def get_metadata_dto(self):
         diagonals_dto: list[list[CoordinatesDto]] = []

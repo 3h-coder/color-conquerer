@@ -13,10 +13,10 @@ class TurnState:
     """
 
     is_player1_turn: bool
-    # List of the ids of the cells that attacked this turn
-    attacks: list[str]
-    # List of the ids of the cells that moved this turn
-    movements: list[str]
+    # Cells that attacked this turn, [key,value] = [cell_id, number of attacks]
+    attacks: dict[str, int]
+    # Cells that moved this turn, [key,value] = [cell_id, number of movements]
+    movements: dict[str, int]
     # List of the ids of the cells that were casted this turn
     spells: list[SpellId]
     player1_resources: PlayerResources
@@ -24,9 +24,27 @@ class TurnState:
 
     def reset_for_new_turn(self):
         self.is_player1_turn = not self.is_player1_turn
-        self.attacks = []
-        self.movements = []
+        self.attacks = {}
+        self.movements = {}
         self.spells = []
+
+    def register_attack(self, cell_id: str):
+        if not self.attacks:
+            self.attacks = {}
+
+        if cell_id not in self.attacks:
+            self.attacks[cell_id] = 1
+        else:
+            self.attacks[cell_id] += 1
+
+    def register_movement(self, cell_id: str):
+        if not self.movements:
+            self.movements = {}
+
+        if cell_id not in self.movements:
+            self.movements[cell_id] = 1
+        else:
+            self.movements[cell_id] += 1
 
     @staticmethod
     def get_initial(
@@ -36,8 +54,8 @@ class TurnState:
     ):
         return TurnState(
             is_player1_turn=player1_turn,
-            attacks=[],
-            movements=[],
+            attacks={},
+            movements={},
             spells=[],
             player1_resources=player1_resources,
             player2_resources=player2_resources,

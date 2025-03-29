@@ -123,20 +123,42 @@ class Cell:
         )
 
     def is_freshly_spawned(self):
-        return self.state.contains(CellState.FRESHLY_SPAWNED)
+        """
+        Freshly spawned cells are cells that have just been spawned and shouldn't be able to move nor attack
+        until next turn.
+        """
+        return self.has_state(CellState.FRESHLY_SPAWNED)
 
     def is_mana_bubble(self):
-        return self.state.contains(CellState.MANA_BUBBLE)
+        """
+        Mana bubbles are cells that give 1 mana point to the player who moves/spawns on them.
+        """
+        return self.has_state(CellState.MANA_BUBBLE)
 
     def is_shielded(self):
-        return self.state.contains(CellState.SHIELDED)
+        """
+        Shielded cells will pop their shield instead of taking damage.
+        """
+        return self.has_state(CellState.SHIELDED)
+
+    def is_accelerated(self):
+        """
+        Accelerated cells can move and attack twice during the turn.
+        """
+        return self.has_state(CellState.ACCELERATED)
 
     def is_mine_trap(self):
+        """
+        Mine traps are cells that explode when a player moves or spawns on them, damaging all neighbour cells.
+        """
         return self.hidden_state_info.is_mine_trap()
 
     # endregion
 
     # region ==has==
+
+    def has_state(self, state: CellState):
+        return self.state.contains(state)
 
     def has_hidden_state(self):
         return self.hidden_state_info.state != CellHiddenState.NONE
@@ -198,6 +220,9 @@ class Cell:
         else:
             self.kill()
 
+    def add_modifier(self, modifier: CellState):
+        self.state = self.state.with_modifier(modifier)
+
     def set_owned_by_player1(self, id: str = None):
         if self.owner == CellOwner.PLAYER_1:
             return
@@ -218,6 +243,8 @@ class Cell:
         self.id = id if id else generate_id(Cell)
         self.is_master = False
 
+    # region Transient states
+
     def set_selected(self):
         self.transient_state = CellTransientState.SELECTED
 
@@ -235,6 +262,8 @@ class Cell:
 
     def set_freshly_spawned(self):
         self.state = self.state.with_core_state(CellState.FRESHLY_SPAWNED)
+
+    # endregion
 
     def set_as_mana_bubble(self):
         self.state = self.state.with_core_state(CellState.MANA_BUBBLE)
