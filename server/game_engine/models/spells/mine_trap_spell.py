@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.coordinates import Coordinates
-from game_engine.models.spells.spell import Spell
+from game_engine.models.spells.abstract.spell import Spell
 from game_engine.models.spells.spell_id import SpellId
 
 if TYPE_CHECKING:

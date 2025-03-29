@@ -3,7 +3,7 @@ from game_engine.models.actions.action import Action
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
-from game_engine.models.spells.spell import Spell
+from game_engine.models.spells.abstract.spell import Spell
 
 
 class SpellCasting(Action):

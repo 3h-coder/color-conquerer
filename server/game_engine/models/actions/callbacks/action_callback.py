@@ -10,7 +10,7 @@ from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 from game_engine.models.player_resources import PlayerResources
-from game_engine.models.spells.spell import Spell
+from game_engine.models.spells.abstract.spell import Spell
 
 if TYPE_CHECKING:
     from game_engine.models.actions.action import Action

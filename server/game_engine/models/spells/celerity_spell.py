@@ -1,20 +1,18 @@
 from typing import TYPE_CHECKING
 
-from config.logging import get_configured_logger
 from dto.misc.coordinates_dto import CoordinatesDto
 from dto.spell.metadata.celerity_metadata_dto import CelerityMetadataDto
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
-from game_engine.models.cell.cell_transient_state import CellTransientState
 from game_engine.models.coordinates import Coordinates
-from game_engine.models.spells.spell import Spell
+from game_engine.models.spells.abstract.positioning_spell import PositioningSpell
 from game_engine.models.spells.spell_id import SpellId
 
 if TYPE_CHECKING:
     from game_engine.models.game_board import GameBoard
 
 
-class CeleritySpell(Spell):
+class CeleritySpell(PositioningSpell):
     ID = SpellId.CELERITY
     NAME = "Celerity"
     DESCRIPTION = "Select a diagonal line of cells to allow them to move and attack twice this turn"
@@ -25,20 +23,19 @@ class CeleritySpell(Spell):
 
     def __init__(self):
         super().__init__()
-        self._logger = get_configured_logger(__name__)
+        # Each cell is bound to a specific diagonal.
+        # A cell can overlap on multiple diagonals, so we will have to choose which diagonal
+        # it is associated with.
+        # The cooordinates key represent the cell, the int value represents the diagonal index in _cell_diagonals list
         self._diagonal_per_cell: dict[Coordinates, int] = {}
         self._cell_diagonals: list[list[Coordinates]] = []
-        self._already_associated_cells: set[Coordinates] = set()
 
     def get_possible_targets(self, transient_board: "GameBoard", from_player1: bool):
-        if len(self._already_associated_cells) > 0:
-            self._already_associated_cells = set()
-
         possible_targets: list[Coordinates] = []
-        cell_pool = transient_board.get_cells_owned_by_player(from_player1)
+        cell_coordinates = self._initialize_target_searching(
+            transient_board, from_player1
+        )
 
-        # Convert cell pool to a set of coordinates for faster lookup
-        cell_coordinates = {(cell.row_index, cell.column_index) for cell in cell_pool}
         diagonals1 = []
         diagonals2 = []
 
@@ -54,7 +51,6 @@ class CeleritySpell(Spell):
             self._add_diagonal(diagonals2, diagonal2)
 
         all_diagonals = diagonals1 + diagonals2
-        self._logger.debug(f"Found {len(all_diagonals)} diagonals: {all_diagonals}")
         for diagonal_index, diagonal in enumerate(all_diagonals):
             self._update_transient_board(transient_board, diagonal)
             # Make sure each cell is bound to only one diagonal
@@ -134,12 +130,5 @@ class CeleritySpell(Spell):
             diag for diag in diagonals if not set(diag).issubset(set(diagonal))
         ]
         diagonals.append(diagonal)
-
-    def _update_transient_board(
-        self, transient_board: "GameBoard", diagonal: list[Coordinates]
-    ):
-        for coords in diagonal:
-            transient_cell = transient_board.get(coords.row_index, coords.column_index)
-            transient_cell.transient_state = CellTransientState.CAN_BE_SPELL_TARGETTED
 
     # endregion

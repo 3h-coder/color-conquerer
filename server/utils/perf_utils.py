@@ -14,12 +14,14 @@ def with_performance_logging(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = perf_counter()
-        func(*args, **kwargs)
+        result = func(*args, **kwargs)
         end_time = perf_counter()
 
         execution_time = (end_time - start_time) * 1000  # Convert to milliseconds
         _perf_logger.info(
             f"Function '{func.__name__}' took {execution_time:.2f}ms to execute"
         )
+
+        return result
 
     return wrapper

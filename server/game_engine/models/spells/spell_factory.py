@@ -1,8 +1,8 @@
 from constants.game_constants import DEFAULT_SPELL_ORIGINAL_COUNT
+from game_engine.models.spells.abstract.spell import Spell
 from game_engine.models.spells.celerity_spell import CeleritySpell
 from game_engine.models.spells.mine_trap_spell import MineTrapSpell
 from game_engine.models.spells.shield_formation_spell import ShieldFormationSpell
-from game_engine.models.spells.spell import Spell
 from game_engine.models.spells.spell_id import SpellId
 
 _SPELLS = {

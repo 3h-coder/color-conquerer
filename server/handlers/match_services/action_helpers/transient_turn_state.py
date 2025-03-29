@@ -4,7 +4,7 @@ from game_engine.models.actions.action import Action
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.cell.cell import Cell
 from game_engine.models.game_board import GameBoard
-from game_engine.models.spells.spell import Spell
+from game_engine.models.spells.abstract.spell import Spell
 from handlers.match_services.action_helpers.player_mode import PlayerMode
 from handlers.match_services.action_helpers.server_mode import ServerMode
 

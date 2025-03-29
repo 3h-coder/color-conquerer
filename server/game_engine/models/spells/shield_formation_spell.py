@@ -6,14 +6,14 @@ from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
 from game_engine.models.cell.cell_transient_state import CellTransientState
 from game_engine.models.coordinates import Coordinates
-from game_engine.models.spells.spell import Spell
+from game_engine.models.spells.abstract.positioning_spell import PositioningSpell
 from game_engine.models.spells.spell_id import SpellId
 
 if TYPE_CHECKING:
     from game_engine.models.game_board import GameBoard
 
 
-class ShieldFormationSpell(Spell):
+class ShieldFormationSpell(PositioningSpell):
     ID = SpellId.SHIELD_FORMATION
     NAME = "Shield formation"
     DESCRIPTION = "Select a square cell formation to apply a shield to each."
@@ -29,18 +29,11 @@ class ShieldFormationSpell(Spell):
         self._square_per_cell: dict[Coordinates, int] = {}
         self._cell_squares: list[list[Coordinates]] = []
 
-        # Temporary field for calculations
-        self._already_associated_cells: set[Coordinates] = set()
-
     def get_possible_targets(self, transient_board: "GameBoard", from_player1: bool):
-        if len(self._already_associated_cells) > 0:
-            self._already_associated_cells = set()
-
         possible_targets: list[Coordinates] = []
-        cell_pool = transient_board.get_cells_owned_by_player(from_player1)
-
-        # Convert cell pool to a set of coordinates for faster lookup
-        cell_coordinates = {(cell.row_index, cell.column_index) for cell in cell_pool}
+        cell_coordinates = self._initialize_target_searching(
+            transient_board, from_player1
+        )
 
         # For each cell, try to form squares treating it as the top-left corner
         for top_left_cell_coords in cell_coordinates:
@@ -128,12 +121,5 @@ class ShieldFormationSpell(Spell):
             size += 1
 
         return largest_valid_square
-
-    def _update_transient_board(
-        self, transient_board: "GameBoard", largest_valid_square: list[Coordinates]
-    ):
-        for coords in largest_valid_square:
-            transient_cell = transient_board.get(coords.row_index, coords.column_index)
-            transient_cell.transient_state = CellTransientState.CAN_BE_SPELL_TARGETTED
 
     # endregion
