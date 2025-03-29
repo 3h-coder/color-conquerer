@@ -180,16 +180,14 @@
 .wind-spiral-trail {
     --originX: 1rem;
     position: absolute;
-    width: 0.6rem; /* Same size as the tip */
-    height: 0.6rem;
+    width: 0.4rem; /* Same size as the tip */
+    height: 0.4rem;
     background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 70%);
     border-radius: 50%;
     animation: spiral-animation 1.8s infinite linear;
 
     @media (max-width: 660px) {
         --originX: 0.6rem;
-        width: 0.4rem; /* Adjust size for smaller screens */
-        height: 0.4rem;
     }
 }
 

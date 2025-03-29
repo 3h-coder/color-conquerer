@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Callable
 
 from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
-from dto.game_state.turn_context_dto import TurnContextDto
+from game_engine.turn_change_processing import process_turn_change
 from handlers.match_services.client_notifications import notify_turn_swap
 from handlers.match_services.service_base import ServiceBase
 
@@ -86,39 +86,8 @@ class TurnWatcherService(ServiceBase):
         Performs all the processing related to turn swapping such as
         incrementing the turn or adding a mana point to the player whose turn it will be.
         """
-        self.match_context.current_turn += 1
-        self.match_context.is_player1_turn = not self.match_context.is_player1_turn
-
-        self._increment_current_player_MP()
-        self._enable_spawned_cells()
-
+        process_turn_change(self.match_context)
         self._trigger_external_callbacks()
-
-    def _enable_spawned_cells(self):
-        """
-        Cells cannot move nor attack on the turn they are spawned, so
-        we "wake them up" during the next turn.
-        """
-        current_player_cells = self.match_context.game_board.get_cells_owned_by_player(
-            self.match_context.is_player1_turn,
-        )
-        for cell in current_player_cells:
-            if cell.is_freshly_spawned():
-                cell.clear_core_state()
-
-    def _increment_current_player_MP(self):
-        """
-        Increments the current player's available mana points for the turn by 1.
-        """
-        current_turn = self.match_context.current_turn
-        current_player = self.match.get_current_player()
-
-        player_game_info = current_player.resources
-
-        remainder = current_turn % 2
-        quotient = current_turn // 2
-
-        player_game_info.current_mp = min(quotient + remainder, player_game_info.max_mp)
 
     def _trigger_external_callbacks(self):
         for callback in self._turn_swap_external_callbacks:

@@ -220,6 +220,9 @@ class Cell:
         else:
             self.kill()
 
+    def remove_state(self, state: CellState):
+        self.state = self.state.remove_state(state)
+
     def add_modifier(self, modifier: CellState):
         self.state = self.state.with_modifier(modifier)
 
@@ -291,7 +294,7 @@ class Cell:
         )
 
     def pop_shield(self):
-        self.state = self.state.remove_modifier(CellState.SHIELDED)
+        self.state = self.state.remove_state(CellState.SHIELDED)
 
     # endregion
 

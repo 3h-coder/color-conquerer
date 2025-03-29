@@ -1,9 +1,9 @@
-SESSION_ID = "session_id"  # String value
+SESSION_ID = "session_id"
 
 # Socket
-SOCKET_CONNECTED = "socket_connected"  # Boolean value
+SOCKET_CONNECTED = "socket_connected"
 
 # Match information
-ROOM_ID = "room_id"  # String value
-PLAYER_INFO = "player_info"  # String value
+ROOM_ID = "room_id"
+PLAYER_INFO = "player_info"
 IN_MATCH = "in_match"

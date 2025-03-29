@@ -57,7 +57,7 @@ class CellState(IntFlag):
             raise ValueError("Cannot add a core state as modifier")
         return self | modifier
 
-    def remove_modifier(self, modifier: "CellState") -> "CellState":
+    def remove_state(self, modifier: "CellState") -> "CellState":
         return self & ~modifier
 
     # endregion
