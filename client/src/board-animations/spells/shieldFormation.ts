@@ -1,5 +1,5 @@
 import { MatchActionDto } from "../../dto/actions/MatchActionDto";
-import { isShieldFormationMetadata, ShieldFormationMetadataDto } from "../../dto/spell/metadata/ShieldFormationMetadataDto";
+import { isPositioningMetadataDto, PositioningMetadataDto } from "../../dto/spell/metadata/PositioningMetadataDto";
 import { convertCoordsToKey } from "../../utils/actionHintUtils";
 import { getHtmlCell } from "../../utils/cellUtils";
 import { cleanup } from "../../utils/domUtils";
@@ -7,12 +7,12 @@ import { cleanup } from "../../utils/domUtils";
 export function handleShieldFormationAnimation(spellAction: MatchActionDto) {
     const metadata = spellAction.metadata;
     // Should never happen, but just in case
-    if (!isShieldFormationMetadata(metadata))
+    if (!isPositioningMetadataDto(metadata))
         return;
 
-    const shieldFormationMetadata = metadata as ShieldFormationMetadataDto;
-    const squarePerCoordinates = shieldFormationMetadata.squarePerCoordinates;
-    const squares = shieldFormationMetadata.squares;
+    const shieldFormationMetadata = metadata as PositioningMetadataDto;
+    const squarePerCoordinates = shieldFormationMetadata.formationPerCoordinates;
+    const squares = shieldFormationMetadata.cellFormations;
     const { rowIndex: chosenRowIndex, columnIndex: chosenColumnIndex } = spellAction.impactedCoords;
 
     const correspondingSquareIndex = squarePerCoordinates[convertCoordsToKey(chosenRowIndex, chosenColumnIndex)];

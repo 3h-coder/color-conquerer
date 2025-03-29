@@ -1,7 +1,5 @@
 from typing import TYPE_CHECKING
 
-from dto.misc.coordinates_dto import CoordinatesDto
-from dto.spell.metadata.celerity_metadata_dto import CelerityMetadataDto
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
 from game_engine.models.coordinates import Coordinates
@@ -20,15 +18,6 @@ class CeleritySpell(PositioningSpell):
     CONDITION_NOT_MET_ERROR_MESSAGE = (
         "You do not have any diagonal line of cells to apply celerity"
     )
-
-    def __init__(self):
-        super().__init__()
-        # Each cell is bound to a specific diagonal.
-        # A cell can overlap on multiple diagonals, so we will have to choose which diagonal
-        # it is associated with.
-        # The cooordinates key represent the cell, the int value represents the diagonal index in _cell_diagonals list
-        self._diagonal_per_cell: dict[Coordinates, int] = {}
-        self._cell_diagonals: list[list[Coordinates]] = []
 
     def get_possible_targets(self, transient_board: "GameBoard", from_player1: bool):
         possible_targets: list[Coordinates] = []
@@ -55,11 +44,11 @@ class CeleritySpell(PositioningSpell):
             self._update_transient_board(transient_board, diagonal)
             # Make sure each cell is bound to only one diagonal
             for cell_coords in diagonal:
-                if cell_coords not in self._diagonal_per_cell:
-                    self._diagonal_per_cell[cell_coords] = diagonal_index
+                if cell_coords not in self._formation_per_cell:
+                    self._formation_per_cell[cell_coords] = diagonal_index
                     self._already_associated_cells.add(cell_coords)
 
-            self._cell_diagonals.append(diagonal)
+            self._cell_formations.append(diagonal)
             possible_targets.extend(diagonal)
 
         return possible_targets
@@ -67,29 +56,12 @@ class CeleritySpell(PositioningSpell):
     def invoke(
         self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
     ):
-        diagonal_index = self._diagonal_per_cell[coordinates]
-        diagonal = self._cell_diagonals[diagonal_index]
+        diagonal_index = self._formation_per_cell[coordinates]
+        diagonal = self._cell_formations[diagonal_index]
 
         for cell_coords in diagonal:
             cell = board.get(cell_coords.row_index, cell_coords.column_index)
             cell.add_modifier(CellState.ACCELERATED)
-
-    def get_metadata_dto(self):
-        diagonals_dto: list[list[CoordinatesDto]] = []
-        diagonals_dto = [
-            [coords.to_dto() for coords in diagonal]
-            for diagonal in self._cell_diagonals
-        ]
-        # ⚠️ The key format "row_index,col_index" is being used by the client
-        diagonal_per_coordinates = {
-            f"{coords.row_index},{coords.column_index}": self._diagonal_per_cell[coords]
-            for coords in self._diagonal_per_cell
-        }
-
-        return CelerityMetadataDto(
-            diagonalPerCoordinates=diagonal_per_coordinates,
-            diagonals=diagonals_dto,
-        )
 
     # region Private methods
 

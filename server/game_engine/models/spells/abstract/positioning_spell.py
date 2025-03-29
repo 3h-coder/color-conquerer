@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from dto.misc.coordinates_dto import CoordinatesDto
+from dto.spell.metadata.positioning_metadata_dto import PositioningMetadataDto
 from game_engine.models.cell.cell_transient_state import CellTransientState
 from game_engine.models.coordinates import Coordinates
 from game_engine.models.spells.abstract.spell import Spell
@@ -16,7 +18,40 @@ class PositioningSpell(Spell):
 
     def __init__(self):
         super().__init__()
+        # A formation represents a specific arrangement of cells.
+        # A cell can overlap on multiple formations, so we will have to choose which formation
+        # it is associated with.
+        # The coordinates key represent the cell, the int value represents the formation index in _cell_formations list
+        self._formation_per_cell: dict[Coordinates, int] = {}
+        self._cell_formations: list[list[Coordinates]] = []
         self._already_associated_cells: set[Coordinates] = set()
+
+    def get_metadata_dto(self):
+        """
+        Returns the metadata of the spell, including the cell formation and the mapping
+        of coordinates to formation indices.
+        """
+        formations_dto: list[list[CoordinatesDto]] = []
+
+        formations_dto = [
+            [coords.to_dto() for coords in square] for square in self._cell_formations
+        ]
+
+        # ⚠️ The key format "row_index,col_index" is being used by the client
+        formation_per_coordinates = {
+            PositioningSpell.coordinates_to_key_string(cell_coords): square_index
+            for (cell_coords, square_index) in self._formation_per_cell.items()
+        }
+
+        return PositioningMetadataDto(
+            formationPerCoordinates=formation_per_coordinates,
+            cellFormations=formations_dto,
+        )
+
+    @staticmethod
+    def coordinates_to_key_string(coordinates: Coordinates):
+        """⚠️ The key format "row_index,col_index" is being used by the client"""
+        return f"{coordinates.row_index},{coordinates.column_index}"
 
     def _initialize_target_searching(
         self, transient_board: "GameBoard", from_player1: bool
