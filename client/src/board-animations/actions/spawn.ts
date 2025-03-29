@@ -1,8 +1,9 @@
-import { MatchActionDto } from "../dto/actions/MatchActionDto";
-import { CellDto } from "../dto/misc/CellDto";
-import { CellState, CellStateUtils } from "../enums/cellState";
-import { getHtmlCell, getOwnedCellColor } from "../utils/cellUtils";
-import { animateManaBubblePop, triggerAuraEffect } from "./common";
+import { MatchActionDto } from "../../dto/actions/MatchActionDto";
+import { CellDto } from "../../dto/misc/CellDto";
+import { CellState, CellStateUtils } from "../../enums/cellState";
+import { getHtmlCell, getOwnedCellColor } from "../../utils/cellUtils";
+import { animateManaBubblePop, triggerAuraEffect } from "../common";
+
 
 export function handleCellSpawnAnimation(action: MatchActionDto, isPlayer1: boolean, boardArray: CellDto[][]) {
     const newCellCoordinates = action.impactedCoords;

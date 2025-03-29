@@ -1,8 +1,9 @@
-import { MatchActionDto } from "../dto/actions/MatchActionDto";
-import { CellDto } from "../dto/misc/CellDto";
-import { CellState, CellStateUtils } from "../enums/cellState";
-import { getHtmlCell } from "../utils/cellUtils";
-import { animateManaBubblePop } from "./common";
+import { MatchActionDto } from "../../dto/actions/MatchActionDto";
+import { CellDto } from "../../dto/misc/CellDto";
+import { CellState, CellStateUtils } from "../../enums/cellState";
+import { getHtmlCell } from "../../utils/cellUtils";
+import { animateManaBubblePop } from "../common";
+
 
 export function handleCellMovementAnimation(action: MatchActionDto, boardArray: CellDto[][]) {
     const sourceCoords = action.originatingCellCoords;

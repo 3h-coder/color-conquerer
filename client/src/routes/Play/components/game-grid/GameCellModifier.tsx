@@ -30,6 +30,10 @@ export default function GameCellModifier(props: GameCellModifierProps) {
         cellInfo.state,
         CellState.SHIELDED
     );
+    const isAccelerated = CellStateUtils.contains(
+        cellInfo.state,
+        CellState.ACCELERATED
+    );
     // If not owned, a background color is being applied to the cell instead
     const ownedAndCanBeSpellTargetted = isOwnedAndCanBeSpellTargetted(cellInfo);
 
@@ -41,6 +45,7 @@ export default function GameCellModifier(props: GameCellModifierProps) {
             {isMineTrap && <LandMine rotateIcon={isPlayer1} isBlinking={false} />}
             {isShielded && <Shield />}
             {ownedAndCanBeSpellTargetted && <SpellTargetIndicator />}
+            {isAccelerated && <WindSpiral />}
         </>
     );
 }
@@ -115,9 +120,32 @@ export function LandMine(props: LandMineProps) {
 }
 
 export function Shield() {
+    return (
+        <div className="shield" />
+    );
+}
+
+export function WindSpiral() {
+    const trailCount = 50; // Number of trail elements
+    const trailElements = Array.from({ length: trailCount }, (_, index) => {
+        const delay = `${index * 0.006}s`; // Staggered animation delay
+        const opacity = 1 - index * 0.1; // Gradually decrease opacity
+
+        return (
+            <div
+                key={index}
+                className="wind-spiral-trail"
+                style={{
+                    animationDelay: delay,
+                    opacity: opacity,
+                }}
+            />
+        );
+    });
 
     return (
-        <div className={`shield `}>
+        <div className="wind-spiral">
+            {trailElements}
         </div>
     );
 }

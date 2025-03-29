@@ -29,22 +29,10 @@ class TurnState:
         self.spells = []
 
     def register_attack(self, cell_id: str):
-        if not self.attacks:
-            self.attacks = {}
-
-        if cell_id not in self.attacks:
-            self.attacks[cell_id] = 1
-        else:
-            self.attacks[cell_id] += 1
+        self._internal_register(cell_id, self.attacks)
 
     def register_movement(self, cell_id: str):
-        if not self.movements:
-            self.movements = {}
-
-        if cell_id not in self.movements:
-            self.movements[cell_id] = 1
-        else:
-            self.movements[cell_id] += 1
+        self._internal_register(cell_id, self.movements)
 
     @staticmethod
     def get_initial(
@@ -60,3 +48,9 @@ class TurnState:
             player1_resources=player1_resources,
             player2_resources=player2_resources,
         )
+
+    def _internal_register(self, cell_id: str, dictionary: dict[str, int]):
+        if cell_id not in dictionary:
+            dictionary[cell_id] = 1
+        else:
+            dictionary[cell_id] += 1

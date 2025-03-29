@@ -6,7 +6,8 @@ export enum CellState {
     MANA_BUBBLE = 1 << 1,
 
     // Modifier states (can be combined)
-    SHIELDED = 1 << 8
+    SHIELDED = 1 << 8,
+    ACCELERATED = 1 << 9,
 }
 
 // Computed constants

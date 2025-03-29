@@ -6,11 +6,11 @@ import { PartialSpellDto } from "../dto/spell/PartialSpellDto";
 import { ActionCallbackId } from "../enums/actionCallbackId";
 import { ActionType } from "../enums/actionType";
 import { developmentLog } from "../utils/loggingUtils";
-import { handleCellClashAnimation } from "./attack";
+import { handleCellClashAnimation } from "./actions/attack";
+import { handleCellMovementAnimation } from "./actions/movement";
+import { handleCellSpawnAnimation } from "./actions/spawn";
 import { animateMineExplosion } from "./callbacks/mineExplosion";
-import { handleCellMovementAnimation } from "./movement";
-import { handleCellSpawnAnimation } from "./spawn";
-import { handleSpellCastingAnimation } from "./spell";
+import { handleSpellCastingAnimation } from "./spells/spell";
 
 export interface GameStateSetters {
     setBoardArray: (boardArray: CellDto[][]) => void;

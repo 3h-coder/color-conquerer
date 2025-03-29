@@ -1,6 +1,7 @@
-import { MatchActionDto } from "../dto/actions/MatchActionDto";
-import { getHtmlCell } from "../utils/cellUtils";
-import { triggerAuraEffect } from "./common";
+import { MatchActionDto } from "../../dto/actions/MatchActionDto";
+import { getHtmlCell } from "../../utils/cellUtils";
+import { triggerAuraEffect } from "../common";
+
 
 export function handleCellClashAnimation(action: MatchActionDto) {
     const attackerCoords = action.originatingCellCoords;

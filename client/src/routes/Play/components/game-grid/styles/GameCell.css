@@ -168,6 +168,31 @@
     animation: half-fade-in 1s infinite alternate-reverse;
 }
 
+.wind-spiral {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wind-spiral-trail {
+    --originX: 1rem;
+    position: absolute;
+    width: 0.6rem; /* Same size as the tip */
+    height: 0.6rem;
+    background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 70%);
+    border-radius: 50%;
+    animation: spiral-animation 1.8s infinite linear;
+
+    @media (max-width: 660px) {
+        --originX: 0.6rem;
+        width: 0.4rem; /* Adjust size for smaller screens */
+        height: 0.4rem;
+    }
+}
+
 /* #endregion */
 
 /* #region Effects */
@@ -260,6 +285,22 @@
     }
     100% {
         transform: translateX(300%) rotate(45deg);
+    }
+}
+
+
+@keyframes spiral-animation {
+    0% {
+        transform: rotate(0deg) translateX(var(--originX, 1rem)) scale(0.7); /* Start at the outer edge */
+        opacity: 1;
+    }
+    30% {
+        transform: rotate(720deg) translateX(0) scale(0.2); /* Move to the center while shrinking */
+        opacity: 0; /* Fade out as it approaches the center */
+    }
+    100% {
+        transform: rotate(720deg) translateX(0) scale(0.2);
+        opacity: 0;
     }
 }
 

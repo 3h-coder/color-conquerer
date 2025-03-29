@@ -1,9 +1,9 @@
-import { MatchActionDto } from "../dto/actions/MatchActionDto";
-import { PartialSpellDto } from "../dto/spell/PartialSpellDto";
-import { SpellId } from "../enums/spellId";
-import { localStorageKeys } from "../env";
-import { developmentErrorLog } from "../utils/loggingUtils";
-import { handleShieldFormationAnimation } from "./spells/shieldFormation";
+import { MatchActionDto } from "../../dto/actions/MatchActionDto";
+import { PartialSpellDto } from "../../dto/spell/PartialSpellDto";
+import { SpellId } from "../../enums/spellId";
+import { localStorageKeys } from "../../env";
+import { developmentErrorLog } from "../../utils/loggingUtils";
+import { handleShieldFormationAnimation } from "./shieldFormation";
 
 export function handleSpellCastingAnimation(
     spellAction: MatchActionDto,
