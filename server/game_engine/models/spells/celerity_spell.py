@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
+from dto.misc.coordinates_dto import CoordinatesDto
+from dto.spell.metadata.celerity_metadata_dto import CelerityMetadataDto
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_transient_state import CellTransientState
 from game_engine.models.coordinates import Coordinates
@@ -51,6 +53,7 @@ class CeleritySpell(Spell):
             self._add_diagonal(diagonals2, diagonal2)
 
         all_diagonals = diagonals1 + diagonals2
+        self._logger.debug(f"Found {len(all_diagonals)} diagonals: {all_diagonals}")
         for diagonal_index, diagonal in enumerate(all_diagonals):
             self._update_transient_board(transient_board, diagonal)
             # Make sure each cell is bound to only one diagonal
@@ -73,6 +76,23 @@ class CeleritySpell(Spell):
         for cell_coords in diagonal:
             cell = board.get(cell_coords.row_index, cell_coords.column_index)
             # cell.add_celerity_state()
+
+    def get_metadata_dto(self):
+        diagonals_dto: list[list[CoordinatesDto]] = []
+        diagonals_dto = [
+            [coords.to_dto() for coords in diagonal]
+            for diagonal in self._cell_diagonals
+        ]
+        # ⚠️ The key format "row_index,col_index" is being used by the client
+        diagonal_per_coordinates = {
+            f"{coords.row_index},{coords.column_index}": self._diagonal_per_cell[coords]
+            for coords in self._diagonal_per_cell
+        }
+
+        return CelerityMetadataDto(
+            diagonalPerCoordinates=diagonal_per_coordinates,
+            diagonals=diagonals_dto,
+        )
 
     # region Private methods
 

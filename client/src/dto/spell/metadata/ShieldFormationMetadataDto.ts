@@ -11,6 +11,7 @@ export function isShieldFormationMetadata(data: unknown) {
         typeof data === 'object' &&
         'squarePerCoordinates' in data &&
         'squares' in data &&
-        Array.isArray(data.squares)
+        Array.isArray(data.squares) &&
+        (data as ShieldFormationMetadataDto).squares.every(Array.isArray)
     );
 } 
