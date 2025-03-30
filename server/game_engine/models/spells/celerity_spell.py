@@ -14,7 +14,7 @@ class CeleritySpell(PositioningSpell):
     ID = SpellId.CELERITY
     NAME = "Celerity"
     DESCRIPTION = "Select a diagonal line of cells to allow them to move and attack twice this turn"
-    MANA_COST = 0
+    MANA_COST = 1
     CONDITION_NOT_MET_ERROR_MESSAGE = (
         "You do not have any diagonal line of cells to apply celerity"
     )

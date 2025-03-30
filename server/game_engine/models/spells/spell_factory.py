@@ -21,8 +21,9 @@ def get_spell(spell_id: int) -> Spell:
 
 def get_initial_spell_deck():
     spell_count = DEFAULT_SPELL_ORIGINAL_COUNT
+    # ranked by mana cost (least expensive to most expensive)
     return {
+        SpellId.CELERITY: spell_count,
         SpellId.MINE_TRAP: spell_count,
         SpellId.SHIELD_FORMATION: spell_count,
-        SpellId.CELERITY: spell_count,
     }

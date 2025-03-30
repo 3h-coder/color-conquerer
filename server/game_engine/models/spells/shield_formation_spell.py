@@ -71,7 +71,7 @@ class ShieldFormationSpell(PositioningSpell):
             if bottom_right not in cell_coordinates:
                 break
 
-                # Check if all cells in the square belong to the player
+            # Check if all cells in the square belong to the player
             valid_square = True
             coordinates_square: list[Coordinates] = []
             for r in range(row, row + size + 1):

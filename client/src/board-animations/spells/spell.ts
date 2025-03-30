@@ -3,6 +3,7 @@ import { PartialSpellDto } from "../../dto/spell/PartialSpellDto";
 import { SpellId } from "../../enums/spellId";
 import { localStorageKeys } from "../../env";
 import { developmentErrorLog } from "../../utils/loggingUtils";
+import { handleCelerityAnimation } from "./celerity";
 import { handleShieldFormationAnimation } from "./shieldFormation";
 
 export function handleSpellCastingAnimation(
@@ -30,6 +31,10 @@ function handleSpellAnimation(spellAction: MatchActionDto) {
     switch (spellId) {
         case SpellId.SHIELD_FORMATION:
             handleShieldFormationAnimation(spellAction);
+            break;
+
+        case SpellId.CELERITY:
+            handleCelerityAnimation(spellAction);
             break;
 
         default:
