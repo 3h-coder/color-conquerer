@@ -16,6 +16,9 @@ class ShieldFormationSpell(PositioningSpell):
     DESCRIPTION = "Select a square cell formation to apply a shield to each."
     MANA_COST = 3
     CONDITION_NOT_MET_ERROR_MESSAGE = "You do not have any square of cells to shield"
+    INVALID_SELECTION_ERROR_MESSAGE = (
+        "You must select a square of friendly cells to shield"
+    )
 
     def get_possible_targets(self, transient_board: "GameBoard", from_player1: bool):
         possible_targets: list[Coordinates] = []
@@ -34,7 +37,10 @@ class ShieldFormationSpell(PositioningSpell):
                 cell_coordinates, row, col
             )
 
-            if largest_valid_square is not None:
+            if (
+                largest_valid_square is not None
+                and not self._is_subsquare_of_existing_square(largest_valid_square)
+            ):
                 self._update_transient_board(transient_board, largest_valid_square)
                 self._cell_formations.append(largest_valid_square)
                 possible_targets.extend(largest_valid_square)
@@ -92,5 +98,15 @@ class ShieldFormationSpell(PositioningSpell):
             size += 1
 
         return largest_valid_square
+
+    def _is_subsquare_of_existing_square(self, square: list[Coordinates]):
+        """
+        Checks if the given square is a subsquare of any square in self._cell_formations.
+        """
+        square_set = set(square)
+        for existing_square in self._cell_formations:
+            if square_set.issubset(set(existing_square)):
+                return True
+        return False
 
     # endregion

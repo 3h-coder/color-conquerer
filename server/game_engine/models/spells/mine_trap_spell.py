@@ -19,6 +19,9 @@ class MineTrapSpell(Spell):
     )
     MANA_COST = 2
     CONDITION_NOT_MET_ERROR_MESSAGE = "No available cell"
+    INVALID_SELECTION_ERROR_MESSAGE = (
+        "You must select an idle cell to place a mine trap onto"
+    )
 
     def get_possible_targets(self, transient_board: "GameBoard", _):
         possible_targets: list[Coordinates] = []

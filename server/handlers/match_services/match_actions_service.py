@@ -135,7 +135,13 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
             self._logger.error(
                 f"The following action was not registered in the possible actions : {action}"
             )
-            self.set_error_message(ErrorMessages.INVALID_ACTION)
+
+            player_mode = self.get_player_mode()
+            if player_mode == PlayerMode.SPELL_SELECTED:
+                selected_spell = self.get_selected_spell()
+                self.set_error_message(selected_spell.INVALID_SELECTION_ERROR_MESSAGE)
+            else:
+                self.set_error_message(ErrorMessages.INVALID_ACTION)
             return
 
         if action.mana_cost > self.current_player.resources.current_mp:

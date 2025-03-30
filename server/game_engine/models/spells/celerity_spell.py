@@ -18,6 +18,9 @@ class CeleritySpell(PositioningSpell):
     CONDITION_NOT_MET_ERROR_MESSAGE = (
         "You do not have any diagonal line of cells to apply celerity"
     )
+    INVALID_SELECTION_ERROR_MESSAGE = (
+        "You must select a diagonal line of friendly cells to apply celerity"
+    )
 
     def get_possible_targets(self, transient_board: "GameBoard", from_player1: bool):
         possible_targets: list[Coordinates] = []

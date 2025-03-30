@@ -23,6 +23,7 @@ class Spell:
     MANA_COST = 0
     ORIGINAL_COUNT = DEFAULT_SPELL_ORIGINAL_COUNT
     CONDITION_NOT_MET_ERROR_MESSAGE = "Cannot cast this spell"
+    INVALID_SELECTION_ERROR_MESSAGE = "Invalid selection for this spell"
 
     def to_dto(self, count: int):
         return SpellDto(
