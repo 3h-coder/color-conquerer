@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { LandMineIcon, SwordIcon } from "../../../../assets/svg";
 import { CellDto } from "../../../../dto/misc/CellDto";
 import { CellHiddenState } from "../../../../enums/cellHiddenState";
@@ -6,6 +7,7 @@ import { CellTransientState } from "../../../../enums/cellTransientState";
 import { EMPTY_STRING } from "../../../../env";
 import { cellStyle } from "../../../../style/constants";
 import { isOwnedAndCanBeSpellTargetted } from "../../../../utils/cellUtils";
+import { bindTooltip } from "../../../../utils/tooltipUtils";
 
 interface GameCellModifierProps {
     cellInfo: CellDto;
@@ -41,7 +43,7 @@ export default function GameCellModifier(props: GameCellModifierProps) {
         <>
             {selected && <SelectedIndicator />}
             {attackable && <AttackableIndicator rotateIcon={isPlayer1} />}
-            {isManaBubble && <ManaBubble rotateIcon={isPlayer1} />}
+            {isManaBubble && <ManaBubble />}
             {isMineTrap && <LandMine rotateIcon={isPlayer1} isBlinking={false} />}
             {isShielded && <Shield />}
             {ownedAndCanBeSpellTargetted && <SpellTargetIndicator />}
@@ -77,17 +79,18 @@ function SpellTargetIndicator() {
     );
 }
 
-function ManaBubble(props: WithIconProps) {
-    const { rotateIcon } = props;
-    const rotateStyle = rotateIcon ? cellStyle.rotate180deg : undefined;
+function ManaBubble() {
+    const bubbleRef = useRef<HTMLDivElement>(null);
     const description =
         "Gain an extra mana point when moving to this cell or spawning on it";
 
+    useEffect(() => {
+        const cleanup = bindTooltip(bubbleRef, description);
+        return cleanup;
+    }, [description]);
+
     return (
-        <div className="mana-bubble">
-            <div className="mana-bubble-description">
-                <div style={{ transform: rotateStyle }}>{description}</div>
-            </div>
+        <div className="mana-bubble" ref={bubbleRef}>
         </div>
     );
 }

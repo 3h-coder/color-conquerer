@@ -1,3 +1,5 @@
+import { HTMLElements } from "../env";
+
 /**
  * Removes the specified DOM element from the page
  * after the specified delay using the setTimeout API.
@@ -15,4 +17,17 @@ export function cleanupStyleClass(element: HTMLElement, styleClass: string, dela
 
 export function delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function getOrCreateDomElement(id: string, parent?: HTMLElement) {
+    let element = document.getElementById(id);
+    if (!element) {
+        element = document.createElement(HTMLElements.div);
+        element.id = id;
+        if (parent)
+            parent.appendChild(element);
+        else
+            document.body.appendChild(element);
+    }
+    return element;
 }

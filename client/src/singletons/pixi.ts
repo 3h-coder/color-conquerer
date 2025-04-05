@@ -26,7 +26,7 @@ function createPixiApp() {
 /** Sets up the pixi canvas element into the page */
 function createPixiOverlay(app: Application) {
     const pixiOverlay = document.createElement(HTMLElements.div);
-    pixiOverlay.classList.add("pixi-overlay");
+    pixiOverlay.id = "pixi-overlay";
     pixiOverlay.appendChild(app.view);
     document.getElementById("pixi-root")?.appendChild(pixiOverlay);
 }

@@ -2,8 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BugIcon, InfoIcon, WarningTriangleIcon, XMarkIcon } from "../../assets/svg";
 import { ModalIcon } from "../../enums/modalIcons";
-import { HTMLElements } from "../../env";
 import { SvgContainer } from "../containers";
+import { getOrCreateDomElement } from "../../utils/domUtils";
 
 export interface ModalProps {
     isOpenState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
@@ -101,12 +101,5 @@ function CloseButton(props: CloseButtonProps) {
 }
 
 function getModalRoot() {
-    const modalRootId = "modal-root";
-    let modalRoot = document.getElementById(modalRootId);
-    if (!modalRoot) {
-        modalRoot = document.createElement(HTMLElements.div);
-        modalRoot.id = modalRootId;
-        document.body.appendChild(modalRoot);
-    }
-    return modalRoot;
+    return getOrCreateDomElement("modal-root");
 }

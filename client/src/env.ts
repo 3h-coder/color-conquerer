@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
-import { getPixiApp } from "./board-animations/pixi";
+import { getPixiApp } from "./singletons/pixi";
 
 // #region Constants
 
