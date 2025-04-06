@@ -89,7 +89,7 @@ function ManaBubble() {
             tooltipText: description,
         });
         return cleanup;
-    }, [description, bubbleRef.current]);
+    }, [description, bubbleRef]);
 
     return (
         <div className="mana-bubble" ref={bubbleRef}>

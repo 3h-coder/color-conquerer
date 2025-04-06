@@ -181,7 +181,7 @@ svg {
   background-color: var(--deep-blue);
   padding: var(--spacing-small2);
   border-radius: 0.5rem;
-  max-width: max(30vmin, 120px);
+  max-width: max(25vmin, 120px);
 
   animation: fade-in 0.3s ease-in-out forwards;
 }

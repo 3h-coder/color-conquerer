@@ -8,8 +8,8 @@ import { SpellDto } from "../../../../dto/spell/SpellDto";
 import { Events } from "../../../../enums/events";
 import { PlayerMode } from "../../../../enums/playerMode";
 import { WHITE_SPACE } from "../../../../env";
-import { getSpellIcon } from "../shared";
 import { bindTooltip, TooltipPosition } from "../../../../utils/tooltipUtils";
+import { getSpellIcon } from "../shared";
 
 interface SpellCardProps {
     spell: SpellDto;
@@ -39,7 +39,7 @@ export default function SpellCard(props: SpellCardProps) {
 
     useEffect(() => {
         const cleanup = bindTooltip(cardRef, {
-            position: TooltipPosition.TOP_RIGHT,
+            position: TooltipPosition.TOP_LEFT,
             tooltipContentElement: spellDescription,
         });
         return cleanup;
