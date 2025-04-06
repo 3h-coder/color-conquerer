@@ -14,12 +14,16 @@ export function getPixiApp() {
 
 function createPixiApp() {
     const app = new Application({
+        autoStart: false,
         resizeTo: window,
         backgroundAlpha: 0,
         resolution: window.devicePixelRatio || 1,
     });
 
     createPixiOverlay(app);
+
+    // Render the scene once initially
+    app.render();
     return app;
 }
 

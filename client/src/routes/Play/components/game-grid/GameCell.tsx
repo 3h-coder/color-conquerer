@@ -76,6 +76,8 @@ export default function GameCell(props: GameCellProps) {
 
     const onMouseEnter = attachedBehavior?.mouseEnter;
     const onMouseLeave = attachedBehavior?.mouseLeave;
+    const onTouchStart = attachedBehavior?.mouseEnter;
+    const onTouchEnd = attachedBehavior?.mouseLeave;
 
     return (
         <div
@@ -86,6 +88,8 @@ export default function GameCell(props: GameCellProps) {
             onClick={onCellClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
         >
             <GameCellModifier cellInfo={cellInfo} isPlayer1={isPlayer1} />
         </div>

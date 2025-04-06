@@ -17,7 +17,7 @@ export enum CellState {
 const CORE_STATES = CellState.FRESHLY_SPAWNED | CellState.MANA_BUBBLE;
 
 const CellStateDescriptions: Record<string, string> = {
-    [CellState.FRESHLY_SPAWNED]: "The cell has just spawned and will only be able to act next turn.",
+    [CellState.FRESHLY_SPAWNED]: "The cell will only be able to act next turn.",
     [CellState.SHIELDED]: "The next damage to the cell will be cancelled.",
     [CellState.ACCELERATED]: "Can move and attack twice this turn.",
     // No description needed

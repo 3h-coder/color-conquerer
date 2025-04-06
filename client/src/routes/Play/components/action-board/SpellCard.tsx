@@ -20,13 +20,13 @@ export default function SpellCard(props: SpellCardProps) {
     const { emit } = useMatchContext();
     const { canInteract } = useTurnContext();
     const { playerMode } = usePlayerMode();
-    const [showDescription, setShowDescription] = useState(false);
+    const [showNameAndCount, setShowNameAndCount] = useState(false);
     const cardRef = useRef<HTMLButtonElement>(null);
     const isBeingTouched = useRef(false);
     const touchTimeout = useRef<NodeJS.Timeout | null>(null); // Store timeout reference
 
     useEffect(() => {
-        if (!canInteract) setShowDescription(false);
+        if (!canInteract) setShowNameAndCount(false);
     }, [canInteract]);
 
     const spellDescription = (
@@ -48,29 +48,29 @@ export default function SpellCard(props: SpellCardProps) {
     function onMouseEnter() {
         if (!canInteract) return;
 
-        setShowDescription(true);
+        setShowNameAndCount(true);
     }
 
     function onMouseLeave() {
         if (!canInteract) return;
 
-        setShowDescription(false);
+        setShowNameAndCount(false);
     }
 
     /**
-     * Show the description after 300ms of holding the touch.
+     * Show the name and count after 200ms of holding the touch.
      */
     function onTouchStart() {
         if (!canInteract) return;
 
         isBeingTouched.current = true;
         touchTimeout.current = setTimeout(() => {
-            if (isBeingTouched.current) setShowDescription(true);
-        }, 300);
+            if (isBeingTouched.current) setShowNameAndCount(true);
+        }, 200);
     }
 
     /**
-     * Stop showing the description when the touch ends.
+     * Stop showing the name and count when the touch ends.
      */
     function onTouchEnd() {
         if (!canInteract) return;
@@ -80,7 +80,7 @@ export default function SpellCard(props: SpellCardProps) {
             clearTimeout(touchTimeout.current);
             touchTimeout.current = null;
         }
-        setShowDescription(false);
+        setShowNameAndCount(false);
     }
 
     function onClick() {
@@ -112,7 +112,7 @@ export default function SpellCard(props: SpellCardProps) {
         <>
             <button
                 ref={cardRef}
-                className="spell-card"
+                className={`spell-card ${isBeingTouched.current ? "touched" : undefined}`.trim()}
                 disabled={!canInteract}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
@@ -125,7 +125,7 @@ export default function SpellCard(props: SpellCardProps) {
                     <SvgContainer style={{ width: iconSize, height: iconSize }}>
                         {getSpellIcon(spell.id)}
                     </SvgContainer>
-                    <span className="spell-card-name-and-count" style={{ display: showDescription ? "block" : "none" }}>
+                    <span className="spell-card-name-and-count" style={{ display: showNameAndCount ? "block" : "none" }}>
                         {spell.name} {spell.count}/{spell.maxCount}
                     </span>
                 </div>

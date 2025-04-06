@@ -55,8 +55,8 @@
     transition: width 0.2s ease-in-out;
 }
 
-.spell-card:enabled:hover {
-    width: max(200px, 15vmin);
+.spell-card:enabled:hover, .spell-card.touched {
+    width: max(160px, 22vmin);
     transition: width 0.2s ease-in-out;
 }
 

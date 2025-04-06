@@ -22,6 +22,8 @@ export interface BindTooltipOptions {
 
 const EVENT_MOUSE_ENTER = "mouseenter";
 const EVENT_MOUSE_LEAVE = "mouseleave";
+const EVENT_TOUCH_START = "touchstart";
+const EVENT_TOUCH_END = "touchend";
 
 // Since the mouse can only be over one element at a time, we can only have one tooltip
 // active at a time. This is a global variable to keep track of the active tooltip.
@@ -56,10 +58,14 @@ export function bindTooltip(
 
     targetElement.addEventListener(EVENT_MOUSE_ENTER, showTooltip);
     targetElement.addEventListener(EVENT_MOUSE_LEAVE, hideTooltip);
+    targetElement.addEventListener(EVENT_TOUCH_START, showTooltip);
+    targetElement.addEventListener(EVENT_TOUCH_END, hideTooltip);
 
     return () => {
         targetElement.removeEventListener(EVENT_MOUSE_ENTER, showTooltip);
         targetElement.removeEventListener(EVENT_MOUSE_LEAVE, hideTooltip);
+        targetElement.removeEventListener(EVENT_TOUCH_START, showTooltip);
+        targetElement.removeEventListener(EVENT_TOUCH_END, hideTooltip);
     };
 }
 
