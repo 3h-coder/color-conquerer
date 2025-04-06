@@ -1,7 +1,7 @@
 import React, { createElement } from "react";
 import { createRoot, Root } from "react-dom/client";
 import { EMPTY_STRING, HTMLElements } from "../env";
-import { getOrCreateDomElement } from "./domUtils";
+import { getOrCreateDomElement } from "../utils/domUtils";
 
 export enum TooltipPosition {
     TOP,

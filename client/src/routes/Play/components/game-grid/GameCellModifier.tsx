@@ -5,9 +5,9 @@ import { CellHiddenState } from "../../../../enums/cellHiddenState";
 import { CellState, CellStateUtils } from "../../../../enums/cellState";
 import { CellTransientState } from "../../../../enums/cellTransientState";
 import { EMPTY_STRING } from "../../../../env";
+import { bindTooltip } from "../../../../singletons/tooltip";
 import { cellStyle } from "../../../../style/constants";
 import { isOwnedAndCanBeSpellTargetted } from "../../../../utils/cellUtils";
-import { bindTooltip } from "../../../../utils/tooltipUtils";
 
 interface GameCellModifierProps {
     cellInfo: CellDto;

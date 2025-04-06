@@ -8,7 +8,7 @@ import { SpellDto } from "../../../../dto/spell/SpellDto";
 import { Events } from "../../../../enums/events";
 import { PlayerMode } from "../../../../enums/playerMode";
 import { WHITE_SPACE } from "../../../../env";
-import { bindTooltip, TooltipPosition } from "../../../../utils/tooltipUtils";
+import { bindTooltip, TooltipPosition } from "../../../../singletons/tooltip";
 import { getSpellIcon } from "../shared";
 
 interface SpellCardProps {

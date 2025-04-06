@@ -5,6 +5,7 @@ import { CellStateUtils } from "../../../../enums/cellState";
 import { CellTransientState } from "../../../../enums/cellTransientState";
 import { Events } from "../../../../enums/events";
 import { EMPTY_STRING, NEW_LINE, WHITE_SPACE } from "../../../../env";
+import { bindTooltip, TooltipPosition } from "../../../../singletons/tooltip";
 import { cellStyle } from "../../../../style/constants";
 import {
     AttachedCellBehavior,
@@ -12,7 +13,6 @@ import {
     getCellBackgroundColor,
     isSelectable,
 } from "../../../../utils/cellUtils";
-import { bindTooltip, TooltipPosition } from "../../../../utils/tooltipUtils";
 import GameCellModifier from "./GameCellModifier";
 import "./styles/GameCell.css";
 
