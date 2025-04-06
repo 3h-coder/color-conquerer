@@ -1,3 +1,6 @@
+import { EMPTY_STRING } from "../env";
+import { capitalizeAndReplaceUnderscores } from "../utils/stringUtils";
+
 export enum CellState {
     NONE = 0,
 
@@ -12,6 +15,15 @@ export enum CellState {
 
 // Computed constants
 const CORE_STATES = CellState.FRESHLY_SPAWNED | CellState.MANA_BUBBLE;
+
+const CellStateDescriptions: Record<string, string> = {
+    [CellState.FRESHLY_SPAWNED]: "The cell has just spawned and will only be able to act next turn.",
+    [CellState.SHIELDED]: "The next damage to the cell will be cancelled.",
+    [CellState.ACCELERATED]: "Can move and attack twice this turn.",
+    // No description needed
+    [CellState.NONE]: EMPTY_STRING,
+    [CellState.MANA_BUBBLE]: EMPTY_STRING
+};
 
 // Helper functions
 export const CellStateUtils = {
@@ -29,5 +41,16 @@ export const CellStateUtils = {
             .filter(value => typeof value === 'number')
             .map(value => value as CellState)
             .filter(value => state & value);
-    }
+    },
+
+    // Get descriptions for active states
+    getActiveStateDescriptions(state: CellState): string[] {
+        return this.getActiveStates(state).map(activeState => {
+            const stateName = capitalizeAndReplaceUnderscores(CellState[activeState]);
+            const description = CellStateDescriptions[activeState];
+            if (!description) return EMPTY_STRING;
+
+            return `${stateName} : ${description}`;
+        });
+    },
 };

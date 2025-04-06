@@ -22,6 +22,7 @@ export const HTMLElements = {
 
 export const EMPTY_STRING = "";
 export const WHITE_SPACE = " ";
+export const NEW_LINE = "\n";
 
 // #endregion
 

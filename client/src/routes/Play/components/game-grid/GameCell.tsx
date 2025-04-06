@@ -1,8 +1,10 @@
+import { useEffect, useRef } from "react";
 import { useMatchContext } from "../../../../contexts/MatchContext";
 import { CellDto } from "../../../../dto/misc/CellDto";
+import { CellStateUtils } from "../../../../enums/cellState";
 import { CellTransientState } from "../../../../enums/cellTransientState";
 import { Events } from "../../../../enums/events";
-import { EMPTY_STRING, WHITE_SPACE } from "../../../../env";
+import { EMPTY_STRING, NEW_LINE, WHITE_SPACE } from "../../../../env";
 import { cellStyle } from "../../../../style/constants";
 import {
     AttachedCellBehavior,
@@ -10,6 +12,7 @@ import {
     getCellBackgroundColor,
     isSelectable,
 } from "../../../../utils/cellUtils";
+import { bindTooltip, TooltipPosition } from "../../../../utils/tooltipUtils";
 import GameCellModifier from "./GameCellModifier";
 import "./styles/GameCell.css";
 
@@ -24,6 +27,7 @@ interface GameCellProps {
 
 export default function GameCell(props: GameCellProps) {
     const { emit } = useMatchContext();
+    const cellRef = useRef<HTMLDivElement>(null);
 
     const {
         id,
@@ -48,8 +52,21 @@ export default function GameCell(props: GameCellProps) {
             : EMPTY_STRING,
     ];
     const classes = `${cellStyle.className} ${allClassNames.join(WHITE_SPACE)}`.trim();
-
     const computedBackgroundColor = getCellBackgroundColor(cellInfo, isPlayer1);
+
+    useEffect(() => {
+        if (!cellRef.current) return;
+
+        const tooltipText = CellStateUtils.getActiveStateDescriptions(cellInfo.state).join(`${NEW_LINE}${NEW_LINE}`);
+        if (!tooltipText) return;
+
+        const cleanup = bindTooltip(cellRef, {
+            tooltipText: tooltipText,
+            position: TooltipPosition.RIGHT,
+        });
+
+        return cleanup;
+    }, [cellInfo]);
 
     function onCellClick() {
         if (!selectable) return;
@@ -62,6 +79,7 @@ export default function GameCell(props: GameCellProps) {
 
     return (
         <div
+            ref={cellRef}
             className={classes}
             id={id}
             style={computedBackgroundColor}

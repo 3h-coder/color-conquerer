@@ -58,7 +58,6 @@
     width: 75%;
     height: 75%;
     border-radius: 50%;
-    z-index: 1;
     background: linear-gradient(
         180deg,
     var(--mana-blue),

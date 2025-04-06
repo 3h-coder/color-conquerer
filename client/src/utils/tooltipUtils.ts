@@ -20,6 +20,9 @@ export interface BindTooltipOptions {
     tooltipContentElement?: HTMLElement | React.ReactNode;
 }
 
+const EVENT_MOUSE_ENTER = "mouseenter";
+const EVENT_MOUSE_LEAVE = "mouseleave";
+
 // Since the mouse can only be over one element at a time, we can only have one tooltip
 // active at a time. This is a global variable to keep track of the active tooltip.
 let activeTooltipElement: HTMLElement | null = null;
@@ -50,9 +53,6 @@ export function bindTooltip(
     const hideTooltip = () => {
         cleanupActiveTooltip();
     };
-
-    const EVENT_MOUSE_ENTER = "mouseenter";
-    const EVENT_MOUSE_LEAVE = "mouseleave";
 
     targetElement.addEventListener(EVENT_MOUSE_ENTER, showTooltip);
     targetElement.addEventListener(EVENT_MOUSE_LEAVE, hideTooltip);
