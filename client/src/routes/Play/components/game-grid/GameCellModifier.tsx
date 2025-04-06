@@ -85,9 +85,11 @@ function ManaBubble() {
         "Gain an extra mana point when moving to this cell or spawning on it";
 
     useEffect(() => {
-        const cleanup = bindTooltip(bubbleRef, description);
+        const cleanup = bindTooltip(bubbleRef, {
+            tooltipText: description,
+        });
         return cleanup;
-    }, [description]);
+    }, [description, bubbleRef.current]);
 
     return (
         <div className="mana-bubble" ref={bubbleRef}>

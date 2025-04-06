@@ -9,6 +9,7 @@ import { Events } from "../../../../enums/events";
 import { PlayerMode } from "../../../../enums/playerMode";
 import { WHITE_SPACE } from "../../../../env";
 import { getSpellIcon } from "../shared";
+import { bindTooltip, TooltipPosition } from "../../../../utils/tooltipUtils";
 
 interface SpellCardProps {
     spell: SpellDto;
@@ -20,12 +21,29 @@ export default function SpellCard(props: SpellCardProps) {
     const { canInteract } = useTurnContext();
     const { playerMode } = usePlayerMode();
     const [showDescription, setShowDescription] = useState(false);
+    const cardRef = useRef<HTMLButtonElement>(null);
     const isBeingTouched = useRef(false);
     const touchTimeout = useRef<NodeJS.Timeout | null>(null); // Store timeout reference
 
     useEffect(() => {
         if (!canInteract) setShowDescription(false);
     }, [canInteract]);
+
+    const spellDescription = (
+        <div>
+            <InfoIcon style={{ width: "0.9rem" }} />
+            {WHITE_SPACE}
+            {spell.description}
+        </div>
+    );
+
+    useEffect(() => {
+        const cleanup = bindTooltip(cardRef, {
+            position: TooltipPosition.TOP_RIGHT,
+            tooltipContentElement: spellDescription,
+        });
+        return cleanup;
+    }, [spell.description]);
 
     function onMouseEnter() {
         if (!canInteract) return;
@@ -93,6 +111,7 @@ export default function SpellCard(props: SpellCardProps) {
     return (
         <>
             <button
+                ref={cardRef}
                 className="spell-card"
                 disabled={!canInteract}
                 onMouseEnter={onMouseEnter}
@@ -111,12 +130,6 @@ export default function SpellCard(props: SpellCardProps) {
                     </span>
                 </div>
             </button>
-            {showDescription &&
-                <div className="spell-description">
-                    <InfoIcon style={{ width: "0.9rem" }} />
-                    {WHITE_SPACE}
-                    {spell.description}
-                </div>}
         </>
     );
 }
