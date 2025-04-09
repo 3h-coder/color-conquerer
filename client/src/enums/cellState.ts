@@ -11,6 +11,7 @@ export enum CellState {
     // Modifier states (can be combined)
     SHIELDED = 1 << 8,
     ACCELERATED = 1 << 9,
+    ARCHER = 1 << 10,
 }
 
 // Computed constants
@@ -20,6 +21,7 @@ const CellStateDescriptions: Record<string, string> = {
     [CellState.FRESHLY_SPAWNED]: "The cell will only be able to act next turn.",
     [CellState.SHIELDED]: "The next damage to the cell will be cancelled.",
     [CellState.ACCELERATED]: "Can move and attack twice this turn.",
+    [CellState.ARCHER]: "Can attack from a distance.",
     // No description needed
     [CellState.NONE]: EMPTY_STRING,
     [CellState.MANA_BUBBLE]: EMPTY_STRING

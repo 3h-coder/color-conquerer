@@ -11,7 +11,7 @@ function displayReinforcementEffect(cells: HTMLElement[]) {
     if (cells.length === 0)
         return;
 
-    const styleClass = "shield-applied-effect";
+    const styleClass = "spell-applied-effect";
     const cleanupDelayInMs = 1700;
 
     const auraContainer = document.createElement('div');

@@ -11,7 +11,7 @@ function displayCelerityEffect(htmlCells: HTMLElement[]) {
     if (htmlCells.length === 0)
         return;
 
-    const styleClass = "celerity-applied-effect";
+    const styleClass = "spell-applied-effect";
     const cleanupDelayInMs = 1700;
 
     htmlCells.forEach(cell => {

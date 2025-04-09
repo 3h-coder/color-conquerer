@@ -6,7 +6,7 @@ import { ActionCallbackDto } from "../../dto/actions/ActionCallbackDto";
 import { PartialSpellDto } from "../../dto/spell/PartialSpellDto";
 import { ActionCallbackId } from "../../enums/actionCallbackId";
 import { HTMLElements, localStorageKeys, pixiApp } from "../../env";
-import { LandMine } from "../../routes/Play/components/game-grid/GameCellModifier";
+import { LandMine } from "../../routes/Play/components/game-grid/GameCellModifiers.tsx/LandMine";
 import { getHtmlCell } from "../../utils/cellUtils";
 import { cleanup, cleanupStyleClass, delay } from "../../utils/domUtils";
 import { startEmitting } from "../../utils/pixiUtils";

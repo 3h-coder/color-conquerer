@@ -37,6 +37,10 @@ function handleSpellAnimation(spellAction: MatchActionDto) {
             handleCelerityAnimation(spellAction);
             break;
 
+        case SpellId.ARCHERY_VOW:
+            //handleArcheryVowAnimation(spellAction);
+            break;
+
         default:
             break;
     }
