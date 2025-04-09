@@ -1,4 +1,4 @@
-import { BombIcon, ShieldIcon, WindIcon } from "../../../assets/svg";
+import { BombIcon, BowArrowIcon, ShieldIcon, WindIcon } from "../../../assets/svg";
 import { SpellId } from "../../../enums/spellId";
 
 export function getSpellIcon(spellId: number): JSX.Element {
@@ -11,6 +11,9 @@ export function getSpellIcon(spellId: number): JSX.Element {
 
         case SpellId.CELERITY:
             return <WindIcon />;
+
+        case SpellId.ARCHERY_VOW:
+            return <BowArrowIcon />;
 
         default:
             return <></>;

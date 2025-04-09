@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Callable
 
 from constants.game_constants import BOARD_SIZE
 from game_engine.models.cell.cell import Cell
@@ -64,6 +65,12 @@ class GameBoard:
 
     def get_neighbours(self, row_index: int, column_index: int) -> list[Cell]:
         return get_neighbours(row_index, column_index, self.board)
+
+    def get_neighbours_matching_condition(
+        self, row_index: int, column_index: int, condition: Callable[[Cell], bool]
+    ) -> list[Cell]:
+        neighbours = self.get_neighbours(row_index, column_index)
+        return [cell for cell in neighbours if condition(cell)]
 
 
 def _create_starting_board(board_size: int):

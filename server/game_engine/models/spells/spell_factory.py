@@ -1,5 +1,6 @@
 from constants.game_constants import DEFAULT_SPELL_ORIGINAL_COUNT
 from game_engine.models.spells.abstract.spell import Spell
+from game_engine.models.spells.archery_vow_spell import ArcheryVowSpell
 from game_engine.models.spells.celerity_spell import CeleritySpell
 from game_engine.models.spells.mine_trap_spell import MineTrapSpell
 from game_engine.models.spells.shield_formation_spell import ShieldFormationSpell
@@ -9,6 +10,7 @@ _SPELLS = {
     MineTrapSpell.ID: lambda: MineTrapSpell(),
     ShieldFormationSpell.ID: lambda: ShieldFormationSpell(),
     CeleritySpell.ID: lambda: CeleritySpell(),
+    ArcheryVowSpell.ID: lambda: ArcheryVowSpell(),
 }
 
 
@@ -25,5 +27,6 @@ def get_initial_spell_deck():
     return {
         SpellId.CELERITY: spell_count,
         SpellId.MINE_TRAP: spell_count,
+        SpellId.ARCHERY_VOW: spell_count,
         SpellId.SHIELD_FORMATION: spell_count,
     }

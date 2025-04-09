@@ -32,6 +32,9 @@ class CellState(IntFlag):
     # The cell can move and attack twice this turn
     ACCELERATED = 1 << 9
 
+    # The cell can attack from a distance
+    ARCHER = 1 << 10
+
     # endregion
 
     # region Methods
