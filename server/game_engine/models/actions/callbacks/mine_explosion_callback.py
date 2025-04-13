@@ -103,12 +103,15 @@ class MineExplosionCallback(ActionCallback):
         )
         player1_resources, player2_resources = match_context.get_both_player_resources()
 
+        death_list = self.deaths
         # Damage all neighbour cells
         for cell in neighbour_cells:
-            cell.damage(player1_resources, player2_resources)
+            cell.damage(player1_resources, player2_resources, death_list=death_list)
 
         # Damage the cell itself
-        impacted_cell.damage(player1_resources, player2_resources)
+        impacted_cell.damage(
+            player1_resources, player2_resources, death_list=death_list
+        )
 
         # The cell is not longer a mine trap
         impacted_cell.hidden_state_info.reset()

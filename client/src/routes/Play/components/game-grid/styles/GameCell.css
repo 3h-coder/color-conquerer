@@ -208,6 +208,10 @@
 
 /* #region Effects */
 
+.cell-death-effect {
+    animation: cell-death 800ms ease-in-out;
+}
+
 .clash-or-spawn-effect {
     position: absolute;
     width: 100%;
@@ -314,6 +318,15 @@
     100% {
         transform: rotate(720deg) translateX(0) scale(0.2);
         opacity: 0;
+    }
+}
+
+@keyframes cell-death {
+    0% {
+        background-color: var(--bg);
+    }
+    100% {
+        background-color: white;
     }
 }
 

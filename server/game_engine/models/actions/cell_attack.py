@@ -119,5 +119,8 @@ class CellAttack(CellAction):
         # endregion
 
         # Cell clash
-        attacking_cell.damage(player1_resources, player2_resources)
-        target_cell.damage(player1_resources, player2_resources)
+        death_list = self.metadata.deaths
+        attacking_cell.damage(
+            player1_resources, player2_resources, death_list=death_list
+        )
+        target_cell.damage(player1_resources, player2_resources, death_list=death_list)

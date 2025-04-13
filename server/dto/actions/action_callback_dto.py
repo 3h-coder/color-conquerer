@@ -15,4 +15,5 @@ class ActionCallbackDto(BaseDto):
     parentCallbackId: ActionCallBackId
     spellCause: PartialSpellDto | None
     impactedCoords: CoordinatesDto | None
+    deaths: list[CoordinatesDto]
     updatedGameContext: GameContextDto

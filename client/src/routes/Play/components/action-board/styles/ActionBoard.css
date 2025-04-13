@@ -46,8 +46,8 @@
     justify-content: center;
     align-items: center;
     padding: var(--spacing-small2);
-    width: max(30px, 4vmin);
-    height: max(30px, 4vmin);
+    width: max(35px, 4vmin);
+    height: max(35px, 4vmin);
     background-color: var(--deep-blue);
     box-shadow: 0 0 0.5rem 0.08rem rgb(0, 0, 0, 0.1);
     white-space: nowrap;
@@ -56,7 +56,7 @@
 }
 
 .spell-card:enabled:hover, .spell-card.touched {
-    width: max(160px, 22vmin);
+    width: max(180px, 22vmin);
     transition: width 0.2s ease-in-out;
 }
 

@@ -7,6 +7,7 @@ from dto.game_state.game_context_dto import GameContextDto
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.callbacks.callback_factory import get_callback
 from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
+from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 from game_engine.models.player_resources import PlayerResources
@@ -37,6 +38,7 @@ class ActionCallback(WithCallbacks):
         self.updated_player_resources: (
             tuple[PlayerResources, PlayerResources] | None
         ) = None
+        self.deaths: list[Coordinates] = []
         self.can_trigger_callbacks = True
 
     def __eq__(self, other):
@@ -66,6 +68,7 @@ class ActionCallback(WithCallbacks):
                 if self.SPELL_CAUSE is not None
                 else None
             ),
+            deaths=[coord.to_dto() for coord in self.deaths],
             impactedCoords=self.parent_action.metadata.impacted_coords.to_dto(),
             updatedGameContext=GameContextDto.from_action_callback(self, for_player1),
         )

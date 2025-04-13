@@ -31,3 +31,14 @@ export function triggerAuraEffect(htmlCell: HTMLElement, colorRetriavalFunction:
 
   cleanup(aura, cleanupDelayInMs);
 }
+
+export function animateCellDeath(htmlCell: HTMLElement) {
+  const styleClass = "cell-death-effect";
+  const cleanupDelayInMs = 900;
+
+  htmlCell.classList.add(styleClass);
+
+  setTimeout(() => {
+    htmlCell.classList.remove(styleClass);
+  }, cleanupDelayInMs);
+}

@@ -11,5 +11,6 @@ export interface ActionCallbackDto {
     parentCallbackId: ActionCallbackId;
     spellCause: PartialSpellDto | null;
     impactedCoords: CoordinatesDto | null;
+    deaths: CoordinatesDto[];
     updatedGameContext: GameContextDto;
 }

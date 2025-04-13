@@ -175,10 +175,12 @@ class Cell:
         self.hidden_state_info = CellHiddenStateInfo.default()
         self.transient_state = CellTransientState.NONE
 
-    def kill(self):
+    def kill(self, death_list: list[Coordinates] = None):
         if not self.is_owned():
             return
 
+        if death_list is not None:
+            death_list.append(self.get_coordinates())
         self.owner = CellOwner.NONE
         self.id = None
         self.is_master = False
@@ -196,7 +198,10 @@ class Cell:
         self.id = other.id
 
     def damage(
-        self, player1_resources: PlayerResources, player2_resources: PlayerResources
+        self,
+        player1_resources: PlayerResources,
+        player2_resources: PlayerResources,
+        death_list: list[Coordinates] = None,
     ):
         """
         Damages a cell, affecting the player's hp if it's a master cell, destroying it otherwise.
@@ -210,15 +215,15 @@ class Cell:
         if self.belongs_to_player_1() and self.is_master:
             player1_resources.current_hp -= 1
             if player1_resources.current_hp <= 0:
-                self.kill()
+                self.kill(death_list)
 
         elif self.belongs_to_player_2() and self.is_master:
             player2_resources.current_hp -= 1
             if player2_resources.current_hp <= 0:
-                self.kill()
+                self.kill(death_list)
 
         else:
-            self.kill()
+            self.kill(death_list)
 
     def remove_state(self, state: CellState):
         self.state = self.state.remove_state(state)

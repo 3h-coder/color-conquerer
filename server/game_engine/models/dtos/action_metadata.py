@@ -8,18 +8,22 @@ from game_engine.models.dtos.coordinates import Coordinates
 class ActionMedatata:
     originating_coords: Coordinates
     impacted_coords: Coordinates
+    # Coordinates of all the cells that died as a result of the action
+    deaths: list[Coordinates]
 
     def __repr__(self):
         return (
             f"<ActionMetadata(originating_cell_coords={self.originating_coords}, "
-            f"impacted_coords={self.impacted_coords}>"
+            f"impacted_coords={self.impacted_coords}, "
+            f"deaths={self.deaths})>"
         )
 
-    def __eq__(self, value):
+    def __eq__(self, other):
         return (
-            isinstance(value, ActionMedatata)
-            and value.originating_coords == self.originating_coords
-            and value.impacted_coords == self.impacted_coords
+            isinstance(other, ActionMedatata)
+            and other.originating_coords == self.originating_coords
+            and other.impacted_coords == self.impacted_coords
+            and other.deaths == self.deaths
         )
 
     def __hash__(self):
@@ -29,6 +33,7 @@ class ActionMedatata:
         return ActionMetadataDto(
             originatingCellCoords=self.originating_coords.to_dto(),
             impactedCoords=self.impacted_coords.to_dto(),
+            deaths=[coord.to_dto() for coord in self.deaths],
             positioningInfo=None,
         )
 
@@ -36,4 +41,5 @@ class ActionMedatata:
         return ActionMedatata(
             originating_coords=Coordinates(-1, -1),
             impacted_coords=Coordinates(-1, -1),
+            deaths=[],
         )
