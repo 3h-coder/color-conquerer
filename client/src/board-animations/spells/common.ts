@@ -1,7 +1,9 @@
 import { MatchActionDto } from "../../dto/actions/MatchActionDto";
 import { isPositioningMetadataDto, PositioningMetadataDto } from "../../dto/spell/metadata/PositioningMetadataDto";
+import { HTMLElements } from "../../env";
 import { convertCoordsToKey } from "../../utils/actionHintUtils";
 import { getHtmlCell } from "../../utils/cellUtils";
+import { cleanup } from "../../utils/domUtils";
 
 export function getCellsInFormation(spellAction: MatchActionDto) {
     const metadata = spellAction.metadata;
@@ -24,4 +26,13 @@ export function getCellsInFormation(spellAction: MatchActionDto) {
         .filter((cell): cell is HTMLElement => cell !== null);
 
     return htmlCells;
+}
+
+export function displayAppliedSpellEffect(cell: HTMLElement) {
+    const auraContainer = document.createElement(HTMLElements.div);
+    auraContainer.classList.add("spell-applied-effect");
+
+    cell.appendChild(auraContainer);
+
+    cleanup(auraContainer, 1700);
 }

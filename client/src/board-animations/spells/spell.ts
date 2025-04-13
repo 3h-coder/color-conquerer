@@ -3,6 +3,7 @@ import { PartialSpellDto } from "../../dto/spell/PartialSpellDto";
 import { SpellId } from "../../enums/spellId";
 import { localStorageKeys } from "../../env";
 import { developmentErrorLog } from "../../utils/loggingUtils";
+import { handleArcheryVowAnimation } from "./archeryVow";
 import { handleCelerityAnimation } from "./celerity";
 import { handleShieldFormationAnimation } from "./shieldFormation";
 
@@ -38,7 +39,7 @@ function handleSpellAnimation(spellAction: MatchActionDto) {
             break;
 
         case SpellId.ARCHERY_VOW:
-            //handleArcheryVowAnimation(spellAction);
+            handleArcheryVowAnimation(spellAction);
             break;
 
         default:
