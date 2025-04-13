@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
 from dto.misc.coordinates_dto import CoordinatesDto
-from dto.spell.metadata.positioning_metadata_dto import PositioningMetadataDto
+from dto.spell.metadata.positioning_info_dto import PositioningInfoDto
 from game_engine.models.cell.cell_transient_state import CellTransientState
-from game_engine.models.coordinates import Coordinates
+from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.spells.abstract.spell import Spell
 
 if TYPE_CHECKING:
@@ -43,7 +43,7 @@ class PositioningSpell(Spell):
             for (cell_coords, square_index) in self._formation_per_cell.items()
         }
 
-        return PositioningMetadataDto(
+        return PositioningInfoDto(
             formationPerCoordinates=formation_per_coordinates,
             cellFormations=formations_dto,
         )

@@ -5,7 +5,7 @@ from dto.misc.coordinates_dto import CoordinatesDto
 
 
 @dataclass
-class PositioningMetadataDto(BaseDto):
+class PositioningInfoDto(BaseDto):
     # Using string keys in format "row,col" mapping to the formation index
     formationPerCoordinates: dict[str, int]
     # Represents any specific cell formation, such as a square, a line, etc.

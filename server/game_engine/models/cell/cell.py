@@ -4,7 +4,7 @@ from game_engine.models.cell.cell_hidden_state_info import CellHiddenStateInfo
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
 from game_engine.models.cell.cell_transient_state import CellTransientState
-from game_engine.models.coordinates import Coordinates
+from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.player import Player
 from game_engine.models.player_resources import PlayerResources
 

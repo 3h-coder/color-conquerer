@@ -2,7 +2,7 @@ from dto.actions.match_action_dto import ActionType
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.cell.cell import Cell
-from game_engine.models.coordinates import Coordinates
+from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 
@@ -16,20 +16,18 @@ class CellAttack(CellAction):
         return (
             isinstance(other, CellAttack)
             and other.cell_id == self.cell_id
-            and other.impacted_coords == self.impacted_coords
-            and other.originating_coords == self.originating_coords
+            and other.metadata == self.metadata
         )
 
     def __hash__(self):
-        return hash((self.cell_id, self.impacted_coords, self.originating_coords))
+        return hash((self.cell_id, self.metadata))
 
     def __repr__(self):
         return (
             f"<CellAttack(from_player1={self.from_player1}, "
-            f"impacted_coords={self.impacted_coords}, "
-            f"originating_coords={self.originating_coords}, "
             f"cell_id={self.cell_id}, "
             f"mana_cost={self.mana_cost}, "
+            f"metadata={self.metadata}, "
             f"callbacks_to_trigger={self._callbacks_to_trigger})>"
         )
 
@@ -97,8 +95,8 @@ class CellAttack(CellAction):
         Triggers an attack between two cells on the board.
         """
         # region Variable setup
-        attacker_coords = self.originating_coords
-        target_coords = self.impacted_coords
+        attacker_coords = self.metadata.originating_coords
+        target_coords = self.metadata.impacted_coords
 
         attacking_row_index, attacking_col_index = (
             attacker_coords.row_index,

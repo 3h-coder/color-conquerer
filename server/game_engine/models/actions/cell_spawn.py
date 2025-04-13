@@ -5,7 +5,7 @@ from game_engine.models.actions.action import Action
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.hooks.mana_bubble_hook import ManaBubbleHook
 from game_engine.models.cell.cell import Cell
-from game_engine.models.coordinates import Coordinates
+from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 
@@ -30,28 +30,26 @@ class CellSpawn(Action):
         return (
             isinstance(other, CellSpawn)
             and other.from_player1 == self.from_player1
-            and other.impacted_coords == self.impacted_coords
+            and other.metadata == self.metadata
         )
 
     def __hash__(self):
-        return hash((self.from_player1, self.impacted_coords))
+        return hash((self.from_player1, self.metadata))
 
     def __repr__(self):
         return (
             f"<CellSpawn(from_player1={self.from_player1}, "
-            f"impacted_coords={self.impacted_coords}, "
             f"mana_cost={self.mana_cost}, "
-            f"callbacks_to_trigger={self._callbacks_to_trigger})>"
+            f"metadata={self.metadata}, ",
+            f"callbacks_to_trigger={self._callbacks_to_trigger})>",
         )
 
     def to_dto(self):
         return MatchActionDto(
             player1=self.from_player1,
             type=ActionType.CELL_SPAWN,
-            originatingCellCoords=None,
-            impactedCoords=self.impacted_coords.to_dto(),
             spell=None,
-            metadata=None,
+            metadata=self.metadata.to_dto(),
         )
 
     @staticmethod
@@ -99,7 +97,7 @@ class CellSpawn(Action):
         """
         Spawns a cell at the given coordinates for the given player.
         """
-        target_coords = self.impacted_coords
+        target_coords = self.metadata.impacted_coords
         cell = match_context.game_board.get(
             target_coords.row_index, target_coords.column_index
         )

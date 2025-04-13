@@ -4,7 +4,7 @@ from config.logging import get_configured_logger
 from dto.actions.action_callback_dto import ActionCallbackDto
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
-from game_engine.models.coordinates import Coordinates
+from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.mine_trap_spell import MineTrapSpell
 from utils.perf_utils import with_performance_logging

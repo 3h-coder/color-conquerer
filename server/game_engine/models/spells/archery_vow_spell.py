@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from config.logging import get_configured_logger
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
-from game_engine.models.coordinates import Coordinates
+from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.spells.abstract.spell import Spell
 from game_engine.models.spells.spell_id import SpellId
 

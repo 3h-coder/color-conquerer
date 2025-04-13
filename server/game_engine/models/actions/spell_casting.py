@@ -1,7 +1,7 @@
 from dto.actions.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
 from game_engine.models.cell.cell_owner import CellOwner
-from game_engine.models.coordinates import Coordinates
+from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.abstract.spell import Spell
 
@@ -25,22 +25,20 @@ class SpellCasting(Action):
         return (
             isinstance(other, SpellCasting)
             and other.spell.ID == self.spell.ID
-            and other.impacted_coords == self.impacted_coords
+            and other.metadata == self.metadata
         )
 
     def __hash__(self):
-        return hash((self.spell.ID, self.impacted_coords))
+        return hash((self.spell.ID, self.metadata))
 
     def to_dto(self):
         return MatchActionDto(
             player1=self.from_player1,
             type=ActionType.PLAYER_SPELL,
-            originatingCellCoords=None,
-            impactedCoords=self.impacted_coords.to_dto(),
             # Note : the spell here must be partial to not
             # contain the count number as it will be sent to both clients
             spell=self.spell.to_partial_dto(),
-            metadata=self.spell.get_metadata_dto(),
+            metadata=self.metadata.to_dto(),
         )
 
     @staticmethod
@@ -80,7 +78,7 @@ class SpellCasting(Action):
     @Action.trigger_hooks_and_check_callbacks
     def apply(self, match_context):
         self.spell.invoke(
-            coordinates=self.impacted_coords,
+            coordinates=self.metadata.impacted_coords,
             board=match_context.game_board,
             invocator=CellOwner.PLAYER_1 if self.from_player1 else CellOwner.PLAYER_2,
         )

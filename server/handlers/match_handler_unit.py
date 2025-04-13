@@ -8,7 +8,7 @@ from dto.game_state.turn_context_dto import TurnContextDto
 from dto.player.player_resources_bundle_dto import PlayerResourceBundleDto
 from dto.server_only.match_closure_dto import EndingReason
 from game_engine.models.match_context import MatchContext
-from game_engine.models.room import Room
+from game_engine.models.dtos.room import Room
 from game_engine.models.turn_state import TurnState
 from handlers.match_services.client_notifications import notify_match_start
 from handlers.match_services.match_actions_service import MatchActionsService

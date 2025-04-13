@@ -4,7 +4,8 @@ from game_engine.models.actions.callbacks.action_callback_id import ActionCallBa
 from game_engine.models.actions.callbacks.callback_factory import get_callback
 from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
 from game_engine.models.actions.hooks.action_hook import ActionHook
-from game_engine.models.coordinates import Coordinates
+from game_engine.models.dtos.action_metadata import ActionMedatata
+from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.match_context import MatchContext
 
 
@@ -24,14 +25,15 @@ class Action(WithCallbacks):
     ):
         super().__init__()
         self.from_player1 = from_player1
-        self.impacted_coords = impacted_coords
         self.mana_cost = self.DEFAULT_MANA_COST
+        self.metadata: ActionMedatata = ActionMedatata.get_default()
+        self.metadata.impacted_coords = impacted_coords
 
     def __repr__(self):
         return (
             f"<Action(from_player1={self.from_player1}, "
-            f"impacted_coords={self.impacted_coords}, "
             f"mana_cost={self.mana_cost}, "
+            f"metadata={self.metadata}, "
             f"callbacks_to_trigger={self._callbacks_to_trigger})>"
         )
 

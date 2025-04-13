@@ -1,5 +1,5 @@
 import { PossibleActionsDto } from "../dto/actions/PossibleActionsDto";
-import { isPositioningMetadataDto, PositioningMetadataDto } from "../dto/spell/metadata/PositioningMetadataDto";
+import { isPositioningInfoDto, PositioningInfoDto } from "../dto/spell/metadata/PositioningInfoDto";
 import { EMPTY_STRING } from "../env";
 import { cellStyle, colors } from "../style/constants";
 import { AttachedCellBehavior, getHtmlCell } from "./cellUtils";
@@ -10,8 +10,8 @@ export function handlePossibleActionsAdditionalData(
 ) {
     const additionalData = possibleActions.additionalData;
 
-    if (isPositioningMetadataDto(additionalData)) {
-        handleSquareHints(additionalData as PositioningMetadataDto, setAttachedCellBehaviors);
+    if (isPositioningInfoDto(additionalData)) {
+        handleSquareHints(additionalData as PositioningInfoDto, setAttachedCellBehaviors);
     }
 }
 
@@ -20,7 +20,7 @@ export function handlePossibleActionsAdditionalData(
  * Shows all the cells that will be affected by the spell when hovering over the cell.
  */
 function handleSquareHints(
-    shieldFormationMetadata: PositioningMetadataDto,
+    shieldFormationMetadata: PositioningInfoDto,
     setAttachedCellBehaviors: React.Dispatch<React.SetStateAction<(AttachedCellBehavior | undefined)[][]>>
 ) {
     const formationsPerCoordinates = shieldFormationMetadata.formationPerCoordinates;

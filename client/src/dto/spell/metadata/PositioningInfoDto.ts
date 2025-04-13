@@ -1,15 +1,15 @@
 import { CoordinatesDto } from "../../misc/CoordinatesDto";
 
-export interface PositioningMetadataDto {
+export interface PositioningInfoDto {
     formationPerCoordinates: Record<string, number>;
     cellFormations: CoordinatesDto[][];
 }
 
-export function isPositioningMetadataDto(data: unknown) {
+export function isPositioningInfoDto(data: unknown) {
     return data !== null &&
         typeof data === "object" &&
         "formationPerCoordinates" in data &&
         "cellFormations" in data &&
-        Array.isArray((data as PositioningMetadataDto).cellFormations) &&
-        (data as PositioningMetadataDto).cellFormations.every(Array.isArray);
+        Array.isArray((data as PositioningInfoDto).cellFormations) &&
+        (data as PositioningInfoDto).cellFormations.every(Array.isArray);
 }

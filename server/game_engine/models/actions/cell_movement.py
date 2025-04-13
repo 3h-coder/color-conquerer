@@ -5,7 +5,7 @@ from game_engine.models.actions.callbacks.action_callback_id import ActionCallBa
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.actions.hooks.mana_bubble_hook import ManaBubbleHook
 from game_engine.models.cell.cell import Cell
-from game_engine.models.coordinates import Coordinates
+from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
 from utils.board_utils import is_out_of_bounds
@@ -23,20 +23,18 @@ class CellMovement(CellAction):
         return (
             isinstance(other, CellMovement)
             and other.cell_id == self.cell_id
-            and other.impacted_coords == self.impacted_coords
-            and other.originating_coords == self.originating_coords
+            and other.metadata == self.metadata
         )
 
     def __hash__(self):
-        return hash((self.cell_id, self.impacted_coords, self.originating_coords))
+        return hash((self.cell_id, self.metadata))
 
     def __repr__(self):
         return (
             f"<CellMovement(from_player1={self.from_player1}, "
-            f"impacted_coords={self.impacted_coords}, "
-            f"originating_coords={self.originating_coords}, "
             f"cell_id={self.cell_id}, "
             f"mana_cost={self.mana_cost}, "
+            f"metadata={self.metadata}, "
             f"callbacks_to_trigger={self._callbacks_to_trigger})>"
         )
 
@@ -123,8 +121,8 @@ class CellMovement(CellAction):
         This method does nothing if the cell to move is idle, and leaves an idle cell at the original coordinates otherwise.
         """
         game_board = match_context.game_board
-        originating_coords = self.originating_coords
-        target_coords = self.impacted_coords
+        originating_coords = self.metadata.originating_coords
+        target_coords = self.metadata.impacted_coords
 
         cell_original_coords = game_board.get(
             originating_coords.row_index, originating_coords.column_index
@@ -158,8 +156,8 @@ class CellMovement(CellAction):
                 cell.id,
                 cell.row_index,
                 cell.column_index,
-                move.impacted_coords.row_index,
-                move.impacted_coords.column_index,
+                move.metadata.impacted_coords.row_index,
+                move.metadata.impacted_coords.column_index,
             )
             for move in additional_movements
         }

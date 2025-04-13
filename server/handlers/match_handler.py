@@ -1,5 +1,5 @@
 from config.logging import get_configured_logger
-from game_engine.models.room import Room
+from game_engine.models.dtos.room import Room
 from handlers.match_handler_unit import MatchHandlerUnit
 
 
