@@ -1,5 +1,5 @@
 import { MatchActionDto } from "../../dto/actions/MatchActionDto";
-import { isPositioningInfoDto, PositioningInfoDto } from "../../dto/spell/metadata/PositioningInfoDto";
+import { isPositioningInfoDto } from "../../dto/spell/metadata/PositioningInfoDto";
 import { HTMLElements } from "../../env";
 import { convertCoordsToKey } from "../../utils/actionHintUtils";
 import { getHtmlCell } from "../../utils/cellUtils";
@@ -8,13 +8,13 @@ import { cleanup } from "../../utils/domUtils";
 export function getCellsInFormation(spellAction: MatchActionDto) {
     const metadata = spellAction.metadata;
     // Should never happen, but just in case
-    if (!isPositioningInfoDto(metadata))
+    if (!isPositioningInfoDto(metadata.positioningInfo))
         return [];
 
-    const shieldFormationMetadata = metadata as PositioningInfoDto;
+    const shieldFormationMetadata = metadata.positioningInfo;
     const squarePerCoordinates = shieldFormationMetadata.formationPerCoordinates;
     const squares = shieldFormationMetadata.cellFormations;
-    const { rowIndex: chosenRowIndex, columnIndex: chosenColumnIndex } = spellAction.impactedCoords;
+    const { rowIndex: chosenRowIndex, columnIndex: chosenColumnIndex } = spellAction.metadata.impactedCoords;
 
     const correspondingSquareIndex = squarePerCoordinates[convertCoordsToKey(chosenRowIndex, chosenColumnIndex)];
     if (correspondingSquareIndex === undefined)

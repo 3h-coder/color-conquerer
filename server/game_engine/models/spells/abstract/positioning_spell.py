@@ -26,7 +26,7 @@ class PositioningSpell(Spell):
         self._cell_formations: list[list[Coordinates]] = []
         self._already_associated_cells: set[Coordinates] = set()
 
-    def get_metadata_dto(self):
+    def get_positioning_info_dto(self):
         """
         Returns the metadata of the spell, including the cell formation and the mapping
         of coordinates to formation indices.

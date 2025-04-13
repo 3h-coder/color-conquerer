@@ -58,7 +58,9 @@ class MineExplosionCallback(ActionCallback):
 
         parent_action = self.parent_action
 
-        self.explosion_center_coords = impacted_coords = parent_action.impacted_coords
+        self.explosion_center_coords = impacted_coords = (
+            parent_action.metadata.impacted_coords
+        )
         impacted_cell = match_context.game_board.get(
             impacted_coords.row_index, impacted_coords.column_index
         )

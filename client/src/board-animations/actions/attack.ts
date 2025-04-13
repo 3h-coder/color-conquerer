@@ -4,11 +4,11 @@ import { triggerAuraEffect } from "../common";
 
 
 export function handleCellClashAnimation(action: MatchActionDto) {
-    const attackerCoords = action.originatingCellCoords;
+    const attackerCoords = action.metadata.originatingCellCoords;
     if (!attackerCoords)
         return;
 
-    const targetCoords = action.impactedCoords;
+    const targetCoords = action.metadata.impactedCoords;
 
     animateCellClash(
         attackerCoords.rowIndex,

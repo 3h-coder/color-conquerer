@@ -6,10 +6,10 @@ import { animateManaBubblePop } from "../common";
 
 
 export function handleCellMovementAnimation(action: MatchActionDto, boardArray: CellDto[][]) {
-    const sourceCoords = action.originatingCellCoords;
+    const sourceCoords = action.metadata.originatingCellCoords;
     if (!sourceCoords) return;
 
-    const targetCoords = action.impactedCoords;
+    const targetCoords = action.metadata.impactedCoords;
     const targetCell = boardArray[targetCoords.rowIndex][targetCoords.columnIndex];
 
     // Create moving cell clone

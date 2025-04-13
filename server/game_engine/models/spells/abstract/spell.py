@@ -62,5 +62,5 @@ class Spell:
     ):
         raise NotImplementedError
 
-    def get_metadata_dto(self) -> None | Any:
+    def get_positioning_info_dto(self) -> None | Any:
         return None

@@ -6,7 +6,7 @@ import { animateManaBubblePop, triggerAuraEffect } from "../common";
 
 
 export function handleCellSpawnAnimation(action: MatchActionDto, isPlayer1: boolean, boardArray: CellDto[][]) {
-    const newCellCoordinates = action.impactedCoords;
+    const newCellCoordinates = action.metadata.impactedCoords;
     const targetCell = boardArray[newCellCoordinates.rowIndex][newCellCoordinates.columnIndex];
     const cellOfMine = isPlayer1 === action.player1;
 
