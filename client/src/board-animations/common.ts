@@ -1,4 +1,4 @@
-import { HTMLElements } from "../env";
+import { EMPTY_STRING, HTMLElements } from "../env";
 import { getHtmlCell } from "../utils/cellUtils";
 import { cleanup } from "../utils/domUtils";
 
@@ -33,12 +33,11 @@ export function triggerAuraEffect(htmlCell: HTMLElement, colorRetriavalFunction:
 }
 
 export function animateCellDeath(htmlCell: HTMLElement) {
-  const styleClass = "cell-death-effect";
-  const cleanupDelayInMs = 900;
-
-  htmlCell.classList.add(styleClass);
+  const cleanupDelayInMs = 500;
+  htmlCell.style.transition = `background-color ${cleanupDelayInMs - 100}ms ease-in-out`;
+  htmlCell.style.setProperty("--bg", "white");
 
   setTimeout(() => {
-    htmlCell.classList.remove(styleClass);
+    htmlCell.style.transition = EMPTY_STRING;
   }, cleanupDelayInMs);
 }
