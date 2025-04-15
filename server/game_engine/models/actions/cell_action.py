@@ -20,7 +20,8 @@ class CellAction(Action):
     def to_dto(self):
         return MatchActionDto(
             player1=self.from_player1,
-            type=None,
-            spell=None,
+            type=None,  # meant to be set in subclasses
+            spell=None,  # meant to be set in subclasses
             metadata=self.metadata.to_dto(),
+            specificMetadata=None,  # meant to be set in subclasses
         )

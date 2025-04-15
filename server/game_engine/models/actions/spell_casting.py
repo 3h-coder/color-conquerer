@@ -32,16 +32,14 @@ class SpellCasting(Action):
         return hash((self.spell.ID, self.metadata))
 
     def to_dto(self):
-        action_metadata_dto = self.metadata.to_dto()
-        action_metadata_dto.positioningInfo = self.spell.get_positioning_info_dto()
-
         return MatchActionDto(
             player1=self.from_player1,
             type=ActionType.PLAYER_SPELL,
             # Note : the spell here must be partial to not
             # contain the count number as it will be sent to both clients
             spell=self.spell.to_partial_dto(),
-            metadata=action_metadata_dto,
+            metadata=self.metadata.to_dto(),
+            specificMetadata=self.spell.get_positioning_info_dto(),
         )
 
     @staticmethod

@@ -1,4 +1,5 @@
 from functools import wraps
+from typing import Any
 
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.callbacks.callback_factory import get_callback
@@ -28,6 +29,7 @@ class Action(WithCallbacks):
         self.mana_cost = self.DEFAULT_MANA_COST
         self.metadata: ActionMedatata = ActionMedatata.get_default()
         self.metadata.impacted_coords = impacted_coords
+        self.specific_metadata: Any | None = None
 
     def __repr__(self):
         return (

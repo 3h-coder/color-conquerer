@@ -2,6 +2,7 @@ from dto.actions.match_action_dto import ActionType
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.cell.cell import Cell
+from game_engine.models.dtos.cell_attack_metadata import CellAttackMetadata
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match_context import MatchContext
@@ -33,24 +34,32 @@ class CellAttack(CellAction):
 
     def to_dto(self):
         match_action_dto = super().to_dto()
+
         match_action_dto.type = ActionType.CELL_ATTACK
+        if isinstance(self.specific_metadata, CellAttackMetadata):
+            match_action_dto.specificMetadata = self.specific_metadata.to_dto()
+
         return match_action_dto
 
     @staticmethod
     def create(
         from_player1: bool,
         cell_id: str,
-        row_index: int,
-        column_index: int,
-        attack_row_index: int,
-        attack_column_index: int,
+        attacker_coordinates: Coordinates,
+        target_coordinates: Coordinates,
     ):
-        return CellAttack(
+        cell_attack = CellAttack(
             from_player1=from_player1,
-            impacted_coords=Coordinates(attack_row_index, attack_column_index),
-            originating_coords=Coordinates(row_index, column_index),
+            impacted_coords=target_coordinates,
+            originating_coords=attacker_coordinates,
             cell_id=cell_id,
         )
+
+        cell_attack.specific_metadata = CellAttackMetadata(
+            is_ranged_attack=attacker_coordinates.is_neighbour(target_coordinates)
+        )
+
+        return cell_attack
 
     @staticmethod
     def calculate(
@@ -61,7 +70,6 @@ class CellAttack(CellAction):
         """
         Returns a set of attacks that an owned cell can perform.
         """
-        row_index, column_index = cell.row_index, cell.column_index
 
         attacks: set[CellAttack] = set()
         neighbours: list[Cell] = transient_game_board.get_neighbours(
@@ -81,10 +89,8 @@ class CellAttack(CellAction):
                 CellAttack.create(
                     from_player1,
                     cell.id,
-                    row_index,
-                    column_index,
-                    neighbour.row_index,
-                    neighbour.column_index,
+                    cell.get_coordinates(),
+                    neighbour.get_coordinates(),
                 )
             )
         return attacks

@@ -1,17 +1,16 @@
 import { MatchActionDto } from "../../dto/actions/MatchActionDto";
-import { isPositioningInfoDto } from "../../dto/spell/metadata/PositioningInfoDto";
+import { isPositioningInfoDto, PositioningInfoDto } from "../../dto/spell/metadata/PositioningInfoDto";
 import { HTMLElements } from "../../env";
 import { convertCoordsToKey } from "../../utils/actionHintUtils";
 import { getHtmlCell } from "../../utils/cellUtils";
 import { cleanup } from "../../utils/domUtils";
 
 export function getCellsInFormation(spellAction: MatchActionDto) {
-    const metadata = spellAction.metadata;
     // Should never happen, but just in case
-    if (!isPositioningInfoDto(metadata.positioningInfo))
+    if (!isPositioningInfoDto(spellAction.specificMetadata))
         return [];
 
-    const shieldFormationMetadata = metadata.positioningInfo;
+    const shieldFormationMetadata = spellAction.specificMetadata as PositioningInfoDto;
     const squarePerCoordinates = shieldFormationMetadata.formationPerCoordinates;
     const squares = shieldFormationMetadata.cellFormations;
     const { rowIndex: chosenRowIndex, columnIndex: chosenColumnIndex } = spellAction.metadata.impactedCoords;

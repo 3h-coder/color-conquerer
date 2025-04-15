@@ -102,10 +102,8 @@ class CellSelectionManager(ActionManager):
             attack = CellAttack.create(
                 player1,
                 selected_cell.id,
-                selected_cell.row_index,
-                selected_cell.column_index,
-                cell.row_index,
-                cell.column_index,
+                selected_cell.get_coordinates(),
+                cell.get_coordinates(),
             )
             self.validate_and_process_action(attack)
 

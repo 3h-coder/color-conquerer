@@ -50,6 +50,7 @@ class CellSpawn(Action):
             type=ActionType.CELL_SPAWN,
             spell=None,
             metadata=self.metadata.to_dto(),
+            specificMetadata=None,
         )
 
     @staticmethod

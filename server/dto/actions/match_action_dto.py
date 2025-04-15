@@ -14,3 +14,4 @@ class MatchActionDto(BaseDto):
     type: ActionType
     spell: PartialSpellDto | None
     metadata: ActionMetadataDto
+    specificMetadata: Any | None

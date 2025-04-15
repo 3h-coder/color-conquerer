@@ -8,4 +8,5 @@ export interface MatchActionDto {
     // Only if the action type is spell
     spell: PartialSpellDto | null;
     metadata: ActionMetadataDto;
+    specificMetadata: unknown | null;
 }

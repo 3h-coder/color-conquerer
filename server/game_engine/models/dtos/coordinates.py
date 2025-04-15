@@ -13,3 +13,12 @@ class Coordinates:
 
     def as_tuple(self):
         return (self.row_index, self.column_index)
+
+    def is_neighbour(self, other: "Coordinates") -> bool:
+        """
+        Check if the two coordinates are neighbours.
+        """
+        return (
+            abs(self.row_index - other.row_index) <= 1
+            and abs(self.column_index - other.column_index) <= 1
+        )
