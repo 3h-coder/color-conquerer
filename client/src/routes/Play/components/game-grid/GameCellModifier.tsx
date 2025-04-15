@@ -54,7 +54,7 @@ export default function GameCellModifier(props: GameCellModifierProps) {
             {isShielded && <Shield />}
             {ownedAndCanBeSpellTargetted && <SpellTargetIndicator />}
             {isAccelerated && <WindSpiral />}
-            {isArcher && <Archer rotateIcon={isPlayer1} />}
+            {isArcher && !attackable && <Archer rotateIcon={isPlayer1} />}
         </>
     );
 }

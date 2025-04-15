@@ -147,6 +147,12 @@ class Cell:
         """
         return self.has_state(CellState.ACCELERATED)
 
+    def is_archer(self):
+        """
+        Archer cells can attack from a distance.
+        """
+        return self.has_state(CellState.ARCHER)
+
     def is_mine_trap(self):
         """
         Mine traps are cells that explode when a player moves or spawns on them, damaging all neighbour cells.

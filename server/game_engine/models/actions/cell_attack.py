@@ -56,7 +56,7 @@ class CellAttack(CellAction):
         )
 
         cell_attack.specific_metadata = CellAttackMetadata(
-            is_ranged_attack=attacker_coordinates.is_neighbour(target_coordinates)
+            is_ranged_attack=not attacker_coordinates.is_neighbour(target_coordinates)
         )
 
         return cell_attack
@@ -72,26 +72,13 @@ class CellAttack(CellAction):
         """
 
         attacks: set[CellAttack] = set()
-        neighbours: list[Cell] = transient_game_board.get_neighbours(
-            cell.row_index,
-            cell.column_index,
-        )
-        for neighbour in neighbours:
-            if not cell.is_hostile_to(neighbour):
-                continue
-
-            transient_board_cell = transient_game_board.get(
-                neighbour.row_index, neighbour.column_index
+        if cell.is_archer():
+            CellAttack._calculate_all_attacks(
+                cell, from_player1, transient_game_board, attacks
             )
-            transient_board_cell.set_can_be_attacked()
-
-            attacks.add(
-                CellAttack.create(
-                    from_player1,
-                    cell.id,
-                    cell.get_coordinates(),
-                    neighbour.get_coordinates(),
-                )
+        else:
+            CellAttack._calculate_neighbour_attacks(
+                cell, from_player1, transient_game_board, attacks
             )
         return attacks
 
@@ -103,6 +90,10 @@ class CellAttack(CellAction):
         # region Variable setup
         attacker_coords = self.metadata.originating_coords
         target_coords = self.metadata.impacted_coords
+        is_ranged_attack = (
+            isinstance(self.specific_metadata, CellAttackMetadata)
+            and self.specific_metadata.is_ranged_attack
+        )
 
         attacking_row_index, attacking_col_index = (
             attacker_coords.row_index,
@@ -126,7 +117,77 @@ class CellAttack(CellAction):
 
         # Cell clash
         death_list = self.metadata.deaths
-        attacking_cell.damage(
-            player1_resources, player2_resources, death_list=death_list
+        # If both cell are archers or not, they can attack each other
+        if attacking_cell.is_archer() == target_cell.is_archer():
+            attacking_cell.damage(
+                player1_resources, player2_resources, death_list=death_list
+            )
+            target_cell.damage(
+                player1_resources, player2_resources, death_list=death_list
+            )
+        # If only the attacker is an archer and the attack is ranged, only the target cell is damaged
+        elif attacking_cell.is_archer() and is_ranged_attack:
+            target_cell.damage(
+                player1_resources, player2_resources, death_list=death_list
+            )
+
+    @staticmethod
+    def _calculate_all_attacks(
+        cell: Cell,
+        from_player1: bool,
+        transient_game_board: GameBoard,
+        attacks: set["CellAttack"],
+    ):
+        for row in transient_game_board.board:
+            for board_cell in row:
+                if not board_cell.is_hostile_to(cell):
+                    continue
+
+                CellAttack._register_attack(
+                    cell, board_cell, from_player1, transient_game_board, attacks
+                )
+
+    @staticmethod
+    def _calculate_neighbour_attacks(
+        cell: Cell,
+        from_player1: bool,
+        transient_game_board: GameBoard,
+        attacks: set["CellAttack"],
+    ):
+        neighbours: list[Cell] = transient_game_board.get_neighbours(
+            cell.row_index,
+            cell.column_index,
         )
-        target_cell.damage(player1_resources, player2_resources, death_list=death_list)
+        for neighbour in neighbours:
+            if not cell.is_hostile_to(neighbour):
+                continue
+
+            CellAttack._register_attack(
+                cell,
+                neighbour,
+                from_player1,
+                transient_game_board,
+                attacks,
+            )
+
+    @staticmethod
+    def _register_attack(
+        attacker_cell: Cell,
+        target_cell: Cell,
+        from_player1: bool,
+        transient_game_board: GameBoard,
+        attacks: set["CellAttack"],
+    ):
+        transient_board_cell = transient_game_board.get(
+            target_cell.row_index, target_cell.column_index
+        )
+        transient_board_cell.set_can_be_attacked()
+
+        attacks.add(
+            CellAttack.create(
+                from_player1,
+                attacker_cell.id,
+                attacker_cell.get_coordinates(),
+                target_cell.get_coordinates(),
+            )
+        )
