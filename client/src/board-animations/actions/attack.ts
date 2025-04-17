@@ -1,35 +1,53 @@
+import {
+    CellAttackMetadataDto,
+    isCellAttackMetadataDto,
+} from "../../dto/actions/CellAttackMetadataDto";
 import { MatchActionDto } from "../../dto/actions/MatchActionDto";
 import { getHtmlCell } from "../../utils/cellUtils";
 import { triggerAuraEffect } from "../common";
 
-
 export function handleCellClashAnimation(action: MatchActionDto) {
     const attackerCoords = action.metadata.originatingCellCoords;
-    if (!attackerCoords)
-        return;
+    if (!attackerCoords) return;
 
     const targetCoords = action.metadata.impactedCoords;
 
+    let isRangedAttack = false;
+    if (isCellAttackMetadataDto(action.specificMetadata)) {
+        isRangedAttack = (action.specificMetadata as CellAttackMetadataDto)
+            .isRangedAttack;
+    }
     animateCellClash(
         attackerCoords.rowIndex,
         attackerCoords.columnIndex,
         targetCoords.rowIndex,
-        targetCoords.columnIndex
+        targetCoords.columnIndex,
+        isRangedAttack
     );
 }
 
 function animateCellClash(
-    rowIndex: number,
-    colIndex: number,
-    otherRowIndex: number,
-    otherColIndex: number
+    attackerRowIndex: number,
+    attackerColIndex: number,
+    targetRowIndex: number,
+    targetColIndex: number,
+    isRangedAttack: boolean
 ) {
-    const htmlCell = getHtmlCell(rowIndex, colIndex);
-    const otherHtmlCell = getHtmlCell(otherRowIndex, otherColIndex);
+    const attackerCell = getHtmlCell(attackerRowIndex, attackerColIndex);
+    const targetCell = getHtmlCell(targetRowIndex, targetColIndex);
 
-    if (!htmlCell || !otherHtmlCell)
-        return;
+    if (!attackerCell || !targetCell) return;
 
-    triggerAuraEffect(htmlCell, () => getComputedStyle(htmlCell).backgroundColor);
-    triggerAuraEffect(otherHtmlCell, () => getComputedStyle(otherHtmlCell).backgroundColor);
+    if (!isRangedAttack) {
+        triggerAuraEffect(
+            attackerCell,
+            () => getComputedStyle(attackerCell).backgroundColor
+        );
+        triggerAuraEffect(
+            targetCell,
+            () => getComputedStyle(targetCell).backgroundColor
+        );
+    } else {
+
+    }
 }

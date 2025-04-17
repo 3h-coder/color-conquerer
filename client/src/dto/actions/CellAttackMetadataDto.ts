@@ -1,5 +1,6 @@
 export interface CellAttackMetadataDto {
     isRangedAttack: boolean;
+    isRetaliated: boolean;
 }
 
 export function isCellAttackMetadataDto(
@@ -10,5 +11,7 @@ export function isCellAttackMetadataDto(
         metadata !== null &&
         "isRangedAttack" in metadata &&
         typeof (metadata as CellAttackMetadataDto).isRangedAttack === "boolean"
+        && "isRetaliated" in metadata &&
+        typeof (metadata as CellAttackMetadataDto).isRetaliated === "boolean"
     );
 }
