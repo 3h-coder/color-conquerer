@@ -241,6 +241,14 @@
     animation: move-cell 0.4s ease-out forwards;
 }
 
+.projectile-effect {
+    position: absolute;
+    width: 1vmin;
+    height: 1vmin;
+    border-radius: 50%;
+    background-color: var(--primary-purple1);
+}
+
 .shockwave-effect {
     position: absolute;
     width: 100%;

@@ -167,7 +167,7 @@ export default function GameGrid() {
             triggerCellEffectSync();
         }
 
-        function onServerProcessedActions(processedActionDto: ProcessedActionDto) {
+        async function onServerProcessedActions(processedActionDto: ProcessedActionDto) {
             developmentLog("Received the processed actions", processedActionDto);
 
             cleanupAttachedCellBehaviors();
@@ -179,7 +179,7 @@ export default function GameGrid() {
             setPlayerResourceBundle(processedActionDto.updatedGameContext.playerResourceBundle);
 
             // Trigger animations
-            animateProcessedAction(processedActionDto.processedAction, isPlayer1, isMyTurn, boardArray, setActionSpell);
+            await animateProcessedAction(processedActionDto.processedAction, isPlayer1, isMyTurn, boardArray, setActionSpell);
 
             // Update the board array with the new cell info
             if (isMyTurn && processedActionDto.overridingTransientBoard) {

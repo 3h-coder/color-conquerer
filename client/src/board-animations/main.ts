@@ -20,7 +20,7 @@ export interface GameStateSetters {
     setPlayerResourceBundle: (bundle: PlayerResourceBundleDto) => void;
 }
 
-export function animateProcessedAction(
+export async function animateProcessedAction(
     action: MatchActionDto,
     isPlayer1: boolean,
     isMyTurn: boolean,
@@ -33,7 +33,7 @@ export function animateProcessedAction(
             break;
 
         case ActionType.CELL_ATTACK:
-            handleCellClashAnimation(action);
+            await handleCellClashAnimation(action);
             break;
 
         case ActionType.CELL_SPAWN:

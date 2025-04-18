@@ -56,7 +56,8 @@ class CellAttack(CellAction):
         )
 
         cell_attack.specific_metadata = CellAttackMetadata(
-            is_ranged_attack=not attacker_coordinates.is_neighbour(target_coordinates)
+            is_ranged_attack=not attacker_coordinates.is_neighbour(target_coordinates),
+            is_retaliated=False,
         )
 
         return cell_attack
@@ -125,6 +126,7 @@ class CellAttack(CellAction):
             target_cell.damage(
                 player1_resources, player2_resources, death_list=death_list
             )
+            self.specific_metadata.is_retaliated = True
         # If only the attacker is an archer and the attack is ranged, only the target cell is damaged
         elif attacking_cell.is_archer() and is_ranged_attack:
             target_cell.damage(
