@@ -23,9 +23,11 @@ import GameTopInfo from "./components/game-top-info/GameTopInfo";
 import MyPlayerInfo from "./components/player-info/MyPlayerInfo";
 import OpponentInfo from "./components/player-info/OpponentInfo";
 import SideControls from "./components/side-controls/SideControls";
+import { useHomeError } from "../../contexts/HomeErrorContext";
 
 export default function PlayContent() {
   const navigate = useNavigate();
+  const { setHomeError } = useHomeError();
   const {
     loading: matchInfoLoading,
     failedToResolve: failedToResolveMatchInfo,
@@ -143,6 +145,12 @@ export default function PlayContent() {
       navigate(messageDto.message);
     }
 
+    function onDisconnect() {
+      setHomeError("The connection with the server was terminated");
+      navigate("/");
+    }
+
+    socket.on(Events.DISCONNECT, onDisconnect);
     socket.on(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
     socket.on(Events.SERVER_MATCH_START, onMatchBeginning);
     socket.on(Events.SERVER_MATCH_ONGOING, onMatchOngoing);
@@ -153,6 +161,7 @@ export default function PlayContent() {
 
     // Ensure the event handlers are attached only once on component mounting
     return () => {
+      socket.off(Events.DISCONNECT, onDisconnect);
       socket.off(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
       socket.off(Events.SERVER_MATCH_START, onMatchBeginning);
       socket.off(Events.SERVER_MATCH_ONGOING, onMatchOngoing);

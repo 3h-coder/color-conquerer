@@ -1,5 +1,4 @@
 import { ContainerProps } from "../../components/containers";
-import HomeErrorContextProvider from "../../contexts/HomeErrorContext";
 import HomeStateContextProvider from "../../contexts/HomeStateContext";
 import './Home.css';
 import HomeError from "./components/HomeError";
@@ -11,14 +10,12 @@ export default function Home() {
 
     return (
         <HomeStateContextProvider>
-            <HomeErrorContextProvider>
-                <HomeContainer>
-                    <HomeTopMessage />
-                    <h1 className="main-title">Welcome to Color Conquerer</h1>
-                    <PlayButton />
-                    <HomeError />
-                </HomeContainer>
-            </HomeErrorContextProvider>
+            <HomeContainer>
+                <HomeTopMessage />
+                <h1 className="main-title">Welcome to Color Conquerer</h1>
+                <PlayButton />
+                <HomeError />
+            </HomeContainer>
         </HomeStateContextProvider>
     );
 }

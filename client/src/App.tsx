@@ -1,11 +1,11 @@
-import UserContextProvider from './contexts/UserContext';
+import AppContexts from './AppContexts';
 import AppRoutes from './routes/AppRoutes';
 
 export default function App() {
 
   return (
-    <UserContextProvider>
+    <AppContexts>
       <AppRoutes />
-    </UserContextProvider>
-  )
+    </AppContexts>
+  );
 }
