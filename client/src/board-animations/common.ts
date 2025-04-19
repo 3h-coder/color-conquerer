@@ -1,4 +1,5 @@
 import { EMPTY_STRING, HTMLElements } from "../env";
+import { activeTooltipTarget, cleanupActiveTooltip } from "../singletons/tooltip";
 import { getHtmlCell } from "../utils/cellUtils";
 import { cleanup } from "../utils/domUtils";
 
@@ -34,6 +35,11 @@ export function triggerAuraEffect(htmlCell: HTMLElement, colorRetriavalFunction:
 
 export function animateCellDeath(htmlCell: HTMLElement) {
   const cleanupDelayInMs = 500;
+
+  if (activeTooltipTarget === htmlCell) {
+    cleanupActiveTooltip();
+  }
+
   htmlCell.style.transition = `background-color ${cleanupDelayInMs - 100}ms ease-in-out`;
   htmlCell.style.setProperty("--bg", "white");
 

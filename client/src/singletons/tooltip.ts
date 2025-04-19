@@ -27,11 +27,13 @@ const EVENT_TOUCH_END = "touchend";
 
 // Since the mouse can only be over one element at a time, we can only have one tooltip
 // active at a time. This is a global variable to keep track of the active tooltip.
-let activeTooltipElement: HTMLElement | null = null;
-let activeReactRoot: Root | null = null;
+let _activeTooltipElement: HTMLElement | null = null;
+let _activeReactRoot: Root | null = null;
 // We're using a ùutation observer as the target element may be removed from the DOM
 // and we need to clean up the tooltip in that case.
-let observer: MutationObserver | null = null;
+let _observer: MutationObserver | null = null;
+
+export let activeTooltipTarget: HTMLElement | null = null;
 
 /** Utility method for the mouse hover to display a tooltip relative to the given target react reference */
 export function bindTooltip(
@@ -48,12 +50,14 @@ export function bindTooltip(
         cleanupActiveTooltip();
         resetMutationObserver(targetElement);
 
+        activeTooltipTarget = targetElement;
         createActiveTooltip(tooltipContentElement, tooltipText);
         adjustTooltipPosition(targetElement, position);
     };
 
     const hideTooltip = () => {
         cleanupActiveTooltip();
+        activeTooltipTarget = null;
     };
 
     targetElement.addEventListener(EVENT_MOUSE_ENTER, showTooltip);
@@ -94,20 +98,20 @@ function createActiveTooltip(
     const tooltipOverlay = getTooltipOverlay();
     tooltipOverlay.appendChild(tooltipElement);
 
-    activeTooltipElement = tooltipElement;
-    activeReactRoot = reactRoot;
+    _activeTooltipElement = tooltipElement;
+    _activeReactRoot = reactRoot;
 }
 
-function cleanupActiveTooltip() {
-    if (activeTooltipElement) {
-        if (activeReactRoot) {
-            activeReactRoot.unmount();
-            activeReactRoot = null;
+export function cleanupActiveTooltip() {
+    if (_activeTooltipElement) {
+        if (_activeReactRoot) {
+            _activeReactRoot.unmount();
+            _activeReactRoot = null;
         }
-        if (activeTooltipElement.parentElement) {
-            activeTooltipElement.parentElement.removeChild(activeTooltipElement);
+        if (_activeTooltipElement.parentElement) {
+            _activeTooltipElement.parentElement.removeChild(_activeTooltipElement);
         }
-        activeTooltipElement = null;
+        _activeTooltipElement = null;
     }
 }
 
@@ -116,18 +120,18 @@ function adjustTooltipPosition(
     position: TooltipPosition | undefined
 ) {
     setTimeout(() => {
-        if (!activeTooltipElement) return;
+        if (!_activeTooltipElement) return;
 
         const targetElementRect = targetElement.getBoundingClientRect();
-        const tooltipRect = activeTooltipElement.getBoundingClientRect();
+        const tooltipRect = _activeTooltipElement.getBoundingClientRect();
 
         const { left, top } = calculateTooltipPosition(
             targetElementRect,
             tooltipRect,
             position ?? TooltipPosition.TOP
         );
-        activeTooltipElement.style.left = left;
-        activeTooltipElement.style.top = top;
+        _activeTooltipElement.style.left = left;
+        _activeTooltipElement.style.top = top;
     }, 20);
 }
 
@@ -139,7 +143,7 @@ function getTooltipOverlay() {
 function resetMutationObserver(targetElement: HTMLElement) {
     destroyMutationObserver();
 
-    observer = new MutationObserver((mutations) => {
+    _observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
             if (
                 mutation.type === "childList" &&
@@ -152,12 +156,12 @@ function resetMutationObserver(targetElement: HTMLElement) {
         }
     });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    _observer.observe(document.body, { childList: true, subtree: true });
 }
 
 function destroyMutationObserver() {
-    observer?.disconnect();
-    observer = null;
+    _observer?.disconnect();
+    _observer = null;
 }
 
 function calculateTooltipPosition(
