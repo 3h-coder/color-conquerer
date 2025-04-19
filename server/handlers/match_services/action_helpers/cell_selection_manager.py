@@ -150,7 +150,7 @@ class CellSelectionManager(ActionManager):
         elif player_mode == PlayerMode.CELL_SPAWN:
             spawn = CellSpawn.create(player1, cell.row_index, cell.column_index)
             self.validate_and_process_action(
-                spawn, server_mode=ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
+                spawn, with_post_processing_recalculation=True
             )
 
         elif player_mode == PlayerMode.SPELL_SELECTED:

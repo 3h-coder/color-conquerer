@@ -126,7 +126,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         self._spell_manager.handle_spell_request(spell_id)
 
     def validate_and_process_action(
-        self, action: Action, server_mode=ServerMode.SHOW_PROCESSED_ACTION
+        self, action: Action, with_post_processing_recalculation: bool = False
     ):
         """
         Validates the given action and processes it if it is valid.
@@ -148,7 +148,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
             self.set_error_message(ErrorMessages.NOT_ENOUGH_MANA)
             return
 
-        self._process_action(action, server_mode)
+        self._process_action(action, with_post_processing_recalculation)
 
     def trigger_callbacks(self):
         processed_action = self.get_processed_action()
@@ -170,18 +170,20 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
     def _process_action(
         self,
         action: Action,
-        server_mode=ServerMode.SHOW_PROCESSED_ACTION,
+        with_post_processing_recalculation,
     ):
         """
         Processes all of the given actions, setting the associate fields along the way.
 
         Note : Action validation should be done before calling this method.
         """
-        self.set_server_mode(
-            server_mode
-            if server_mode != ServerMode.SHOW_POSSIBLE_ACTIONS
+        server_mode = (
+            ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
+            if with_post_processing_recalculation
             else ServerMode.SHOW_PROCESSED_ACTION
         )
+        self.set_server_mode(server_mode)
+
         processed_action = self._action_processor.process_action(action)
         if processed_action is None:
             self.set_player_as_idle()

@@ -97,9 +97,11 @@ class ActionManager(TransientTurnStateHolder):
         return decorator
 
     def validate_and_process_action(
-        self, action: Action, server_mode=ServerMode.SHOW_PROCESSED_ACTION
+        self, action: Action, with_post_processing_recalculation: bool = False
     ):
-        self._match_actions_service.validate_and_process_action(action, server_mode)
+        self._match_actions_service.validate_and_process_action(
+            action, with_post_processing_recalculation
+        )
 
     def trigger_callbacks(self):
         return self._match_actions_service.trigger_callbacks()
