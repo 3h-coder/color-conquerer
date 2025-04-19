@@ -15,7 +15,7 @@ import { MessageDto } from "../../dto/misc/MessageDto";
 import { Events } from "../../enums/events";
 import { ModalIcon } from "../../enums/modalIcons";
 import { PlayerMode } from "../../enums/playerMode";
-import { EMPTY_STRING, localStorageKeys, socket } from "../../env";
+import { EMPTY_STRING, isDevelopment, localStorageKeys, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
 import ActionBoard from "./components/action-board/ActionBoard";
 import GameGrid from "./components/game-grid/GameGrid";
@@ -23,11 +23,9 @@ import GameTopInfo from "./components/game-top-info/GameTopInfo";
 import MyPlayerInfo from "./components/player-info/MyPlayerInfo";
 import OpponentInfo from "./components/player-info/OpponentInfo";
 import SideControls from "./components/side-controls/SideControls";
-import { useHomeError } from "../../contexts/HomeErrorContext";
 
 export default function PlayContent() {
   const navigate = useNavigate();
-  const { setHomeError } = useHomeError();
   const {
     loading: matchInfoLoading,
     failedToResolve: failedToResolveMatchInfo,
@@ -146,7 +144,12 @@ export default function PlayContent() {
     }
 
     function onDisconnect() {
-      setHomeError("The connection with the server was terminated");
+      // This is to facilitate development in order to not have to
+      // manually go back to the home screen each time the server is reboot.
+      // ⚠️ Do not use in production as page refreshes will cause disconnection.
+      if (!isDevelopment)
+        return;
+
       navigate("/");
     }
 
