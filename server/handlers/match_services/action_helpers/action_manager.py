@@ -41,19 +41,25 @@ class ActionManager(TransientTurnStateHolder):
     def get_current_player(self):
         return self._match_actions_service.current_player
 
-    def initialize_transient_board(func):
+    def initialize_transient_board(force_reset=True):
         """
         Decorator method that ensures the transient board is properly initialized.
 
-        To be wrapped around any method that uses the transient board.
+        If force_reset is False, the transient board will not be re-initialized if it already exists.
         """
 
-        @functools.wraps(func)
-        def wrapper(self: "ActionManager", *args, **kwargs):
-            self.set_transient_game_board(self._game_board.clone_as_transient())
-            return func(self, *args, **kwargs)
+        def decorator(func):
+            @functools.wraps(func)
+            def wrapper(self: "ActionManager", *args, **kwargs):
+                if force_reset or not self.get_transient_game_board():
+                    self._logger.debug("Initializing transient board...")
+                    self.set_transient_game_board(self._game_board.clone_as_transient())
 
-        return wrapper
+                return func(self, *args, **kwargs)
+
+            return wrapper
+
+        return decorator
 
     def entry_point(with_turn_state_reset=False):
         """

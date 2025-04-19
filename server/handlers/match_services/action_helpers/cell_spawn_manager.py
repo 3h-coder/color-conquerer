@@ -39,7 +39,7 @@ class CellSpawnManager(ActionManager):
             self.set_player_as_idle()
             self.find_possible_spawns()
 
-    @ActionManager.initialize_transient_board
+    @ActionManager.initialize_transient_board(force_reset=True)
     def find_possible_spawns(self, update_server_mode=True):
         """
         Sets the player mode to CELL_SPAWN and fills the possible actions field with

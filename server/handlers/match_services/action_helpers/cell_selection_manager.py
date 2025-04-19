@@ -164,7 +164,7 @@ class CellSelectionManager(ActionManager):
 
             self.validate_and_process_action(spell_action)
 
-    @ActionManager.initialize_transient_board
+    @ActionManager.initialize_transient_board(force_reset=False)
     def _get_possible_movements_and_attacks(self, player1: bool):
         """
         Returns the concatenated possible movements and attacks a cell may perform.
@@ -178,7 +178,7 @@ class CellSelectionManager(ActionManager):
             self._turn_state,
         )
 
-    @ActionManager.initialize_transient_board
+    @ActionManager.initialize_transient_board(force_reset=False)
     def _set_selected_cell(self, cell: Cell):
         transient_game_board = self.get_transient_game_board()
 

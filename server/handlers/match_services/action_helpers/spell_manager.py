@@ -33,7 +33,7 @@ class SpellManager(ActionManager):
         else:
             self._find_spell_possible_targets(spell_id)
 
-    @ActionManager.initialize_transient_board
+    @ActionManager.initialize_transient_board(force_reset=True)
     def _find_spell_possible_targets(self, spell_id: int):
         """
         Sets the player mode to SPELL_SELECTED and fills the possible actions field with
