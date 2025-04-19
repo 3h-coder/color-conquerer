@@ -52,7 +52,6 @@ class ActionManager(TransientTurnStateHolder):
             @functools.wraps(func)
             def wrapper(self: "ActionManager", *args, **kwargs):
                 if force_reset or not self.get_transient_game_board():
-                    self._logger.debug("Initializing transient board...")
                     self.set_transient_game_board(self._game_board.clone_as_transient())
 
                 return func(self, *args, **kwargs)

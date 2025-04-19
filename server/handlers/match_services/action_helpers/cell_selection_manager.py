@@ -59,12 +59,8 @@ class CellSelectionManager(ActionManager):
         player_mode = self.get_player_mode()
 
         if player_mode == PlayerMode.IDLE:
-            self._set_selected_cell(cell)
-            possible_actions = self._get_possible_movements_and_attacks(player1)
-            if possible_actions:
-                self.set_possible_actions(possible_actions)
-            else:
-                self.set_player_as_idle()
+            self.set_selected_cell(cell)
+            self.get_possible_movements_and_attacks(player1)
 
         elif player_mode == PlayerMode.OWN_CELL_SELECTED:
             if self.get_selected_cell() == cell:
@@ -106,6 +102,9 @@ class CellSelectionManager(ActionManager):
                 cell.get_coordinates(),
             )
             self.validate_and_process_action(attack)
+            # self.validate_and_process_action(
+            #     attack, server_mode=ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
+            # )
 
         elif player_mode == PlayerMode.CELL_SPAWN:
             self.set_error_message(ErrorMessages.SELECT_IDLE_CELL)
@@ -144,6 +143,9 @@ class CellSelectionManager(ActionManager):
                 cell.column_index,
             )
             self.validate_and_process_action(movement)
+            # self.validate_and_process_action(
+            #     movement, server_mode=ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
+            # )
 
         elif player_mode == PlayerMode.CELL_SPAWN:
             spawn = CellSpawn.create(player1, cell.row_index, cell.column_index)
@@ -165,25 +167,30 @@ class CellSelectionManager(ActionManager):
             self.validate_and_process_action(spell_action)
 
     @ActionManager.initialize_transient_board(force_reset=False)
-    def _get_possible_movements_and_attacks(self, player1: bool):
+    def get_possible_movements_and_attacks(self, player1: bool):
         """
         Returns the concatenated possible movements and attacks a cell may perform.
 
         Note : A freshly spawned cell cannot move or attack.
         """
-        return get_possible_movements_and_attacks(
+        possible_movements_and_attacks = get_possible_movements_and_attacks(
             player1,
             self.get_selected_cell(),
             self.get_transient_game_board(),
             self._turn_state,
         )
+        if possible_movements_and_attacks:
+            self.set_possible_actions(possible_movements_and_attacks)
+        else:
+            self.set_player_as_idle()
 
     @ActionManager.initialize_transient_board(force_reset=False)
-    def _set_selected_cell(self, cell: Cell):
+    def set_selected_cell(self, cell: Cell):
         transient_game_board = self.get_transient_game_board()
 
         self.set_player_mode(PlayerMode.OWN_CELL_SELECTED)
-        self.set_selected_cell(cell)
+        # Do not call the method from TransientTurnStateHolder to avoid recursive calls
+        self.transient_turn_state.selected_cell = cell
 
         corresponding_cell = transient_game_board.get(cell.row_index, cell.column_index)
         corresponding_cell.set_selected()

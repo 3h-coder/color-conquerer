@@ -215,7 +215,10 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
 
     def _calculate_post_processing_possible_actions(self):
         """
-        Meant to be called right after action processing.
+        Meant to be called right after action processing, to recalculate the possible actions
+        and display them to the player.
+
+        For example, display all the possible spawns right after spawning a cell.
         """
         server_mode = self.get_server_mode()
         if server_mode != ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
@@ -225,15 +228,41 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         if player_mode == PlayerMode.CELL_SPAWN:
             self._cell_spawn_manager.find_possible_spawns(update_server_mode=False)
 
+        elif player_mode == PlayerMode.OWN_CELL_SELECTED:
+            processed_action = self.get_processed_action()
+
+            if isinstance(processed_action, CellMovement):
+                new_cell_coordinates = processed_action.metadata.impacted_coords
+                self._cell_selection_manager.set_selected_cell(
+                    self._game_board.get(
+                        new_cell_coordinates.row_index,
+                        new_cell_coordinates.column_index,
+                    )
+                )
+            elif isinstance(processed_action, CellAttack):
+                selected_cell_coordinates = self.get_selected_cell().get_coordinates()
+                self._cell_selection_manager.set_selected_cell(
+                    self._game_board.get(
+                        selected_cell_coordinates.row_index,
+                        selected_cell_coordinates.column_index,
+                    )
+                )
+
+            self._cell_selection_manager.get_possible_movements_and_attacks(
+                processed_action.from_player1
+            )
+
     def _calculate_post_trigger_possible_actions(self):
+        """
+        Meant to be called right after a callback has been triggered and processed, to
+        recalculate the possible actions and display them to the player.
+
+        For example, display the possible spawns after a mine trap exploded.
+        """
         server_mode = self.get_server_mode()
         if server_mode != ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
             return
 
         player_mode = self.get_player_mode()
         if player_mode == PlayerMode.CELL_SPAWN:
-            self.set_transient_game_board(self._game_board.clone_as_transient())
-            possible_spawns = get_possible_spawns(
-                self.current_player.is_player_1, self.get_transient_game_board()
-            )
-            self.set_possible_actions(possible_spawns, update_server_mode=False)
+            self._cell_spawn_manager.find_possible_spawns(update_server_mode=False)

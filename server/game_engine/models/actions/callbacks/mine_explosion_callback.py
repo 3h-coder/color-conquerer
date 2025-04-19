@@ -66,7 +66,6 @@ class MineExplosionCallback(ActionCallback):
         )
         return impacted_cell.is_mine_trap()
 
-    @with_performance_logging
     def register_callbacks(self, match_context):
         game_board = match_context.game_board
         row_index, col_index = (

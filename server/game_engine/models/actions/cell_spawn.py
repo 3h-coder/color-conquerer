@@ -40,8 +40,8 @@ class CellSpawn(Action):
         return (
             f"<CellSpawn(from_player1={self.from_player1}, "
             f"mana_cost={self.mana_cost}, "
-            f"metadata={self.metadata}, ",
-            f"callbacks_to_trigger={self._callbacks_to_trigger})>",
+            f"metadata={self.metadata}, "
+            f"callbacks_to_trigger={self._callbacks_to_trigger})>"
         )
 
     def to_dto(self):

@@ -1,4 +1,5 @@
 export enum Events {
+    DISCONNECT = "disconnect",
     SERVER_ERROR = "server-error",
     SERVER_REDIRECT = "server-redirect",
     CLIENT_QUEUE_REGISTER = "queue-register",

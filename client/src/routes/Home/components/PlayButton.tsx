@@ -5,7 +5,6 @@ import { useHomeError } from "../../../contexts/HomeErrorContext";
 import { useHomeState } from "../../../contexts/HomeStateContext";
 import { useUser } from "../../../contexts/UserContext";
 import { ErrorDto } from "../../../dto/misc/ErrorDto";
-import { QueuePlayerDto } from "../../../dto/QueuePlayerDto";
 import { Events } from "../../../enums/events";
 import { HomeState } from "../../../enums/homeState";
 import { EMPTY_STRING, socket } from "../../../env";
@@ -15,6 +14,7 @@ import {
 } from "../../../utils/loggingUtils";
 import { fullPaths } from "../../paths";
 import OpponentSearch from "./OpponentSearch";
+import { QueuePlayerDto } from "../../../dto/player/QueuePlayerDto";
 
 export default function PlayButton() {
     const navigate = useNavigate();
@@ -102,13 +102,13 @@ export default function PlayButton() {
             navigate(fullPaths.play);
         }
 
-        socket.on("disconnect", onDisconnect);
+        socket.on(Events.DISCONNECT, onDisconnect);
         socket.on(Events.SERVER_ERROR, onError);
         socket.on(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess);
         socket.on(Events.SERVER_QUEUE_OPPONENT_FOUND, onOpponentFound);
 
         return () => {
-            socket.off("disconnect", onDisconnect);
+            socket.off(Events.DISCONNECT, onDisconnect);
             socket.off(Events.SERVER_ERROR, onError);
             socket.off(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess);
             socket.off(Events.SERVER_QUEUE_OPPONENT_FOUND, onOpponentFound);
