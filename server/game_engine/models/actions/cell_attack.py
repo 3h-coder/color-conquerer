@@ -113,20 +113,26 @@ class CellAttack(CellAction):
         if attacking_cell.owner == target_cell.owner:
             return
 
+        is_retaliated = (
+            not is_ranged_attack
+            or attacking_cell.is_archer() == target_cell.is_archer()
+        )
+        self.specific_metadata.is_retaliated = is_retaliated
+
         player1_resources, player2_resources = match_context.get_both_player_resources()
         # endregion
 
         # Cell clash
         death_list = self.metadata.deaths
+
         # If both cell are archers or not, they can attack each other
-        if attacking_cell.is_archer() == target_cell.is_archer():
+        if is_retaliated:
             attacking_cell.damage(
                 player1_resources, player2_resources, death_list=death_list
             )
             target_cell.damage(
                 player1_resources, player2_resources, death_list=death_list
             )
-            self.specific_metadata.is_retaliated = True
         # If only the attacker is an archer and the attack is ranged, only the target cell is damaged
         elif attacking_cell.is_archer() and is_ranged_attack:
             target_cell.damage(
