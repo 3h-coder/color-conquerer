@@ -184,6 +184,10 @@ svg {
   max-width: max(25vmin, 120px);
 
   animation: fade-in 0.3s ease-in-out forwards;
+
+  @media (max-width: 660px) {
+    font-size: 0.75rem;
+  }
 }
 
 .transparent {

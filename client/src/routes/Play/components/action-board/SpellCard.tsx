@@ -30,8 +30,8 @@ export default function SpellCard(props: SpellCardProps) {
     }, [canInteract]);
 
     const spellDescription = (
-        <div>
-            <InfoIcon style={{ width: "0.9rem" }} />
+        <div className="spell-description">
+            <InfoIcon />
             {WHITE_SPACE}
             {spell.description}
         </div>

@@ -39,6 +39,14 @@
     margin-top: var(--spacing-medium1);
 }
 
+.spell-description svg {
+    width: 0.9rem;
+
+    @media (max-width: 660px) {
+        width: 0.7rem;
+      }
+}
+
 .spell-card {
     position: relative;
     display: flex;
