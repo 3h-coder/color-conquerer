@@ -38,7 +38,7 @@ class CellSelectionManager(ActionManager):
         is_player_1 = player.is_player_1
         cell: Cell = self._game_board.get(cell_row, cell_col)
 
-        if cell.belongs_to(player):
+        if cell.belongs_to_player(player):
             self._handle_own_cell_selection(cell, is_player_1)
 
         # the cell belongs to the opponent
@@ -101,10 +101,10 @@ class CellSelectionManager(ActionManager):
                 selected_cell.get_coordinates(),
                 cell.get_coordinates(),
             )
-            self.validate_and_process_action(attack)
-            # self.validate_and_process_action(
-            #     attack, server_mode=ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
-            # )
+            # self.validate_and_process_action(attack)
+            self.validate_and_process_action(
+                attack, with_post_processing_recalculation=True
+            )
 
         elif player_mode == PlayerMode.CELL_SPAWN:
             self.set_error_message(ErrorMessages.SELECT_IDLE_CELL)
@@ -142,10 +142,10 @@ class CellSelectionManager(ActionManager):
                 cell.row_index,
                 cell.column_index,
             )
-            self.validate_and_process_action(movement)
-            # self.validate_and_process_action(
-            #     movement, server_mode=ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
-            # )
+            # self.validate_and_process_action(movement)
+            self.validate_and_process_action(
+                movement, with_post_processing_recalculation=True
+            )
 
         elif player_mode == PlayerMode.CELL_SPAWN:
             spawn = CellSpawn.create(player1, cell.row_index, cell.column_index)
@@ -167,7 +167,9 @@ class CellSelectionManager(ActionManager):
             self.validate_and_process_action(spell_action)
 
     @ActionManager.initialize_transient_board(force_reset=False)
-    def get_possible_movements_and_attacks(self, player1: bool):
+    def get_possible_movements_and_attacks(
+        self, player1: bool, recalculating: bool = False
+    ):
         """
         Returns the concatenated possible movements and attacks a cell may perform.
 
@@ -180,7 +182,11 @@ class CellSelectionManager(ActionManager):
             self._turn_state,
         )
         if possible_movements_and_attacks:
-            self.set_possible_actions(possible_movements_and_attacks)
+            self.set_possible_actions(
+                possible_movements_and_attacks, update_server_mode=not recalculating
+            )
+        elif recalculating:
+            self.set_server_mode(ServerMode.SHOW_PROCESSED_ACTION)
         else:
             self.set_player_as_idle()
 

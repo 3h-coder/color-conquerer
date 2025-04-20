@@ -40,7 +40,7 @@ class CellSpawnManager(ActionManager):
             self.find_possible_spawns()
 
     @ActionManager.initialize_transient_board(force_reset=True)
-    def find_possible_spawns(self, update_server_mode=True):
+    def find_possible_spawns(self, recalculating=False):
         """
         Sets the player mode to CELL_SPAWN and fills the possible actions field with
         the potential spawns.
@@ -51,4 +51,4 @@ class CellSpawnManager(ActionManager):
         possible_spawns = get_possible_spawns(player.is_player_1, transient_game_board)
 
         self.set_player_mode(PlayerMode.CELL_SPAWN)
-        self.set_possible_actions(possible_spawns, update_server_mode)
+        self.set_possible_actions(possible_spawns, update_server_mode=not recalculating)

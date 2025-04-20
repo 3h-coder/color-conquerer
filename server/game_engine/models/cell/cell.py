@@ -115,10 +115,13 @@ class Cell:
     def belongs_to_player_2(self):
         return self.owner == CellOwner.PLAYER_2
 
-    def belongs_to(self, player: Player):
+    def belongs_to_player(self, player: Player):
+        return self.belongs_to(player.is_player_1)
+
+    def belongs_to(self, player1: bool):
         return (
             self.owner == CellOwner.PLAYER_1
-            if player.is_player_1
+            if player1
             else self.owner == CellOwner.PLAYER_2
         )
 
