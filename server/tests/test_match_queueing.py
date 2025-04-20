@@ -8,7 +8,7 @@ from dto.player.queue_player_dto import QueuePlayerDto
 from events.events import Events
 from exceptions.queue_error import QueueError
 from server import Server
-from tests.utilities import initialize_session
+from tests.utilities.utilities import initialize_session
 
 
 def test_registration_not_allowed_without_initialized_session(

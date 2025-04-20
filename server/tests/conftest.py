@@ -1,20 +1,19 @@
 import pytest
 
-from server import Server
-from tests.utilities import mock_app, mock_queue_player_dto, mock_server
+from tests.helpers.match_helper import MatchHelper
+from tests.utilities.mocks import mock_queue_player_dto, mock_server
+
+
+@pytest.fixture
+def match():
+    """Ficture to provide a test match helper instance"""
+    return MatchHelper()
 
 
 @pytest.fixture
 def server():
     """Fixture to provide a new mock server instance"""
-    return mock_server(mock_app())
-
-
-@pytest.fixture
-def server_test_client():
-    app = mock_app()
-    server = Server(app)
-    return server.socketio.test_client(app=app.test_client())
+    return mock_server()
 
 
 @pytest.fixture

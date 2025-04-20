@@ -23,8 +23,11 @@ class TurnWatcherService(ServiceBase):
 
         self._turn_start_time: datetime = None
         self._turn_watcher_thread = None
-        self._turn_manual_swap_event = Event()
+        self._turn_swap_request_event = Event()
         self._turn_swap_external_callbacks: list[Callable] = []
+
+        self.turn_swap_complete_event = Event()
+        self.turn_duration_in_s = TURN_DURATION_IN_S
 
     def add_external_callback(self, callback: Callable):
         self._turn_swap_external_callbacks.append(callback)
@@ -39,7 +42,9 @@ class TurnWatcherService(ServiceBase):
                 self._turn_start_time = datetime.now()
 
                 # Wait for the turn duration or a manual end signal
-                if not self._turn_manual_swap_event.wait(timeout=TURN_DURATION_IN_S):
+                if not self._turn_swap_request_event.wait(
+                    timeout=self.turn_duration_in_s
+                ):
                     # Timeout: Automatically end the turn
                     self._swap_turn(manual=False)
                 else:
@@ -52,7 +57,7 @@ class TurnWatcherService(ServiceBase):
 
     def force_turn_swap(self):
         """Forces a turn swap by raising up the associated threading Event."""
-        self._turn_manual_swap_event.set()
+        self._turn_swap_request_event.set()
 
     def get_remaining_turn_time(self):
         """Returns the remining time in seconds for the current turn."""
@@ -67,7 +72,7 @@ class TurnWatcherService(ServiceBase):
             return
 
         if manual:
-            self._turn_manual_swap_event.clear()  # Reset the event for the next turn
+            self._turn_swap_request_event.clear()  # Reset the event for the next turn
 
         self._process_turn_swap()
 
@@ -88,6 +93,8 @@ class TurnWatcherService(ServiceBase):
         """
         process_turn_change(self.match_context)
         self._trigger_external_callbacks()
+        self.turn_swap_complete_event.set()  # Signal that the turn swap is complete
+        self.turn_swap_complete_event.clear()  # Reset for the next turn
 
     def _trigger_external_callbacks(self):
         for callback in self._turn_swap_external_callbacks:
