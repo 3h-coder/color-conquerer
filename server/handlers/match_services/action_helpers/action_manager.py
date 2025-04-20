@@ -33,7 +33,7 @@ class ActionManager(TransientTurnStateHolder):
     def __init__(self, match_actions_service: "MatchActionsService"):
         super().__init__(match_actions_service.transient_turn_state)
         self._match_actions_service = match_actions_service
-        self._game_board = match_actions_service._game_board
+        self._game_board = match_actions_service.match_context.game_board
         self._match = match_actions_service.match
         self._room_id = match_actions_service.match.match_context.room_id
         self._logger = get_configured_logger(__name__)
@@ -99,12 +99,12 @@ class ActionManager(TransientTurnStateHolder):
     def validate_and_process_action(
         self, action: Action, with_post_processing_recalculation: bool = False
     ):
-        self._match_actions_service.validate_and_process_action(
+        self._match_actions_service.common_action_manager.validate_and_process_action(
             action, with_post_processing_recalculation
         )
 
     def trigger_callbacks(self):
-        return self._match_actions_service.trigger_callbacks()
+        return self._match_actions_service.common_action_manager.trigger_callbacks()
 
     def send_response_to_clients(self):
         """

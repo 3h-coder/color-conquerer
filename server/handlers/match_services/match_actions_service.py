@@ -14,6 +14,9 @@ from handlers.match_services.action_helpers.cell_selection_manager import (
     CellSelectionManager,
 )
 from handlers.match_services.action_helpers.cell_spawn_manager import CellSpawnManager
+from handlers.match_services.action_helpers.common_action_manager import (
+    CommonActionManager,
+)
 from handlers.match_services.action_helpers.error_messages import ErrorMessages
 from handlers.match_services.action_helpers.player_mode import PlayerMode
 from handlers.match_services.action_helpers.server_mode import ServerMode
@@ -41,22 +44,15 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         TransientTurnStateHolder.__init__(self, TransientTurnState())
         self._logger = get_configured_logger(__name__)
 
-        # region Match persistent fields
-
-        self._game_board = self.match.match_context.game_board
-        self._action_processor = ActionProcessor(self.match_context)
-
+        self.turn_state = self.match.turn_state
         # Dictionary storing all of the actions that happened during a match.
         # Key : turn number | Value : list of actions
         self.actions_per_turn: dict[int, list] = {}
 
-        # endregion
-
-        self.turn_state = self.match.turn_state
-
-        self._cell_selection_manager = CellSelectionManager(self)
-        self._cell_spawn_manager = CellSpawnManager(self)
-        self._spell_manager = SpellManager(self)
+        self.common_action_manager = CommonActionManager(self)
+        self.cell_selection_manager = CellSelectionManager(self)
+        self.cell_spawn_manager = CellSpawnManager(self)
+        self.spell_manager = SpellManager(self)
 
     def _entry_point(func):
         """
@@ -109,7 +105,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         """
         Handles the cell selection from the current player.
         """
-        self._cell_selection_manager.handle_cell_selection(cell_row, cell_col)
+        self.cell_selection_manager.handle_cell_selection(cell_row, cell_col)
 
     @_entry_point
     def handle_spawn_toggle(self):
@@ -117,144 +113,11 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         Handles the spawn toggling action, to either display the possible
         spawns or quit displaying it.
         """
-        self._cell_spawn_manager.handle_spawn_toggle()
+        self.cell_spawn_manager.handle_spawn_toggle()
 
     @_entry_point
     def handle_spell_request(self, spell_id: int):
         """
         Handles the spell request of a player.
         """
-        self._spell_manager.handle_spell_request(spell_id)
-
-    def validate_and_process_action(
-        self, action: Action, with_post_processing_recalculation: bool = False
-    ):
-        """
-        Validates the given action and processes it if it is valid.
-        """
-        if action not in self.get_possible_actions():
-            self._logger.error(
-                f"The following action was not registered in the possible actions : {action}"
-            )
-
-            player_mode = self.get_player_mode()
-            if player_mode == PlayerMode.SPELL_SELECTED:
-                selected_spell = self.get_selected_spell()
-                self.set_error_message(selected_spell.INVALID_SELECTION_ERROR_MESSAGE)
-            else:
-                self.set_error_message(ErrorMessages.INVALID_ACTION)
-            return
-
-        if action.mana_cost > self.current_player.resources.current_mp:
-            self.set_error_message(ErrorMessages.NOT_ENOUGH_MANA)
-            return
-
-        self._process_action(action, with_post_processing_recalculation)
-
-    def trigger_callbacks(self):
-        processed_action = self.get_processed_action()
-        if processed_action is None or not processed_action.has_callbacks_to_trigger():
-            return
-
-        self._logger.debug(
-            f"Triggering the callbacks for the action : {processed_action}"
-        )
-        triggered_callbacks = set()
-        for callback in self._action_processor.trigger_callbacks(processed_action):
-            self._recalculate_possible_actions()
-
-            triggered_callbacks.add(callback)
-            yield callback
-
-        self.set_triggered_callbacks(triggered_callbacks)
-
-    def _process_action(
-        self,
-        action: Action,
-        with_post_processing_recalculation,
-    ):
-        """
-        Processes all of the given actions, setting the associate fields along the way.
-
-        Note : Action validation should be done before calling this method.
-        """
-        server_mode = (
-            ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS
-            if with_post_processing_recalculation
-            else ServerMode.SHOW_PROCESSED_ACTION
-        )
-        self.set_server_mode(server_mode)
-
-        processed_action = self._action_processor.process_action(action)
-        if processed_action is None:
-            self.set_player_as_idle()
-            self.set_error_message(ErrorMessages.INVALID_ACTION)
-            return
-
-        self._register_processed_action(processed_action)
-        self._recalculate_possible_actions()
-
-    def _register_processed_action(self, action: Action):
-        """
-        Adds a processed action to the turn and match actions fields.
-        """
-        # Set all the transient fields
-        self.set_processed_action(action)
-        self.set_error_message("")
-        self.set_transient_game_board(None)
-
-        # Register the action for record purposes
-        current_turn = self.match_context.current_turn
-        if current_turn not in self.actions_per_turn:
-            self.actions_per_turn[current_turn] = []
-
-        self.actions_per_turn[current_turn].append(action)
-
-        if isinstance(action, CellMovement):
-            self.turn_state.register_movement(action.cell_id)
-
-        elif isinstance(action, CellAttack):
-            self.turn_state.register_attack(action.cell_id)
-
-    def _recalculate_possible_actions(self):
-        """
-        Meant to be called right after action/callback processing, to recalculate the possible actions
-        and display them to the player.
-
-        For example, display all the possible spawns right after spawning a cell.
-        """
-        server_mode = self.get_server_mode()
-        if server_mode != ServerMode.SHOW_PROCESSED_AND_POSSIBLE_ACTIONS:
-            return
-
-        player_mode = self.get_player_mode()
-        if player_mode == PlayerMode.CELL_SPAWN:
-            self._cell_spawn_manager.find_possible_spawns(recalculating=True)
-
-        elif player_mode == PlayerMode.OWN_CELL_SELECTED:
-            processed_action = self.get_processed_action()
-
-            cell_to_select: Cell | None = None
-            if isinstance(processed_action, CellMovement):
-                new_cell_coordinates = processed_action.metadata.impacted_coords
-                cell_to_select = self._game_board.get(
-                    new_cell_coordinates.row_index,
-                    new_cell_coordinates.column_index,
-                )
-            elif isinstance(processed_action, CellAttack):
-                selected_cell_coordinates = self.get_selected_cell().get_coordinates()
-                cell_to_select = self._game_board.get(
-                    selected_cell_coordinates.row_index,
-                    selected_cell_coordinates.column_index,
-                )
-
-            if not cell_to_select.belongs_to(processed_action.from_player1):
-                self._logger.debug(
-                    "The cell no longer belongs to the player, cancelling action recalculation"
-                )
-                self.set_server_mode(ServerMode.SHOW_PROCESSED_ACTION)
-            else:
-                self._cell_selection_manager.set_selected_cell(cell_to_select)
-                self._cell_selection_manager.get_possible_movements_and_attacks(
-                    processed_action.from_player1, recalculating=True
-                )
+        self.spell_manager.handle_spell_request(spell_id)
