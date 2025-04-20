@@ -26,7 +26,6 @@ class TurnWatcherService(ServiceBase):
         self._turn_swap_request_event = Event()
         self._turn_swap_external_callbacks: list[Callable] = []
 
-        self.turn_swap_complete_event = Event()
         self.turn_duration_in_s = TURN_DURATION_IN_S
 
     def add_external_callback(self, callback: Callable):
@@ -93,8 +92,6 @@ class TurnWatcherService(ServiceBase):
         """
         process_turn_change(self.match_context)
         self._trigger_external_callbacks()
-        self.turn_swap_complete_event.set()  # Signal that the turn swap is complete
-        self.turn_swap_complete_event.clear()  # Reset for the next turn
 
     def _trigger_external_callbacks(self):
         for callback in self._turn_swap_external_callbacks:

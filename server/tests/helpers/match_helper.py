@@ -12,7 +12,7 @@ class MatchHelper:
         self.server = mock_server()
         self.player1_client = ClientHelper(self.server)
         self.player2_client = ClientHelper(self.server)
-        self.match: MatchHandlerUnit | None = None
+        self.match_handler_unit: MatchHandlerUnit | None = None
 
     def start(self):
         # ⚠️ The order is important
@@ -22,18 +22,12 @@ class MatchHelper:
         closed_room = next(iter(self.server.room_handler.closed_rooms.values()))
         self._set_match(self.server.match_handler.get_unit(closed_room.id))
 
-        assert self.match.is_waiting_to_start()
+        assert self.match_handler_unit.is_waiting_to_start()
 
         self.player1_client.send_ready_signal()
         self.player2_client.send_ready_signal()
 
-        assert self.match.is_ongoing()
-
-    def wait_for_turn_swap_completion(self):
-        turn_swap_commplete_event = (
-            self.match._turn_watcher_service.turn_swap_complete_event
-        )
-        turn_swap_commplete_event.wait(timeout=0.01)
+        assert self.match_handler_unit.is_ongoing()
 
     # region Getters
 
@@ -41,15 +35,15 @@ class MatchHelper:
         return self.player1_client, self.player2_client
 
     def get_current_turn(self):
-        return self.match.match_context.current_turn
+        return self.match_handler_unit.match_context.current_turn
 
     # endregion
 
     # region Setters
 
     def _set_match(self, match: MatchHandlerUnit):
-        self.match = match
+        self.match_handler_unit = match
         # This will cancel automatic turn swapping for tests
-        self.match._turn_watcher_service.turn_duration_in_s = None
+        self.match_handler_unit._turn_watcher_service.turn_duration_in_s = None
 
     # endregion

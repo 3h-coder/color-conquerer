@@ -60,7 +60,7 @@ def test_registration_not_allowed_at_capacity(
         with pytest.raises(QueueError, match=QueueError.MAX_CAPACITY_ERROR_MSG):
             event_listener(queue_player_dto.to_dict())
 
-        room_handler.at_capacity.assert_called_once_with()
+        room_handler.at_capacity.assert_called_once()
 
 
 def test_successful_registration_puts_queuer_in_an_open_room(
