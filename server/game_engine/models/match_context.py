@@ -62,7 +62,7 @@ class MatchContext:
     def get_individual_player_rooms(self):
         return self.player1.individual_room_id, self.player2.individual_room_id
 
-    def get_both_player_resources(self):
+    def get_both_players_resources(self):
         return (self.player1.resources, self.player2.resources)
 
     def both_players_are_dead(self):

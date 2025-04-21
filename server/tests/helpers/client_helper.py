@@ -10,7 +10,8 @@ class ClientHelper:
     Helper class to simulate an actual client.
     """
 
-    def __init__(self, server: Server):
+    def __init__(self, server: Server, is_player1: bool):
+        self._is_player1 = is_player1
         self._server = server
         self._app = server.app
         self._flask_client = self._app.test_client()
@@ -55,7 +56,13 @@ class ClientHelper:
         self.emit(Events.CLIENT_REQUEST_SPELLS)
 
     def click_any_cell(self):
-        cell_dto = Cell.get_default_idle_cell(0, 0).to_dto(None)
+        cell_dto = Cell.get_default_idle_cell(0, 0).to_dto(self._is_player1)
+        self.emit(Events.CLIENT_CELL_CLICK, cell_dto.to_dict())
+
+    def click_cell_at(self, row_index: int, col_index: int):
+        cell_dto = Cell.get_default_idle_cell(row_index, col_index).to_dto(
+            self._is_player1
+        )
         self.emit(Events.CLIENT_CELL_CLICK, cell_dto.to_dict())
 
     def click_any_spell(self):
@@ -63,9 +70,5 @@ class ClientHelper:
 
     def click_spawn_button(self):
         self.emit(Events.CLIENT_SPAWN_BUTTON)
-
-    # endregion
-
-    # region Private methods
 
     # endregion

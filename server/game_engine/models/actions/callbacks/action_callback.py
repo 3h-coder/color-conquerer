@@ -102,7 +102,7 @@ class ActionCallback(WithCallbacks):
             trigger_func(self, match_context)
 
             self.updated_game_board = match_context.game_board.clone()
-            self.updated_player_resources = match_context.get_both_player_resources()
+            self.updated_player_resources = match_context.get_both_players_resources()
 
         return wrapper
 

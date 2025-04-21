@@ -247,7 +247,7 @@ class MatchHandlerUnit:
 
         The first and second elements in the tuple belong to the player1 and player2 respectively.
         """
-        return self.match_context.get_both_player_resources()
+        return self.match_context.get_both_players_resources()
 
     def get_individual_player_rooms(self):
         """

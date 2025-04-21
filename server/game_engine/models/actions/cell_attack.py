@@ -119,7 +119,9 @@ class CellAttack(CellAction):
         )
         self.specific_metadata.is_retaliated = is_retaliated
 
-        player1_resources, player2_resources = match_context.get_both_player_resources()
+        player1_resources, player2_resources = (
+            match_context.get_both_players_resources()
+        )
         # endregion
 
         # Cell clash

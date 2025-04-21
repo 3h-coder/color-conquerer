@@ -100,7 +100,9 @@ class MineExplosionCallback(ActionCallback):
         neighbour_cells = match_context.game_board.get_neighbours(
             row_index, column_index
         )
-        player1_resources, player2_resources = match_context.get_both_player_resources()
+        player1_resources, player2_resources = (
+            match_context.get_both_players_resources()
+        )
 
         death_list = self.deaths
         # Damage all neighbour cells
