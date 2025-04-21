@@ -63,11 +63,6 @@ class MatchHelper:
             self.match_handler_unit._match_actions_service.transient_turn_state.possible_actions
         )
 
-    def get_processed_action(self):
-        return (
-            self.match_handler_unit._match_actions_service.transient_turn_state.processed_action
-        )
-
     def get_current_turn_processed_actions(self):
         actions_per_turn = (
             self.match_handler_unit._match_actions_service.actions_per_turn

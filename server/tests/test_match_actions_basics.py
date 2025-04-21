@@ -47,7 +47,6 @@ def test_cell_movement(started_match: MatchHelper):
 
     assert not player1_master_cell.belongs_to_player_1()
     player1_master_cell = started_match.get_cell_at(row_index, col_index)
-
     assert player1_master_cell.belongs_to_player_1()
     assert player1_master_cell.is_master
 
@@ -86,8 +85,8 @@ def test_cell_attack(started_match: MatchHelper):
 
     assert len(possible_attacks) == 1
 
-    possible_attack = possible_attacks[0]
-    row_index, col_index = possible_attack.metadata.impacted_coords.as_tuple()
+    chosen_attack = possible_attacks[0]
+    row_index, col_index = chosen_attack.metadata.impacted_coords.as_tuple()
     transient_cell = transient_game_board.get(row_index, col_index)
 
     assert transient_cell.transient_state == CellTransientState.CAN_BE_ATTACKED
@@ -96,9 +95,9 @@ def test_cell_attack(started_match: MatchHelper):
     player1_client.click_cell_at(row_index, col_index)
 
     # Assert again
-    assert started_match.get_processed_action() == possible_attack
+    assert chosen_attack in started_match.get_current_turn_processed_actions()
     assert player1_resources.current_hp == player1_starting_hp - 1
-    assert player2_resources.current_hp == player1_starting_hp - 1
+    assert player2_resources.current_hp == player2_starting_hp - 1
 
 
 def test_cell_spawn(started_match: MatchHelper):
@@ -135,7 +134,7 @@ def test_cell_spawn(started_match: MatchHelper):
 
     # Assert again
     assert chosen_spawn in started_match.get_current_turn_processed_actions()
-    spawned_cell = started_match.get_cell_at(row_index, col_index)
 
+    spawned_cell = started_match.get_cell_at(row_index, col_index)
     assert spawned_cell.belongs_to_player_1()
     assert spawned_cell.is_freshly_spawned()
