@@ -56,8 +56,7 @@ class ClientHelper:
         self.emit(Events.CLIENT_REQUEST_SPELLS)
 
     def click_any_cell(self):
-        cell_dto = Cell.get_default_idle_cell(0, 0).to_dto(self._is_player1)
-        self.emit(Events.CLIENT_CELL_CLICK, cell_dto.to_dict())
+        self.click_cell_at(0, 0)
 
     def click_cell_at(self, row_index: int, col_index: int):
         cell_dto = Cell.get_default_idle_cell(row_index, col_index).to_dto(

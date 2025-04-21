@@ -42,6 +42,10 @@ def notify_turn_swap(
         _emit(Events.SERVER_TURN_SWAP, turn_context_2.to_dict(), to=player2_room)
 
 
+def notify_inactivity_warning(player_room: str):
+    _emit(Events.SERVER_INACTIVITY_WARNING, to=player_room)
+
+
 def notify_possible_actions(possible_actions: PossibleActionsDto):
     emit(Events.SERVER_POSSIBLE_ACTIONS, possible_actions.to_dict())
 

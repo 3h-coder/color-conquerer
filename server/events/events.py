@@ -10,6 +10,7 @@ class Events(StrEnum):
 
     SERVER_ERROR = "server-error"
     SERVER_REDIRECT = "server-redirect"
+    SERVER_INACTIVITY_WARNING = "server-inactivity-warning"
     CLIENT_QUEUE_REGISTER = "queue-register"
     SERVER_QUEUE_REGISTERED = "queue-registered"
     SERVER_QUEUE_OPPONENT_FOUND = "queue-opponentFound"

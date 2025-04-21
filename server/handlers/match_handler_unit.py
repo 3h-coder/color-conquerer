@@ -1,4 +1,5 @@
 from enum import Enum
+import functools
 from threading import Lock
 
 from config.logging import get_configured_logger
@@ -17,6 +18,9 @@ from handlers.match_services.player_entry_watcher_service import (
     PlayerEntryWatcherService,
 )
 from handlers.match_services.player_exit_watcher_service import PlayerExitWatcherService
+from handlers.match_services.player_inactivity_watcher_service import (
+    PlayerInactivityWatcherService,
+)
 from handlers.match_services.turn_watcher_service import TurnWatcherService
 from server_gate import get_server
 from utils.id_generation_utils import generate_id
@@ -55,54 +59,17 @@ class MatchHandlerUnit:
 
         self._player_exit_watcher_service = PlayerExitWatcherService(self)
 
+        self._player_inactivity_watcher_service = PlayerInactivityWatcherService(self)
+
         self._turn_watcher_service = TurnWatcherService(self)
         self._turn_watcher_service.add_external_callback(
             self._match_actions_service.reset_for_new_turn
         )
+        self._turn_watcher_service.add_external_callback(
+            self._player_inactivity_watcher_service.on_turn_swap
+        )
 
-    def is_waiting_to_start(self):
-        return self.status == MatchStatus.WAITING_TO_START
-
-    def is_ongoing(self):
-        return self.status == MatchStatus.ONGOING
-
-    def is_ended(self):
-        return self.status == MatchStatus.ENDED
-
-    def is_cancelled(self):
-        return self.status == MatchStatus.ABORTED
-
-    def mark_as_ended(self):
-        """
-        WARNING : To only be used in the match termination service.
-
-        Allows it not to import MatchStatus.
-        """
-        self.status = MatchStatus.ENDED
-
-    def mark_as_cancelled(self):
-        """
-        WARNING : To only be used in the match termination service.
-
-        Allows it not to import MatchStatus.
-        """
-        self.status = MatchStatus.ABORTED
-
-    def watch_player_entry(self):
-        """
-        Waits a specific delay before prematurely ending or cancelling the match
-        if at least one player did not join.
-        """
-        self._player_entry_watcher_service.watch_player_entry()
-
-    def mark_player_as_ready(self, player_id):
-        self._player_entry_watcher_service.mark_player_as_ready(player_id)
-
-    def all_players_ready(self):
-        """
-        Returns True if all the players are marked as ready, False otherwise.
-        """
-        return self._player_entry_watcher_service.all_players_ready()
+    # region Lifecycle
 
     def start(self):
         """
@@ -120,6 +87,7 @@ class MatchHandlerUnit:
 
         self.logger.info(f"Starting the match in the room {self.match_context.room_id}")
 
+        # Important variables set up
         self.status = MatchStatus.ONGOING
         self.match_context.current_turn = 1
         self.match_context.is_player1_turn = True
@@ -127,6 +95,8 @@ class MatchHandlerUnit:
 
         # Trigger the turn watcher service to process player turns
         self._turn_watcher_service.trigger()
+        # Trigger the inactivity watcher service to watch for inactive players
+        self._player_inactivity_watcher_service.trigger()
 
         # notify the clients
         notify_match_start(
@@ -138,6 +108,9 @@ class MatchHandlerUnit:
         )
 
     def cancel(self):
+        """
+        Cancels the match.
+        """
         self._match_termination_service.cancel_match()
 
     def end(
@@ -154,6 +127,117 @@ class MatchHandlerUnit:
         """
         self._match_termination_service.end_match(reason, winner_id, loser_id)
 
+    # endregion
+
+    # region Main API
+
+    # region Player entry observation
+
+    def watch_player_entry(self):
+        """
+        Waits a specific delay before prematurely ending or cancelling the match
+        if at least one player did not join.
+        """
+        self._player_entry_watcher_service.watch_player_entry()
+
+    def mark_player_as_ready(self, player_id):
+        self._player_entry_watcher_service.mark_player_as_ready(player_id)
+
+    def all_players_ready(self):
+        """
+        Returns True if all the players are marked as ready, False otherwise.
+        """
+        return self._player_entry_watcher_service.all_players_ready()
+
+    # endregion
+
+    # region Player exit observation
+
+    def set_player_as_idle(self, player_id: str):
+        """
+        Sets the server side player mode to idle.
+        """
+        if self.get_current_player().player_id != player_id:
+            return
+
+        self._match_actions_service.set_player_as_idle()
+
+    def watch_player_exit(self, player_id: str):
+        """
+        Starts watching a player exit, ending the match after a given delay if the player
+        does not reconnect.
+        """
+        self._player_exit_watcher_service.watch_player_exit(player_id)
+
+    def stop_watching_player_exit(self, player_id: str):
+        """
+        Stops watching a player exit.
+        """
+        self._player_exit_watcher_service.stop_watching_player_exit(player_id)
+
+    # endregion
+
+    # region Player actions entry points
+
+    def _reports_player_activity(func):
+        """
+        Decorator function to automatically report player activity
+        and reset the inactivity watchers for the current player.
+        """
+
+        @functools.wraps(func)
+        def wrapper(self: "MatchHandlerUnit", *args, **kwargs):
+            self._player_inactivity_watcher_service.report_activity()
+            func(self, *args, **kwargs)
+
+        return wrapper
+
+    @_reports_player_activity
+    def handle_cell_selection(self, cell_row: int, cell_col: int):
+        """
+        Triggers all of the processing relative to a cell selection from the current player.
+        """
+        self._match_actions_service.handle_cell_selection(cell_row, cell_col)
+
+    @_reports_player_activity
+    def handle_spawn_button(self):
+        """
+        Triggers all of the processing relative to a spawn request from the current player.
+        """
+        self._match_actions_service.handle_spawn_toggle()
+
+    @_reports_player_activity
+    def handle_spell_button(self, spell_id: int):
+        """
+        Triggers all of the processing relative to a spell request from the current player.
+        """
+        self._match_actions_service.handle_spell_request(spell_id)
+
+    @_reports_player_activity
+    def force_turn_swap(self):
+        """
+        Forcefully triggers a turn swap.
+        """
+        self._turn_watcher_service.force_turn_swap()
+
+    # endregion
+
+    # endregion
+
+    # region Getters
+
+    def is_waiting_to_start(self):
+        return self.status == MatchStatus.WAITING_TO_START
+
+    def is_ongoing(self):
+        return self.status == MatchStatus.ONGOING
+
+    def is_ended(self):
+        return self.status == MatchStatus.ENDED
+
+    def is_cancelled(self):
+        return self.status == MatchStatus.ABORTED
+
     def get_turn_context_dto(self, for_player1: bool, for_new_turn=False):
         return TurnContextDto(
             currentPlayerId=self.get_current_player().player_id,
@@ -168,52 +252,6 @@ class MatchHandlerUnit:
 
     def get_game_context_dto(self, for_player1: bool):
         return GameContextDto.from_match_context(self.match_context, for_player1)
-
-    def set_player_as_idle(self, player_id: str):
-        """
-        Sets the server side player mode to idle.
-        """
-        if self.get_current_player().player_id != player_id:
-            return
-
-        self._match_actions_service.set_player_as_idle()
-
-    def handle_cell_selection(self, cell_row: int, cell_col: int):
-        """
-        Triggers all of the processing relative to a cell selection.
-        """
-        self._match_actions_service.handle_cell_selection(cell_row, cell_col)
-
-    def handle_spawn_button(self):
-        """
-        Triggers all of the processing relative to a spawn request.
-        """
-        self._match_actions_service.handle_spawn_toggle()
-
-    def handle_spell_button(self, spell_id: int):
-        """
-        Triggers all of the processing relative to a spell request.
-        """
-        self._match_actions_service.handle_spell_request(spell_id)
-
-    def force_turn_swap(self):
-        """
-        Forcefully triggers a turn swap.
-        """
-        self._turn_watcher_service.force_turn_swap()
-
-    def stop_watching_player_exit(self, player_id: str):
-        """
-        Stops watching a player exit.
-        """
-        self._player_exit_watcher_service.stop_watching_player_exit(player_id)
-
-    def watch_player_exit(self, player_id: str):
-        """
-        Starts watching a player exit, ending the match after a given delay if the player
-        does not reconnect.
-        """
-        self._player_exit_watcher_service.watch_player_exit(player_id)
 
     def get_current_player(self):
         """Gets the id of the player of whom it is the turn."""
@@ -265,6 +303,28 @@ class MatchHandlerUnit:
 
     def _get_initial_match_context(self, room: Room):
         return MatchContext.get_initial(generate_id(MatchContext), room)
+
+    # endregion
+
+    # region Setters
+
+    def mark_as_ended(self):
+        """
+        WARNING : To only be used in the match termination service.
+
+        Allows it not to import MatchStatus.
+        """
+        self.status = MatchStatus.ENDED
+
+    def mark_as_cancelled(self):
+        """
+        WARNING : To only be used in the match termination service.
+
+        Allows it not to import MatchStatus.
+        """
+        self.status = MatchStatus.ABORTED
+
+    # endregion
 
 
 class MatchStatus(Enum):
