@@ -18,6 +18,9 @@ from utils import session_utils
 
 _logger = get_configured_logger(__name__)
 
+# Used in tests as well
+OUT_OF_MATCH_LOG_ERROR_MSG = "Tried to execute a match event outside of a match"
+
 
 def only_if_in_match(func):
     """
@@ -27,9 +30,7 @@ def only_if_in_match(func):
 
     def wrapper(*args, **kwargs):
         if not session_utils.is_in_match():
-            _logger.error(
-                f"({request.remote_addr}) | Tried to execute a match event outside of a match"
-            )
+            _logger.error(f"({request.remote_addr}) | {OUT_OF_MATCH_LOG_ERROR_MSG}")
             return
         return func(*args, **kwargs)
 

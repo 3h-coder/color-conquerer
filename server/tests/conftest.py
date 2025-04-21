@@ -5,8 +5,14 @@ from tests.utilities.mocks import mock_queue_player_dto, mock_server
 
 
 @pytest.fixture
+def match():
+    """Fixture to provide a match helper instance"""
+    return MatchHelper()
+
+
+@pytest.fixture
 def started_match():
-    """Fixture to provide a started test match helper instance"""
+    """Fixture to provide a started match helper instance"""
     match = MatchHelper()
     match.start()
     return match

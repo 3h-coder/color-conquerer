@@ -1,4 +1,5 @@
 from events.events import Events
+from game_engine.models.cell.cell import Cell
 from server import Server
 from tests.utilities.mocks import mock_queue_player_dto
 from tests.utilities.utilities import initialize_session
@@ -46,6 +47,22 @@ class ClientHelper:
 
     def end_turn(self):
         self.emit(Events.CLIENT_TURN_END)
+
+    def concede(self):
+        self.emit(Events.CLIENT_MATCH_CONCEDE)
+
+    def request_spells(self):
+        self.emit(Events.CLIENT_REQUEST_SPELLS)
+
+    def click_any_cell(self):
+        cell_dto = Cell.get_default_idle_cell(0, 0).to_dto(None)
+        self.emit(Events.CLIENT_CELL_CLICK, cell_dto.to_dict())
+
+    def click_any_spell(self):
+        self.emit(Events.CLIENT_SPELL_BUTTON, 1)
+
+    def click_spawn_button(self):
+        self.emit(Events.CLIENT_SPAWN_BUTTON)
 
     # endregion
 
