@@ -18,7 +18,7 @@ class MatchHelper:
         self.match_handler_unit: MatchHandlerUnit | None = None
         self.match_context_helper: MatchContextHelper | None = None
 
-    def start(self):
+    def initiate(self):
         # ⚠️ The order is important
         self.player1_client.register_for_match()
         self.player2_client.register_for_match()
@@ -27,6 +27,10 @@ class MatchHelper:
         self._set_match(self.server.match_handler.get_unit(closed_room.id))
 
         assert self.match_handler_unit.is_waiting_to_start()
+
+    def start(self):
+        if self.match_handler_unit is None:
+            self.initiate()
 
         self.player1_client.send_ready_signal()
         self.player2_client.send_ready_signal()
@@ -72,6 +76,16 @@ class MatchHelper:
     # endregion
 
     # region Setters
+
+    def set_inactivity_delays(
+        self, first_in_s: int | float, second_in_s: int | float, third_in_s: int | float
+    ):
+        inactivity_watcher_service = (
+            self.match_handler_unit._player_inactivity_watcher_service
+        )
+        inactivity_watcher_service._first_warning_delay_in_s = first_in_s
+        inactivity_watcher_service._final_warning_delay_in_s = second_in_s
+        inactivity_watcher_service._kick_delay_in_s = third_in_s
 
     def _set_match(self, match_handler_unit: MatchHandlerUnit):
         self.match_handler_unit = match_handler_unit

@@ -36,7 +36,8 @@ class MatchTerminationService(ServiceBase):
         Additionally, notifies all players and schedules this match handler unit's garbage collection.
         """
         self._logger.info(
-            f"Received termination request for the match in the room {self.match_context.room_id}"
+            f"Received termination request for the match in the room {self.match_context.room_id}, "
+            f"the termination request reason is {reason.name}"
         )
 
         if not self.match.is_ongoing():
