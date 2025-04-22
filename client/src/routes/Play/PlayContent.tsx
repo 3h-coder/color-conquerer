@@ -23,6 +23,7 @@ import GameTopInfo from "./components/game-top-info/GameTopInfo";
 import MyPlayerInfo from "./components/player-info/MyPlayerInfo";
 import OpponentInfo from "./components/player-info/OpponentInfo";
 import SideControls from "./components/side-controls/SideControls";
+import InactivityWarning from "./components/inactivity-warning/InactivityWarning";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ export default function PlayContent() {
 
   const [waitingText, setWaitingText] = useState(EMPTY_STRING);
   const [canRenderContent, setCanRenderContent] = useState(false);
+  const [showInactivityWarning, setShowInactivityWarning] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalText, setModalText] = useState(EMPTY_STRING);
   const [modalIcon, setModalIcon] = useState(ModalIcon.None);
@@ -106,6 +108,10 @@ export default function PlayContent() {
       setTurnInfo(turnInfoDto);
     }
 
+    function onServerInactivityWarning() {
+      setShowInactivityWarning(true);
+    }
+
     function onMatchEnded(matchClosureDto: MatchClosureDto) {
       developmentLog("Received match ending ", matchClosureDto);
 
@@ -158,6 +164,7 @@ export default function PlayContent() {
     socket.on(Events.SERVER_MATCH_START, onMatchBeginning);
     socket.on(Events.SERVER_MATCH_ONGOING, onMatchOngoing);
     socket.on(Events.SERVER_TURN_SWAP, onTurnSwap);
+    socket.on(Events.SERVER_INACTIVITY_WARNING, onServerInactivityWarning);
     socket.on(Events.SERVER_MATCH_END, onMatchEnded);
     socket.on(Events.SERVER_ERROR, onError);
     socket.on(Events.SERVER_REDIRECT, onRedirection);
@@ -169,6 +176,7 @@ export default function PlayContent() {
       socket.off(Events.SERVER_MATCH_START, onMatchBeginning);
       socket.off(Events.SERVER_MATCH_ONGOING, onMatchOngoing);
       socket.off(Events.SERVER_TURN_SWAP, onTurnSwap);
+      socket.off(Events.SERVER_INACTIVITY_WARNING, onServerInactivityWarning);
       socket.off(Events.SERVER_MATCH_END, onMatchEnded);
       socket.off(Events.SERVER_ERROR, onError);
       socket.off(Events.SERVER_REDIRECT, onRedirection);
@@ -223,6 +231,8 @@ export default function PlayContent() {
 
             {/* Action board -> Spawning cells, casting spells, etc. */}
             <ActionBoard />
+
+            {showInactivityWarning && <InactivityWarning setShowInactivityWarning={setShowInactivityWarning} />}
           </MainInnerContainer>
         </MainOuterContainer>
       ) : (

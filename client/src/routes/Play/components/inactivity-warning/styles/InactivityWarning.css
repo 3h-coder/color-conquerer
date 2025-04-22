@@ -1,0 +1,30 @@
+#inactivity-warning {
+    position: absolute;
+    background-color: var(--deep-blue);
+    border-radius: 0.5rem;
+    padding: var(--spacing-small2);
+    font-size: 1rem;
+    box-sizing: border-box;
+    left: 10%;
+    right: 10%;
+    top: 12%;
+    pointer-events: none;
+
+
+    animation: fade-in 0.5s ease-in-out, angle-shake 1.5s ease-in infinite;
+
+    @media (max-width: 660px) {
+        font-size: 0.9rem;
+    }
+}
+
+@property --rotation-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+#inactivity-warning svg {
+    width: 0.9rem;
+    height: 0.9rem;
+}
