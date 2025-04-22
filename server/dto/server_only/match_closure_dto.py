@@ -11,6 +11,7 @@ class EndingReason(StrEnum):
     DRAW = "draw"
     PLAYER_CONCEDED = "player conceded"
     PLAYER_LEFT = "player left"
+    PLAYER_INACTIVE = "player inactive"
     NEVER_JOINED = "player never joined the match"
 
 

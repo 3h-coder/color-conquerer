@@ -194,7 +194,7 @@ export default function PlayContent() {
 
     const isWinner = matchClosureDto.winner.playerId === playerId;
 
-    if (endingReason === EndingReason.PLAYER_LEFT && isWinner)
+    if ((endingReason === EndingReason.PLAYER_LEFT || endingReason === EndingReason.PLAYER_INACTIVE) && isWinner)
       return "Your opponent left";
 
     else if (endingReason === EndingReason.NEVER_JOINED && isWinner)
@@ -205,6 +205,9 @@ export default function PlayContent() {
 
     else if (isWinner)
       return "Victory!";
+
+    else if (endingReason === EndingReason.PLAYER_INACTIVE)
+      return "You lost due to being inactive";
 
     else return "Defeat";
   }

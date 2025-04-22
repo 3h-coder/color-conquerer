@@ -6,6 +6,7 @@ from constants.match_constants import (
     INACTIVITY_FIRST_WARNING_DELAY_IN_S,
     INACTIVITY_KICK_DELAY_IN_S,
 )
+from dto.server_only.match_closure_dto import EndingReason
 from handlers.match_services.client_notifications import notify_inactivity_warning
 from handlers.match_services.service_base import ServiceBase
 
@@ -89,6 +90,11 @@ class PlayerInactivityWatcherService(ServiceBase):
                 self._final_warning_delay_in_s - elapsed_time_in_s
             )
 
+        # The elapsed timed has to be lower than the kick delay, otherwise the match would have already
+        # been ended
+        player_kick_remaining_delay_in_s = self._kick_delay_in_s - elapsed_time_in_s
+
+        # Relaunch the watchers with the updated delays
         self._current_player_events.launch_time = datetime.now()
         if first_warning_remaining_delay_in_s is not None:
             self._launch_first_inactivity_warning_watcher(
@@ -98,12 +104,14 @@ class PlayerInactivityWatcherService(ServiceBase):
             self._launch_final_inactivity_warning_watcher(
                 final_warning_remaining_delay_in_s
             )
+        self._launch_player_kick_watcher(player_kick_remaining_delay_in_s)
 
     def _launch_watchers(self):
         self._current_player_events.launch_time = datetime.now()
 
         self._launch_first_inactivity_warning_watcher()
         self._launch_final_inactivity_warning_watcher()
+        self._launch_player_kick_watcher()
 
     def _launch_first_inactivity_warning_watcher(self, delay_in_s: int | float = None):
         if delay_in_s is None:
@@ -116,7 +124,7 @@ class PlayerInactivityWatcherService(ServiceBase):
             delay_in_s=delay_in_s,
         )
 
-    def _launch_final_inactivity_warning_watcher(self, delay_in_s=None):
+    def _launch_final_inactivity_warning_watcher(self, delay_in_s: int | float = None):
         if delay_in_s is None:
             delay_in_s = self._final_warning_delay_in_s
 
@@ -124,6 +132,17 @@ class PlayerInactivityWatcherService(ServiceBase):
             target=self._notify_inactivity_warning,
             for_player1=self._current_player_events.for_player1,
             inactivity_warning_event=self._current_player_events.final_warning_event,
+            delay_in_s=delay_in_s,
+        )
+
+    def _launch_player_kick_watcher(self, delay_in_s: int | float = None):
+        if delay_in_s is None:
+            delay_in_s = self._kick_delay_in_s
+
+        self._server.socketio.start_background_task(
+            target=self._kick_player_out_and_end_the_match,
+            loser_id=self.match.get_current_player().player_id,
+            kick_event=self._current_player_events.inactivity_kick_event,
             delay_in_s=delay_in_s,
         )
 
@@ -140,6 +159,14 @@ class PlayerInactivityWatcherService(ServiceBase):
                 else self.match.get_individual_player_rooms()[1]
             )
             notify_inactivity_warning(player_room)
+
+    def _kick_player_out_and_end_the_match(
+        self, loser_id: str, kick_event: Event, delay_in_s: int
+    ):
+        if not kick_event.wait(timeout=delay_in_s):
+            if self.match.is_ended():
+                return
+            self.match.end(EndingReason.PLAYER_INACTIVE, loser_id=loser_id)
 
 
 class PlayerInactivityWatcherEventsBundle:
