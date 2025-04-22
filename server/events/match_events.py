@@ -117,10 +117,7 @@ def handle_client_ready():
             match.start()
         # Otherwise notify the user that we're still waiting for their opponent
         else:
-            emit(
-                Events.SERVER_SET_WAITING_TEXT,
-                MessageDto("Waiting for your opponent...").to_dict(),
-            )
+            emit(Events.SERVER_WAITING_FOR_OPPONENT)
 
 
 @only_if_in_match
@@ -183,7 +180,6 @@ def handle_cell_click(match: MatchHandlerUnit, data: dict):
     Receives the client cell click, and notifies the client accordingly.
     """
     cell_info = CellDto.from_dict(data)
-    _logger.info(f"({request.remote_addr}) | Received cell click event -> {cell_info}")
     row, col = cell_info.rowIndex, cell_info.columnIndex
     match.handle_cell_selection(row, col)
 

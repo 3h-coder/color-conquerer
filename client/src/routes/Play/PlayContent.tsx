@@ -83,8 +83,8 @@ export default function PlayContent() {
 
   // Socket events
   useEffect(() => {
-    function onSetWaitingText(messageDto: MessageDto) {
-      setWaitingText(messageDto.message);
+    function onWaitingForOpponent() {
+      setWaitingText("Waiting for your opponent...");
     }
 
     function onMatchBeginning(turnInfoDto: TurnContextDto) {
@@ -154,7 +154,7 @@ export default function PlayContent() {
     }
 
     socket.on(Events.DISCONNECT, onDisconnect);
-    socket.on(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
+    socket.on(Events.SERVER_WAITING_FOR_OPPONENT, onWaitingForOpponent);
     socket.on(Events.SERVER_MATCH_START, onMatchBeginning);
     socket.on(Events.SERVER_MATCH_ONGOING, onMatchOngoing);
     socket.on(Events.SERVER_TURN_SWAP, onTurnSwap);
@@ -165,7 +165,7 @@ export default function PlayContent() {
     // Ensure the event handlers are attached only once on component mounting
     return () => {
       socket.off(Events.DISCONNECT, onDisconnect);
-      socket.off(Events.SERVER_SET_WAITING_TEXT, onSetWaitingText);
+      socket.off(Events.SERVER_WAITING_FOR_OPPONENT, onWaitingForOpponent);
       socket.off(Events.SERVER_MATCH_START, onMatchBeginning);
       socket.off(Events.SERVER_MATCH_ONGOING, onMatchOngoing);
       socket.off(Events.SERVER_TURN_SWAP, onTurnSwap);
