@@ -24,6 +24,8 @@ class PlayerExitWatcherService(ServiceBase):
         super().__init__(match_handler_unit)
         self._logger = get_configured_logger(__name__)
 
+        self._exit_delay_in_s = DELAY_IN_S_BEFORE_MATCH_EXCLUSION
+
         # Events used to cancel an exit watcher task for a specific player, i.e. not kick the player out when they reconnect
         self.player_exit_watch_stop_events = {
             self.match_context.player1.player_id: Event(),
@@ -49,29 +51,14 @@ class PlayerExitWatcherService(ServiceBase):
             self._logger.debug(
                 f"({request.remote_addr}) | Starting the exit watch for the player {player_id}"
             )
-            self._polling_sleep(
-                self._server.socketio, DELAY_IN_S_BEFORE_MATCH_EXCLUSION, stop_event
-            )
 
-            if stop_event.is_set():
+            if stop_event.wait(timeout=self._exit_delay_in_s):
                 self._logger.debug(
                     f"({request.remote_addr}) | The exit watch was stopped"
                 )
-                return
-
-            self.match.end(EndingReason.PLAYER_LEFT, loser_id=player_id)
-            session_utils.clear_match_info()
+            else:
+                if not self.match.is_ended():
+                    self.match.end(EndingReason.PLAYER_LEFT, loser_id=player_id)
+                session_utils.clear_match_info()
 
         self._server.socketio.start_background_task(target=exit_timer)
-
-    def _polling_sleep(
-        self, socketio: SocketIO, sleep_duration_in_s: int, stop_event: Event
-    ):
-        check_interval_in_s = 0.05  # 50 ms
-        elapsed = 0
-
-        while elapsed < sleep_duration_in_s:
-            if stop_event.is_set():
-                return
-            socketio.sleep(check_interval_in_s)
-            elapsed += check_interval_in_s

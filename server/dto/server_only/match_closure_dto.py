@@ -22,3 +22,9 @@ class MatchClosureDto(BaseDto):
     loser: Player | None  # None if draw or no loser
     totalTurns: int
     actionsPerTurn: dict[int, list]
+
+    def simple_str(self) -> str:
+        """
+        Returns a simple string representation of the match closure information containing the ending reason, winner, loser, and total turns.
+        """
+        return f"MatchClosureDto(endingReason={self.endingReason}, winner={self.winner}, loser={self.loser}, totalTurns={self.totalTurns})"

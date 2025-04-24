@@ -15,6 +15,9 @@ class MatchContextHelper:
     def get_current_turn(self):
         return self._match_context.current_turn
 
+    def get_current_player(self):
+        return self._match_context.get_current_player()
+
     def get_both_players_resources(self):
         return self._match_context.get_both_players_resources()
 

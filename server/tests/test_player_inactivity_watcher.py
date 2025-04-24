@@ -1,6 +1,8 @@
 import time
 from unittest.mock import MagicMock
+
 from tests.helpers.match_helper import MatchHelper
+from utils.perf_utils import wait_until
 
 
 def test_inactive_player_loses_the_match(match: MatchHelper):
@@ -15,7 +17,7 @@ def test_inactive_player_loses_the_match(match: MatchHelper):
 
     # Act
     match.start()
-    time.sleep(player_kick_delay_in_s)
+    wait_until(lambda: match_end.called, timeout_in_s=player_kick_delay_in_s + 0.01)
 
     # Assert
     match_end.assert_called_once()

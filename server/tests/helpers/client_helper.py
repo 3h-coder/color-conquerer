@@ -35,6 +35,9 @@ class ClientHelper:
     def emit(self, event: str, *args, **kwargs):
         self._socketio_client.emit(event, *args, **kwargs)
 
+    def disconnect(self):
+        self._socketio_client.disconnect()
+
     # endregion
 
     # region Match methods

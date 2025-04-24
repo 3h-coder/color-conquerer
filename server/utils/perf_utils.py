@@ -1,5 +1,7 @@
+import time
 from functools import wraps
 from time import perf_counter
+from typing import Any, Callable
 
 from config.logging import get_configured_logger
 
@@ -25,3 +27,14 @@ def with_performance_logging(func):
         return result
 
     return wrapper
+
+
+def wait_until(
+    condition: Callable[[], bool],
+    timeout_in_s: float = 1.0,
+    poll_interval_in_s: float = 0.01,
+):
+    start = time.time()
+    while not condition() and time.time() - start < timeout_in_s:
+        time.sleep(poll_interval_in_s)
+    assert condition(), "Timeout waiting for condition"

@@ -45,6 +45,9 @@ class MatchHelper:
     def get_current_turn(self):
         return self.match_context_helper.get_current_turn()
 
+    def get_current_player(self):
+        return self.match_context_helper.get_current_player()
+
     def get_both_players_resources(self):
         return self.match_context_helper.get_both_players_resources()
 
@@ -86,6 +89,10 @@ class MatchHelper:
         inactivity_watcher_service._first_warning_delay_in_s = first_in_s
         inactivity_watcher_service._final_warning_delay_in_s = second_in_s
         inactivity_watcher_service._kick_delay_in_s = third_in_s
+
+    def set_exit_delay(self, exit_delay_in_s: int | float):
+        exit_watcher_service = self.match_handler_unit._player_exit_watcher_service
+        exit_watcher_service._exit_delay_in_s = exit_delay_in_s
 
     def _set_match(self, match_handler_unit: MatchHandlerUnit):
         self.match_handler_unit = match_handler_unit

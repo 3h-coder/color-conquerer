@@ -1,5 +1,9 @@
 from datetime import datetime
 from threading import Event
+from typing import TYPE_CHECKING
+
+from flask import copy_current_request_context
+
 from config.logging import get_configured_logger
 from constants.match_constants import (
     INACTIVITY_FINAL_WARNING_DELAY_IN_S,
@@ -9,8 +13,7 @@ from constants.match_constants import (
 from dto.server_only.match_closure_dto import EndingReason
 from handlers.match_services.client_notifications import notify_inactivity_warning
 from handlers.match_services.service_base import ServiceBase
-
-from typing import TYPE_CHECKING
+from utils import session_utils
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -139,8 +142,14 @@ class PlayerInactivityWatcherService(ServiceBase):
         if delay_in_s is None:
             delay_in_s = self._kick_delay_in_s
 
+        @copy_current_request_context
+        def wrapped_kick_player_out_and_end_the_match(
+            loser_id: str, kick_event: Event, delay_in_s: int
+        ):
+            self._kick_player_out_and_end_the_match(loser_id, kick_event, delay_in_s)
+
         self._server.socketio.start_background_task(
-            target=self._kick_player_out_and_end_the_match,
+            target=wrapped_kick_player_out_and_end_the_match,
             loser_id=self.match.get_current_player().player_id,
             kick_event=self._current_player_events.inactivity_kick_event,
             delay_in_s=delay_in_s,
@@ -167,6 +176,7 @@ class PlayerInactivityWatcherService(ServiceBase):
             if self.match.is_ended():
                 return
             self.match.end(EndingReason.PLAYER_INACTIVE, loser_id=loser_id)
+            session_utils.clear_match_info()
 
 
 class PlayerInactivityWatcherEventsBundle:
