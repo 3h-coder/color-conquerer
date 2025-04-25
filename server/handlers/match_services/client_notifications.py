@@ -7,7 +7,7 @@ from dto.actions.action_callback_dto import ActionCallbackDto
 from dto.actions.possible_actions_dto import PossibleActionsDto
 from dto.actions.processed_action_dto import ProcessedActionDto
 from dto.game_state.turn_context_dto import TurnContextDto
-from dto.match.partial_match_closure_dto import PartialMatchClosureDto
+from dto.match.match_closure_dto import MatchClosureDto
 from dto.misc.message_dto import MessageDto
 from events.events import Events
 from server_gate import get_server
@@ -94,7 +94,7 @@ def notify_action_error(error_msg: str):
     emit(Events.SERVER_ACTION_ERROR, MessageDto(error_msg).to_dict())
 
 
-def notify_match_ending(match_closure_info: PartialMatchClosureDto, room_id: str):
+def notify_match_ending(match_closure_info: MatchClosureDto, room_id: str):
     _emit(Events.SERVER_MATCH_END, match_closure_info.to_dict(), to=room_id)
 
 

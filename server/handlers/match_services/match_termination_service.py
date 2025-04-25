@@ -2,8 +2,7 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION
-from dto.match.partial_match_closure_dto import PartialMatchClosureDto
-from dto.server_only.match_closure_dto import EndingReason, MatchClosureDto
+from game_engine.models.dtos.match_closure import EndingReason, MatchClosure
 from handlers.match_services.client_notifications import notify_match_ending
 from handlers.match_services.service_base import ServiceBase
 
@@ -51,7 +50,7 @@ class MatchTerminationService(ServiceBase):
         winner, loser = self._get_winner_and_loser(winner_id, loser_id)
 
         self.match.mark_as_ended()
-        self.match_closure_info = MatchClosureDto(
+        self.match_closure_info = MatchClosure(
             endingReason=reason,
             winner=winner,
             loser=loser,
@@ -112,7 +111,7 @@ class MatchTerminationService(ServiceBase):
 
     def _notify_match_ending(self):
         notify_match_ending(
-            PartialMatchClosureDto.from_match_closure_dto(self.match_closure_info),
+            self.match_closure_info.to_dto(),
             self.match_context.room_id,
         )
 

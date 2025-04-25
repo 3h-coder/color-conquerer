@@ -6,11 +6,9 @@ from flask_socketio import emit, join_room
 from config.logging import get_configured_logger
 from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.misc.cell_dto import CellDto
-from dto.misc.message_dto import MessageDto
-from dto.player.player_dto import PlayerDto
-from dto.server_only.match_closure_dto import EndingReason
 from events.events import Events
 from exceptions.server_error import ServerError
+from game_engine.models.dtos.match_closure import EndingReason
 from game_engine.models.player import Player
 from handlers.match_handler_unit import MatchHandlerUnit
 from server_gate import get_match_handler, get_session_cache_handler

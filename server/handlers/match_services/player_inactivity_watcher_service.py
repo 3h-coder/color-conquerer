@@ -2,18 +2,15 @@ from datetime import datetime
 from threading import Event
 from typing import TYPE_CHECKING
 
-from flask import copy_current_request_context
-
 from config.logging import get_configured_logger
 from constants.match_constants import (
     INACTIVITY_FINAL_WARNING_DELAY_IN_S,
     INACTIVITY_FIRST_WARNING_DELAY_IN_S,
     INACTIVITY_KICK_DELAY_IN_S,
 )
-from dto.server_only.match_closure_dto import EndingReason
+from game_engine.models.dtos.match_closure import EndingReason
 from handlers.match_services.client_notifications import notify_inactivity_warning
 from handlers.match_services.service_base import ServiceBase
-from utils import session_utils
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -167,10 +164,9 @@ class PlayerInactivityWatcherService(ServiceBase):
         self, loser_id: str, kick_event: Event, delay_in_s: int
     ):
         if not kick_event.wait(timeout=delay_in_s):
-            if self.match.is_ended():
-                return
-            # Session clearance will be requested from the client
-            self.match.end(EndingReason.PLAYER_INACTIVE, loser_id=loser_id)
+            if not self.match.is_ended():
+                # Session clearance will be requested from the client
+                self.match.end(EndingReason.PLAYER_INACTIVE, loser_id=loser_id)
 
 
 class PlayerInactivityWatcherEventsBundle:
@@ -188,13 +184,13 @@ class PlayerInactivityWatcherEventsBundle:
         # Time at which we stop watching for player inactivity
         self.freeze_time: datetime | None = None
 
-    def reset(self):
-        self._set_all()
-        self._clear_all()
-
     def freeze(self):
         self.freeze_time = datetime.now()
         self.reset()
+
+    def reset(self):
+        self._set_all()
+        self._clear_all()
 
     def _set_all(self):
         self.first_warning_event.set()

@@ -2,13 +2,11 @@ from threading import Event
 from typing import TYPE_CHECKING
 
 from flask import copy_current_request_context, request
-from flask_socketio import SocketIO
 
 from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_EXCLUSION
-from dto.server_only.match_closure_dto import EndingReason
+from game_engine.models.dtos.match_closure import EndingReason
 from handlers.match_services.service_base import ServiceBase
-from utils import session_utils
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -59,6 +57,5 @@ class PlayerExitWatcherService(ServiceBase):
             else:
                 if not self.match.is_ended():
                     self.match.end(EndingReason.PLAYER_LEFT, loser_id=player_id)
-                session_utils.clear_match_info()
 
         self._server.socketio.start_background_task(target=exit_timer)

@@ -2,17 +2,17 @@ import { PlayerDto } from "../player/PlayerDto";
 
 // ⚠️ Must be strictly identical to the server side definition
 export enum EndingReason {
-    PLAYER_VICTORY = "player won",
-    DRAW = "draw",
-    PLAYER_LEFT = "player left",
-    PLAYER_INACTIVE = "player inactive",
-    PLAYER_CONCEDED = "player conceded",
-    NEVER_JOINED = "player never joined the match"
+    PLAYER_VICTORY = 1,
+    DRAW = 2,
+    PLAYER_LEFT = 3,
+    PLAYER_INACTIVE = 4,
+    PLAYER_CONCEDED = 5,
+    NEVER_JOINED = 6
 
 }
 
 export interface MatchClosureDto {
-    endingReason: string,
+    endingReason: number,
     winner: PlayerDto,
     loser: PlayerDto,
 }
