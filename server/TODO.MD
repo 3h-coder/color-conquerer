@@ -1,12 +1,12 @@
 # Server
 
-- Implement spells
+- Implement spells (4/5)
 - Add rate limiting to certain events
+- Add an automatic game finishing mechanism
 
 
 # Client
 
-- Force deboucing on spawn and cell controls
-- Match animations and UI embellishment
-- Check screen responsiveness
+- Improve the cell attack animations
+- Game tutorial on home page
 
