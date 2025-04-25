@@ -142,14 +142,8 @@ class PlayerInactivityWatcherService(ServiceBase):
         if delay_in_s is None:
             delay_in_s = self._kick_delay_in_s
 
-        @copy_current_request_context
-        def wrapped_kick_player_out_and_end_the_match(
-            loser_id: str, kick_event: Event, delay_in_s: int
-        ):
-            self._kick_player_out_and_end_the_match(loser_id, kick_event, delay_in_s)
-
         self._server.socketio.start_background_task(
-            target=wrapped_kick_player_out_and_end_the_match,
+            target=self._kick_player_out_and_end_the_match,
             loser_id=self.match.get_current_player().player_id,
             kick_event=self._current_player_events.inactivity_kick_event,
             delay_in_s=delay_in_s,
@@ -175,8 +169,8 @@ class PlayerInactivityWatcherService(ServiceBase):
         if not kick_event.wait(timeout=delay_in_s):
             if self.match.is_ended():
                 return
+            # Session clearance will be requested from the client
             self.match.end(EndingReason.PLAYER_INACTIVE, loser_id=loser_id)
-            session_utils.clear_match_info()
 
 
 class PlayerInactivityWatcherEventsBundle:
