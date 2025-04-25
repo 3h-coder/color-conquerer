@@ -14,6 +14,7 @@ CONFIG_FILE_PATH = os.path.join(root_path, "config.json")
 config_vars_types = {
     RequiredVariables.APP_SECRET_KEY.name: VariableType.STRING,
     RequiredVariables.APP_SESSION_LIFETIME.name: VariableType.INT,
+    RequiredVariables.MAX_ROOM_CAPACITY.name: VariableType.INT,
     # Optional Variables
     OptionalVariables.APP_SESSION_FILE_DIR.name: VariableType.STRING,
     OptionalVariables.RESET_SESSION_FILE_ON_STARTUP.name: VariableType.BOOL,
@@ -22,6 +23,7 @@ config_vars_types = {
 default_config = {
     RequiredVariables.APP_SECRET_KEY.name: f"{uuid.uuid4()}",
     RequiredVariables.APP_SESSION_LIFETIME.name: 7200,  # Two hours
+    RequiredVariables.MAX_ROOM_CAPACITY.name: 50,
     # Optional Variables
     OptionalVariables.APP_SESSION_FILE_DIR.name: os.path.join(
         root_path, "session_data"
@@ -44,6 +46,18 @@ def get_global_config():
     return _global_config
 
 
+def get_from_config(key: str):
+    """
+    Returns the value of a key in the configuration.
+    If the key is not found, None is returned.
+    """
+    if key in _global_config:
+        return _global_config[key]
+    else:
+        root_logger.error(f"Key {key} not found in the configuration")
+        return None
+
+
 def _get_config():
     """
     Gets the configuration for the whole program.
@@ -51,13 +65,17 @@ def _get_config():
     """
 
     root_logger.info("Loading the configuration")
+    if len(default_config) != len(config_vars_types):
+        raise Exception(
+            "The default configuration and the config variables types do not match in length."
+        )
 
     config = default_config
     try:
         with open(CONFIG_FILE_PATH, "r") as config_file:
             config = json.load(config_file)
     except Exception as ex:
-        root_logger.debug(f"An error occured during configuration loading : {ex}")
+        root_logger.debug(f"An error occured during configuration file reading : {ex}")
         root_logger.warning("Loading failed, resorting to default configuration")
         _write_config(config)
 

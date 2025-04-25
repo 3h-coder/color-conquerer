@@ -34,19 +34,6 @@ class MatchHandler:
         except KeyError:
             self.logger.error(f"No unit instanciated for the room : {room_id}")
 
-    def get_unit_from_session_id(self, session_id: str):
-        """
-        Gets a unit from a given session id
-        """
-        return next(
-            (
-                match
-                for match in self.units.values()
-                if session_id in match._session_ids.values()
-            ),
-            None,
-        )
-
     def get_match_context(self, room_id):
         """
         Gets the match info for the corresponding room id

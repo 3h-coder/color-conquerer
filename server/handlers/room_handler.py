@@ -1,4 +1,6 @@
+from config.config import get_from_config
 from config.logging import get_configured_logger
+from config.variables import RequiredVariables
 from dto.player.queue_player_dto import QueuePlayerDto
 from game_engine.models.dtos.room import Room
 from utils.id_generation_utils import generate_id
@@ -10,8 +12,7 @@ class RoomHandler:
     during a match.
     """
 
-    # TODO: Make this variable configurable
-    MAX_CLOSED_ROOMS = 50
+    MAX_CLOSED_ROOMS = get_from_config(RequiredVariables.MAX_ROOM_CAPACITY.name)
 
     def __init__(self):
         self.logger = get_configured_logger(__name__)
@@ -22,7 +23,7 @@ class RoomHandler:
         """
         Indicates whether or not the room handler has reached its closed rooms limit
         """
-        return len(self.closed_rooms) == self.MAX_CLOSED_ROOMS
+        return len(self.closed_rooms) >= self.MAX_CLOSED_ROOMS
 
     def room_exists(self, room_id):
         return room_id in self.open_rooms or room_id in self.closed_rooms

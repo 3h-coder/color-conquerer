@@ -4,6 +4,7 @@ from enum import Enum
 class RequiredVariables(Enum):
     APP_SECRET_KEY = 1
     APP_SESSION_LIFETIME = 2
+    MAX_ROOM_CAPACITY = 3
 
 
 class OptionalVariables(Enum):
