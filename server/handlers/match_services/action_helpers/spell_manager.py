@@ -5,9 +5,9 @@ from game_engine.action_calculation import get_possible_spell_castings
 from game_engine.models.player_resources import PlayerResources
 from game_engine.models.spells.abstract.spell import Spell
 from game_engine.models.spells.spell_factory import get_spell
-from handlers.match_services.action_helpers.action_manager import ActionManager
-from handlers.match_services.action_helpers.error_messages import ErrorMessages
-from handlers.match_services.action_helpers.player_mode import PlayerMode
+from handlers.match_services.action_helpers.abstract.action_manager import ActionManager
+from handlers.match_services.action_helpers.enums.error_messages import ErrorMessages
+from handlers.match_services.action_helpers.enums.player_mode import PlayerMode
 
 if TYPE_CHECKING:
     from handlers.match_services.match_actions_service import MatchActionsService

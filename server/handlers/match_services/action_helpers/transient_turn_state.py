@@ -5,8 +5,8 @@ from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.cell.cell import Cell
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.abstract.spell import Spell
-from handlers.match_services.action_helpers.player_mode import PlayerMode
-from handlers.match_services.action_helpers.server_mode import ServerMode
+from handlers.match_services.action_helpers.enums.player_mode import PlayerMode
+from handlers.match_services.action_helpers.enums.server_mode import ServerMode
 
 
 class TransientTurnState:

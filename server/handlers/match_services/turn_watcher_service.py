@@ -28,8 +28,12 @@ class TurnWatcherService(ServiceBase):
 
         self.turn_duration_in_s = TURN_DURATION_IN_S
 
-    def add_external_callback(self, callback: Callable):
-        self._turn_swap_external_callbacks.append(callback)
+    def add_external_callbacks(self, *callbacks: Callable):
+        """
+        Adds multiple external callbacks to the turn swap event, that
+        will be executed in the order they were added when a turn swap occurs.
+        """
+        self._turn_swap_external_callbacks.extend(callbacks)
 
     def trigger(self):
         """

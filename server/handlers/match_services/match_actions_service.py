@@ -3,6 +3,9 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from game_engine.models.dtos.match_closure import EndingReason
+from handlers.match_services.action_helpers.abstract.transient_turn_state_holder import (
+    TransientTurnStateHolder,
+)
 from handlers.match_services.action_helpers.cell_selection_manager import (
     CellSelectionManager,
 )
@@ -13,9 +16,6 @@ from handlers.match_services.action_helpers.common_action_manager import (
 from handlers.match_services.action_helpers.spell_manager import SpellManager
 from handlers.match_services.action_helpers.transient_turn_state import (
     TransientTurnState,
-)
-from handlers.match_services.action_helpers.transient_turn_state_holder import (
-    TransientTurnStateHolder,
 )
 from handlers.match_services.service_base import ServiceBase
 

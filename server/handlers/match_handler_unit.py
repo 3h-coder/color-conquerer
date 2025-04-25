@@ -6,7 +6,6 @@ from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
 from dto.game_state.game_context_dto import GameContextDto
 from dto.game_state.turn_context_dto import TurnContextDto
-from dto.player.player_resources_bundle_dto import PlayerResourceBundleDto
 from game_engine.models.dtos.match_closure import EndingReason
 from game_engine.models.dtos.room import Room
 from game_engine.models.match_context import MatchContext
@@ -62,11 +61,9 @@ class MatchHandlerUnit:
         self._player_inactivity_watcher_service = PlayerInactivityWatcherService(self)
 
         self._turn_watcher_service = TurnWatcherService(self)
-        self._turn_watcher_service.add_external_callback(
-            self._match_actions_service.reset_for_new_turn
-        )
-        self._turn_watcher_service.add_external_callback(
-            self._player_inactivity_watcher_service.on_turn_swap
+        self._turn_watcher_service.add_external_callbacks(
+            self._match_actions_service.reset_for_new_turn,
+            self._player_inactivity_watcher_service.on_turn_swap,
         )
 
     # region Lifecycle

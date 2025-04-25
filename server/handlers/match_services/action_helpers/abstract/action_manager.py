@@ -6,11 +6,11 @@ from dto.actions.possible_actions_dto import PossibleActionsDto
 from dto.actions.processed_action_dto import ProcessedActionDto
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
-from handlers.match_services.action_helpers.player_mode import PlayerMode
-from handlers.match_services.action_helpers.server_mode import ServerMode
-from handlers.match_services.action_helpers.transient_turn_state_holder import (
+from handlers.match_services.action_helpers.abstract.transient_turn_state_holder import (
     TransientTurnStateHolder,
 )
+from handlers.match_services.action_helpers.enums.player_mode import PlayerMode
+from handlers.match_services.action_helpers.enums.server_mode import ServerMode
 from handlers.match_services.client_notifications import (
     notify_action_error,
     notify_possible_actions,
