@@ -46,7 +46,7 @@ def get_global_config():
     return _global_config
 
 
-def get_from_config(key: str):
+def get_from_config(key: str, default_value=None):
     """
     Returns the value of a key in the configuration.
     If the key is not found, None is returned.
@@ -55,7 +55,7 @@ def get_from_config(key: str):
         return _global_config[key]
     else:
         root_logger.error(f"Key {key} not found in the configuration")
-        return None
+        return default_value
 
 
 def _get_config():
@@ -109,7 +109,7 @@ def _missing_required_vars(config):
     """
     Checks whether or not a required variable is missing from configuration
     """
-    return [var for var in RequiredVariables if var.name not in config]
+    return [var.name for var in RequiredVariables if var.name not in config]
 
 
 def _incorrect_var_types(config):

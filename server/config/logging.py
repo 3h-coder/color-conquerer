@@ -2,8 +2,15 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
-from config import logs_root_path
+from config import logs_root_path, test_logs_root_path
 from utils import os_utils
+
+_testing = False
+
+
+def enable_test_mode_for_logging():
+    global _testing
+    _testing = True
 
 
 def get_configured_logger(name: str, file_name: str = None):
@@ -15,6 +22,7 @@ def get_configured_logger(name: str, file_name: str = None):
     :param file_name: Optional log file name. If not provided, defaults to the logger name.
     :return: Configured logger instance.
     """
+    global _testing
 
     LOG_EXTENSION = ".log"
     name = name.strip()
@@ -23,7 +31,8 @@ def get_configured_logger(name: str, file_name: str = None):
     if not file_name.endswith(LOG_EXTENSION):
         file_name = f"{file_name}{LOG_EXTENSION}"
 
-    LOG_FILE_PATH = os.path.join(logs_root_path, file_name)
+    root_path = logs_root_path if not _testing else test_logs_root_path
+    LOG_FILE_PATH = os.path.join(root_path, file_name)
 
     os_utils.create_dir_if_not_exists(LOG_FILE_PATH)
 

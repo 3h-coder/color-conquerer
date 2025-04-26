@@ -38,6 +38,9 @@ class ClientHelper:
     def disconnect(self):
         self._socketio_client.disconnect()
 
+    def connect(self):
+        self._socketio_client.connect()
+
     # endregion
 
     # region Match methods

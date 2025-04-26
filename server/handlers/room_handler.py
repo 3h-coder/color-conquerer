@@ -12,7 +12,7 @@ class RoomHandler:
     during a match.
     """
 
-    MAX_CLOSED_ROOMS = get_from_config(RequiredVariables.MAX_ROOM_CAPACITY.name)
+    MAX_CLOSED_ROOMS = get_from_config(RequiredVariables.MAX_ROOM_CAPACITY.name, 50)
 
     def __init__(self):
         self.logger = get_configured_logger(__name__)

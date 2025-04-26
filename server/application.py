@@ -1,3 +1,4 @@
+import os
 from cachelib import FileSystemCache
 from flask import Flask
 from flask_cors import CORS
@@ -7,7 +8,7 @@ from blueprints.home import home_bp
 from blueprints.play import play_bp
 from blueprints.session import session_bp
 from config.config import default_config, get_global_config
-from config.logging import get_configured_logger
+from config.logging import get_configured_logger, enable_test_mode_for_logging
 from config.variables import OptionalVariables, RequiredVariables
 from middlewares.error_handler import handle_error
 from utils.os_utils import delete_file_or_folder
@@ -18,9 +19,12 @@ class Application(Flask):
     Custom implementation of a flask application.
     """
 
-    TEST_SESSION_FILE_DIR = "test_session_data"
+    TEST_SESSION_FILE_DIR = os.path.join("tests", "session_data")
 
     def __init__(self, import_name, test_instance: bool = False, **kwargs):
+        if test_instance:
+            enable_test_mode_for_logging()
+
         self.logger = get_configured_logger(__name__)
         self.logger.debug("Initializing application")
         super().__init__(import_name, **kwargs)

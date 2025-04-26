@@ -10,8 +10,6 @@ from game_engine.models.spells.spell_id import SpellId
 if TYPE_CHECKING:
     from game_engine.models.game_board import GameBoard
 
-_logger = get_configured_logger(__name__)
-
 
 class ArcheryVowSpell(Spell):
     ID = SpellId.ARCHERY_VOW
@@ -28,7 +26,6 @@ class ArcheryVowSpell(Spell):
     def get_possible_targets(self, transient_board: "GameBoard", from_player1: bool):
         possible_targets: list[Coordinates] = []
         cell_pool = transient_board.get_cells_owned_by_player(from_player1)
-        _logger.debug(f"Cell pool count {len(cell_pool)}")
 
         for cell in cell_pool:
             if (
