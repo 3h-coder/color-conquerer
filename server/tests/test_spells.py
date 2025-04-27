@@ -1,4 +1,4 @@
-from constants.game_constants import SPELLS_MANA_COST
+from constants.game_constants import MAX_MP_VALUE, SPELLS_MANA_COST
 from game_engine.models.spells.spell_factory import get_initial_spell_deck, get_spell
 from game_engine.models.spells.spell_id import SpellId
 
@@ -14,6 +14,22 @@ def test_all_spells_have_a_mana_cost():
     assert (
         not missing_spells
     ), f"The following spells do not have a mana cost defined: {', '.join(missing_spells)}"
+
+
+def test_all_mana_costs_are_valid():
+    """
+    Test that all spells have a valid mana cost (greater than 0 and inferior to 9).
+    """
+
+    invalid_mana_costs = [
+        spell_id.name
+        for spell_id, mana_cost in SPELLS_MANA_COST.items()
+        if mana_cost <= 0 or mana_cost >= MAX_MP_VALUE
+    ]
+
+    assert (
+        not invalid_mana_costs
+    ), f"The following spells have an invalid mana cost: {', '.join(invalid_mana_costs)}"
 
 
 def test_all_spells_are_instanciable():
