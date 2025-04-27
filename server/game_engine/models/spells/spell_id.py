@@ -6,3 +6,4 @@ class SpellId(IntEnum):
     SHIELD_FORMATION = 2
     CELERITY = 3
     ARCHERY_VOW = 4
+    AMBUSH = 5

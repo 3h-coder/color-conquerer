@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from constants.game_constants import SPELLS_MANA_COST
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
 from game_engine.models.dtos.coordinates import Coordinates
@@ -14,7 +15,7 @@ class ShieldFormationSpell(PositioningSpell):
     ID = SpellId.SHIELD_FORMATION
     NAME = "Shield formation"
     DESCRIPTION = "Select a square cell formation to apply a shield to each."
-    MANA_COST = 3
+    MANA_COST = SPELLS_MANA_COST.get(ID, 0)
     CONDITION_NOT_MET_ERROR_MESSAGE = "You do not have any square of cells to shield"
     INVALID_SELECTION_ERROR_MESSAGE = (
         "You must select a square of friendly cells to shield"

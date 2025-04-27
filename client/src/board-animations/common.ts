@@ -1,6 +1,6 @@
 import { EMPTY_STRING, HTMLElements } from "../env";
 import { activeTooltipTarget, cleanupActiveTooltip } from "../singletons/tooltip";
-import { getHtmlCell } from "../utils/cellUtils";
+import { getHtmlCell, getOwnedCellColor } from "../utils/cellUtils";
 import { cleanup } from "../utils/domUtils";
 
 export function animateManaBubblePop(rowIndex: number, colIndex: number) {
@@ -31,6 +31,14 @@ export function triggerAuraEffect(htmlCell: HTMLElement, colorRetriavalFunction:
   htmlCell.appendChild(aura);
 
   cleanup(aura, cleanupDelayInMs);
+}
+
+export function animateCellSpawn(rowIndex: number, colIndex: number, ownCell: boolean) {
+  const htmlCell = getHtmlCell(rowIndex, colIndex);
+  if (!htmlCell)
+    return;
+
+  triggerAuraEffect(htmlCell, () => getOwnedCellColor(false, ownCell));
 }
 
 export function animateCellDeath(htmlCell: HTMLElement) {

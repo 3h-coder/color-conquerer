@@ -1,0 +1,66 @@
+import random
+from typing import TYPE_CHECKING
+
+from constants.game_constants import SPELLS_MANA_COST
+from dto.spell.metadata.spawn_info_dto import SpawnInfoDto
+from game_engine.models.cell.cell_owner import CellOwner
+from game_engine.models.dtos.coordinates import Coordinates
+from game_engine.models.spells.abstract.spell import Spell
+from game_engine.models.spells.spell_id import SpellId
+
+if TYPE_CHECKING:
+    from game_engine.models.game_board import GameBoard
+
+
+class AmbushSpell(Spell):
+    ID = SpellId.AMBUSH
+    NAME = "Ambush"
+    DESCRIPTION = "Select an enemy cell. Randomly spawn two friendly cells next to it"
+    MANA_COST = SPELLS_MANA_COST.get(ID, 0)
+    CONDITION_NOT_MET_ERROR_MESSAGE = "No enemy cell to ambush"
+    INVALID_SELECTION_ERROR_MESSAGE = "Cannot ambush this cell"
+
+    MAX_SPAWNED_CELLS = 2
+
+    def __init__(self):
+        super().__init__()
+        self._spawn_coordinates: list[Coordinates] = []
+
+    def get_possible_targets(self, transient_board: "GameBoard", from_player1: bool):
+        possible_targets: list[Coordinates] = []
+        enemy_cells = transient_board.get_cells_owned_by_player(
+            player1=not from_player1
+        )
+
+        for cell in enemy_cells:
+            if transient_board.get_idle_neighbours(cell.row_index, cell.column_index):
+                cell.set_can_be_spell_targetted()
+                possible_targets.append(cell.get_coordinates())
+
+        return possible_targets
+
+    def invoke(
+        self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
+    ):
+        idle_neighbours = board.get_idle_neighbours(
+            coordinates.row_index, coordinates.column_index
+        )
+
+        selected_neighbours = random.sample(
+            idle_neighbours, min(self.MAX_SPAWNED_CELLS, len(idle_neighbours))
+        )
+        self._spawn_coordinates = []
+
+        for neighbour in selected_neighbours:
+            board.spawn_cell(
+                neighbour.get_coordinates(), invocator == CellOwner.PLAYER_1
+            )
+            self._spawn_coordinates.append(neighbour.get_coordinates())
+
+    def get_specific_metadata_dto(self):
+        return self._get_spawn_info_dto()
+
+    def _get_spawn_info_dto(self):
+        return SpawnInfoDto(
+            coordinates=[coord.to_dto() for coord in self._spawn_coordinates]
+        )

@@ -1,3 +1,4 @@
+// ⚠️ Must be in sync with the server-side enum
 export enum PlayerMode {
     IDLE = 0,
     OWN_CELL_SELECTED = 1,

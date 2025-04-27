@@ -99,12 +99,4 @@ class CellSpawn(Action):
         Spawns a cell at the given coordinates for the given player.
         """
         target_coords = self.metadata.impacted_coords
-        cell = match_context.game_board.get(
-            target_coords.row_index, target_coords.column_index
-        )
-        if self.from_player1:
-            cell.set_owned_by_player1()
-            cell.set_freshly_spawned()
-        else:
-            cell.set_owned_by_player2()
-            cell.set_freshly_spawned()
+        match_context.game_board.spawn_cell(target_coords, self.from_player1)

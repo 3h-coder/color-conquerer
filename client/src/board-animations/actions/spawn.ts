@@ -1,8 +1,7 @@
 import { MatchActionDto } from "../../dto/actions/MatchActionDto";
 import { CellDto } from "../../dto/misc/CellDto";
 import { CellState, CellStateUtils } from "../../enums/cellState";
-import { getHtmlCell, getOwnedCellColor } from "../../utils/cellUtils";
-import { animateManaBubblePop, triggerAuraEffect } from "../common";
+import { animateCellSpawn, animateManaBubblePop } from "../common";
 
 
 export function handleCellSpawnAnimation(action: MatchActionDto, isPlayer1: boolean, boardArray: CellDto[][]) {
@@ -16,10 +15,3 @@ export function handleCellSpawnAnimation(action: MatchActionDto, isPlayer1: bool
         animateManaBubblePop(newCellCoordinates.rowIndex, newCellCoordinates.columnIndex);
 }
 
-function animateCellSpawn(rowIndex: number, colIndex: number, ownCell: boolean) {
-    const htmlCell = getHtmlCell(rowIndex, colIndex);
-    if (!htmlCell)
-        return;
-
-    triggerAuraEffect(htmlCell, () => getOwnedCellColor(false, ownCell));
-}

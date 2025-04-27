@@ -1,6 +1,7 @@
 import { EMPTY_STRING } from "../env";
 import { capitalizeAndReplaceUnderscores } from "../utils/stringUtils";
 
+// ⚠️ Must be in sync with the server-side enum
 export enum CellState {
     NONE = 0,
 

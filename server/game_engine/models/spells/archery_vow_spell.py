@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
+from constants.game_constants import SPELLS_MANA_COST
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
 from game_engine.models.dtos.coordinates import Coordinates
@@ -15,7 +16,7 @@ class ArcheryVowSpell(Spell):
     ID = SpellId.ARCHERY_VOW
     NAME = "Archery Vow"
     DESCRIPTION = "Select a minion cell with no neighbours to grant them the ability to attack from a distance."
-    MANA_COST = 2
+    MANA_COST = SPELLS_MANA_COST.get(ID, 0)
     CONDITION_NOT_MET_ERROR_MESSAGE = (
         "You do not have any minion cell with no neighbours to apply archery vow"
     )
@@ -47,6 +48,4 @@ class ArcheryVowSpell(Spell):
 
     @staticmethod
     def _get_owned_neighbours(cell: Coordinates, board: "GameBoard"):
-        return board.get_neighbours_matching_condition(
-            cell.row_index, cell.column_index, lambda c: c.is_owned()
-        )
+        return board.get_owned_neighbours(cell.row_index, cell.column_index)

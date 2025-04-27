@@ -26,27 +26,8 @@ class PositioningSpell(Spell):
         self._cell_formations: list[list[Coordinates]] = []
         self._already_associated_cells: set[Coordinates] = set()
 
-    def get_positioning_info_dto(self):
-        """
-        Returns the metadata of the spell, including the cell formation and the mapping
-        of coordinates to formation indices.
-        """
-        formations_dto: list[list[CoordinatesDto]] = []
-
-        formations_dto = [
-            [coords.to_dto() for coords in square] for square in self._cell_formations
-        ]
-
-        # ⚠️ The key format "row_index,col_index" is being used by the client
-        formation_per_coordinates = {
-            PositioningSpell.coordinates_to_key_string(cell_coords): square_index
-            for (cell_coords, square_index) in self._formation_per_cell.items()
-        }
-
-        return PositioningInfoDto(
-            formationPerCoordinates=formation_per_coordinates,
-            cellFormations=formations_dto,
-        )
+    def get_specific_metadata_dto(self):
+        return self._get_positioning_info_dto()
 
     @staticmethod
     def coordinates_to_key_string(coordinates: Coordinates):
@@ -70,3 +51,25 @@ class PositioningSpell(Spell):
         for coords in formation:
             transient_cell = transient_board.get(coords.row_index, coords.column_index)
             transient_cell.transient_state = CellTransientState.CAN_BE_SPELL_TARGETTED
+
+    def _get_positioning_info_dto(self):
+        """
+        Returns the positioning info of the spell, including the cell formation and the mapping
+        of coordinates to formation indices.
+        """
+        formations_dto: list[list[CoordinatesDto]] = []
+
+        formations_dto = [
+            [coords.to_dto() for coords in square] for square in self._cell_formations
+        ]
+
+        # ⚠️ The key format "row_index,col_index" is being used by the client
+        formation_per_coordinates = {
+            PositioningSpell.coordinates_to_key_string(cell_coords): square_index
+            for (cell_coords, square_index) in self._formation_per_cell.items()
+        }
+
+        return PositioningInfoDto(
+            formationPerCoordinates=formation_per_coordinates,
+            cellFormations=formations_dto,
+        )

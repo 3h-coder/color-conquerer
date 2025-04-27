@@ -39,7 +39,7 @@ class SpellCasting(Action):
             # contain the count number as it will be sent to both clients
             spell=self.spell.to_partial_dto(),
             metadata=self.metadata.to_dto(),
-            specificMetadata=self.spell.get_positioning_info_dto(),
+            specificMetadata=self.spell.get_specific_metadata_dto(),
         )
 
     @staticmethod

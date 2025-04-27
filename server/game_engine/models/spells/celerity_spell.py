@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from constants.game_constants import SPELLS_MANA_COST
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
 from game_engine.models.dtos.coordinates import Coordinates
@@ -14,7 +15,7 @@ class CeleritySpell(PositioningSpell):
     ID = SpellId.CELERITY
     NAME = "Celerity"
     DESCRIPTION = "Select a diagonal line of cells to allow them to move and attack twice this turn"
-    MANA_COST = 1
+    MANA_COST = SPELLS_MANA_COST.get(ID, 0)
     CONDITION_NOT_MET_ERROR_MESSAGE = (
         "You do not have any diagonal line of cells to apply celerity"
     )

@@ -1,3 +1,4 @@
+// ⚠️ Must be in sync with the server-side enum
 export enum CellTransientState {
     NONE = 0,
     SELECTED = 1,

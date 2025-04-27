@@ -3,9 +3,18 @@ import { PartialSpellDto } from "../../dto/spell/PartialSpellDto";
 import { SpellId } from "../../enums/spellId";
 import { localStorageKeys } from "../../env";
 import { developmentErrorLog } from "../../utils/loggingUtils";
+import { handleAmbushAnimation } from "./ambush";
 import { handleArcheryVowAnimation } from "./archeryVow";
 import { handleCelerityAnimation } from "./celerity";
 import { handleShieldFormationAnimation } from "./shieldFormation";
+
+const SPELL_ANIMATION_HANDLERS: Record<SpellId, ((spellAction: MatchActionDto) => void) | null> = {
+    [SpellId.SHIELD_FORMATION]: handleShieldFormationAnimation,
+    [SpellId.CELERITY]: handleCelerityAnimation,
+    [SpellId.ARCHERY_VOW]: handleArcheryVowAnimation,
+    [SpellId.AMBUSH]: handleAmbushAnimation,
+    [SpellId.MINE_TRAP]: null,
+};
 
 export function handleSpellCastingAnimation(
     spellAction: MatchActionDto,
@@ -29,21 +38,9 @@ function handleSpellAnimation(spellAction: MatchActionDto) {
     if (!spellId)
         return;
 
-    switch (spellId) {
-        case SpellId.SHIELD_FORMATION:
-            handleShieldFormationAnimation(spellAction);
-            break;
-
-        case SpellId.CELERITY:
-            handleCelerityAnimation(spellAction);
-            break;
-
-        case SpellId.ARCHERY_VOW:
-            handleArcheryVowAnimation(spellAction);
-            break;
-
-        default:
-            break;
+    const handler = SPELL_ANIMATION_HANDLERS[spellId as SpellId];
+    if (handler) {
+        handler(spellAction);
     }
 }
 

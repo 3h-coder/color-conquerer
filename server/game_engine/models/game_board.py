@@ -3,6 +3,7 @@ from typing import Callable
 
 from constants.game_constants import BOARD_SIZE
 from game_engine.models.cell.cell import Cell
+from game_engine.models.dtos.coordinates import Coordinates
 from utils.board_utils import get_neighbours
 
 
@@ -54,6 +55,23 @@ class GameBoard:
         cloned_board = [[cell.clone() for cell in row] for row in self.board]
         return GameBoard(cloned_board, is_transient=False)
 
+    def spawn_cell(self, coords: Coordinates, for_player1: bool):
+        """
+        Spawns a cell at the given coordinates for the specified player.
+        """
+        cell = self.get(coords.row_index, coords.column_index)
+        if cell.is_owned():
+            raise ValueError("Cannot spawn into an owned cell")
+
+        if for_player1:
+            cell.set_owned_by_player1()
+        else:
+            cell.set_owned_by_player2()
+
+        cell.set_freshly_spawned()
+
+    # region Getters
+
     def get_cells_owned_by_player(self, player1: bool):
         return [
             cell
@@ -66,11 +84,23 @@ class GameBoard:
     def get_neighbours(self, row_index: int, column_index: int) -> list[Cell]:
         return get_neighbours(row_index, column_index, self.board)
 
-    def get_neighbours_matching_condition(
+    def get_owned_neighbours(self, row_index: int, column_index: int) -> list[Cell]:
+        return self._get_neighbours_matching_condition(
+            row_index, column_index, lambda cell: cell.is_owned()
+        )
+
+    def get_idle_neighbours(self, row_index: int, column_index: int) -> list[Cell]:
+        return self._get_neighbours_matching_condition(
+            row_index, column_index, lambda cell: not cell.is_owned()
+        )
+
+    def _get_neighbours_matching_condition(
         self, row_index: int, column_index: int, condition: Callable[[Cell], bool]
     ) -> list[Cell]:
         neighbours = self.get_neighbours(row_index, column_index)
         return [cell for cell in neighbours if condition(cell)]
+
+    # endregion
 
 
 def _create_starting_board(board_size: int):

@@ -1,3 +1,4 @@
+// ⚠️ Must be in sync with the server-side enum
 export enum Events {
     DISCONNECT = "disconnect",
     SERVER_ERROR = "server-error",

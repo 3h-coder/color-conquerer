@@ -1,21 +1,14 @@
-import { BombIcon, BowArrowIcon, ShieldIcon, WindIcon } from "../../../assets/svg";
+import { BombIcon, BowArrowIcon, CrossingSwordsIcon, ShieldIcon, WindIcon } from "../../../assets/svg";
 import { SpellId } from "../../../enums/spellId";
 
 export function getSpellIcon(spellId: number): JSX.Element {
-    switch (spellId) {
-        case SpellId.MINE_TRAP:
-            return <BombIcon />;
+    const spellIcons: Record<number, JSX.Element> = {
+        [SpellId.MINE_TRAP]: <BombIcon />,
+        [SpellId.SHIELD_FORMATION]: <ShieldIcon />,
+        [SpellId.CELERITY]: <WindIcon />,
+        [SpellId.ARCHERY_VOW]: <BowArrowIcon />,
+        [SpellId.AMBUSH]: <CrossingSwordsIcon />,
+    };
 
-        case SpellId.SHIELD_FORMATION:
-            return <ShieldIcon />;
-
-        case SpellId.CELERITY:
-            return <WindIcon />;
-
-        case SpellId.ARCHERY_VOW:
-            return <BowArrowIcon />;
-
-        default:
-            return <></>;
-    }
+    return spellIcons[spellId] || <></>;
 }

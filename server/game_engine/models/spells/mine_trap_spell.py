@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from constants.game_constants import SPELLS_MANA_COST
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.spells.abstract.spell import Spell
@@ -17,7 +18,7 @@ class MineTrapSpell(Spell):
         "When an enemy cell steps or spawns on it, it explodes, "
         "dealing 1 damage to all adjacent cells."
     )
-    MANA_COST = 2
+    MANA_COST = SPELLS_MANA_COST.get(ID, 0)
     CONDITION_NOT_MET_ERROR_MESSAGE = "No available cell"
     INVALID_SELECTION_ERROR_MESSAGE = (
         "You must select an idle cell to place a mine trap onto"

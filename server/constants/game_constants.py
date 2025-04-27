@@ -5,6 +5,7 @@ that should not be manually configured but set only in the code.
 
 # The number of rows and columns the board has
 from game_engine.models.cell.cell_state import CellState
+from game_engine.models.spells.spell_id import SpellId
 
 BOARD_SIZE = 11  # Do not ever change that
 
@@ -13,6 +14,14 @@ MAX_MP_VALUE = 9
 
 # The default number of copies of each spell in the deck.
 DEFAULT_SPELL_ORIGINAL_COUNT = 5
+
+SPELLS_MANA_COST = {
+    SpellId.CELERITY: 1,
+    SpellId.MINE_TRAP: 2,
+    SpellId.AMBUSH: 2,
+    SpellId.ARCHERY_VOW: 3,
+    SpellId.SHIELD_FORMATION: 3,
+}
 
 # States that do no persist beyond a single turn
 
