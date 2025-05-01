@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 from dto.player.player_resources_dto import PlayerResourcesDto
-from game_engine.models.match_context import MatchContext
-from game_engine.models.turn_state import TurnState
+from game_engine.models.dtos.match_context import MatchContext
+from game_engine.models.dtos.turn_state import TurnState
 
 
 @dataclass

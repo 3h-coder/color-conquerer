@@ -3,8 +3,8 @@ from constants.game_constants import (
     STATES_TO_CLEAR_AT_TURN_END,
 )
 from game_engine.models.dtos.match_closure import EndingReason
-from game_engine.models.match_context import MatchContext
-from game_engine.models.player_resources import PlayerResources
+from game_engine.models.dtos.match_context import MatchContext
+from game_engine.models.dtos.player_resources import PlayerResources
 
 
 def process_turn_change(match_context: MatchContext):

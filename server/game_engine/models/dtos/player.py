@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from dto.player.player_dto import PlayerDto
-from game_engine.models.player_resources import PlayerResources
+from game_engine.models.dtos.player_resources import PlayerResources
 
 
 @dataclass

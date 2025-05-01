@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import IntEnum
 
 from dto.match.match_closure_dto import MatchClosureDto
-from game_engine.models.player import Player
+from game_engine.models.dtos.player import Player
 
 
 class EndingReason(IntEnum):

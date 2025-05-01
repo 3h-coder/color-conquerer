@@ -6,7 +6,7 @@ from game_engine.models.actions.spell_casting import SpellCasting
 from game_engine.models.cell.cell import Cell
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.abstract.spell import Spell
-from game_engine.models.turn_state import TurnState
+from game_engine.models.dtos.turn_state import TurnState
 
 _logger = get_configured_logger(__name__)
 

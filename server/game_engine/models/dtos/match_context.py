@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from dto.match.match_context_dto import MatchContextDto
 from game_engine.models.game_board import GameBoard
-from game_engine.models.player import Player
+from game_engine.models.dtos.player import Player
 from game_engine.models.dtos.room import Room
 
 

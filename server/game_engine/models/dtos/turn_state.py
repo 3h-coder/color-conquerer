@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from game_engine.models.player_resources import PlayerResources
+from game_engine.models.dtos.player_resources import PlayerResources
 from game_engine.models.spells.spell_id import SpellId
 
 

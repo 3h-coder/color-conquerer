@@ -1,4 +1,4 @@
-from game_engine.models.match_context import MatchContext
+from game_engine.models.dtos.match_context import MatchContext
 
 
 class MatchContextHelper:

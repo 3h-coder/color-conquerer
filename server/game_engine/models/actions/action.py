@@ -7,7 +7,7 @@ from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
 from game_engine.models.actions.hooks.action_hook import ActionHook
 from game_engine.models.dtos.action_metadata import ActionMedatata
 from game_engine.models.dtos.coordinates import Coordinates
-from game_engine.models.match_context import MatchContext
+from game_engine.models.dtos.match_context import MatchContext
 
 
 class Action(WithCallbacks):

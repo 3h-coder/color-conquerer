@@ -5,7 +5,7 @@ from game_engine.models.cell.cell import Cell
 from game_engine.models.dtos.cell_attack_metadata import CellAttackMetadata
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
-from game_engine.models.match_context import MatchContext
+from game_engine.models.dtos.match_context import MatchContext
 
 
 class CellAttack(CellAction):

@@ -5,8 +5,8 @@ from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
 from game_engine.models.cell.cell_transient_state import CellTransientState
 from game_engine.models.dtos.coordinates import Coordinates
-from game_engine.models.player import Player
-from game_engine.models.player_resources import PlayerResources
+from game_engine.models.dtos.player import Player
+from game_engine.models.dtos.player_resources import PlayerResources
 
 
 class Cell:
