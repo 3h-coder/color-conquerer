@@ -9,7 +9,7 @@ from dto.misc.cell_dto import CellDto
 from events.events import Events
 from exceptions.server_error import ServerError
 from game_engine.models.dtos.match_closure import EndingReason
-from game_engine.models.dtos.player import Player
+from game_engine.models.player.player import Player
 from handlers.match_handler_unit import MatchHandlerUnit
 from server_gate import get_match_handler, get_session_cache_handler
 from utils import session_utils

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from dto.player.player_dto import PlayerDto
-from game_engine.models.dtos.player_resources import PlayerResources
+from game_engine.models.player.player_resources import PlayerResources
 
 
 @dataclass
@@ -17,6 +17,9 @@ class Player:
     user_id: str
     is_player_1: bool
     resources: PlayerResources
+    # The amount of damage the player should take due to fatigue
+    # This is incremented every turn the player has 0 stamina
+    fatigue_damage: int
 
     def to_dto(self):
         return PlayerDto(playerId=self.player_id, isPlayer1=self.is_player_1)
@@ -31,4 +34,5 @@ class Player:
             user_id=user_id,
             is_player_1=is_player_1,
             resources=PlayerResources.get_initial(),
+            fatigue_damage=0,
         )

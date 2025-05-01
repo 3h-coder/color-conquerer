@@ -9,7 +9,7 @@ from dto.player.player_dto import PlayerDto
 from dto.player.queue_player_dto import QueuePlayerDto
 from events.events import Events
 from exceptions.queue_error import QueueError
-from game_engine.models.dtos.player import Player
+from game_engine.models.player.player import Player
 from handlers.match_handler import MatchHandler
 from handlers.match_handler_unit import MatchHandlerUnit
 from handlers.room_handler import RoomHandler

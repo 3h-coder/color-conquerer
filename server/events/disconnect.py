@@ -3,7 +3,7 @@ from flask_socketio import leave_room
 
 from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
-from game_engine.models.dtos.player import Player
+from game_engine.models.player.player import Player
 from handlers.room_handler import RoomHandler
 from server_gate import get_connection_handler, get_match_handler, get_room_handler
 from utils import session_utils

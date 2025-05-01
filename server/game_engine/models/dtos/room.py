@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from dto.player.queue_player_dto import QueuePlayerDto
-from game_engine.models.dtos.player import Player
+from game_engine.models.player.player import Player
 
 
 @dataclass

@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from game_engine.action_calculation import get_possible_spell_castings
-from game_engine.models.dtos.player_resources import PlayerResources
+from game_engine.models.player.player_resources import PlayerResources
 from game_engine.models.spells.abstract.spell import Spell
 from game_engine.models.spells.spell_factory import get_spell
 from handlers.match_services.action_helpers.abstract.action_manager import ActionManager
