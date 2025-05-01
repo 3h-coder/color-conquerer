@@ -4,12 +4,12 @@ import {
 } from "../../dto/actions/CellAttackMetadataDto";
 import { MatchActionDto } from "../../dto/actions/MatchActionDto";
 import { CoordinatesDto } from "../../dto/misc/CoordinatesDto";
-import { HTMLElements } from "../../env";
+import { EMPTY_STRING, HTMLElements } from "../../env";
 import { getHtmlCell } from "../../utils/cellUtils";
-import { delay } from "../../utils/domUtils";
+import { cleanup, delay, getElementCenterPoint } from "../../utils/domUtils";
 import { triggerAuraEffect } from "../common";
 
-export async function handleCellClashAnimation(action: MatchActionDto) {
+export async function handleCellClashAnimation(action: MatchActionDto, isPlayer1: boolean) {
     const attackerCoords = action.metadata.originatingCellCoords;
     if (!attackerCoords) return;
 
@@ -22,15 +22,13 @@ export async function handleCellClashAnimation(action: MatchActionDto) {
     await animateCellClash(
         attackerCoords,
         targetCoords,
-        cellAttackMetadata
+        cellAttackMetadata,
+        isPlayer1
     );
 }
 
 async function animateCellClash(
-    attackerCoords: CoordinatesDto,
-    targetCoords: CoordinatesDto,
-    cellAttackMetadata: CellAttackMetadataDto | null
-) {
+    attackerCoords: CoordinatesDto, targetCoords: CoordinatesDto, cellAttackMetadata: CellAttackMetadataDto | null, isPlayer1: boolean) {
     if (!cellAttackMetadata) return;
 
     const { rowIndex: attackerRowIndex, columnIndex: attackerColIndex } = attackerCoords;
@@ -41,8 +39,7 @@ async function animateCellClash(
     if (!attackerCell || !targetCell) return;
 
     if (!cellAttackMetadata.isRangedAttack) {
-        triggerCellAura(attackerCell);
-        triggerCellAura(targetCell);
+        await animateMeleeAttack(attackerCell, targetCell, isPlayer1);
     } else {
         await displayProjectileEffect(attackerCell, targetCell);
         if (cellAttackMetadata.isRetaliated) {
@@ -51,10 +48,55 @@ async function animateCellClash(
         }
     }
 }
-function triggerCellAura(attackerCell: HTMLElement) {
+
+function animateMeleeAttack(attackerCell: HTMLElement, targetCell: HTMLElement, isPlayer1: boolean): Promise<void> {
+    return new Promise((resolve) => {
+        const attackerCenter = getElementCenterPoint(attackerCell);
+        const targetCenter = getElementCenterPoint(targetCell);
+        const coefficient = isPlayer1 ? 1 : -1;
+
+        // Calculate direction vector and normalize it
+        const directionX = targetCenter.x - attackerCenter.x;
+        const directionY = targetCenter.y - attackerCenter.y;
+        const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
+        const normalizedX = directionX / magnitude;
+        const normalizedY = directionY / magnitude;
+        // Make sure the attacker cell is on top of the target cell during the animation
+        attackerCell.style.setProperty("z-index", "10");
+
+        // Create the animation
+        const animation = attackerCell.animate(
+            [
+                // Starting position
+                { transform: 'translate(0, 0)', offset: 0 },
+                // Wind up (move back slightly)
+                { transform: `translate(${coefficient * normalizedX * 10}px, ${coefficient * normalizedY * 10}px)`, offset: 0.2 },
+                // Hold position briefly
+                { transform: `translate(${coefficient * normalizedX * 10}px, ${coefficient * normalizedY * 10}px)`, offset: 0.3 },
+                // Attack (move towards target)
+                { transform: `translate(${-coefficient * normalizedX * 20}px, ${-coefficient * normalizedY * 20}px)`, offset: 0.7 },
+                // Return to original position
+                { transform: 'translate(0, 0)', offset: 1 }
+            ],
+            {
+                duration: 500,
+                easing: 'ease-in-out',
+            }
+        );
+
+        animation.onfinish = () => {
+            triggerCellAura(attackerCell);
+            triggerCellAura(targetCell);
+            attackerCell.style.setProperty("z-index", EMPTY_STRING);
+            resolve();
+        };
+    });
+}
+
+function triggerCellAura(htmlCell: HTMLElement) {
     triggerAuraEffect(
-        attackerCell,
-        () => getComputedStyle(attackerCell).backgroundColor
+        htmlCell,
+        () => getComputedStyle(htmlCell).backgroundColor
     );
 }
 
@@ -62,20 +104,15 @@ async function displayProjectileEffect(attackerCell: HTMLElement, targetCell: HT
     const projectile = document.createElement(HTMLElements.div);
     projectile.classList.add("projectile-effect");
 
-    const attackerRect = attackerCell.getBoundingClientRect();
-    const targetRect = targetCell.getBoundingClientRect();
+    const attackerCenter = getElementCenterPoint(attackerCell);
+    const targetCenter = getElementCenterPoint(targetCell);
 
-    const startX = attackerRect.left + attackerRect.width / 2;
-    const startY = attackerRect.top + attackerRect.height / 2;
-    const endX = targetRect.left + targetRect.width / 2;
-    const endY = targetRect.top + targetRect.height / 2;
-
-    projectile.style.left = `${startX}px`;
-    projectile.style.top = `${startY}px`;
+    projectile.style.left = `${attackerCenter.x}px`;
+    projectile.style.top = `${attackerCenter.y}px`;
     document.body.appendChild(projectile);
 
-    const distanceX = endX - startX;
-    const distanceY = endY - startY;
+    const distanceX = targetCenter.x - attackerCenter.x;
+    const distanceY = targetCenter.y - attackerCenter.y;
     const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2);
     const durationInMs = Math.min(1000, distance * 2);
 
@@ -91,9 +128,7 @@ async function displayProjectileEffect(attackerCell: HTMLElement, targetCell: HT
         }
     );
 
-    setTimeout(() => {
-        projectile.remove();
-    }, durationInMs);
+    cleanup(projectile, durationInMs);
 
     await delay(durationInMs);
     triggerCellAura(targetCell);

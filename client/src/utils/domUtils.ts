@@ -31,3 +31,16 @@ export function getOrCreateDomElement(id: string, parent?: HTMLElement) {
     }
     return element;
 }
+
+export interface ElementCenterPoint {
+    x: number;
+    y: number;
+}
+
+export function getElementCenterPoint(element: HTMLElement): ElementCenterPoint {
+    const rect = element.getBoundingClientRect();
+    return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+    };
+}

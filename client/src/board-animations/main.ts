@@ -33,7 +33,7 @@ export async function animateProcessedAction(
             break;
 
         case ActionType.CELL_ATTACK:
-            await handleCellClashAnimation(action);
+            await handleCellClashAnimation(action, isPlayer1);
             break;
 
         case ActionType.CELL_SPAWN:
@@ -88,4 +88,10 @@ async function animateCallback(
         default:
             break;
     }
+
+    callback.deaths.forEach((coord) => {
+        const htmlCell = getHtmlCell(coord.rowIndex, coord.columnIndex);
+        if (htmlCell)
+            animateCellDeath(htmlCell);
+    });
 }
