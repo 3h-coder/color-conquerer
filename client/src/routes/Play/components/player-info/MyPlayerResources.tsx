@@ -1,21 +1,18 @@
 import { usePlayerInfo } from "../../../../contexts/PlayerContext";
 import { usePlayersGameInfo } from "../../../../contexts/PlayersGameInfoContext";
-import PlayerHPAndMPInfo from "./PlayerHPAndMPInfo";
+import PlayerResourcesInfo from "./PlayerResourcesInfo";
 
-export default function MyPlayerInfo() {
+export default function MyPlayerResources() {
     const { isPlayer1 } = usePlayerInfo();
     const { playerResourceBundle } = usePlayersGameInfo();
 
-    const playerGameInfo = isPlayer1
+    const playerResources = isPlayer1
         ? playerResourceBundle.player1Resources
         : playerResourceBundle.player2Resources;
 
     return (
-        <PlayerHPAndMPInfo
-            currentHP={playerGameInfo.currentHP}
-            currentMP={playerGameInfo.currentMP}
-            maxHP={playerGameInfo.maxHP}
-            maxMP={playerGameInfo.maxMP}
+        <PlayerResourcesInfo
+            playerResourcesDto={playerResources}
             hpFirst={true}
         />
     );

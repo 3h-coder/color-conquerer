@@ -20,8 +20,8 @@ import { developmentLog } from "../../utils/loggingUtils";
 import ActionBoard from "./components/action-board/ActionBoard";
 import GameGrid from "./components/game-grid/GameGrid";
 import GameTopInfo from "./components/game-top-info/GameTopInfo";
-import MyPlayerInfo from "./components/player-info/MyPlayerInfo";
-import OpponentInfo from "./components/player-info/OpponentInfo";
+import MyPlayerResources from "./components/player-info/MyPlayerResources";
+import OpponentResources from "./components/player-info/OpponentResources";
 import SideControls from "./components/side-controls/SideControls";
 import InactivityWarning from "./components/inactivity-warning/InactivityWarning";
 
@@ -225,12 +225,12 @@ export default function PlayContent() {
 
           <MainInnerContainer>
             {/* Opponent information (HP/MP) */}
-            <OpponentInfo />
+            <OpponentResources />
 
             <GameGrid />
 
             {/* Player information (HP/MP) */}
-            <MyPlayerInfo />
+            <MyPlayerResources />
 
             {/* Action board -> Spawning cells, casting spells, etc. */}
             <ActionBoard />

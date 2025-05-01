@@ -1,55 +1,57 @@
-.player-mp-hp-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.player-resources-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .hp-container {
-    display: flex;
-    align-items: center;
-    gap: max(8px, 1vmin);
+  display: flex;
+  align-items: center;
+  gap: max(8px, 1vmin);
 }
 
 .hp-circle-container-outer {
-    width: max(25px, 4vmin);
-    height: max(25px, 4vmin);
-    border: max(0.09rem, 2px) solid white;
-    border-radius: 50%;
-    overflow: hidden;
-    box-sizing: border-box;
-    rotate: 180deg;
+  width: max(25px, 4vmin);
+  height: max(25px, 4vmin);
+  border: max(0.09rem, 2px) solid white;
+  border-radius: 50%;
+  overflow: hidden;
+  box-sizing: border-box;
+  rotate: 180deg;
 }
 
 .hp-circle-container-inner {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    background: linear-gradient(180deg,
-            rgb(230, 66, 66) 0%,
-            rgb(239, 50, 50) 50%,
-            rgba(255, 0, 0, 0.642) 100%);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background: linear-gradient(
+    180deg,
+    rgb(230, 66, 66) 0%,
+    rgb(239, 50, 50) 50%,
+    rgba(255, 0, 0, 0.642) 100%
+  );
 
-    transition: height 1s ease-in-out;
+  transition: height 1s ease-in-out;
 }
 
 .mp-container {
-    display: flex;
-    gap: max(7px, 0.8vmin);
-    width: fit-content;
+  display: flex;
+  gap: max(7px, 0.8vmin);
+  width: fit-content;
 }
 
 .mp {
-    width: max(12px, 1.5vmin);
-    height: max(12px, 1.5vmin);
-    border: 0rem solid transparent;
-    border-radius: 50%;
-    background-color: grey;
-    transition: background-color 1s ease-in-out;
+  width: max(12px, 1.5vmin);
+  height: max(12px, 1.5vmin);
+  border: 0rem solid transparent;
+  border-radius: 50%;
+  background-color: grey;
+  transition: background-color 1s ease-in-out;
 }
 
 /* Meant to be used for mana points */
 .active {
-    background-color: var(--mana-blue);
+  background-color: var(--mana-blue);
 }
