@@ -10,5 +10,7 @@ class PlayerResourcesDto(BaseDto):
     currentHP: int
     maxMP: int
     currentMP: int
+    maxStamina: int
+    currentStamina: int
     # Spells cannot be shared with the opponent and
     # have their own separate dto

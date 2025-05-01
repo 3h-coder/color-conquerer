@@ -12,6 +12,8 @@ class EndingReason(IntEnum):
     PLAYER_LEFT = 4
     PLAYER_INACTIVE = 5
     NEVER_JOINED = 6
+    # When the player dies from damage due to low stamina
+    FATIGUE = 7
 
 
 @dataclass

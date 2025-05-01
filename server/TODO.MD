@@ -4,6 +4,7 @@
 - Add tests for spells
 - Add an automatic game finishing mechanism
 - Add rate limiting to certain events
+- Fix client hanging if an error occurs during match.start
 
 
 # Client

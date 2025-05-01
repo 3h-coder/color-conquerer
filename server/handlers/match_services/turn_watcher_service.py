@@ -94,8 +94,16 @@ class TurnWatcherService(ServiceBase):
         Performs all the processing related to turn swapping such as
         incrementing the turn or adding a mana point to the player whose turn it will be.
         """
-        process_turn_change(self.match_context)
+        match_ending_reason = process_turn_change(self.match_context)
+        if match_ending_reason:
+            self._end_match(match_ending_reason)
+
         self._trigger_external_callbacks()
+
+    def _end_match(self, match_ending_reason):
+        self._logger.info("Calling match end from turn swap")
+        loser_id = self.match_context.get_current_player().player_id
+        self.match.end(match_ending_reason, loser_id=loser_id)
 
     def _trigger_external_callbacks(self):
         for callback in self._turn_swap_external_callbacks:
