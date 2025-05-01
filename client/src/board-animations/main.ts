@@ -5,13 +5,12 @@ import { PlayerResourceBundleDto } from "../dto/player/PlayerInfoBundleDto";
 import { PartialSpellDto } from "../dto/spell/PartialSpellDto";
 import { ActionCallbackId } from "../enums/actionCallbackId";
 import { ActionType } from "../enums/actionType";
-import { getHtmlCell } from "../utils/cellUtils";
 import { developmentLog } from "../utils/loggingUtils";
 import { handleCellClashAnimation } from "./actions/attack";
 import { handleCellMovementAnimation } from "./actions/movement";
 import { handleCellSpawnAnimation } from "./actions/spawn";
 import { animateMineExplosion } from "./callbacks/mineExplosion";
-import { animateCellDeath } from "./common";
+import { animateCellDeaths } from "./common";
 import { handleSpellCastingAnimation } from "./spells/spell";
 
 export interface GameStateSetters {
@@ -48,11 +47,7 @@ export async function animateProcessedAction(
             break;
     }
 
-    action.metadata.deaths.forEach((coord) => {
-        const htmlCell = getHtmlCell(coord.rowIndex, coord.columnIndex);
-        if (htmlCell)
-            animateCellDeath(htmlCell);
-    });
+    animateCellDeaths(action.metadata.deaths);
 }
 
 export async function animateActionCallbacks(
@@ -89,9 +84,5 @@ async function animateCallback(
             break;
     }
 
-    callback.deaths.forEach((coord) => {
-        const htmlCell = getHtmlCell(coord.rowIndex, coord.columnIndex);
-        if (htmlCell)
-            animateCellDeath(htmlCell);
-    });
+    animateCellDeaths(callback.deaths);
 }

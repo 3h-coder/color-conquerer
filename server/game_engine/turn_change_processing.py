@@ -24,10 +24,11 @@ def process_turn_change(match_context: MatchContext):
 
 def _post_change_processing(match_context: MatchContext):
     """All the processing that needs to be done after the turn change."""
+    current_turn = match_context.current_turn
     player = match_context.get_current_player()
     player_resources = player.resources
 
-    match_ending_reason = _decrement_player_stamina(player_resources)
+    match_ending_reason = _decrement_player_stamina(player_resources, current_turn)
     if match_ending_reason:
         # Player has lost due to fatigue
         return match_ending_reason
@@ -36,7 +37,10 @@ def _post_change_processing(match_context: MatchContext):
     _process_cell_states(match_context)
 
 
-def _decrement_player_stamina(player_resources: PlayerResources):
+def _decrement_player_stamina(player_resources: PlayerResources, current_turn: int):
+    if current_turn <= 2:
+        return None
+
     player_resources.current_stamina = max(0, player_resources.current_stamina - 1)
 
     if player_resources.current_stamina == 0:

@@ -2,12 +2,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: max(4px, 0.8vmin);
 }
 
 .hp-container {
   display: flex;
   align-items: center;
-  gap: max(8px, 1vmin);
+  gap: max(4px, 0.8vmin);
 }
 
 .hp-circle-container-outer {
@@ -36,9 +37,38 @@
   transition: height 1s ease-in-out;
 }
 
+.stamina-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 1rem;
+  border: 0.15rem solid white;
+  height: max(15px, 2vmin);
+  box-sizing: border-box;
+  transition: all 0.1s ease-in-out;
+  width: 30%;
+  overflow: hidden;
+  background-color: var(--primary-grey2);
+}
+
+.stamina-container-inner {
+  border: 0.15rem solid transparent;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: var(--primary-purple3);
+  transition: width 0.5s ease-in-out;
+}
+
+.stamina-count {
+  font-size: 0.8rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .mp-container {
   display: flex;
-  gap: max(7px, 0.8vmin);
+  gap: max(4px, 0.8vmin);
   width: fit-content;
 }
 

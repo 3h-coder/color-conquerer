@@ -35,7 +35,11 @@ let _observer: MutationObserver | null = null;
 
 export let activeTooltipTarget: HTMLElement | null = null;
 
-/** Utility method for the mouse hover to display a tooltip relative to the given target react reference */
+/** 
+ * Utility method for the mouse hover to display a tooltip relative to the given target react reference. 
+ * 
+ * Returns a cleanup function to remove the tooltip and its event listeners.
+ */
 export function bindTooltip(
     targetRef: React.RefObject<HTMLElement>,
     options: BindTooltipOptions = {}

@@ -1,3 +1,4 @@
+import { CoordinatesDto } from "../dto/misc/CoordinatesDto";
 import { EMPTY_STRING, HTMLElements } from "../env";
 import { activeTooltipTarget, cleanupActiveTooltip } from "../singletons/tooltip";
 import { getHtmlCell, getOwnedCellColor } from "../utils/cellUtils";
@@ -41,7 +42,17 @@ export function animateCellSpawn(rowIndex: number, colIndex: number, ownCell: bo
   triggerAuraEffect(htmlCell, () => getOwnedCellColor(false, ownCell));
 }
 
-export function animateCellDeath(htmlCell: HTMLElement) {
+export function animateCellDeaths(deaths: CoordinatesDto[]) {
+
+  deaths.forEach((coord) => {
+    const htmlCell = getHtmlCell(coord.rowIndex, coord.columnIndex);
+    if (htmlCell) {
+      animateCellDeath(htmlCell);
+    }
+  });
+}
+
+function animateCellDeath(htmlCell: HTMLElement) {
   const cleanupDelayInMs = 500;
 
   if (activeTooltipTarget === htmlCell) {
