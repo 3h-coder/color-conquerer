@@ -5,6 +5,7 @@ from constants.game_constants import (
 from game_engine.models.dtos.match_closure import EndingReason
 from game_engine.models.dtos.match_context import MatchContext
 from game_engine.models.player.player import Player
+from game_engine.models.turn.turn_processing_result import TurnProcessingResult
 
 
 def process_turn_change(match_context: MatchContext):
@@ -13,45 +14,51 @@ def process_turn_change(match_context: MatchContext):
 
     If the match should end, it returns the reason for the match ending. Otherwise, it returns None.
     """
+    turn_change_result = TurnProcessingResult.get_default()
+
     # Actual turn change
     match_context.current_turn += 1
     match_context.is_player1_turn = not match_context.is_player1_turn
 
-    match_ending_reason = _post_change_processing(match_context)
-    if match_ending_reason:
-        return match_ending_reason
+    _post_change_processing(match_context, turn_change_result)
+
+    return turn_change_result
 
 
-def _post_change_processing(match_context: MatchContext):
+def _post_change_processing(
+    match_context: MatchContext, turn_change_result: TurnProcessingResult
+):
     """All the processing that needs to be done after the turn change."""
     current_turn = match_context.current_turn
     player = match_context.get_current_player()
 
-    match_ending_reason = _decrement_player_stamina(player, current_turn)
-    if match_ending_reason:
-        # Player has lost due to fatigue
-        return match_ending_reason
-
+    _decrement_player_stamina(player, current_turn, turn_change_result)
     _increment_current_player_mp(player, match_context.current_turn)
     _process_cell_states(match_context)
 
 
-def _decrement_player_stamina(player: Player, current_turn: int):
+def _decrement_player_stamina(
+    player: Player, current_turn: int, turn_change_result: TurnProcessingResult
+):
     if current_turn <= 2:
-        return None
+        return
 
     player_resources = player.resources
     player_resources.current_stamina = max(0, player_resources.current_stamina - 1)
 
     if player_resources.current_stamina > 0:
-        return None
+        return
 
     # Player has lost stamina, so we need to decrement their HP
     # and check if they have lost the game due to fatigue
-    player.match_data.fatigue_damage += 1
-    player_resources.current_hp -= player.match_data.fatigue_damage
+    fatigue_damage = player.match_data.fatigue_damage + 1
+    player.match_data.fatigue_damage = turn_change_result.ongoing_fatigue_damage = (
+        fatigue_damage
+    )
+
+    player_resources.current_hp -= fatigue_damage
     if player_resources.current_hp <= 0:
-        return EndingReason.FATIGUE
+        turn_change_result.match_ending_reason = EndingReason.FATIGUE
 
 
 def _increment_current_player_mp(player: Player, current_turn: int):

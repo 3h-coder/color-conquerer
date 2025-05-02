@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Callable
 
 from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
+from game_engine.models.turn.turn_processing_result import TurnProcessingResult
 from game_engine.turn_change_processing import process_turn_change
 from handlers.match_services.client_notifications import notify_turn_swap
 from handlers.match_services.service_base import ServiceBase
@@ -77,7 +78,7 @@ class TurnWatcherService(ServiceBase):
         if manual:
             self._turn_swap_request_event.clear()  # Reset the event for the next turn
 
-        self._process_turn_swap()
+        turn_change_result = self._process_turn_swap()
 
         player1_room, player2_room = self.match.get_individual_player_rooms()
         # Notify the turn change to players
@@ -89,16 +90,28 @@ class TurnWatcherService(ServiceBase):
             self.match.lock,
         )
 
+        self._handle_turn_processing_result(turn_change_result)
+
+    def _handle_turn_processing_result(self, turn_change_result: TurnProcessingResult):
+        """
+        Handles the result of the turn processing, including match end conditions.
+        """
+        if turn_change_result.ongoing_fatigue_damage > 0:
+            # TODO : Notify the players about the fatigue damage
+            pass
+
+        if turn_change_result.match_ending_reason:
+            self._end_match(turn_change_result.match_ending_reason)
+
     def _process_turn_swap(self):
         """
         Performs all the processing related to turn swapping such as
         incrementing the turn or adding a mana point to the player whose turn it will be.
         """
-        match_ending_reason = process_turn_change(self.match_context)
-        if match_ending_reason:
-            self._end_match(match_ending_reason)
-
+        turn_change_result = process_turn_change(self.match_context)
         self._trigger_external_callbacks()
+
+        return turn_change_result
 
     def _end_match(self, match_ending_reason):
         self._logger.info("Calling match end from turn swap")

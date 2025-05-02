@@ -1,5 +1,5 @@
 import { EMPTY_STRING } from "../../env";
-import { CellDto } from "../misc/CellDto";
+import { CellDto } from "../cell/CellDto";
 import { PlayerResourceBundleDto, undefinedPlayerResourceBundleDto } from "../player/PlayerInfoBundleDto";
 
 export interface MatchContextDto {

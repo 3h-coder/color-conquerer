@@ -1,6 +1,6 @@
 import { ActionCallbackDto } from "../dto/actions/ActionCallbackDto";
 import { MatchActionDto } from "../dto/actions/MatchActionDto";
-import { CellDto } from "../dto/misc/CellDto";
+import { CellDto } from "../dto/cell/CellDto";
 import { PlayerResourceBundleDto } from "../dto/player/PlayerInfoBundleDto";
 import { PartialSpellDto } from "../dto/spell/PartialSpellDto";
 import { ActionCallbackId } from "../enums/actionCallbackId";

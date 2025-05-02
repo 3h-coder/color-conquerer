@@ -1,6 +1,6 @@
 import { MatchActionDto } from "../actions/MatchActionDto";
+import { CellDto } from "../cell/CellDto";
 import { GameContextDto } from "../gameState/GameContextDto";
-import { CellDto } from "../misc/CellDto";
 
 export interface ProcessedActionDto {
     processedAction: MatchActionDto;

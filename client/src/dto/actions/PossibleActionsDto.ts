@@ -1,4 +1,4 @@
-import { CellDto } from "../misc/CellDto";
+import { CellDto } from "../cell/CellDto";
 
 export interface PossibleActionsDto {
     playerMode: number;

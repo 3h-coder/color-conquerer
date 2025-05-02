@@ -1,4 +1,4 @@
-import { CellDto } from "../../../../dto/misc/CellDto";
+import { CellDto } from "../../../../dto/cell/CellDto";
 import { CellHiddenState } from "../../../../enums/cellHiddenState";
 import { CellState, CellStateUtils } from "../../../../enums/cellState";
 import { CellTransientState } from "../../../../enums/cellTransientState";

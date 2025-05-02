@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from dto.base_dto import BaseDto
-from dto.misc.cell_dto import CellDto
+from dto.cell.cell_dto import CellDto
 from dto.player.player_resources_bundle_dto import PlayerResourceBundleDto
 
 if TYPE_CHECKING:

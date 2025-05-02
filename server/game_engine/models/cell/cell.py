@@ -1,4 +1,4 @@
-from dto.misc.cell_dto import CellDto
+from dto.cell.cell_dto import CellDto
 from game_engine.models.cell.cell_hidden_state import CellHiddenState
 from game_engine.models.cell.cell_hidden_state_info import CellHiddenStateInfo
 from game_engine.models.cell.cell_owner import CellOwner

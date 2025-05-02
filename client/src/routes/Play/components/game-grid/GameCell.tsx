@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useMatchContext } from "../../../../contexts/MatchContext";
-import { CellDto } from "../../../../dto/misc/CellDto";
+import { CellDto } from "../../../../dto/cell/CellDto";
 import { CellStateUtils } from "../../../../enums/cellState";
 import { CellTransientState } from "../../../../enums/cellTransientState";
 import { Events } from "../../../../enums/events";
