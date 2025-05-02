@@ -15,9 +15,9 @@ class MatchContext:
 
     id: str
     room_id: str
-    game_board: GameBoard
     current_turn: int
     is_player1_turn: bool
+    game_board: GameBoard
     player1: Player
     player2: Player
 

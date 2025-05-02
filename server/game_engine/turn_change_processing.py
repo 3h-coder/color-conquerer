@@ -48,8 +48,8 @@ def _decrement_player_stamina(player: Player, current_turn: int):
 
     # Player has lost stamina, so we need to decrement their HP
     # and check if they have lost the game due to fatigue
-    player.fatigue_damage += 1
-    player_resources.current_hp -= player.fatigue_damage
+    player.match_data.fatigue_damage += 1
+    player_resources.current_hp -= player.match_data.fatigue_damage
     if player_resources.current_hp <= 0:
         return EndingReason.FATIGUE
 

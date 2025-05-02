@@ -11,8 +11,8 @@ from game_engine.models.spells.spell_id import SpellId
 @dataclass
 class PlayerResources:
     """
-    Used to display the player's game information/characteristics
-    such as their HP, MP and abilities.
+    The player resources that the player uses directly or indirectly during a match,
+    such as HP, MP, stamina and their spells.
     """
 
     max_hp: int

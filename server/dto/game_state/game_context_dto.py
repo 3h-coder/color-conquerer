@@ -8,7 +8,6 @@ from dto.player.player_resources_bundle_dto import PlayerResourceBundleDto
 if TYPE_CHECKING:
     from game_engine.models.actions.callbacks.action_callback import ActionCallback
     from game_engine.models.dtos.match_context import MatchContext
-    from game_engine.models.dtos.turn_context import TurnContext
 
 
 @dataclass
@@ -22,15 +21,6 @@ class GameContextDto(BaseDto):
             gameBoard=match_context.game_board.to_dto(for_player1),
             playerResourceBundle=PlayerResourceBundleDto.from_match_context(
                 match_context
-            ),
-        )
-
-    @staticmethod
-    def from_turn_context(turn_context: "TurnContext", for_player1: bool):
-        return GameContextDto(
-            gameBoard=turn_context.updated_board.to_dto(for_player1),
-            playerResourceBundle=PlayerResourceBundleDto.from_turn_state(
-                turn_context.current_state
             ),
         )
 

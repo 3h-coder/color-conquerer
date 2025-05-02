@@ -5,7 +5,6 @@ from config.logging import get_configured_logger
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.match.client_stored_match_info_dto import ClientStoredMatchInfoDto
 from dto.misc.error_dto import ErrorDto
-from dto.player.player_dto import PlayerDto
 from dto.player.queue_player_dto import QueuePlayerDto
 from events.events import Events
 from exceptions.queue_error import QueueError
@@ -41,12 +40,14 @@ def handle_queue_registration(data: dict):
     (room, closed) = _make_enter_in_room(queue_player_dto, room_handler)
     room_id = room.id
     is_player1 = not closed
+    # TODO : create a special player object only for session storage ?
     player_info = Player(
         player_id,
         individual_room_id=room.player1_room_id if is_player1 else room.player2_room_id,
         user_id=queue_player_dto.user.id,
         is_player_1=is_player1,
         resources=None,
+        match_data=None,
     )
     _save_into_session(room_id, player_info, session_cache_handler)
 
@@ -153,7 +154,7 @@ def _make_enter_in_room(queue_player_dto: QueuePlayerDto, room_handler: RoomHand
 
 
 def _save_into_session(
-    room_id: str, player_info: PlayerDto, session_cache_handler: SessionCacheHandler
+    room_id: str, player_info: Player, session_cache_handler: SessionCacheHandler
 ):
     """
     Saves the player information into the session.
