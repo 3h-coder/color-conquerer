@@ -6,7 +6,10 @@ from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
 from game_engine.models.turn.turn_processing_result import TurnProcessingResult
 from game_engine.turn_change_processing import process_turn_change
-from handlers.match_services.client_notifications import notify_turn_swap
+from handlers.match_services.client_notifications import (
+    notify_fatigue,
+    notify_turn_swap,
+)
 from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:
@@ -96,9 +99,8 @@ class TurnWatcherService(ServiceBase):
         """
         Handles the result of the turn processing, including match end conditions.
         """
-        if turn_change_result.ongoing_fatigue_damage > 0:
-            # TODO : Notify the players about the fatigue damage
-            pass
+        if fatigue_damage := turn_change_result.ongoing_fatigue_damage > 0:
+            notify_fatigue(self.room_id, fatigue_damage)
 
         if turn_change_result.match_ending_reason:
             self._end_match(turn_change_result.match_ending_reason)

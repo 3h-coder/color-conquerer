@@ -90,3 +90,20 @@
 
     animation: glow 1s ease-in-out infinite alternate;
 }
+
+#fatigue-container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5rem;
+    width: max(45%, 170px);
+    padding: var(--spacing-small2);
+    background-color: var(--deep-blue);
+
+    animation: fade-in-out 2s ease-out, glow 1s ease-in-out infinite alternate;
+}

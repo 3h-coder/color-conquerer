@@ -43,7 +43,7 @@ def notify_turn_swap(
 
 
 def notify_fatigue(room_id: str, fatigue_damage: int):
-    _emit(Events.SERVER_FATIGUE, MessageDto(fatigue_damage).to_dict(), to=room_id)
+    _emit(Events.SERVER_FATIGUE, fatigue_damage, to=room_id)
 
 
 def notify_inactivity_warning(player_room: str):

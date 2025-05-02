@@ -20,7 +20,9 @@ import { EMPTY_STRING, socket } from "../../../../env";
 import { cellStyle } from "../../../../style/constants";
 import { handlePossibleActionsAdditionalData } from "../../../../utils/actionHintUtils";
 import { getCellId } from "../../../../utils/cellUtils";
+import { delay } from "../../../../utils/domUtils";
 import { developmentLog } from "../../../../utils/loggingUtils";
+import Fatigue from "./Fatigue";
 import GameCell from "./GameCell";
 import GameError from "./GameError";
 import SpellAction from "./SpellAction";
@@ -34,7 +36,7 @@ export default function GameGrid() {
     const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnContext, canInteract, setCanInteract } = useTurnContext();
     const { setPlayerResourceBundle } = usePlayersGameInfo();
-    const { animationOngoing, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
+    const { animationOngoing, addEndOfAnimationCallback, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
     const { setPlayerMode } = usePlayerMode();
 
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
@@ -42,6 +44,7 @@ export default function GameGrid() {
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [actionErrorMessage, setActionErrorMessage] = useState(EMPTY_STRING);
     const [actionSpell, setActionSpell] = useState<PartialSpellDto | null>(null);
+    const [fatigueDamage, setFatigueDamage] = useState<number | null>(null);
 
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
     const { canDisplayCellEffects, triggerCellEffectSync } = useCellEffectSync();
@@ -93,6 +96,8 @@ export default function GameGrid() {
                 return;
             }
 
+            signalAnimationStart();
+
             // Trigger the turn swap image animation
             setTurnSwapImagePath(isCurrentPlayerTurn ? YourTurnImage : OpponentTurnImage);
             setShowTurnSwapImage(true);
@@ -101,6 +106,7 @@ export default function GameGrid() {
             const timeout = setTimeout(() => {
                 setShowTurnSwapImage(false);
                 setCanInteract(isCurrentPlayerTurn);
+                signalAnimationEnd();
             }, 2000);
 
             return () => clearTimeout(timeout);
@@ -205,16 +211,38 @@ export default function GameGrid() {
             setActionErrorMessage(errorMessage);
         }
 
+        async function onServerFatigue(fatigueDamage: number) {
+
+            addEndOfAnimationCallback(animateFatigue);
+
+            async function animateFatigue() {
+                try {
+                    // Signal the animation start for the eventual match end to 
+                    // trigger afterwards
+                    signalAnimationStart();
+
+                    setFatigueDamage(fatigueDamage);
+                    await delay(1900);
+                    setFatigueDamage(null);
+                } finally {
+                    signalAnimationEnd();
+                }
+            }
+
+        }
+
         socket.on(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
         socket.on(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
         socket.on(Events.SERVER_ACTION_ERROR, onServerActionError);
         socket.on(Events.SERVER_ACTION_CALLBACK, onServerActionCallback);
+        socket.on(Events.SERVER_FATIGUE, onServerFatigue);
 
         return () => {
             socket.off(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
             socket.off(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
             socket.off(Events.SERVER_ACTION_ERROR, onServerActionError);
             socket.off(Events.SERVER_ACTION_CALLBACK, onServerActionCallback);
+            socket.off(Events.SERVER_FATIGUE, onServerFatigue);
         };
     });
 
@@ -250,6 +278,9 @@ export default function GameGrid() {
 
             { /* Spell description card whenever a player casts a spell */}
             {actionSpell && <SpellAction spell={actionSpell} />}
+
+            { /* Fatigue animation */}
+            {fatigueDamage && <Fatigue fatigue={fatigueDamage} />}
         </GridOuter>
     );
 }
