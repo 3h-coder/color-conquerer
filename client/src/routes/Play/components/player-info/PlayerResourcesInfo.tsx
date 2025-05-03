@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { PlayerResourcesDto } from "../../../../dto/player/PlayerResourcesDto";
 import { EMPTY_STRING } from "../../../../env";
 import { bindTooltip } from "../../../../singletons/tooltip";
-import { developmentLog } from "../../../../utils/loggingUtils";
 import "./styles/PlayerHPAndMPInfo.css";
 
 
@@ -14,7 +13,6 @@ interface PlayerResourcesInfoProps {
 export default function PlayerResourcesInfo(props: PlayerResourcesInfoProps) {
     const { playerResourcesDto, hpFirst } = props;
     const { currentHP, maxHP, currentMP, maxMP, currentStamina, maxStamina } = playerResourcesDto;
-    developmentLog("PlayerResourcesDto", playerResourcesDto);
     return (
         <div className="player-resources-container">
             {hpFirst ? <PlayerHP currentHP={currentHP} maxHP={maxHP} /> : <></>}
