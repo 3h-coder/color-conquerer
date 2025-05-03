@@ -17,7 +17,6 @@ export enum Events {
     SERVER_ACTION_CALLBACK = "server-action-callback",
     SERVER_ACTION_ERROR = "server-actionError",
     SERVER_ERROR = "server-error",
-    SERVER_FATIGUE = "server-fatigue",
     SERVER_INACTIVITY_WARNING = "server-inactivity-warning",
     SERVER_MATCH_END = "server-match-end",
     SERVER_MATCH_INFO = "server-match-info",

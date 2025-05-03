@@ -1,5 +1,6 @@
 import { EMPTY_STRING } from "../../env";
 import { GameContextDto, undefinedGameContextDto } from "./GameContextDto";
+import { TurnProcessingResultDto } from "./TurnProcessingResultDto";
 
 export interface TurnContextDto {
     currentPlayerId: string;
@@ -8,6 +9,7 @@ export interface TurnContextDto {
     durationInS: number;
     notifyTurnChange: boolean;
     gameContext: GameContextDto;
+    newTurnProcessingInfo: TurnProcessingResultDto | null;
 }
 
 export const undefinedTurnContext: TurnContextDto = {
@@ -16,5 +18,6 @@ export const undefinedTurnContext: TurnContextDto = {
     remainingTimeInS: 0,
     durationInS: 0,
     notifyTurnChange: false,
-    gameContext: undefinedGameContextDto
+    gameContext: undefinedGameContextDto,
+    newTurnProcessingInfo: null
 };

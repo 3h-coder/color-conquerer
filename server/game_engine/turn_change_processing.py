@@ -12,7 +12,7 @@ def process_turn_change(match_context: MatchContext):
     """
     Enforces a turn change within the match, processing the necessary game logic.
 
-    If the match should end, it returns the reason for the match ending. Otherwise, it returns None.
+    Returns a TurnProcessingResult object containing specific information regarding the turn change processing.
     """
     turn_change_result = TurnProcessingResult.get_default()
 

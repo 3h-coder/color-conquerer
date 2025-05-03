@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from dto.game_state.turn_processing_result_dto import TurnProcessingResultDto
 from game_engine.models.dtos.match_closure import EndingReason
 
 
@@ -21,3 +22,6 @@ class TurnProcessingResult:
             match_ending_reason=None,
             ongoing_fatigue_damage=0,
         )
+
+    def to_dto(self):
+        return TurnProcessingResultDto(fatigueDamage=self.ongoing_fatigue_damage)

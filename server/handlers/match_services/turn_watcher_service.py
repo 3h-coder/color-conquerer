@@ -6,10 +6,7 @@ from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
 from game_engine.models.turn.turn_processing_result import TurnProcessingResult
 from game_engine.turn_change_processing import process_turn_change
-from handlers.match_services.client_notifications import (
-    notify_fatigue,
-    notify_turn_swap,
-)
+from handlers.match_services.client_notifications import notify_turn_swap
 from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:
@@ -83,24 +80,7 @@ class TurnWatcherService(ServiceBase):
 
         turn_change_result = self._process_turn_swap()
 
-        player1_room, player2_room = self.match.get_individual_player_rooms()
-        # Notify the turn change to players
-        notify_turn_swap(
-            self.match.get_turn_context_dto(for_player1=True, for_new_turn=True),
-            self.match.get_turn_context_dto(for_player1=False, for_new_turn=True),
-            player1_room,
-            player2_room,
-            self.match.lock,
-        )
-
-        self._handle_turn_processing_result(turn_change_result)
-
-    def _handle_turn_processing_result(self, turn_change_result: TurnProcessingResult):
-        """
-        Handles the result of the turn processing, including match end conditions.
-        """
-        if fatigue_damage := turn_change_result.ongoing_fatigue_damage > 0:
-            notify_fatigue(self.room_id, fatigue_damage)
+        self._notify_players(turn_change_result)
 
         if turn_change_result.match_ending_reason:
             self._end_match(turn_change_result.match_ending_reason)
@@ -114,6 +94,26 @@ class TurnWatcherService(ServiceBase):
         self._trigger_external_callbacks()
 
         return turn_change_result
+
+    def _notify_players(self, turn_change_result: TurnProcessingResult):
+        """Notifies both players about the turn change in each of their rooms."""
+        player1_room, player2_room = self.match.get_individual_player_rooms()
+        turn_context_1 = self.match.get_turn_context_dto(
+            for_player1=True, for_new_turn=True
+        )
+        turn_context_2 = self.match.get_turn_context_dto(
+            for_player1=False, for_new_turn=True
+        )
+        turn_context_1.newTurnProcessingInfo = turn_change_result.to_dto()
+        turn_context_2.newTurnProcessingInfo = turn_change_result.to_dto()
+        # Notify the turn change to players
+        notify_turn_swap(
+            turn_context_1,
+            turn_context_2,
+            player1_room,
+            player2_room,
+            self.match.lock,
+        )
 
     def _end_match(self, match_ending_reason):
         self._logger.info("Calling match end from turn swap")

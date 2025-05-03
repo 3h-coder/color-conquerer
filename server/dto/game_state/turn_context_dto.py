@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 
 from dto.base_dto import BaseDto
-from dto.cell.cell_dto import CellDto
 from dto.game_state.game_context_dto import GameContextDto
-from dto.player.player_resources_bundle_dto import PlayerResourceBundleDto
+from dto.game_state.turn_processing_result_dto import TurnProcessingResultDto
 
 
 @dataclass
@@ -14,3 +13,5 @@ class TurnContextDto(BaseDto):
     durationInS: int
     notifyTurnChange: bool
     gameContext: GameContextDto
+    # None if not for a turn change
+    newTurnProcessingInfo: TurnProcessingResultDto | None = None

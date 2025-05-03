@@ -36,7 +36,7 @@ export default function GameGrid() {
     const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnContext, canInteract, setCanInteract } = useTurnContext();
     const { setPlayerResourceBundle } = usePlayersGameInfo();
-    const { getAnimationOngoing, addEndOfAnimationCallback, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
+    const { getAnimationOngoing, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
     const { setPlayerMode } = usePlayerMode();
 
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
@@ -73,14 +73,14 @@ export default function GameGrid() {
     // - Show the turn swap image
     // - Enable/disable button interactions
     useEffect(() => {
-        const cleanupFunction = handleTurnContextAndInteraction();
-        cleanupAttachedCellBehaviors();
+        reactToTurnChange();
 
-        return () => {
-            if (typeof cleanupFunction === "function") cleanupFunction();
-        };
+        async function reactToTurnChange() {
+            await handleTurnContextAndInteraction();
+            cleanupAttachedCellBehaviors();
+        }
 
-        function handleTurnContextAndInteraction() {
+        async function handleTurnContextAndInteraction() {
             developmentLog("Received the turn context", turnContext);
             // Handle turnContext update
             setBoardArray(turnContext.gameContext.gameBoard);
@@ -107,14 +107,19 @@ export default function GameGrid() {
             setTurnSwapImagePath(isCurrentPlayerTurn ? YourTurnImage : OpponentTurnImage);
             setShowTurnSwapImage(true);
 
-            // Wait for the turn image animation to end before allowing interaction
-            const timeout = setTimeout(() => {
-                setShowTurnSwapImage(false);
-                setCanInteract(isCurrentPlayerTurn);
-                signalAnimationEnd();
-            }, 2000);
+            await delay(2000);
+            setShowTurnSwapImage(false);
 
-            return () => clearTimeout(timeout);
+            // Trigger the fatigue damage animation if any
+            if (turnContext.newTurnProcessingInfo !== null && turnContext.newTurnProcessingInfo.fatigueDamage > 0) {
+                const fatigueDamage = turnContext.newTurnProcessingInfo.fatigueDamage;
+                setFatigueDamage(fatigueDamage);
+                await delay(1900);
+                setFatigueDamage(null);
+            }
+
+            setCanInteract(isCurrentPlayerTurn);
+            signalAnimationEnd();
         }
     }, [turnContext, playerId]);
 
@@ -224,37 +229,16 @@ export default function GameGrid() {
             setActionErrorMessage(errorMessage);
         }
 
-        async function onServerFatigue(fatigueDamage: number) {
-            addEndOfAnimationCallback(animateFatigue);
-
-            async function animateFatigue() {
-                try {
-                    // Signal the animation start for the eventual match end t*&é"'(-è_tfygr-) 
-                    // trigger afterwards
-                    if (!getAnimationOngoing())
-                        signalAnimationStart();
-
-                    setFatigueDamage(fatigueDamage);
-                    await delay(1900);
-                    setFatigueDamage(null);
-                } finally {
-                    signalAnimationEnd();
-                }
-            }
-        }
-
         socket.on(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
         socket.on(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
         socket.on(Events.SERVER_ACTION_ERROR, onServerActionError);
         socket.on(Events.SERVER_ACTION_CALLBACK, onServerActionCallback);
-        socket.on(Events.SERVER_FATIGUE, onServerFatigue);
 
         return () => {
             socket.off(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
             socket.off(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
             socket.off(Events.SERVER_ACTION_ERROR, onServerActionError);
             socket.off(Events.SERVER_ACTION_CALLBACK, onServerActionCallback);
-            socket.off(Events.SERVER_FATIGUE, onServerFatigue);
         };
     });
 
