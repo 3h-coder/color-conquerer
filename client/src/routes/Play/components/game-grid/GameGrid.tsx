@@ -45,7 +45,6 @@ export default function GameGrid() {
     const [actionErrorMessage, setActionErrorMessage] = useState(EMPTY_STRING);
     const [actionSpell, setActionSpell] = useState<PartialSpellDto | null>(null);
     const [fatigueDamage, setFatigueDamage] = useState<number | null>(null);
-
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
     const { canDisplayCellEffects, triggerCellEffectSync } = useCellEffectSync();
     const {
@@ -55,6 +54,7 @@ export default function GameGrid() {
     } = useAttachedCellBehaviors(matchInfo.boardArray.length);
 
     const callbackAnimationQueueRef = useRef<ActionCallbackDto[]>([]);
+    const [animatingCallbacks, setAnimatingCallbacks] = useState(false);
 
     useEffect(() => {
         const cleanup = onEmit((event, _args) => {
@@ -73,10 +73,15 @@ export default function GameGrid() {
     // - Show the turn swap image
     // - Enable/disable button interactions
     useEffect(() => {
-        handleTurnContextAndInteraction();
+        const cleanupFunction = handleTurnContextAndInteraction();
         cleanupAttachedCellBehaviors();
 
+        return () => {
+            if (typeof cleanupFunction === "function") cleanupFunction();
+        };
+
         function handleTurnContextAndInteraction() {
+            developmentLog("Received the turn context", turnContext);
             // Handle turnContext update
             setBoardArray(turnContext.gameContext.gameBoard);
             setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
@@ -115,7 +120,7 @@ export default function GameGrid() {
 
     // Action callbacks animations
     useEffect(() => {
-        if (!animationOngoing)
+        if (!animatingCallbacks)
             return;
 
         animateActionCallbacks();
@@ -131,12 +136,13 @@ export default function GameGrid() {
                 triggerCellEffectSync();
             } finally {
                 signalAnimationEnd();
+                setAnimatingCallbacks(false);
 
                 if (isMyTurn)
                     setCanInteract(true);
             }
         }
-    }, [animationOngoing]);
+    }, [animatingCallbacks]);
 
     // Clear the error message ~1 second after it has been set
     useEffect(() => {
@@ -202,6 +208,7 @@ export default function GameGrid() {
             callbackAnimationQueueRef.current.push(actionCallback);
             if (!animationOngoing)
                 signalAnimationStart();
+            setAnimatingCallbacks(true);
         }
 
         function onServerActionError(errorMessageDto: MessageDto) {
@@ -212,14 +219,14 @@ export default function GameGrid() {
         }
 
         async function onServerFatigue(fatigueDamage: number) {
-
             addEndOfAnimationCallback(animateFatigue);
 
             async function animateFatigue() {
                 try {
                     // Signal the animation start for the eventual match end to 
                     // trigger afterwards
-                    signalAnimationStart();
+                    if (!animationOngoing)
+                        signalAnimationStart();
 
                     setFatigueDamage(fatigueDamage);
                     await delay(1900);
@@ -228,7 +235,6 @@ export default function GameGrid() {
                     signalAnimationEnd();
                 }
             }
-
         }
 
         socket.on(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);

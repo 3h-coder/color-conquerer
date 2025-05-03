@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 interface AnimationContextObject {
     animationOngoing: boolean;
@@ -22,6 +22,7 @@ interface AnimationContextProviderProps {
 export default function AnimationContextProvider({ children }: AnimationContextProviderProps) {
     const [animationOngoing, setAnimationOngoing] = useState(false);
     const [callbacks, setCallbacks] = useState<(() => void)[]>([]);
+    const prevAnimationOngoing = useRef(animationOngoing);
 
     const signalAnimationStart = useCallback(() => {
         setAnimationOngoing(true);
@@ -36,10 +37,12 @@ export default function AnimationContextProvider({ children }: AnimationContextP
     }, []);
 
     useEffect(() => {
-        if (!animationOngoing) {
+        // Only process callbacks when animationOngoing transitions from true to false
+        if (prevAnimationOngoing.current && !animationOngoing) {
             processCallbacks();
         }
-    }, [callbacks, animationOngoing]);
+        prevAnimationOngoing.current = animationOngoing;
+    }, [animationOngoing]);
 
     const contextValue: AnimationContextObject = {
         animationOngoing,
