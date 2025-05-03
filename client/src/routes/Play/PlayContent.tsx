@@ -36,7 +36,7 @@ export default function PlayContent() {
     loading: playerInfoLoading,
     failedToResolve: failedToResolvePlayerInfo,
   } = usePlayerInfo();
-  const { addEndOfAnimationCallback } = useAnimationContext();
+  const { getAnimationOngoing, addEndOfAnimationCallback } = useAnimationContext();
   const { turnContext: turnInfo, setTurnContext: setTurnInfo } =
     useTurnContext();
   const { setPlayerMode } = usePlayerMode();
@@ -115,7 +115,10 @@ export default function PlayContent() {
     function onMatchEnded(matchClosureDto: MatchClosureDto) {
       developmentLog("Received match ending ", matchClosureDto);
 
-      addEndOfAnimationCallback(handleMatchEnding);
+      if (getAnimationOngoing())
+        addEndOfAnimationCallback(handleMatchEnding);
+      else
+        handleMatchEnding();
 
       function handleMatchEnding() {
         setModalIcon(ModalIcon.None);

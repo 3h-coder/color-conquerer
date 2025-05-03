@@ -50,7 +50,7 @@ export async function animateProcessedAction(
     animateCellDeaths(action.metadata.deaths);
 }
 
-export async function animateActionCallbacks(
+export async function animateActionCallback(
     callback: ActionCallbackDto,
     currentPlayerisPlayer1: boolean,
     stateSetters: GameStateSetters

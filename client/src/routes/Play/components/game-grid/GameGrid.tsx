@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import OpponentTurnImage from "../../../../assets/images/Your Opponent Turn.png";
 import YourTurnImage from "../../../../assets/images/Your Turn.png";
-import { animateActionCallbacks as animateActionCallback, animateProcessedAction } from "../../../../board-animations/main";
+import { animateActionCallback, animateProcessedAction } from "../../../../board-animations/main";
 import { ContainerProps } from "../../../../components/containers";
 import { useAnimationContext } from "../../../../contexts/AnimationContext";
 import { useMatchContext } from "../../../../contexts/MatchContext";
@@ -36,7 +36,7 @@ export default function GameGrid() {
     const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnContext, canInteract, setCanInteract } = useTurnContext();
     const { setPlayerResourceBundle } = usePlayersGameInfo();
-    const { animationOngoing, addEndOfAnimationCallback, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
+    const { getAnimationOngoing, addEndOfAnimationCallback, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
     const { setPlayerMode } = usePlayerMode();
 
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
@@ -128,18 +128,26 @@ export default function GameGrid() {
         async function animateActionCallbacks() {
             if (isMyTurn)
                 setCanInteract(false);
+
             try {
+                if (!getAnimationOngoing())
+                    signalAnimationStart(true);
+
                 while (callbackAnimationQueueRef.current.length > 0) {
                     const actionCallback = callbackAnimationQueueRef.current.shift();
                     await animateActionCallback(actionCallback!, isPlayer1, { setBoardArray, setActionSpell, setPlayerResourceBundle });
                 }
                 triggerCellEffectSync();
             } finally {
-                signalAnimationEnd();
                 setAnimatingCallbacks(false);
 
                 if (isMyTurn)
                     setCanInteract(true);
+
+                // Note : This is a hack to prevent pixi from stopping while some particles are still emitting
+                // It should be fixed in the future by using a better way to handle the animation end
+                await delay(1500);
+                signalAnimationEnd(true);
             }
         }
     }, [animatingCallbacks]);
@@ -206,8 +214,6 @@ export default function GameGrid() {
             developmentLog("Received the action callback", actionCallback);
 
             callbackAnimationQueueRef.current.push(actionCallback);
-            if (!animationOngoing)
-                signalAnimationStart();
             setAnimatingCallbacks(true);
         }
 
@@ -225,7 +231,7 @@ export default function GameGrid() {
                 try {
                     // Signal the animation start for the eventual match end t*&é"'(-è_tfygr-) 
                     // trigger afterwards
-                    if (!animationOngoing)
+                    if (!getAnimationOngoing())
                         signalAnimationStart();
 
                     setFatigueDamage(fatigueDamage);

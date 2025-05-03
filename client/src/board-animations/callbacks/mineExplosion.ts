@@ -206,13 +206,10 @@ function triggerSparks(htmlCell: HTMLElement) {
         particleConfig
     );
 
-    pixiApp.start();
     startEmitting(emitter);
 
     // Clean up
     setTimeout(() => {
-        // TODO : FIX THIS
-        pixiApp.stop();
         emitter.destroy();
         explosionContainer.destroy();
     }, emitterLifetimeInSec * 1000 + 200);
