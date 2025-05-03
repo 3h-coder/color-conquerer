@@ -1,24 +1,25 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PlayerResourcesDto } from "../../../../dto/player/PlayerResourcesDto";
 import { EMPTY_STRING } from "../../../../env";
 import { bindTooltip } from "../../../../singletons/tooltip";
+import { delay } from "../../../../utils/domUtils";
 import "./styles/PlayerHPAndMPInfo.css";
 
 
 interface PlayerResourcesInfoProps {
     playerResourcesDto: PlayerResourcesDto;
-    hpFirst?: boolean;
+    own: boolean;
 }
 
 export default function PlayerResourcesInfo(props: PlayerResourcesInfoProps) {
-    const { playerResourcesDto, hpFirst } = props;
+    const { playerResourcesDto, own } = props;
     const { currentHP, maxHP, currentMP, maxMP, currentStamina, maxStamina } = playerResourcesDto;
     return (
         <div className="player-resources-container">
-            {hpFirst ? <PlayerHP currentHP={currentHP} maxHP={maxHP} /> : <></>}
+            {own ? <PlayerHP currentHP={currentHP} maxHP={maxHP} /> : <></>}
             <PlayerStamina currentStamina={currentStamina} maxStamina={maxStamina} />
             <PlayerMP currentMP={currentMP} maxMP={maxMP} />
-            {!hpFirst ? <PlayerHP currentHP={currentHP} maxHP={maxHP} /> : <></>}
+            {!own ? <PlayerHP currentHP={currentHP} maxHP={maxHP} /> : <></>}
         </div>
     );
 }
@@ -58,15 +59,36 @@ interface PlayerHPProps {
 
 function PlayerHP(props: PlayerHPProps) {
     const { currentHP, maxHP } = props;
+    const [animate, setAnimate] = useState(false);
+    const prevHP = useRef<number | undefined>(undefined);
     const percentage = Math.round((currentHP * 100) / maxHP);
     const hpText = `${currentHP}/${maxHP}`;
+
+    useEffect(() => {
+        handleHPChange();
+
+        async function handleHPChange() {
+            if (!prevHP.current) {
+                prevHP.current = currentHP;
+                return;
+            }
+
+            if (prevHP.current !== currentHP) {
+                setAnimate(true);
+                await delay(1000);
+                setAnimate(false);
+            }
+
+            prevHP.current = currentHP;
+        }
+    }, [currentHP]);
 
     return (
         <div className="hp-container">
             <span>{hpText}</span>
             <div className="hp-circle-container-outer">
                 <div
-                    className="hp-circle-container-inner"
+                    className={`hp-circle-container-inner${animate ? " hp-animate-bg" : ""}`}
                     style={{ height: `${percentage}%` }}
                 >
                 </div>

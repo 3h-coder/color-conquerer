@@ -13,7 +13,7 @@ export default function MyPlayerResources() {
     return (
         <PlayerResourcesInfo
             playerResourcesDto={playerResources}
-            hpFirst={true}
+            own={true}
         />
     );
 }

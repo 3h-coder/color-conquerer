@@ -4,13 +4,13 @@ import PlayerResourcesInfo from "./PlayerResourcesInfo";
 
 export default function OpponentResources() {
     const { isPlayer1 } = usePlayerInfo();
-    const { playerResourceBundle: playerGameInfoBundle } = usePlayerResources();
+    const { playerResourceBundle } = usePlayerResources();
 
     const opponentResources = isPlayer1
-        ? playerGameInfoBundle.player2Resources
-        : playerGameInfoBundle.player1Resources;
+        ? playerResourceBundle.player2Resources
+        : playerResourceBundle.player1Resources;
 
     return (
-        <PlayerResourcesInfo playerResourcesDto={opponentResources} />
+        <PlayerResourcesInfo playerResourcesDto={opponentResources} own={false} />
     );
 }

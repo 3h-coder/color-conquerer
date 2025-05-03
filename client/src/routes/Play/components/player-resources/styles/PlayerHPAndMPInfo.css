@@ -22,19 +22,29 @@
 }
 
 .hp-circle-container-inner {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  background: linear-gradient(
+  --hp-bg: linear-gradient(
     180deg,
     rgb(230, 66, 66) 0%,
     rgb(239, 50, 50) 50%,
     rgba(255, 0, 0, 0.642) 100%
   );
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background: var(--hp-bg);
+  transition: height 1s ease-in-out, background-color 0.3s ease-in-out;
+}
 
-  transition: height 1s ease-in-out;
+@keyframes hp-bg-flash {
+  0%   { background: var(--hp-bg); }
+  50%  { background: rgb(218, 0, 218); }
+  100% { background: var(--hp-bg); }
+}
+
+.hp-circle-container-inner.hp-animate-bg {
+  animation: hp-bg-flash 1s;
 }
 
 .stamina-container {

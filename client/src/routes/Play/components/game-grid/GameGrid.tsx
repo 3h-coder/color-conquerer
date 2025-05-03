@@ -76,11 +76,11 @@ export default function GameGrid() {
         reactToTurnChange();
 
         async function reactToTurnChange() {
-            await handleTurnContextAndInteraction();
+            await handleTurnContextChangeAndInteractionEnabling();
             cleanupAttachedCellBehaviors();
         }
 
-        async function handleTurnContextAndInteraction() {
+        async function handleTurnContextChangeAndInteractionEnabling() {
             const isCurrentPlayerTurn = turnContext.currentPlayerId === playerId;
             setIsMyTurn(isCurrentPlayerTurn);
 
@@ -100,8 +100,11 @@ export default function GameGrid() {
 
         function updateGameElements(isCurrentPlayerTurn: boolean) {
             setBoardArray(turnContext.gameContext.gameBoard);
+            setPlayerResourcesWithoutApplyingFatigueDamage(isCurrentPlayerTurn);
+            setActionErrorMessage(EMPTY_STRING);
+        }
 
-            // Check for fatigue damage
+        function setPlayerResourcesWithoutApplyingFatigueDamage(isCurrentPlayerTurn: boolean) {
             const newTurnProcessingInfo = turnContext.newTurnProcessingInfo;
             const fatigueDamage = newTurnProcessingInfo?.fatigueDamage ?? 0;
 
@@ -110,6 +113,7 @@ export default function GameGrid() {
                     // Clone the bundle to avoid mutating state
                     const bundle = structuredClone(turnContext.gameContext.playerResourceBundle);
 
+                    // Prevent the fatigue damage from being applied straight away
                     if (isCurrentPlayerTurn) {
                         if (isPlayer1) {
                             bundle.player1Resources.currentHP = prevBundle.player1Resources.currentHP;
@@ -129,7 +133,6 @@ export default function GameGrid() {
             } else {
                 setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
             }
-            setActionErrorMessage(EMPTY_STRING);
         }
 
         async function triggerTurnChangeAnimations(isCurrentPlayerTurn: boolean) {
@@ -149,6 +152,7 @@ export default function GameGrid() {
                 await delay(1900);
                 setFatigueDamage(null);
 
+                // Apply the real resources bundle, including the fatigue damage
                 setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
             }
 
