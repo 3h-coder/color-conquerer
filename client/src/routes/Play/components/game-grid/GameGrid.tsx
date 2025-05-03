@@ -7,7 +7,7 @@ import { useAnimationContext } from "../../../../contexts/AnimationContext";
 import { useMatchContext } from "../../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../../contexts/PlayerContext";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
-import { usePlayersGameInfo } from "../../../../contexts/PlayersGameInfoContext";
+import { usePlayersGameInfo } from "../../../../contexts/PlayerResourcesContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
 import { ActionCallbackDto } from "../../../../dto/actions/ActionCallbackDto";
 import { PossibleActionsDto } from "../../../../dto/actions/PossibleActionsDto";
@@ -81,26 +81,28 @@ export default function GameGrid() {
         }
 
         async function handleTurnContextAndInteraction() {
-            developmentLog("Received the turn context", turnContext);
-            // Handle turnContext update
-            setBoardArray(turnContext.gameContext.gameBoard);
-            setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
-            setActionErrorMessage(EMPTY_STRING);
+            const isCurrentPlayerTurn = turnContext.currentPlayerId === playerId;
+            setIsMyTurn(isCurrentPlayerTurn);
 
             if (turnContext === undefinedTurnContext)
                 return;
 
-            const isCurrentPlayerTurn = turnContext.currentPlayerId === playerId;
-            setIsMyTurn(isCurrentPlayerTurn);
-
-            // Control interaction enabling
             setCanInteract(false);
 
-            if (!turnContext.notifyTurnChange) {
-                setCanInteract(isCurrentPlayerTurn);
+            updateGameElements();
+            if (!turnContext.notifyTurnChange)
                 return;
-            }
 
+            await triggerTurnChangeAnimations(isCurrentPlayerTurn);
+        }
+
+        function updateGameElements() {
+            setBoardArray(turnContext.gameContext.gameBoard);
+            setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
+            setActionErrorMessage(EMPTY_STRING);
+        }
+
+        async function triggerTurnChangeAnimations(isCurrentPlayerTurn: boolean) {
             signalAnimationStart();
 
             // Trigger the turn swap image animation

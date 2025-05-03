@@ -2,7 +2,7 @@ import AnimationContextProvider from "../../contexts/AnimationContext";
 import MatchContextProvider from "../../contexts/MatchContext";
 import PlayerContextProvider from "../../contexts/PlayerContext";
 import PlayerModeContextProvider from "../../contexts/PlayerModeContext";
-import PlayersResourcesContextProvider from "../../contexts/PlayersGameInfoContext";
+import PlayersResourcesContextProvider from "../../contexts/PlayerResourcesContext";
 import TurnInfoContextProvider from "../../contexts/TurnContext";
 import './Play.css';
 import PlayContent from "./PlayContent";

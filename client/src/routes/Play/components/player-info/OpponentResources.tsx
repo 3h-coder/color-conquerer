@@ -1,5 +1,5 @@
 import { usePlayerInfo } from "../../../../contexts/PlayerContext";
-import { usePlayersGameInfo } from "../../../../contexts/PlayersGameInfoContext";
+import { usePlayersGameInfo } from "../../../../contexts/PlayerResourcesContext";
 import PlayerResourcesInfo from "./PlayerResourcesInfo";
 
 export default function OpponentResources() {
