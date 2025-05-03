@@ -211,6 +211,7 @@ function triggerSparks(htmlCell: HTMLElement) {
 
     // Clean up
     setTimeout(() => {
+        // TODO : FIX THIS
         pixiApp.stop();
         emitter.destroy();
         explosionContainer.destroy();

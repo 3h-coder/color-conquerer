@@ -20,10 +20,10 @@ import { developmentLog } from "../../utils/loggingUtils";
 import ActionBoard from "./components/action-board/ActionBoard";
 import GameGrid from "./components/game-grid/GameGrid";
 import GameTopInfo from "./components/game-top-info/GameTopInfo";
+import InactivityWarning from "./components/inactivity-warning/InactivityWarning";
 import MyPlayerResources from "./components/player-info/MyPlayerResources";
 import OpponentResources from "./components/player-info/OpponentResources";
 import SideControls from "./components/side-controls/SideControls";
-import InactivityWarning from "./components/inactivity-warning/InactivityWarning";
 
 export default function PlayContent() {
   const navigate = useNavigate();
@@ -115,7 +115,7 @@ export default function PlayContent() {
     function onMatchEnded(matchClosureDto: MatchClosureDto) {
       developmentLog("Received match ending ", matchClosureDto);
 
-      addEndOfAnimationCallback(() => handleMatchEnding());
+      addEndOfAnimationCallback(handleMatchEnding);
 
       function handleMatchEnding() {
         setModalIcon(ModalIcon.None);
@@ -156,7 +156,7 @@ export default function PlayContent() {
       if (!isDevelopment)
         return;
 
-      navigate("/");
+      // navigate("/");
     }
 
     socket.on(Events.DISCONNECT, onDisconnect);

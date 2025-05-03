@@ -223,7 +223,7 @@ export default function GameGrid() {
 
             async function animateFatigue() {
                 try {
-                    // Signal the animation start for the eventual match end to 
+                    // Signal the animation start for the eventual match end t*&é"'(-è_tfygr-) 
                     // trigger afterwards
                     if (!animationOngoing)
                         signalAnimationStart();

@@ -1,11 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { developmentLog } from "../utils/loggingUtils";
 
 interface AnimationContextObject {
     animationOngoing: boolean;
     signalAnimationStart: () => void;
     signalAnimationEnd: () => void;
-    addEndOfAnimationCallback: (callback: () => void) => void;
+    addEndOfAnimationCallback: (callback: () => void | Promise<void>) => void;
 }
 
 export const AnimationContext = createContext<AnimationContextObject>({
@@ -21,7 +22,7 @@ interface AnimationContextProviderProps {
 
 export default function AnimationContextProvider({ children }: AnimationContextProviderProps) {
     const [animationOngoing, setAnimationOngoing] = useState(false);
-    const [callbacks, setCallbacks] = useState<(() => void)[]>([]);
+    const [callbacks, setCallbacks] = useState<(() => void | Promise<void>)[]>([]);
     const prevAnimationOngoing = useRef(animationOngoing);
 
     const signalAnimationStart = useCallback(() => {
@@ -32,7 +33,8 @@ export default function AnimationContextProvider({ children }: AnimationContextP
         setAnimationOngoing(false);
     }, []);
 
-    const addEndOfAnimationCallback = useCallback((callback: () => void) => {
+    const addEndOfAnimationCallback = useCallback((callback: () => void | Promise<void>) => {
+        developmentLog("Adding end of animation callback", callback);
         setCallbacks(prev => [...prev, callback]);
     }, []);
 
@@ -51,9 +53,11 @@ export default function AnimationContextProvider({ children }: AnimationContextP
         addEndOfAnimationCallback
     };
 
-    function processCallbacks() {
+    async function processCallbacks() {
         if (callbacks.length > 0) {
-            callbacks.forEach(callback => callback());
+            for (const callback of callbacks) {
+                await callback();
+            }
             setCallbacks([]);
         }
     }
