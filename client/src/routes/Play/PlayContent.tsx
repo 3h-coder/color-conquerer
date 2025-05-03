@@ -252,7 +252,7 @@ export default function PlayContent() {
         buttonText="OK"
         onClose={modalExit}
         icon={modalIcon}
-        style={{ animation: "slide-in 0.5s ease" }}
+        style={{ animation: "slide-in 0.5s ease, glow 1s infinite alternate" }}
       >
         <h3 className="no-margin">{modalText}</h3>
       </SingleButtonModal>

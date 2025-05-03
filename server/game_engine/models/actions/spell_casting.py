@@ -1,5 +1,8 @@
 from dto.actions.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
+from game_engine.models.actions.hooks.stamina_restoration_hook import (
+    StaminaRestorationHook,
+)
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
@@ -10,6 +13,8 @@ class SpellCasting(Action):
     """
     Represents the effective invocation of a spell.
     """
+
+    HOOKS = {StaminaRestorationHook()}
 
     def __init__(
         self,
@@ -76,7 +81,6 @@ class SpellCasting(Action):
 
         return possible_spell_targets
 
-    @Action.trigger_hooks_and_check_callbacks
     def apply(self, match_context):
         self.spell.invoke(
             coordinates=self.metadata.impacted_coords,

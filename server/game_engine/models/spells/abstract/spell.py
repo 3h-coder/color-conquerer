@@ -5,10 +5,8 @@ from dto.spell.partial_spell_dto import PartialSpellDto
 from dto.spell.spell_dto import SpellDto
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.dtos.coordinates import Coordinates
-from game_engine.models.spells.spell_id import SpellId
 
 if TYPE_CHECKING:
-    from game_engine.models.cell.cell import Cell
     from game_engine.models.game_board import GameBoard
 
 

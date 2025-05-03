@@ -16,10 +16,19 @@ export default function PlayerResourcesInfo(props: PlayerResourcesInfoProps) {
     const { currentHP, maxHP, currentMP, maxMP, currentStamina, maxStamina } = playerResourcesDto;
     return (
         <div className="player-resources-container">
-            {own ? <PlayerHP currentHP={currentHP} maxHP={maxHP} /> : <></>}
-            <PlayerStamina currentStamina={currentStamina} maxStamina={maxStamina} />
-            <PlayerMP currentMP={currentMP} maxMP={maxMP} />
-            {!own ? <PlayerHP currentHP={currentHP} maxHP={maxHP} /> : <></>}
+            {own ?
+                <>
+                    <PlayerHP currentHP={currentHP} maxHP={maxHP} />
+                    <PlayerStamina currentStamina={currentStamina} maxStamina={maxStamina} />
+                    <PlayerMP currentMP={currentMP} maxMP={maxMP} />
+                </>
+                :
+                <>
+                    <PlayerMP currentMP={currentMP} maxMP={maxMP} />
+                    <PlayerStamina currentStamina={currentStamina} maxStamina={maxStamina} />
+                    <PlayerHP currentHP={currentHP} maxHP={maxHP} />
+                </>
+            }
         </div>
     );
 }

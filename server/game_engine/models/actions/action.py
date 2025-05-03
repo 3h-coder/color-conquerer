@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any
+from typing import Any, Callable, Type
 
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.callbacks.callback_factory import get_callback
@@ -10,7 +10,30 @@ from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.dtos.match_context import MatchContext
 
 
-class Action(WithCallbacks):
+class ActionMeta(type):
+    """
+    Metaclass to automatically wrap the 'apply' method of Action subclasses
+    with hooks and callback registration.
+    """
+
+    def __new__(
+        mcs: Type[type], name: str, bases: tuple[type, ...], namespace: dict[str, Any]
+    ):
+        APPLY_METHOD_NAME = "apply"
+        apply_func = namespace.get(APPLY_METHOD_NAME)
+        if apply_func is not None and callable(apply_func):
+
+            @wraps(apply_func)
+            def wrapped_apply(self: "Action", match_context: MatchContext):
+                self._trigger_hooks(match_context)
+                apply_func(self, match_context)
+                self.register_callbacks(match_context)
+
+            namespace[APPLY_METHOD_NAME] = wrapped_apply
+        return super().__new__(mcs, name, bases, namespace)
+
+
+class Action(WithCallbacks, metaclass=ActionMeta):
     """
     Base class for all actions
     """
@@ -39,7 +62,7 @@ class Action(WithCallbacks):
             f"callbacks_to_trigger={self._callbacks_to_trigger})>"
         )
 
-    def to_dto(self):
+    def to_dto(self) -> Any:
         raise NotImplementedError
 
     @staticmethod
@@ -53,30 +76,18 @@ class Action(WithCallbacks):
         """
         raise NotImplementedError
 
-    def trigger_hooks_and_check_callbacks(apply_action_func):
-        @wraps(apply_action_func)
-        def wrapper(self: "Action", match_context: MatchContext):
-            self._trigger_hooks(match_context)
-
-            apply_action_func(self, match_context)
-
-            self.register_callbacks(match_context)
-
-        return wrapper
-
-    @trigger_hooks_and_check_callbacks
-    def apply(self, match_context: MatchContext):
+    def apply(self, match_context: MatchContext) -> None:
         """
         Applies the action on the given board.
         """
         raise NotImplementedError
 
-    def register_callbacks(self, match_context: MatchContext):
+    def register_callbacks(self, match_context: MatchContext) -> None:
         for callback_id in self.CALLBACKS:
             callback = get_callback(callback_id, self)
             if callback.can_be_triggered(match_context):
                 self._callbacks_to_trigger.append(callback)
 
-    def _trigger_hooks(self, match_context: MatchContext):
+    def _trigger_hooks(self, match_context: MatchContext) -> None:
         for hook in self.HOOKS:
             hook.trigger(self, match_context)
