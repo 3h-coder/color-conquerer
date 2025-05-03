@@ -7,7 +7,7 @@ import { useAnimationContext } from "../../../../contexts/AnimationContext";
 import { useMatchContext } from "../../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../../contexts/PlayerContext";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
-import { usePlayersGameInfo } from "../../../../contexts/PlayerResourcesContext";
+import { usePlayerResources } from "../../../../contexts/PlayerResourcesContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
 import { ActionCallbackDto } from "../../../../dto/actions/ActionCallbackDto";
 import { PossibleActionsDto } from "../../../../dto/actions/PossibleActionsDto";
@@ -35,7 +35,7 @@ export default function GameGrid() {
     const { matchInfo, onEmit } = useMatchContext();
     const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnContext, canInteract, setCanInteract } = useTurnContext();
-    const { setPlayerResourceBundle } = usePlayersGameInfo();
+    const { setPlayerResourceBundle } = usePlayerResources();
     const { getAnimationOngoing, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
     const { setPlayerMode } = usePlayerMode();
 
@@ -89,16 +89,46 @@ export default function GameGrid() {
 
             setCanInteract(false);
 
-            updateGameElements();
-            if (!turnContext.notifyTurnChange)
+            updateGameElements(isCurrentPlayerTurn);
+            if (!turnContext.notifyTurnChange) {
+                setCanInteract(isCurrentPlayerTurn);
                 return;
+            }
 
             await triggerTurnChangeAnimations(isCurrentPlayerTurn);
         }
 
-        function updateGameElements() {
+        function updateGameElements(isCurrentPlayerTurn: boolean) {
             setBoardArray(turnContext.gameContext.gameBoard);
-            setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
+
+            // Check for fatigue damage
+            const newTurnProcessingInfo = turnContext.newTurnProcessingInfo;
+            const fatigueDamage = newTurnProcessingInfo?.fatigueDamage ?? 0;
+
+            if (fatigueDamage > 0) {
+                setPlayerResourceBundle(prevBundle => {
+                    // Clone the bundle to avoid mutating state
+                    const bundle = structuredClone(turnContext.gameContext.playerResourceBundle);
+
+                    if (isCurrentPlayerTurn) {
+                        if (isPlayer1) {
+                            bundle.player1Resources.currentHP = prevBundle.player1Resources.currentHP;
+                        } else {
+                            bundle.player2Resources.currentHP = prevBundle.player2Resources.currentHP;
+                        }
+                    } else {
+                        if (isPlayer1) {
+                            bundle.player2Resources.currentHP = prevBundle.player2Resources.currentHP;
+                        } else {
+                            bundle.player1Resources.currentHP = prevBundle.player1Resources.currentHP;
+                        }
+                    }
+
+                    return bundle;
+                });
+            } else {
+                setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
+            }
             setActionErrorMessage(EMPTY_STRING);
         }
 
@@ -118,6 +148,8 @@ export default function GameGrid() {
                 setFatigueDamage(fatigueDamage);
                 await delay(1900);
                 setFatigueDamage(null);
+
+                setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
             }
 
             setCanInteract(isCurrentPlayerTurn);

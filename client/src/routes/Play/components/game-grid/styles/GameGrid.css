@@ -104,6 +104,7 @@
     width: max(45%, 170px);
     padding: var(--spacing-small2);
     background-color: var(--deep-blue);
+    text-align: center;
 
     animation: fade-in-out 2s ease-out, glow 1s ease-in-out infinite alternate;
 }

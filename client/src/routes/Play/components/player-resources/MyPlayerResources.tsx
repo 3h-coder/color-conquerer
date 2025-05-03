@@ -1,10 +1,10 @@
 import { usePlayerInfo } from "../../../../contexts/PlayerContext";
-import { usePlayersGameInfo } from "../../../../contexts/PlayerResourcesContext";
+import { usePlayerResources } from "../../../../contexts/PlayerResourcesContext";
 import PlayerResourcesInfo from "./PlayerResourcesInfo";
 
 export default function MyPlayerResources() {
     const { isPlayer1 } = usePlayerInfo();
-    const { playerResourceBundle } = usePlayersGameInfo();
+    const { playerResourceBundle } = usePlayerResources();
 
     const playerResources = isPlayer1
         ? playerResourceBundle.player1Resources

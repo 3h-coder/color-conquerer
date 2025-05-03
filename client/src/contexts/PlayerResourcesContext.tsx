@@ -3,7 +3,7 @@ import { PlayerResourceBundleDto, undefinedPlayerResourceBundleDto } from "../dt
 
 interface PlayerResourcesContextObject {
     playerResourceBundle: PlayerResourceBundleDto;
-    setPlayerResourceBundle: (p: PlayerResourceBundleDto) => void;
+    setPlayerResourceBundle: React.Dispatch<React.SetStateAction<PlayerResourceBundleDto>>;
 }
 
 const PlayerResourcesContext = createContext<PlayerResourcesContextObject>({
@@ -36,6 +36,6 @@ export default function PlayersResourcesContextProvider(
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export function usePlayersGameInfo() {
+export function usePlayerResources() {
     return useContext(PlayerResourcesContext);
 }

@@ -97,7 +97,7 @@ function PlayerStamina(props: PlayerStaminaProps) {
 
     return (
         <div className="stamina-container" ref={ref}>
-            <div className="stamina-container-inner" style={{ width: `${percentage}%` }} />
+            <div className="stamina-container-inner" style={{ width: `${percentage}%`, opacity: percentage > 0 ? "1" : "0" }} />
             <span className="stamina-count">{currentStamina}</span>
         </div>
     );

@@ -7,7 +7,7 @@ export interface MatchContextDto {
     roomId: string;
     boardArray: CellDto[][];
     currentTurn: number;
-    playerInfoBundle: PlayerResourceBundleDto;
+    playerResourcesBundle: PlayerResourceBundleDto;
 }
 
 export const undefinedMatch: MatchContextDto = {
@@ -15,5 +15,5 @@ export const undefinedMatch: MatchContextDto = {
     roomId: EMPTY_STRING,
     boardArray: [],
     currentTurn: 0,
-    playerInfoBundle: undefinedPlayerResourceBundleDto
+    playerResourcesBundle: undefinedPlayerResourceBundleDto
 };

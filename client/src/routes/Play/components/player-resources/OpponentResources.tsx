@@ -1,10 +1,10 @@
 import { usePlayerInfo } from "../../../../contexts/PlayerContext";
-import { usePlayersGameInfo } from "../../../../contexts/PlayerResourcesContext";
+import { usePlayerResources } from "../../../../contexts/PlayerResourcesContext";
 import PlayerResourcesInfo from "./PlayerResourcesInfo";
 
 export default function OpponentResources() {
     const { isPlayer1 } = usePlayerInfo();
-    const { playerResourceBundle: playerGameInfoBundle } = usePlayersGameInfo();
+    const { playerResourceBundle: playerGameInfoBundle } = usePlayerResources();
 
     const opponentResources = isPlayer1
         ? playerGameInfoBundle.player2Resources

@@ -21,8 +21,8 @@ import ActionBoard from "./components/action-board/ActionBoard";
 import GameGrid from "./components/game-grid/GameGrid";
 import GameTopInfo from "./components/game-top-info/GameTopInfo";
 import InactivityWarning from "./components/inactivity-warning/InactivityWarning";
-import MyPlayerResources from "./components/player-info/MyPlayerResources";
-import OpponentResources from "./components/player-info/OpponentResources";
+import MyPlayerResources from "./components/player-resources/MyPlayerResources";
+import OpponentResources from "./components/player-resources/OpponentResources";
 import SideControls from "./components/side-controls/SideControls";
 
 export default function PlayContent() {
