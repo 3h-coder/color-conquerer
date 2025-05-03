@@ -6,6 +6,6 @@ from dto.player.player_dto import PlayerDto
 
 @dataclass
 class MatchClosureDto(BaseDto):
-    endingReason: int
+    endingReason: str
     winner: PlayerDto
     loser: PlayerDto

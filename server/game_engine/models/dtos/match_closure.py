@@ -1,19 +1,19 @@
 from dataclasses import dataclass
-from enum import IntEnum
+from enum import StrEnum
 
 from dto.match.match_closure_dto import MatchClosureDto
 from game_engine.models.player.player import Player
 
 
-class EndingReason(IntEnum):
-    PLAYER_VICTORY = 1
-    DRAW = 2
-    PLAYER_CONCEDED = 3
-    PLAYER_LEFT = 4
-    PLAYER_INACTIVE = 5
-    NEVER_JOINED = 6
+class EndingReason(StrEnum):
+    PLAYER_VICTORY = "player victory"
+    DRAW = "draw"
+    PLAYER_CONCEDED = "player conceded"
+    PLAYER_LEFT = "player left"
+    PLAYER_INACTIVE = "player inactive"
+    NEVER_JOINED = "never joined"
     # When the player dies from damage due to low stamina
-    FATIGUE = 7
+    FATIGUE = "fatigue"
 
 
 @dataclass
