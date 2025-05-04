@@ -32,10 +32,10 @@ def handle_disconnection():
     if not room_id:
         return
 
-    # May occur when there is an error while launching the match and the room gets
-    # cleared up
+    # May occur when there is an error while launching the match
+    # before the room could be placed in the closed rooms
     if not room_handler.room_exists(room_id):
-        session_utils.clear_match_info()
+        _leave_socket_room_and_clear_session(room_id)
         return
 
     if room_handler.open_rooms.get(room_id):
@@ -51,16 +51,52 @@ def handle_disconnection():
     player_id = player_info.player_id
     match = match_handler.get_unit(room_id)
 
-    if match is not None and match.is_ongoing():
+    # May happen if the match creation failed
+    if match is None:
+        _handle_disconnection_with_room_id_but_no_match(room_id)
+
+    elif match.is_ongoing():
         match.watch_player_exit(player_id)
         match.set_player_as_idle(player_id)
 
+    elif match.is_cancelled():
+        _handle_disconnection_in_cancelled_match(room_id)
 
-def _handle_disconnection_in_queue(room_id, room_handler: RoomHandler):
-    """Removes the room and clears the user's session information relative to match information"""
+    elif match.is_ended():
+        _handle_disconnection_in_ended_match(room_id)
+
+
+def _handle_disconnection_in_queue(room_id: str, room_handler: RoomHandler):
+    """Removes the room, leaves the socket room and clears the user's session information relative to match information"""
 
     _logger.debug(f"({request.remote_addr}) | Disconnected while being in queue")
-
     room_handler.remove_open_room(room_id)
+    _leave_socket_room_and_clear_session(room_id, room_handler)
+
+
+def _handle_disconnection_with_room_id_but_no_match(room_id: str):
+    """Clears the user's session information relative to match information"""
+
+    _logger.debug(
+        f"({request.remote_addr}) | Disconnected with a set ROOM_ID but no match"
+    )
+    _leave_socket_room_and_clear_session(room_id)
+
+
+def _handle_disconnection_in_cancelled_match(room_id: str):
+    """Leaves the socket room and clears the user's session information relative to match information"""
+
+    _logger.debug(f"({request.remote_addr}) | Disconnected after match cancellation")
+    _leave_socket_room_and_clear_session(room_id)
+
+
+def _handle_disconnection_in_ended_match(room_id: str):
+    """Leaves the socket room and clears the user's session information relative to match information"""
+
+    _logger.debug(f"({request.remote_addr}) | Disconnected after match ending")
+    _leave_socket_room_and_clear_session(room_id)
+
+
+def _leave_socket_room_and_clear_session(room_id: str):
     leave_room(room_id)
     session_utils.clear_match_info()

@@ -22,5 +22,5 @@ def _get_status_code(exception: Exception) -> int:
         return exception.code
 
     traceback.print_exception(*sys.exc_info())
-    current_app.logger.error("An unhandled exception occurred: ", exc_info=True)
+    current_app.logger.exception("An unhandled exception occurred")
     return 500

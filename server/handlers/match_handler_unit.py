@@ -111,7 +111,7 @@ class MatchHandlerUnit:
             # as only a match with the WAITING_TO_START status can be cancelled
             self.status = MatchStatus.ONGOING
         except Exception:
-            self.logger.error(f"Failed to start the match", exc_info=True)
+            self.logger.exception(f"Failed to start the match")
             self.cancel()
             raise MatchLaunchError(broadcast_to=self.match_context.room_id)
 

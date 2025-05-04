@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
-from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION
+from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_AND_CLOSED_ROOM_DELETION
 from game_engine.models.match.match_closure import EndingReason, MatchClosure
 from handlers.match_services.client_notifications import notify_match_ending
 from handlers.match_services.service_base import ServiceBase
@@ -62,7 +62,7 @@ class MatchTerminationService(ServiceBase):
         self._logger.debug(f"Match ended -> {self.match_closure_info.simple_str()}")
 
         self._notify_match_ending()
-        self._close_rooms()
+        self._close_room()
         self._schedule_garbage_collection()
 
     def cancel_match(self):
@@ -115,10 +115,8 @@ class MatchTerminationService(ServiceBase):
             self.match_context.room_id,
         )
 
-    def _close_rooms(self):
+    def _close_room(self):
         self.match.server.socketio.close_room(self.match_context.room_id)
-
-        self._server.room_handler.remove_closed_room(self.match_context.room_id)
 
     def _schedule_garbage_collection(self):
         """
@@ -129,7 +127,9 @@ class MatchTerminationService(ServiceBase):
         )
 
     def _delete_match_and_room(self):
-        self.match.server.socketio.sleep(DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION)
+        self.match.server.socketio.sleep(
+            DELAY_IN_S_BEFORE_MATCH_AND_CLOSED_ROOM_DELETION
+        )
 
         room_id = self.match_context.room_id
         self._logger.debug(f"Deleting the match handler unit for the room {room_id}")

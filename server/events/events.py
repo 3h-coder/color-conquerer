@@ -10,7 +10,6 @@ class Events(StrEnum):
 
     # Client Events
     CLIENT_CELL_CLICK = "client-cell-click"
-    CLIENT_CLEAR_SESSION = "client-clear-session"
     CLIENT_MATCH_CONCEDE = "client-match-concede"
     CLIENT_MATCH_INFO = "client-match-info"
     CLIENT_QUEUE_REGISTER = "queue-register"

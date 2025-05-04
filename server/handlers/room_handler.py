@@ -65,9 +65,6 @@ class RoomHandler:
 
     def remove_open_room(self, room_id: str):
         if room_id not in self.open_rooms:
-            self.logger.warning(
-                f"Tried to remove an open room that does not exist : {room_id}"
-            )
             return
 
         self.logger.debug(f"Removing the room {room_id}")
@@ -77,9 +74,6 @@ class RoomHandler:
 
     def remove_closed_room(self, room_id: str):
         if room_id not in self.closed_rooms:
-            self.logger.warning(
-                f"Tried to remove a closed room that does not exist : {room_id}"
-            )
             return
 
         self.logger.debug(f"Removing the room {room_id}")

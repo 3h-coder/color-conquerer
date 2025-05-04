@@ -25,6 +25,7 @@ def get_home_state():
         return _default_homestate_response()
 
     if room_id and not in_match:
+        # Most likely an error at match creation/start, and the session was not properly cleared from disconnecting
         current_app.logger.warning(
             f"({request.remote_addr}) | ROOM_ID is set yet IN_MATCH is not, resetting the player's session"
         )

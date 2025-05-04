@@ -61,8 +61,11 @@ export default function PlayContent() {
       if (matchInfoLoading || playerInfoLoading)
         return;
 
-      if (failedToResolveMatchInfo || failedToResolvePlayerInfo)
+      if (failedToResolveMatchInfo || failedToResolvePlayerInfo) {
+        if (socket.connected)
+          socket.disconnect();
         sendHomeWithError(FAILED_TO_CONNECT_ERROR);
+      }
 
       else {
 
@@ -129,7 +132,6 @@ export default function PlayContent() {
           return () => navigate("/");
         });
 
-        socket.emit(Events.CLIENT_CLEAR_SESSION);
         socket.disconnect();
       }
     }
@@ -141,7 +143,6 @@ export default function PlayContent() {
       showErrorInModal(errorDto);
 
       if (errorDto.socketConnectionKiller) {
-        socket.emit(Events.CLIENT_CLEAR_SESSION);
         socket.disconnect();
         setModalExit(() => {
           return () => navigate("/");

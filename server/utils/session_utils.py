@@ -44,10 +44,9 @@ def clear_match_info():
     session_cache = get_session_cache_handler().get_cache_for_session(
         session[SESSION_ID]
     )
-    if not session_cache:
-        return
-    _safe_delete_from_dict(session_cache, ROOM_ID)
-    _safe_delete_from_dict(session_cache, PLAYER_INFO)
+    if session_cache:
+        _safe_delete_from_dict(session_cache, ROOM_ID)
+        _safe_delete_from_dict(session_cache, PLAYER_INFO)
 
 
 def safe_delete(session_variable: str):

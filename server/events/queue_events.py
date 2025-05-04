@@ -7,6 +7,7 @@ from dto.match.client_stored_match_info_dto import ClientStoredMatchInfoDto
 from dto.misc.error_dto import ErrorDto
 from dto.player.queue_player_dto import QueuePlayerDto
 from events.events import Events
+from exceptions.match_launch_error import MatchLaunchError
 from exceptions.queue_error import QueueError
 from game_engine.models.player.player import Player
 from handlers.match_handler import MatchHandler
@@ -107,19 +108,8 @@ def _try_to_launch_match(
         _logger.exception(f"An error occured when trying to launch a match : {ex}")
         if match is not None:
             match.cancel()
-        room_handler.remove_closed_room(room_id)
 
-        # The forced disconnection will trigger a session clearup, see the disconnect handler
-        emit(
-            Events.SERVER_ERROR,
-            ErrorDto(
-                "An error occured, please try again",
-                displayToUser=True,
-                socketConnectionKiller=True,
-            ).to_dict(),
-            to=room_id,
-            broadcast=True,
-        )
+        raise MatchLaunchError(broadcast_to=room_id)
 
 
 def _set_player_id(queue_player_dto: QueuePlayerDto):
