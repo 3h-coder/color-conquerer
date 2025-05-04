@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_TO_WAIT_FOR_EVERYONE
-from game_engine.models.dtos.match_closure import EndingReason
+from game_engine.models.match.match_closure import EndingReason
 from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:

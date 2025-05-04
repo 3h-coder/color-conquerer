@@ -6,8 +6,8 @@ from game_engine.models.actions.callbacks.action_callback_id import ActionCallBa
 from game_engine.models.actions.hooks.mana_bubble_hook import ManaBubbleHook
 from game_engine.models.cell.cell import Cell
 from game_engine.models.dtos.coordinates import Coordinates
-from game_engine.models.dtos.match_context import MatchContext
 from game_engine.models.game_board import GameBoard
+from game_engine.models.match.match_context import MatchContext
 
 
 @dataclass

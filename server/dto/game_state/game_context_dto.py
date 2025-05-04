@@ -7,7 +7,7 @@ from dto.player.player_resources_bundle_dto import PlayerResourceBundleDto
 
 if TYPE_CHECKING:
     from game_engine.models.actions.callbacks.action_callback import ActionCallback
-    from game_engine.models.dtos.match_context import MatchContext
+    from game_engine.models.match.match_context import MatchContext
 
 
 @dataclass

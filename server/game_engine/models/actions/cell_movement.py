@@ -6,8 +6,8 @@ from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.actions.hooks.mana_bubble_hook import ManaBubbleHook
 from game_engine.models.cell.cell import Cell
 from game_engine.models.dtos.coordinates import Coordinates
-from game_engine.models.dtos.match_context import MatchContext
 from game_engine.models.game_board import GameBoard
+from game_engine.models.match.match_context import MatchContext
 from utils.board_utils import is_out_of_bounds
 
 

@@ -1,5 +1,5 @@
 from game_engine.models.game_board import GameBoard
-from game_engine.models.dtos.match_context import MatchContext
+from game_engine.models.match.match_context import MatchContext
 from handlers.match_handler_unit import MatchHandlerUnit
 from tests.helpers.client_helper import ClientHelper
 from tests.helpers.match_context_helper import MatchContextHelper

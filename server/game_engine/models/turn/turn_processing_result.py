@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from dto.game_state.turn_processing_result_dto import TurnProcessingResultDto
-from game_engine.models.dtos.match_closure import EndingReason
+from game_engine.models.match.match_closure import EndingReason
 
 
 @dataclass

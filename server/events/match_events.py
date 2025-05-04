@@ -8,7 +8,7 @@ from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_
 from dto.cell.cell_dto import CellDto
 from events.events import Events
 from exceptions.server_error import ServerError
-from game_engine.models.dtos.match_closure import EndingReason
+from game_engine.models.match.match_closure import EndingReason
 from game_engine.models.player.player import Player
 from handlers.match_handler_unit import MatchHandlerUnit
 from server_gate import get_match_handler, get_session_cache_handler

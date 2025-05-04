@@ -4,8 +4,8 @@ from enum import StrEnum
 from dto.player.queue_player_dto import QueuePlayerDto
 from dto.player.user_dto import UserDto
 from game_engine.models.cell.cell import Cell
-from game_engine.models.dtos.match_context import MatchContext
 from game_engine.models.dtos.room import Room
+from game_engine.models.match.match_context import MatchContext
 
 
 class IdPrefixes(StrEnum):

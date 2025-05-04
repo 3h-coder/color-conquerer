@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_HANDLER_UNIT_DELETION
-from game_engine.models.dtos.match_closure import EndingReason, MatchClosure
+from game_engine.models.match.match_closure import EndingReason, MatchClosure
 from handlers.match_services.client_notifications import notify_match_ending
 from handlers.match_services.service_base import ServiceBase
 

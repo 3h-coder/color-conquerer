@@ -6,9 +6,9 @@ from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
 from dto.game_state.game_context_dto import GameContextDto
 from dto.game_state.turn_context_dto import TurnContextDto
-from game_engine.models.dtos.match_closure import EndingReason
-from game_engine.models.dtos.match_context import MatchContext
 from game_engine.models.dtos.room import Room
+from game_engine.models.match.match_closure import EndingReason
+from game_engine.models.match.match_context import MatchContext
 from game_engine.models.turn.turn_state import TurnState
 from handlers.match_services.client_notifications import notify_match_start
 from handlers.match_services.match_actions_service import MatchActionsService

@@ -5,7 +5,7 @@ from flask import copy_current_request_context, request
 
 from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_EXCLUSION
-from game_engine.models.dtos.match_closure import EndingReason
+from game_engine.models.match.match_closure import EndingReason
 from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:

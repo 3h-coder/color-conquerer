@@ -5,8 +5,8 @@ from game_engine.models.actions.hooks.stamina_restoration_hook import (
 )
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.dtos.coordinates import Coordinates
-from game_engine.models.dtos.match_context import MatchContext
 from game_engine.models.game_board import GameBoard
+from game_engine.models.match.match_context import MatchContext
 from game_engine.models.spells.abstract.spell import Spell
 
 

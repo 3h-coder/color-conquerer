@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from game_engine.models.dtos.match_context import MatchContext
+from game_engine.models.match.match_context import MatchContext
 
 if TYPE_CHECKING:
     from game_engine.models.actions.action import Action

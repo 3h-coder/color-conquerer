@@ -8,7 +8,7 @@ from constants.match_constants import (
     INACTIVITY_FIRST_WARNING_DELAY_IN_S,
     INACTIVITY_KICK_DELAY_IN_S,
 )
-from game_engine.models.dtos.match_closure import EndingReason
+from game_engine.models.match.match_closure import EndingReason
 from handlers.match_services.client_notifications import notify_inactivity_warning
 from handlers.match_services.service_base import ServiceBase
 

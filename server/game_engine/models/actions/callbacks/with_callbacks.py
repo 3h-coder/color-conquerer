@@ -1,7 +1,7 @@
-from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from typing import TYPE_CHECKING, Any, Generator
 
-from game_engine.models.dtos.match_context import MatchContext
+from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
+from game_engine.models.match.match_context import MatchContext
 
 if TYPE_CHECKING:
     from game_engine.models.actions.callbacks.action_callback import ActionCallback

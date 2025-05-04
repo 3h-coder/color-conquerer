@@ -8,8 +8,8 @@ from game_engine.models.actions.callbacks.action_callback_id import ActionCallBa
 from game_engine.models.actions.callbacks.callback_factory import get_callback
 from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
 from game_engine.models.dtos.coordinates import Coordinates
-from game_engine.models.dtos.match_context import MatchContext
 from game_engine.models.game_board import GameBoard
+from game_engine.models.match.match_context import MatchContext
 from game_engine.models.player.player_resources import PlayerResources
 from game_engine.models.spells.abstract.spell import Spell
 

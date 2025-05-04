@@ -3,7 +3,7 @@ from flask import Blueprint, current_app, jsonify, request, session
 from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.player.player_dto import PlayerDto
 from exceptions.unauthorized_error import UnauthorizedError
-from game_engine.models.dtos.match_context import MatchContext
+from game_engine.models.match.match_context import MatchContext
 from game_engine.models.player.player import Player
 from handlers.session_cache_handler import SessionCacheHandler
 from middlewares.error_handler import handle_error
