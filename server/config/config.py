@@ -2,7 +2,7 @@ import json
 import os
 import uuid
 
-from config import root_path
+from config import root_path, runtime_data_path
 from config.logging import root_logger
 from config.variable_types import VariableType
 from config.variables import OptionalVariables, RequiredVariables
@@ -26,7 +26,7 @@ default_config = {
     RequiredVariables.MAX_ROOM_CAPACITY.name: 50,
     # Optional Variables
     OptionalVariables.APP_SESSION_FILE_DIR.name: os.path.join(
-        root_path, "session_data"
+        runtime_data_path, "session_data"
     ),
     OptionalVariables.RESET_SESSION_FILE_ON_STARTUP.name: True,
 }
