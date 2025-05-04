@@ -1,9 +1,8 @@
 from unittest.mock import MagicMock
+
+from events.match_events import OUT_OF_MATCH_LOG_ERROR_MSG
+from events.match_events import _logger as match_events_logger
 from tests.helpers.match_helper import MatchHelper
-from events.match_events import (
-    _logger as match_events_logger,
-    OUT_OF_MATCH_LOG_ERROR_MSG,
-)
 
 
 def test_match_actions_do_nothing_if_player_not_in_match(match: MatchHelper):
@@ -17,9 +16,6 @@ def test_match_actions_do_nothing_if_player_not_in_match(match: MatchHelper):
     # Note : If the player really isn't in a match, they technically should not be
     # able to make the below requests from the client, but it's still good practice
     # to ensure they can't as bypassing or manipulating the client is possible.
-    player1_client.request_spells()
-    player2_client.request_spells()
-
     player1_client.end_turn()
     player2_client.end_turn()
 
@@ -36,7 +32,7 @@ def test_match_actions_do_nothing_if_player_not_in_match(match: MatchHelper):
     player2_client.click_spawn_button()
 
     # Assert
-    assert logger_error.call_count == 12
+    assert logger_error.call_count == 10
     assert len(logger_error.call_args[0]) == 1
     assert OUT_OF_MATCH_LOG_ERROR_MSG in logger_error.call_args[0][0]
 
