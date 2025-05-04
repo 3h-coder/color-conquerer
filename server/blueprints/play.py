@@ -3,11 +3,11 @@ from flask import Blueprint, current_app, jsonify, request, session
 from dto.player.player_dto import PlayerDto
 from exceptions.unauthorized_error import UnauthorizedError
 from game_engine.models.match.match_context import MatchContext
-from game_engine.models.player.player import Player
 from handlers.session_cache_handler import SessionCacheHandler
 from middlewares.error_handler import handle_error
 from server_gate import get_match_handler, get_session_cache_handler
 from session_management import session_utils
+from session_management.models.session_player import SessionPlayer
 from session_management.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 
 play_bp = Blueprint("play", __name__)
@@ -28,7 +28,7 @@ def get_match_info():
 @play_bp.route("/play/player-info", methods=["GET"])
 def get_player_info():
     session_cache_handler = get_session_cache_handler()
-    player_info: Player = _get_player_info_or_raise_error(session_cache_handler)
+    player_info: SessionPlayer = _get_player_info_or_raise_error(session_cache_handler)
 
     player_info_dto = player_info.to_dto()
     return jsonify(player_info_dto.to_dict()), 200
@@ -60,7 +60,7 @@ def _get_player_info_or_raise_error(session_cache_handler: SessionCacheHandler):
     Tries to get the player info from the session or session cache.
     If it fails to get it, throws an unauthorized error.
     """
-    player_info: PlayerDto = session.get(PLAYER_INFO)
+    player_info: SessionPlayer = session.get(PLAYER_INFO)
     if player_info is None:
         current_app.logger.warning(
             f"({request.remote_addr}) | The player info was not defined, resorting to session cache"

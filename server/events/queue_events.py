@@ -14,6 +14,7 @@ from handlers.match_handler_unit import MatchHandlerUnit
 from handlers.room_handler import RoomHandler
 from handlers.session_cache_handler import SessionCacheHandler
 from server_gate import get_match_handler, get_room_handler, get_session_cache_handler
+from session_management.models.session_player import SessionPlayer
 from session_management.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from utils.id_generation_utils import generate_id
 
@@ -41,14 +42,11 @@ def handle_queue_registration(data: dict):
     (room, closed) = _make_enter_in_room(queue_player_dto, room_handler)
     room_id = room.id
     is_player1 = not closed
-    # TODO : create a special player object only for session storage ?
-    player_info = Player(
-        player_id,
+
+    player_info = SessionPlayer(
+        player_id=player_id,
+        is_player1=is_player1,
         individual_room_id=room.player1_room_id if is_player1 else room.player2_room_id,
-        user_id=queue_player_dto.user.id,
-        is_player_1=is_player1,
-        resources=None,
-        match_data=None,
     )
     _save_into_session(room_id, player_info, session_cache_handler)
 
@@ -144,7 +142,7 @@ def _make_enter_in_room(queue_player_dto: QueuePlayerDto, room_handler: RoomHand
 
 
 def _save_into_session(
-    room_id: str, player_info: Player, session_cache_handler: SessionCacheHandler
+    room_id: str, player_info: SessionPlayer, session_cache_handler: SessionCacheHandler
 ):
     """
     Saves the player information into the session.

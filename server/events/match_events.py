@@ -12,6 +12,7 @@ from game_engine.models.player.player import Player
 from handlers.match_handler_unit import MatchHandlerUnit
 from server_gate import get_match_handler, get_session_cache_handler
 from session_management import session_utils
+from session_management.models.session_player import SessionPlayer
 from session_management.session_variables import (
     IN_MATCH,
     PLAYER_INFO,
@@ -50,7 +51,7 @@ def only_if_current_turn(error_log_msg: str):
         @wraps(func)
         def wrapper(*args, **kwargs):
             room_id = _get_session_variable(ROOM_ID)
-            player_info: Player = _get_session_variable(PLAYER_INFO)
+            player_info: SessionPlayer = _get_session_variable(PLAYER_INFO)
             match = get_match_handler().get_unit(room_id)
 
             if match is None:
@@ -85,7 +86,7 @@ def handle_client_ready():
     """
     server_error_msg = "A server error occured, unable to connect you to your match"
 
-    player_info: Player = _get_session_variable(PLAYER_INFO)
+    player_info: SessionPlayer = _get_session_variable(PLAYER_INFO)
     if player_info is None:
         raise ServerError(
             server_error_msg,
@@ -102,14 +103,14 @@ def handle_client_ready():
     match_handler = get_match_handler()
     match = match_handler.get_unit(room_id)
 
-    _join_socket_rooms(room_id, player_info)
+    _join_socket_rooms(room_id, player_info.individual_room_id)
     session[IN_MATCH] = True
 
     # Notify the client so it can render accordingly
     if match.is_ongoing():
         emit(
             Events.SERVER_MATCH_ONGOING,
-            match.get_turn_context_dto(for_player1=player_info.is_player_1).to_dict(),
+            match.get_turn_context_dto(for_player1=player_info.is_player1).to_dict(),
         )
 
     elif match.is_waiting_to_start():
@@ -140,7 +141,7 @@ def handle_match_concede():
     """
     Receives the client match concession request, and ends the match.
     """
-    player_info: Player = _get_session_variable(PLAYER_INFO)
+    player_info: SessionPlayer = _get_session_variable(PLAYER_INFO)
     player_id = player_info.player_id
     room_id = _get_session_variable(ROOM_ID)
 
@@ -196,10 +197,9 @@ def handle_session_clearing():
     session_utils.clear_match_info()
 
 
-def _join_socket_rooms(room_id: str, player_info: Player):
-    # Join the common room
+def _join_socket_rooms(room_id: str, individual_room_id: str):
     join_room(room_id)
-    join_room(player_info.individual_room_id)
+    join_room(individual_room_id)
 
 
 def _get_session_variable(variable_name: str):
