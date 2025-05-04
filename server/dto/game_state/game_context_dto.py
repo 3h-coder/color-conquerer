@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from dto.base_dto import BaseDto
 from dto.cell.cell_dto import CellDto
 from dto.player.player_resources_bundle_dto import PlayerResourceBundleDto
+from dto.spell.spells_dto import SpellsDto
 
 if TYPE_CHECKING:
     from game_engine.models.actions.callbacks.action_callback import ActionCallback
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 class GameContextDto(BaseDto):
     gameBoard: list[list[CellDto]]
     playerResourceBundle: PlayerResourceBundleDto
+    spellsDto: SpellsDto
 
     @staticmethod
     def from_match_context(match_context: "MatchContext", for_player1: bool):
@@ -22,6 +24,7 @@ class GameContextDto(BaseDto):
             playerResourceBundle=PlayerResourceBundleDto.from_match_context(
                 match_context
             ),
+            spellsDto=match_context.get_spells_dto(for_player1),
         )
 
     @staticmethod
@@ -32,5 +35,10 @@ class GameContextDto(BaseDto):
             playerResourceBundle=PlayerResourceBundleDto(
                 player1Resources=player1_resources.to_dto(),
                 player2Resources=player2_resources.to_dto(),
+            ),
+            spellsDto=(
+                player1_resources.get_spells_dto()
+                if for_player1
+                else player2_resources.get_spells_dto()
             ),
         )

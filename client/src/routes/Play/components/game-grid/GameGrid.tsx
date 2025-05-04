@@ -229,6 +229,8 @@ export default function GameGrid() {
         }
 
         async function onServerProcessedActions(processedActionDto: ProcessedActionDto) {
+            developmentLog("Received the processed action", processedActionDto);
+
             cleanupAttachedCellBehaviors();
 
             // Update the player mode for the dependent components to react to

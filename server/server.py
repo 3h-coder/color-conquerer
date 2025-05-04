@@ -12,7 +12,6 @@ from events.events import Events
 from events.match_events import (
     handle_cell_click,
     handle_client_ready,
-    handle_client_spells_request,
     handle_match_concede,
     handle_session_clearing,
     handle_spawn_button,
@@ -62,7 +61,6 @@ class Server:
         self._add_listener(Events.CLIENT_CELL_CLICK, handle_cell_click)
         self._add_listener(Events.CLIENT_SPAWN_BUTTON, handle_spawn_button)
         self._add_listener(Events.CLIENT_SPELL_BUTTON, handle_spell_button)
-        self._add_listener(Events.CLIENT_REQUEST_SPELLS, handle_client_spells_request)
         self._add_listener(Events.CLIENT_CLEAR_SESSION, handle_session_clearing)
 
         @self.socketio.on_error()

@@ -37,7 +37,7 @@ export default function PlayContent() {
     failedToResolve: failedToResolvePlayerInfo,
   } = usePlayerInfo();
   const { getAnimationOngoing, addEndOfAnimationCallback } = useAnimationContext();
-  const { turnContext: turnInfo, setTurnContext: setTurnInfo } =
+  const { turnContext, setTurnContext } =
     useTurnContext();
   const { setPlayerMode } = usePlayerMode();
 
@@ -81,7 +81,7 @@ export default function PlayContent() {
     function resetPlayerModeOnTurnInfoUpdate() {
       setPlayerMode(PlayerMode.IDLE);
     }
-  }, [turnInfo]);
+  }, [turnContext]);
 
   // Socket events
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function PlayContent() {
 
     function onMatchOngoing(turnInfoDto: TurnContextDto) {
       setCanRenderContent(true);
-      setTurnInfo(turnInfoDto);
+      setTurnContext(turnInfoDto);
       developmentLog(
         `The match is ongoing.\nThere are ${turnInfoDto.remainingTimeInS} seconds left in the turn`
       );
@@ -105,7 +105,7 @@ export default function PlayContent() {
       developmentLog(
         `Turn swap!\nThe new turn lasts ${turnInfoDto.remainingTimeInS} seconds `
       );
-      setTurnInfo(turnInfoDto);
+      setTurnContext(turnInfoDto);
     }
 
     function onServerInactivityWarning() {

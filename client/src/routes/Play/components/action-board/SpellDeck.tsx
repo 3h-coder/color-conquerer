@@ -1,30 +1,10 @@
-import { useEffect, useState } from "react";
+import { useTurnContext } from "../../../../contexts/TurnContext";
 import { SpellDto } from "../../../../dto/spell/SpellDto";
-import { SpellsDto } from "../../../../dto/spell/SpellsDto";
-import { Events } from "../../../../enums/events";
-import { socket } from "../../../../env";
-import { developmentLog } from "../../../../utils/loggingUtils";
 import SpellCard from "./SpellCard";
 
 export default function SpellDeck() {
-    const [spells, setSpells] = useState<SpellDto[]>([]);
-
-    useEffect(() => {
-        socket.emit(Events.CLIENT_REQUEST_SPELLS);
-    }, []);
-
-    useEffect(() => {
-        function onSpellsReceived(spellsDto: SpellsDto) {
-            developmentLog("Received the spells", spellsDto);
-            setSpells(spellsDto.spells);
-        }
-
-        socket.on(Events.SERVER_SEND_SPELLS, onSpellsReceived);
-
-        return () => {
-            socket.off(Events.SERVER_SEND_SPELLS, onSpellsReceived);
-        };
-    }, []);
+    const { turnContext } = useTurnContext();
+    const spells = turnContext.gameContext.spellsDto.spells;
 
     return (
         <div className="spell-deck">

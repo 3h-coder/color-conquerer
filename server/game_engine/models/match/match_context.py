@@ -56,14 +56,21 @@ class MatchContext:
     def get_current_player(self):
         return self.player1 if self.is_player1_turn else self.player2
 
-    def get_player_resources(self, player1: bool):
-        return self.player1.resources if player1 else self.player2.resources
+    def get_player_resources(self, player1_resources: bool):
+        return self.player1.resources if player1_resources else self.player2.resources
 
     def get_individual_player_rooms(self):
         return self.player1.individual_room_id, self.player2.individual_room_id
 
     def get_both_players_resources(self):
         return (self.player1.resources, self.player2.resources)
+
+    def get_spells_dto(self, for_player1: bool):
+        return (
+            self.player1.resources.get_spells_dto()
+            if for_player1
+            else self.player2.resources.get_spells_dto()
+        )
 
     def both_players_are_dead(self):
         return self.player1_is_dead() and self.player2_is_dead()

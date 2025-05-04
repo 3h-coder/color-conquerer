@@ -15,7 +15,6 @@ class Events(StrEnum):
     CLIENT_MATCH_INFO = "client-match-info"
     CLIENT_QUEUE_REGISTER = "queue-register"
     CLIENT_READY = "client-ready"  # ready to start or resume a game
-    CLIENT_REQUEST_SPELLS = "client-request-spells"
     CLIENT_SPAWN_BUTTON = "client-spawn-button"
     CLIENT_SPELL_BUTTON = "client-spell-button"
     CLIENT_TURN_END = "client-turn-end"  # whenever a player choose's to end their turn
@@ -34,7 +33,6 @@ class Events(StrEnum):
     SERVER_QUEUE_OPPONENT_FOUND = "queue-opponentFound"
     SERVER_QUEUE_REGISTERED = "queue-registered"
     SERVER_REDIRECT = "server-redirect"
-    SERVER_SEND_SPELLS = "server-send-spells"
     SERVER_SPAWN_ACTIVATED = "server-spawn-activated"
     SERVER_TURN_SWAP = "server-turn-swap"
     SERVER_WAITING_FOR_OPPONENT = "server-waiting-for-opponent"

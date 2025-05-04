@@ -9,13 +9,28 @@ import PlayContent from "./PlayContent";
 
 export default function Play() {
     return (
+        <ContextProviders>
+            <PlayContent />
+        </ContextProviders>
+    );
+}
+
+interface ContextProvidersProps {
+    children: React.ReactNode;
+}
+
+
+function ContextProviders(props: ContextProvidersProps) {
+    const { children } = props;
+
+    return (
         <AnimationContextProvider>
             <MatchContextProvider>
                 <PlayerContextProvider>
                     <TurnInfoContextProvider>
                         <PlayersResourcesContextProvider>
                             <PlayerModeContextProvider>
-                                <PlayContent />
+                                {children}
                             </PlayerModeContextProvider>
                         </PlayersResourcesContextProvider>
                     </TurnInfoContextProvider>
@@ -24,5 +39,4 @@ export default function Play() {
         </AnimationContextProvider>
     );
 }
-
 

@@ -119,30 +119,6 @@ def handle_client_ready():
 
 
 @only_if_in_match
-def handle_client_spells_request():
-    """
-    Sent by the client when the player expands their spell board or
-    after the player casts a spell.
-
-    This is to display the updated spell deck.
-    """
-    player_info: Player = _get_session_variable(PLAYER_INFO)
-    room_id = _get_session_variable(ROOM_ID)
-
-    match_handler = get_match_handler()
-    match = match_handler.get_unit(room_id)
-
-    player_resources = match.get_players_resources()
-    spells_dto = (
-        player_resources[0].get_spells_dto()
-        if player_info.is_player_1
-        else player_resources[1].get_spells_dto()
-    )
-
-    emit(Events.SERVER_SEND_SPELLS, spells_dto.to_dict())
-
-
-@only_if_in_match
 @only_if_current_turn(
     "The end of turn can only be requested by the player whose turn it is"
 )
