@@ -5,7 +5,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import SingleButtonModal from "../../components/modals/SingleButtonModal";
 import { useAnimationContext } from "../../contexts/AnimationContext";
 import { useMatchContext } from "../../contexts/MatchContext";
-import { usePlayerInfo } from "../../contexts/PlayerContext";
+import { usePlayerContext } from "../../contexts/PlayerContext";
 import { usePlayerMode } from "../../contexts/PlayerModeContext";
 import { useTurnContext } from "../../contexts/TurnContext";
 import { TurnContextDto } from "../../dto/gameState/TurnContextDto";
@@ -35,7 +35,7 @@ export default function PlayContent() {
     playerId,
     loading: playerInfoLoading,
     failedToResolve: failedToResolvePlayerInfo,
-  } = usePlayerInfo();
+  } = usePlayerContext();
   const { getAnimationOngoing, addEndOfAnimationCallback } = useAnimationContext();
   const { turnContext, setTurnContext } =
     useTurnContext();

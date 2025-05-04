@@ -68,6 +68,6 @@ export default function PlayerContextProvider(
     );
 }
 
-export function usePlayerInfo() {
+export function usePlayerContext() {
     return useContext(PlayerContext);
 }

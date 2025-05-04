@@ -6,7 +6,7 @@ import { ContainerProps } from "../../../../components/containers";
 import { useAnimationContext } from "../../../../contexts/AnimationContext";
 import { useGameContext } from "../../../../contexts/GameContext";
 import { useMatchContext } from "../../../../contexts/MatchContext";
-import { usePlayerInfo } from "../../../../contexts/PlayerContext";
+import { usePlayerContext } from "../../../../contexts/PlayerContext";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
 import { ActionCallbackDto } from "../../../../dto/actions/ActionCallbackDto";
@@ -33,7 +33,7 @@ import "./styles/GameGrid.css";
 
 export default function GameGrid() {
     const { matchInfo, onEmit } = useMatchContext();
-    const { playerId, isPlayer1 } = usePlayerInfo();
+    const { playerId, isPlayer1 } = usePlayerContext();
     const { turnContext, canInteract, setCanInteract } = useTurnContext();
     const { setGameContext } = useGameContext();
     const { getAnimationOngoing, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
