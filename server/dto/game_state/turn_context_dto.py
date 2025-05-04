@@ -7,6 +7,12 @@ from dto.game_state.turn_processing_result_dto import TurnProcessingResultDto
 
 @dataclass
 class TurnContextDto(BaseDto):
+    """
+    Contains information about the current turn context.
+    Note : A turn context is meant to be sent to a single client,
+    as it contains information that the other client should not be aware of.
+    """
+
     currentPlayerId: str
     isPlayer1Turn: bool
     remainingTimeInS: int

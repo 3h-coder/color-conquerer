@@ -5,6 +5,7 @@ from game_engine.models.actions.hooks.stamina_restoration_hook import (
 )
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.dtos.coordinates import Coordinates
+from game_engine.models.dtos.match_context import MatchContext
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.abstract.spell import Spell
 
@@ -81,9 +82,16 @@ class SpellCasting(Action):
 
         return possible_spell_targets
 
-    def apply(self, match_context):
+    def apply(self, match_context: MatchContext):
         self.spell.invoke(
             coordinates=self.metadata.impacted_coords,
             board=match_context.game_board,
             invocator=CellOwner.PLAYER_1 if self.from_player1 else CellOwner.PLAYER_2,
+        )
+        self._decrease_spell_count(match_context)
+
+    def _decrease_spell_count(self, match_context: MatchContext):
+        current_player = match_context.get_current_player()
+        current_player.resources.spells[self.spell.ID] = max(
+            0, current_player.resources.spells[self.spell.ID] - 1
         )

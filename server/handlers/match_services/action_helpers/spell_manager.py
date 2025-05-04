@@ -29,19 +29,23 @@ class SpellManager(ActionManager):
 
         if player_mode == PlayerMode.SPELL_SELECTED and spell_id == selected_spell.ID:
             self.set_player_as_idle()
+            return
 
+        spell = get_spell(spell_id)
+
+        if self.get_current_player().resources.spells[spell_id] == 0:
+            self.set_error_message(ErrorMessages.SPELL_NOT_AVAILABLE.format(spell.NAME))
         else:
-            self._find_spell_possible_targets(spell_id)
+            self._find_spell_possible_targets(spell)
 
     @ActionManager.initialize_transient_board(force_reset=True)
-    def _find_spell_possible_targets(self, spell_id: int):
+    def _find_spell_possible_targets(self, spell: Spell):
         """
         Sets the player mode to SPELL_SELECTED and fills the possible actions field with
         the potential targets of the spell.
         """
         player = self.get_current_player()
         transient_game_board = self.get_transient_game_board()
-        spell = get_spell(spell_id)
 
         if not self._player_has_enough_mana(spell, player.resources):
             return

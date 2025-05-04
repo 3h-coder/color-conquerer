@@ -215,8 +215,6 @@ export default function GameGrid() {
     useEffect(() => {
 
         function onServerPossibleActions(possibleActions: PossibleActionsDto) {
-            developmentLog("Received the possible actions", possibleActions);
-
             // Update the player mode for the dependent components to react to
             setPlayerMode(possibleActions.playerMode);
 
@@ -231,8 +229,6 @@ export default function GameGrid() {
         }
 
         async function onServerProcessedActions(processedActionDto: ProcessedActionDto) {
-            developmentLog("Received the processed actions", processedActionDto);
-
             cleanupAttachedCellBehaviors();
 
             // Update the player mode for the dependent components to react to

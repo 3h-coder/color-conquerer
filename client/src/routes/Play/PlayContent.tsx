@@ -159,7 +159,7 @@ export default function PlayContent() {
       if (!isDevelopment)
         return;
 
-      // navigate("/");
+      navigate("/");
     }
 
     socket.on(Events.DISCONNECT, onDisconnect);
