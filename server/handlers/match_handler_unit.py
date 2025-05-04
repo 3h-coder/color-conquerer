@@ -6,6 +6,7 @@ from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
 from dto.game_state.game_context_dto import GameContextDto
 from dto.game_state.turn_context_dto import TurnContextDto
+from exceptions.match_launch_error import MatchLaunchError
 from game_engine.models.dtos.room import Room
 from game_engine.models.match.match_closure import EndingReason
 from game_engine.models.match.match_context import MatchContext
@@ -72,37 +73,47 @@ class MatchHandlerUnit:
         """
         Starts the match, setting up the turn watcher and notifying the clients.
         """
-        self.logger.info(
-            f"Match start requested for the match in the room {self.match_context.room_id}"
-        )
-
-        if not self.is_waiting_to_start():
-            self.logger.warning(
-                f"Can only start a match that is waiting to start. The match status is {self.status.name}"
+        try:
+            self.logger.info(
+                f"Match start requested for the match in the room {self.match_context.room_id}"
             )
-            return
 
-        self.logger.info(f"Starting the match in the room {self.match_context.room_id}")
+            if not self.is_waiting_to_start():
+                self.logger.warning(
+                    f"Can only start a match that is waiting to start. The match status is {self.status.name}"
+                )
+                return
 
-        # Important variables set up
-        self.status = MatchStatus.ONGOING
-        self.match_context.current_turn = 1
-        self.match_context.is_player1_turn = True
-        self.turn_state.is_player1_turn = True
+            self.logger.info(
+                f"Starting the match in the room {self.match_context.room_id}"
+            )
 
-        # Trigger the turn watcher service to process player turns
-        self._turn_watcher_service.trigger()
-        # Trigger the inactivity watcher service to watch for inactive players
-        self._player_inactivity_watcher_service.trigger()
+            # Important variables set up
+            self.match_context.current_turn = 1
+            self.match_context.is_player1_turn = True
+            self.turn_state.is_player1_turn = True
 
-        # notify the clients
-        notify_match_start(
-            self.get_turn_context_dto(for_player1=True, for_new_turn=True),
-            self.get_turn_context_dto(for_player1=False, for_new_turn=True),
-            self.match_context.player1.individual_room_id,
-            self.match_context.player2.individual_room_id,
-            self.lock,
-        )
+            # Trigger the turn watcher service to process player turns
+            self._turn_watcher_service.trigger()
+            # Trigger the inactivity watcher service to watch for inactive players
+            self._player_inactivity_watcher_service.trigger()
+
+            # notify the clients
+            notify_match_start(
+                self.get_turn_context_dto(for_player1=True, for_new_turn=True),
+                self.get_turn_context_dto(for_player1=False, for_new_turn=True),
+                self.match_context.player1.individual_room_id,
+                self.match_context.player2.individual_room_id,
+                self.lock,
+            )
+
+            # IMPORTANT : This must be set at the end otherwise cancellation will be denied
+            # as only a match with the WAITING_TO_START status can be cancelled
+            self.status = MatchStatus.ONGOING
+        except Exception:
+            self.logger.error(f"Failed to start the match", exc_info=True)
+            self.cancel()
+            raise MatchLaunchError(broadcast_to=self.match_context.room_id)
 
     def cancel(self):
         """

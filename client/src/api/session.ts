@@ -7,11 +7,3 @@ export async function initSession() {
         credentials: "include"
     });
 }
-
-export async function clearMatchInfoFromSession() {
-    return await callFetch("/match-session", {
-        method: "DELETE",
-        headers: DEFAULT_HEADERS,
-        credentials: "include"
-    });
-}

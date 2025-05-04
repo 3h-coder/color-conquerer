@@ -13,4 +13,3 @@ class HomeState(IntEnum):
 class HomeStateDto(BaseDto):
     state: int  # HomeState.value
     topMessage: str
-    clearMatchSession: bool

@@ -1,8 +1,8 @@
 # Server
 
 - Add tests for spells
+- Make session only match and player objects
 - Add rate limiting to certain events
-- Fix client hanging if an error occurs during match.start
 
 
 # Client

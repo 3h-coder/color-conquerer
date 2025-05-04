@@ -10,6 +10,7 @@ class CustomException(Exception):
         message: str | None,
         code: int | None = None,
         socket_connection_killer: bool = False,
+        broadcast_to: str | None = None,
     ):
         self.message = message
 
@@ -19,4 +20,5 @@ class CustomException(Exception):
             self.code = code
 
         self.socket_connection_killer = socket_connection_killer
+        self.broadcast_to = broadcast_to
         super().__init__(self.message)

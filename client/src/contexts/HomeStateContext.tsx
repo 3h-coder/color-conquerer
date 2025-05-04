@@ -9,8 +9,7 @@ import { useUser } from "./UserContext";
 
 const defaultHomeState: HomeStateDto = {
     state: HomeState.PLAY,
-    topMessage: EMPTY_STRING,
-    clearMatchSession: false
+    topMessage: EMPTY_STRING
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -53,6 +52,7 @@ export default function HomeStateContextProvider(props: HomeStateContextProps) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useHomeState() {
     return useContext(HomeStateContext);
 }

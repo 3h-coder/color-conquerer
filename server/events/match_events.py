@@ -185,7 +185,7 @@ def handle_spell_button(match: MatchHandlerUnit, spell_id: int):
 
 def handle_session_clearing():
     """
-    Sent by the client when after acknowledging the end of a match.
+    Sent by the client after acknowledging the end of a match.
     Clears all the match related session variables so they may queue for a new match.
     """
     session_utils.clear_match_info()

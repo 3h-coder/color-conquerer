@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { clearMatchInfoFromSession } from "../../../api/session";
 import { InfoIcon, WarningTriangleIcon, XMarkIcon } from "../../../assets/svg";
 import { SvgContainer } from "../../../components/containers";
 import { useHomeState } from "../../../contexts/HomeStateContext";
@@ -18,10 +17,7 @@ export default function HomeTopMessage() {
         if (homeState.state === HomeState.JOIN_BACK)
             setIcon(<WarningTriangleIcon />);
 
-        if (homeState.clearMatchSession)
-            clearMatchInfoFromSession();
-
-    }, [homeState.state, homeState.clearMatchSession, homeState.topMessage]);
+    }, [homeState.state, homeState.topMessage]);
 
     function onClose() {
         setDisplay(false);

@@ -50,6 +50,7 @@ export default function PlayContent() {
   const [modalExit, setModalExit] = useState<() => unknown>(() => {
     return () => setModalOpen(false);
   });
+  const FAILED_TO_CONNECT_ERROR = "Failed to connect to your match";
 
   // Connect to the server on mount/rendering
   // If the connection fails, redirects to the home page
@@ -57,16 +58,16 @@ export default function PlayContent() {
     connectToServer();
 
     function connectToServer() {
-      if (matchInfoLoading || playerInfoLoading) return;
+      if (matchInfoLoading || playerInfoLoading)
+        return;
 
-      if (failedToResolveMatchInfo || failedToResolvePlayerInfo) {
-        localStorage.setItem(
-          localStorageKeys.homePage.error,
-          "Failed to connect to your match"
-        );
-        navigate("/");
-      } else {
-        if (!socket.connected) socket.connect();
+      if (failedToResolveMatchInfo || failedToResolvePlayerInfo)
+        sendHomeWithError(FAILED_TO_CONNECT_ERROR);
+
+      else {
+
+        if (!socket.connected)
+          socket.connect();
 
         setWaitingText("Connecting to your match...");
         socket.emit(Events.CLIENT_READY);
@@ -89,23 +90,23 @@ export default function PlayContent() {
       setWaitingText("Waiting for your opponent...");
     }
 
-    function onMatchBeginning(turnInfoDto: TurnContextDto) {
-      onMatchOngoing(turnInfoDto);
+    function onMatchBeginning(turnContextDto: TurnContextDto) {
+      onMatchOngoing(turnContextDto);
     }
 
-    function onMatchOngoing(turnInfoDto: TurnContextDto) {
+    function onMatchOngoing(turnContextDto: TurnContextDto) {
       setCanRenderContent(true);
-      setTurnContext(turnInfoDto);
+      setTurnContext(turnContextDto);
       developmentLog(
-        `The match is ongoing.\nThere are ${turnInfoDto.remainingTimeInS} seconds left in the turn`
+        `The match is ongoing.\nThere are ${turnContextDto.remainingTimeInS} seconds left in the turn`
       );
     }
 
-    function onTurnSwap(turnInfoDto: TurnContextDto) {
+    function onTurnSwap(turnContextDto: TurnContextDto) {
       developmentLog(
-        `Turn swap!\nThe new turn lasts ${turnInfoDto.remainingTimeInS} seconds `
+        `Turn swap!\nThe new turn lasts ${turnContextDto.remainingTimeInS} seconds `
       );
-      setTurnContext(turnInfoDto);
+      setTurnContext(turnContextDto);
     }
 
     function onServerInactivityWarning() {
@@ -133,14 +134,14 @@ export default function PlayContent() {
       }
     }
 
-    function onError(errorDto: ErrorDto) {
-      if (!errorDto.displayToUser) return;
+    function onServerError(errorDto: ErrorDto) {
+      if (!errorDto.displayToUser)
+        return;
 
-      setModalIcon(ModalIcon.Error);
-      setModalText(errorDto.error);
-      setModalOpen(true);
+      showErrorInModal(errorDto);
 
       if (errorDto.socketConnectionKiller) {
+        socket.emit(Events.CLIENT_CLEAR_SESSION);
         socket.disconnect();
         setModalExit(() => {
           return () => navigate("/");
@@ -159,7 +160,7 @@ export default function PlayContent() {
       if (!isDevelopment)
         return;
 
-      navigate("/");
+      //navigate("/");
     }
 
     socket.on(Events.DISCONNECT, onDisconnect);
@@ -169,7 +170,7 @@ export default function PlayContent() {
     socket.on(Events.SERVER_TURN_SWAP, onTurnSwap);
     socket.on(Events.SERVER_INACTIVITY_WARNING, onServerInactivityWarning);
     socket.on(Events.SERVER_MATCH_END, onMatchEnded);
-    socket.on(Events.SERVER_ERROR, onError);
+    socket.on(Events.SERVER_ERROR, onServerError);
     socket.on(Events.SERVER_REDIRECT, onRedirection);
 
     // Ensure the event handlers are attached only once on component mounting
@@ -181,10 +182,24 @@ export default function PlayContent() {
       socket.off(Events.SERVER_TURN_SWAP, onTurnSwap);
       socket.off(Events.SERVER_INACTIVITY_WARNING, onServerInactivityWarning);
       socket.off(Events.SERVER_MATCH_END, onMatchEnded);
-      socket.off(Events.SERVER_ERROR, onError);
+      socket.off(Events.SERVER_ERROR, onServerError);
       socket.off(Events.SERVER_REDIRECT, onRedirection);
     };
   }, [playerId]);
+
+  function sendHomeWithError(errorMessage: string) {
+    localStorage.setItem(
+      localStorageKeys.homePage.error,
+      errorMessage
+    );
+    navigate("/");
+  }
+
+  function showErrorInModal(errorDto: ErrorDto) {
+    setModalIcon(ModalIcon.Error);
+    setModalText(errorDto.error);
+    setModalOpen(true);
+  }
 
   function getMatchEndingText(
     playerId: string,

@@ -20,6 +20,7 @@ from events.match_events import (
 )
 from events.queue_events import handle_queue_registration
 from exceptions.custom_exception import CustomException
+from exceptions.server_error import ServerError
 from handlers.connection_handler import ConnectionHandler
 from handlers.match_handler import MatchHandler
 from handlers.room_handler import RoomHandler
@@ -65,9 +66,17 @@ class Server:
 
         @self.socketio.on_error()
         def _(ex: Exception):
-            if not isinstance(ex, CustomException):
-                self.logger.error(f"A socket error occured : {traceback.format_exc()}")
-            emit(Events.SERVER_ERROR, ErrorDto.from_exception(ex).to_dict())
+            is_custom = isinstance(ex, CustomException)
+            if not is_custom:
+                self.logger.error(f"[SOCKET ERROR] {traceback.format_exc()}")
+
+            error = ex if is_custom else ServerError(socket_connection_killer=True)
+            emit(
+                Events.SERVER_ERROR,
+                ErrorDto.from_exception(error).to_dict(),
+                to=error.broadcast_to,
+                broadcast=bool(error.broadcast_to),
+            )
 
     def _add_listener(self, event_name: str, listener: Callable):
         self.socketio.on_event(event_name, listener)
