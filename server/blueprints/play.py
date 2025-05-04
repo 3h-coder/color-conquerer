@@ -18,10 +18,8 @@ play_bp.register_error_handler(Exception, handle_error)
 def get_match_info():
     session_cache_handler = get_session_cache_handler()
     room_id = _get_room_id_or_raise_error(session_cache_handler)
+    match_context = _get_match_context_or_raise_error(room_id)
 
-    match_handler = get_match_handler()
-
-    match_context: MatchContext = match_handler.get_match_context(room_id)
     return jsonify(match_context.to_dto(None).to_dict()), 200
 
 
@@ -53,6 +51,24 @@ def _get_room_id_or_raise_error(session_cache_handler: SessionCacheHandler):
         session_utils.save_into_session(ROOM_ID, room_id)
 
     return room_id
+
+
+def _get_match_context_or_raise_error(room_id: str):
+    """
+    Tries to get the match context from the given room id.
+
+    Sometimes the player has a room_id saved into the session but there is no match linked to it,
+    in which case we force a session clearing and throw an unauthorized error.
+    """
+    match_handler = get_match_handler()
+    match_context: MatchContext = match_handler.get_match_context(room_id)
+    if match_context is None:
+        current_app.logger.warning(
+            f"({request.remote_addr}) | The player had a room id set but no associated match exists, resetting their session"
+        )
+        session_utils.clear_match_info()
+        raise UnauthorizedError("Could not resolve the match")
+    return match_context
 
 
 def _get_player_info_or_raise_error(session_cache_handler: SessionCacheHandler):

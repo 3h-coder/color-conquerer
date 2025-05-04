@@ -6,7 +6,7 @@ from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
 from dto.game_state.game_context_dto import GameContextDto
 from dto.game_state.turn_context_dto import TurnContextDto
-from exceptions.match_launch_error import MatchLaunchError
+from events.shared_notifications import match_launch_error_redirect
 from game_engine.models.dtos.room import Room
 from game_engine.models.match.match_closure import EndingReason
 from game_engine.models.match.match_context import MatchContext
@@ -113,7 +113,10 @@ class MatchHandlerUnit:
         except Exception:
             self.logger.exception(f"Failed to start the match")
             self.cancel()
-            raise MatchLaunchError(broadcast_to=self.match_context.room_id)
+
+            match_launch_error_redirect(
+                broadcast_to=self.match_context.room_id,
+            )
 
     def cancel(self):
         """

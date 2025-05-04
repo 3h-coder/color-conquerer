@@ -3,12 +3,10 @@ from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
 from dto.match.client_stored_match_info_dto import ClientStoredMatchInfoDto
-from dto.misc.error_dto import ErrorDto
 from dto.player.queue_player_dto import QueuePlayerDto
 from events.events import Events
-from exceptions.match_launch_error import MatchLaunchError
+from events.shared_notifications import match_launch_error_redirect
 from exceptions.queue_error import QueueError
-from game_engine.models.player.player import Player
 from handlers.match_handler import MatchHandler
 from handlers.match_handler_unit import MatchHandlerUnit
 from handlers.room_handler import RoomHandler
@@ -102,12 +100,12 @@ def _try_to_launch_match(
         room = room_handler.closed_rooms[room_id]
         match = match_handler.initiate_match_and_return_unit(room)
         match.watch_player_entry()
-    except Exception as ex:
-        _logger.exception(f"An error occured when trying to launch a match : {ex}")
+    except Exception:
+        _logger.exception(f"An error occured when trying to launch a match")
         if match is not None:
             match.cancel()
 
-        raise MatchLaunchError(broadcast_to=room_id)
+        match_launch_error_redirect(broadcast_to=room_id)
 
 
 def _set_player_id(queue_player_dto: QueuePlayerDto):

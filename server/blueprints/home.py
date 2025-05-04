@@ -33,6 +33,7 @@ def get_home_state():
         return _default_homestate_response()
 
     if not room_id and in_match:
+        # Should never happen but just in case
         current_app.logger.warning(
             f"({request.remote_addr}) | ROOM_ID is not set yet IN_MATCH is set, resetting the player's session"
         )

@@ -31,7 +31,7 @@ class Events(StrEnum):
     SERVER_PROCESSED_ACTIONS = "server-processedActions"
     SERVER_QUEUE_OPPONENT_FOUND = "queue-opponentFound"
     SERVER_QUEUE_REGISTERED = "queue-registered"
-    SERVER_REDIRECT = "server-redirect"
+    SERVER_HOME_ERROR_REDIRECT = "server-home-error-redirect"
     SERVER_SPAWN_ACTIVATED = "server-spawn-activated"
     SERVER_TURN_SWAP = "server-turn-swap"
     SERVER_WAITING_FOR_OPPONENT = "server-waiting-for-opponent"

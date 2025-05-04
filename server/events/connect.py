@@ -33,6 +33,7 @@ def handle_connection(_):
 
     match = match_handler.get_unit(room_id)
     if match is None:
+        # Session clearing will be handled by the home blueprint
         return
 
     if match.is_ongoing():
@@ -44,4 +45,4 @@ def handle_connection(_):
         _logger.debug(
             "Player rejoined, but the match already ended. Redirecting them to the home page"
         )
-        emit(Events.SERVER_REDIRECT, MessageDto("/").to_dict())
+        emit(Events.SERVER_HOME_ERROR_REDIRECT, MessageDto("/").to_dict())

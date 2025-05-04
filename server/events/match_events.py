@@ -5,10 +5,11 @@ from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
 from dto.cell.cell_dto import CellDto
+from dto.misc.message_dto import MessageDto
 from events.events import Events
+from events.shared_notifications import match_launch_error_redirect
 from exceptions.server_error import ServerError
 from game_engine.models.match.match_closure import EndingReason
-from game_engine.models.player.player import Player
 from handlers.match_handler_unit import MatchHandlerUnit
 from server_gate import get_match_handler, get_session_cache_handler
 from session_management import session_utils
@@ -86,6 +87,8 @@ def handle_client_ready():
     """
     server_error_msg = "A server error occured, unable to connect you to your match"
 
+    # NOTE : the play blueprint should already redirect the player if the following
+    # session variables cannot be resolved, but this is an additional safety measure
     player_info: SessionPlayer = _get_session_variable(PLAYER_INFO)
     if player_info is None:
         raise ServerError(
@@ -102,6 +105,12 @@ def handle_client_ready():
 
     match_handler = get_match_handler()
     match = match_handler.get_unit(room_id)
+
+    if match.is_cancelled():
+        _logger.info(
+            f"({request.remote_addr}) | The player was ready but the match got cancelled"
+        )
+        match_launch_error_redirect()
 
     _join_socket_rooms(room_id, player_info.individual_room_id)
     session[IN_MATCH] = True

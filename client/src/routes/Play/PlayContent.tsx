@@ -53,7 +53,8 @@ export default function PlayContent() {
   const FAILED_TO_CONNECT_ERROR = "Failed to connect to your match";
 
   // Connect to the server on mount/rendering
-  // If the connection fails, redirects to the home page
+  // This is used to assert that the player is effectively in a match.
+  // If not, they will be redirected to the home page.
   useEffect(() => {
     connectToServer();
 
@@ -137,6 +138,7 @@ export default function PlayContent() {
     }
 
     function onServerError(errorDto: ErrorDto) {
+      developmentLog("Received the error", errorDto);
       if (!errorDto.displayToUser)
         return;
 
@@ -150,8 +152,8 @@ export default function PlayContent() {
       }
     }
 
-    function onRedirection(messageDto: MessageDto) {
-      navigate(messageDto.message);
+    function onHomeErrorRedirection(messageDto: MessageDto) {
+      sendHomeWithError(messageDto.message);
     }
 
     function onDisconnect() {
@@ -172,7 +174,7 @@ export default function PlayContent() {
     socket.on(Events.SERVER_INACTIVITY_WARNING, onServerInactivityWarning);
     socket.on(Events.SERVER_MATCH_END, onMatchEnded);
     socket.on(Events.SERVER_ERROR, onServerError);
-    socket.on(Events.SERVER_REDIRECT, onRedirection);
+    socket.on(Events.SERVER_HOME_ERROR_REDIRECT, onHomeErrorRedirection);
 
     // Ensure the event handlers are attached only once on component mounting
     return () => {
@@ -184,7 +186,7 @@ export default function PlayContent() {
       socket.off(Events.SERVER_INACTIVITY_WARNING, onServerInactivityWarning);
       socket.off(Events.SERVER_MATCH_END, onMatchEnded);
       socket.off(Events.SERVER_ERROR, onServerError);
-      socket.off(Events.SERVER_REDIRECT, onRedirection);
+      socket.off(Events.SERVER_HOME_ERROR_REDIRECT, onHomeErrorRedirection);
     };
   }, [playerId]);
 

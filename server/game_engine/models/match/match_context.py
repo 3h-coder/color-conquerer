@@ -22,6 +22,11 @@ class MatchContext:
     player2: Player
 
     def to_dto(self, for_player1: bool | None):
+        """
+        Note : the `for_player1` parameter is used to send the appropriate board array,
+        since some cells can have hidden information that only a given player can see.
+        It should only be None during the initial match info fetching request.
+        """
         return MatchContextDto(
             id=self.id,
             roomId=self.room_id,
