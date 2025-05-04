@@ -1,8 +1,8 @@
 from flask import session
 
 from config.logging import get_configured_logger
-from constants.session_variables import SESSION_ID
-from utils import session_utils
+from session_management import session_utils
+from session_management.session_variables import SESSION_ID
 
 
 class ConnectionHandler:

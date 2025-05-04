@@ -2,7 +2,6 @@ from flask import request, session
 from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
-from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.match.client_stored_match_info_dto import ClientStoredMatchInfoDto
 from dto.misc.error_dto import ErrorDto
 from dto.player.queue_player_dto import QueuePlayerDto
@@ -15,6 +14,7 @@ from handlers.match_handler_unit import MatchHandlerUnit
 from handlers.room_handler import RoomHandler
 from handlers.session_cache_handler import SessionCacheHandler
 from server_gate import get_match_handler, get_room_handler, get_session_cache_handler
+from session_management.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from utils.id_generation_utils import generate_id
 
 _logger = get_configured_logger(__name__)

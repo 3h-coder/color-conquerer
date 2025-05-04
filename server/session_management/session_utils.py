@@ -1,13 +1,13 @@
 from flask import session
 
-from constants.session_variables import (
+from server_gate import get_session_cache_handler
+from session_management.session_variables import (
     IN_MATCH,
     PLAYER_INFO,
     ROOM_ID,
     SESSION_ID,
     SOCKET_CONNECTED,
 )
-from server_gate import get_session_cache_handler
 
 
 def get_session_data():

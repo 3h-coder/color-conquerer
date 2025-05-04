@@ -1,6 +1,5 @@
 from flask import Blueprint, current_app, jsonify, request, session
 
-from constants.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.player.player_dto import PlayerDto
 from exceptions.unauthorized_error import UnauthorizedError
 from game_engine.models.match.match_context import MatchContext
@@ -8,7 +7,8 @@ from game_engine.models.player.player import Player
 from handlers.session_cache_handler import SessionCacheHandler
 from middlewares.error_handler import handle_error
 from server_gate import get_match_handler, get_session_cache_handler
-from utils import session_utils
+from session_management import session_utils
+from session_management.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 
 play_bp = Blueprint("play", __name__)
 play_bp.register_error_handler(Exception, handle_error)

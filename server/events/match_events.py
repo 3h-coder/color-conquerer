@@ -4,7 +4,6 @@ from flask import request, session
 from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
-from constants.session_variables import IN_MATCH, PLAYER_INFO, ROOM_ID, SESSION_ID
 from dto.cell.cell_dto import CellDto
 from events.events import Events
 from exceptions.server_error import ServerError
@@ -12,7 +11,13 @@ from game_engine.models.match.match_closure import EndingReason
 from game_engine.models.player.player import Player
 from handlers.match_handler_unit import MatchHandlerUnit
 from server_gate import get_match_handler, get_session_cache_handler
-from utils import session_utils
+from session_management import session_utils
+from session_management.session_variables import (
+    IN_MATCH,
+    PLAYER_INFO,
+    ROOM_ID,
+    SESSION_ID,
+)
 
 _logger = get_configured_logger(__name__)
 
