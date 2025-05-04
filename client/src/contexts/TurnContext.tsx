@@ -18,12 +18,12 @@ const TurnContext = createContext<TurnContextObject>({
     setCanInteract: (_canInteract: boolean) => { },
 });
 
-interface TurnInfoContextProviderProps {
+interface TurnContextProviderProps {
     children: React.ReactNode;
 }
 
-export default function TurnInfoContextProvider(
-    props: TurnInfoContextProviderProps
+export default function TurnContextProvider(
+    props: TurnContextProviderProps
 ) {
     const { children } = props;
     const [turnContext, setTurnContext] = useState(undefinedTurnContext);

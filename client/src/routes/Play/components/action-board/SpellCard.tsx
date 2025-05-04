@@ -112,7 +112,7 @@ export default function SpellCard(props: SpellCardProps) {
         <>
             <button
                 ref={cardRef}
-                className={`spell-card ${isBeingTouched.current ? "touched" : undefined} ${spell.count === 0 ? "greyed" : undefined}`.trim()}
+                className={`spell-card ${isBeingTouched.current ? "touched" : undefined} ${spell.count === 0 ? "greyed-out" : undefined}`.trim()}
                 disabled={!canInteract}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}

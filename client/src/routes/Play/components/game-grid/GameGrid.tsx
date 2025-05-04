@@ -4,10 +4,10 @@ import YourTurnImage from "../../../../assets/images/Your Turn.png";
 import { animateActionCallback, animateProcessedAction } from "../../../../board-animations/main";
 import { ContainerProps } from "../../../../components/containers";
 import { useAnimationContext } from "../../../../contexts/AnimationContext";
+import { useGameContext } from "../../../../contexts/GameContext";
 import { useMatchContext } from "../../../../contexts/MatchContext";
 import { usePlayerInfo } from "../../../../contexts/PlayerContext";
 import { usePlayerMode } from "../../../../contexts/PlayerModeContext";
-import { usePlayerResources } from "../../../../contexts/PlayerResourcesContext";
 import { useTurnContext } from "../../../../contexts/TurnContext";
 import { ActionCallbackDto } from "../../../../dto/actions/ActionCallbackDto";
 import { PossibleActionsDto } from "../../../../dto/actions/PossibleActionsDto";
@@ -35,7 +35,7 @@ export default function GameGrid() {
     const { matchInfo, onEmit } = useMatchContext();
     const { playerId, isPlayer1 } = usePlayerInfo();
     const { turnContext, canInteract, setCanInteract } = useTurnContext();
-    const { setPlayerResourceBundle } = usePlayerResources();
+    const { setGameContext } = useGameContext();
     const { getAnimationOngoing, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
     const { setPlayerMode } = usePlayerMode();
 
@@ -109,9 +109,11 @@ export default function GameGrid() {
             const fatigueDamage = newTurnProcessingInfo?.fatigueDamage ?? 0;
 
             if (fatigueDamage > 0) {
-                setPlayerResourceBundle(prevBundle => {
+                setGameContext(prevContext => {
+                    const prevBundle = prevContext.playerResourceBundle;
                     // Clone the bundle to avoid mutating state
-                    const bundle = structuredClone(turnContext.gameContext.playerResourceBundle);
+                    const gameContext = structuredClone(turnContext.gameContext);
+                    const bundle = gameContext.playerResourceBundle;
 
                     // Prevent the fatigue damage from being applied straight away
                     if (isCurrentPlayerTurn) {
@@ -128,10 +130,10 @@ export default function GameGrid() {
                         }
                     }
 
-                    return bundle;
+                    return gameContext;
                 });
             } else {
-                setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
+                setGameContext(turnContext.gameContext);
             }
         }
 
@@ -153,7 +155,7 @@ export default function GameGrid() {
                 setFatigueDamage(null);
 
                 // Apply the real resources bundle, including the fatigue damage
-                setPlayerResourceBundle(turnContext.gameContext.playerResourceBundle);
+                setGameContext(turnContext.gameContext);
             }
 
             setCanInteract(isCurrentPlayerTurn);
@@ -178,7 +180,7 @@ export default function GameGrid() {
 
                 while (callbackAnimationQueueRef.current.length > 0) {
                     const actionCallback = callbackAnimationQueueRef.current.shift();
-                    await animateActionCallback(actionCallback!, isPlayer1, { setBoardArray, setActionSpell, setPlayerResourceBundle });
+                    await animateActionCallback(actionCallback!, isPlayer1, { setBoardArray, setActionSpell, setGameContext });
                 }
                 triggerCellEffectSync();
             } finally {
@@ -237,7 +239,7 @@ export default function GameGrid() {
             setPlayerMode(processedActionDto.playerMode);
 
             // Update the player info bundle to display the proper HP/MP values
-            setPlayerResourceBundle(processedActionDto.updatedGameContext.playerResourceBundle);
+            setGameContext(processedActionDto.updatedGameContext);
 
             // Trigger animations
             await animateProcessedAction(processedActionDto.processedAction, isPlayer1, isMyTurn, boardArray, setActionSpell);

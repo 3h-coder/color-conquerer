@@ -1,10 +1,10 @@
-import { useTurnContext } from "../../../../contexts/TurnContext";
+import { useGameContext } from "../../../../contexts/GameContext";
 import { SpellDto } from "../../../../dto/spell/SpellDto";
 import SpellCard from "./SpellCard";
 
 export default function SpellDeck() {
-    const { turnContext } = useTurnContext();
-    const spells = turnContext.gameContext.spellsDto.spells;
+    const { gameContext } = useGameContext();
+    const spells = gameContext.spellsDto.spells;
 
     return (
         <div className="spell-deck">

@@ -63,6 +63,18 @@
     transition: width 0.2s ease-in-out;
 }
 
+.spell-card.greyed-out:enabled:hover {
+    border: 0.16rem solid grey;
+}
+
+.spell-card.greyed-out {
+    color: grey;
+}
+
+.spell-card.greyed-out svg {
+    fill: grey;
+}
+
 .spell-card:enabled:hover, .spell-card.touched {
     width: max(180px, 22vmin);
     transition: width 0.2s ease-in-out;

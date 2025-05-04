@@ -1,9 +1,9 @@
 import AnimationContextProvider from "../../contexts/AnimationContext";
+import GameContextProvider from "../../contexts/GameContext";
 import MatchContextProvider from "../../contexts/MatchContext";
 import PlayerContextProvider from "../../contexts/PlayerContext";
 import PlayerModeContextProvider from "../../contexts/PlayerModeContext";
-import PlayersResourcesContextProvider from "../../contexts/PlayerResourcesContext";
-import TurnInfoContextProvider from "../../contexts/TurnContext";
+import TurnContextProvider from "../../contexts/TurnContext";
 import './Play.css';
 import PlayContent from "./PlayContent";
 
@@ -27,13 +27,13 @@ function ContextProviders(props: ContextProvidersProps) {
         <AnimationContextProvider>
             <MatchContextProvider>
                 <PlayerContextProvider>
-                    <TurnInfoContextProvider>
-                        <PlayersResourcesContextProvider>
+                    <TurnContextProvider>
+                        <GameContextProvider>
                             <PlayerModeContextProvider>
                                 {children}
                             </PlayerModeContextProvider>
-                        </PlayersResourcesContextProvider>
-                    </TurnInfoContextProvider>
+                        </GameContextProvider>
+                    </TurnContextProvider>
                 </PlayerContextProvider>
             </MatchContextProvider>
         </AnimationContextProvider>

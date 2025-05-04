@@ -1,7 +1,7 @@
 import { ActionCallbackDto } from "../dto/actions/ActionCallbackDto";
 import { MatchActionDto } from "../dto/actions/MatchActionDto";
 import { CellDto } from "../dto/cell/CellDto";
-import { PlayerResourceBundleDto } from "../dto/player/PlayerInfoBundleDto";
+import { GameContextDto } from "../dto/gameState/GameContextDto";
 import { PartialSpellDto } from "../dto/spell/PartialSpellDto";
 import { ActionCallbackId } from "../enums/actionCallbackId";
 import { ActionType } from "../enums/actionType";
@@ -16,7 +16,7 @@ import { handleSpellCastingAnimation } from "./spells/spell";
 export interface GameStateSetters {
     setBoardArray: (boardArray: CellDto[][]) => void;
     setActionSpell: (spellAction: PartialSpellDto | null) => void;
-    setPlayerResourceBundle: (bundle: PlayerResourceBundleDto) => void;
+    setGameContext: (context: GameContextDto) => void;
 }
 
 export async function animateProcessedAction(
@@ -56,9 +56,9 @@ export async function animateActionCallback(
     stateSetters: GameStateSetters
 ) {
     developmentLog("Animating callback", callback);
-    const { setPlayerResourceBundle, setActionSpell, setBoardArray } = stateSetters;
+    const { setGameContext, setActionSpell, setBoardArray } = stateSetters;
 
-    setPlayerResourceBundle(callback.updatedGameContext.playerResourceBundle);
+    setGameContext(callback.updatedGameContext);
 
     await animateCallback(callback, currentPlayerisPlayer1, setActionSpell);
 
