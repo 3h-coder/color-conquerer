@@ -59,6 +59,12 @@ def only_if_current_turn(error_log_msg: str):
                 _logger.critical("Could not process the action as there is no match")
                 return
 
+            if not match.is_ongoing():
+                _logger.error(
+                    f"Could not process the action as the match is not ongoing (the match status is {match.status.name})"
+                )
+                return
+
             player_id = player_info.player_id
             if not match.get_current_player().player_id == player_id:
                 default_msg = "Cannot process the action as it is not the player's turn"

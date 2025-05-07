@@ -37,6 +37,23 @@ class MatchHelper:
 
         assert self.match_handler_unit.is_ongoing()
 
+    def skip_n_turns(self, number: int):
+        player1_client, player2_client = self.get_clients()
+        for i in range(number):
+            current_client = None
+            if self.get_current_turn() % 2 == 0:
+                current_client = player2_client
+            else:
+                current_client = player1_client
+            current_client.end_turn(wait_for_processing=True)
+
+    # region is
+
+    def is_ended(self):
+        return self.match_handler_unit.is_ended()
+
+    # endregion
+
     # region Getters
 
     def get_clients(self):
@@ -50,6 +67,9 @@ class MatchHelper:
 
     def get_both_players_resources(self):
         return self.match_context_helper.get_both_players_resources()
+
+    def get_both_player_match_data(self):
+        return self.match_context_helper.get_both_player_match_data()
 
     def get_master_cell(self, of_player_1: bool):
         return self.match_context_helper.get_master_cell(of_player_1)

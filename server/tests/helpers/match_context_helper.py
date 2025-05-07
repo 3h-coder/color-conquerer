@@ -21,6 +21,11 @@ class MatchContextHelper:
     def get_both_players_resources(self):
         return self._match_context.get_both_players_resources()
 
+    def get_both_player_match_data(self):
+        player1_match_data = self._match_context.player1.match_data
+        player2_match_data = self._match_context.player2.match_data
+        return (player1_match_data, player2_match_data)
+
     def get_master_cell(self, of_player_1: bool):
         player_cells = self._game_board.get_cells_owned_by_player(of_player_1)
         return next((cell for cell in player_cells if cell.is_master), None)

@@ -1,3 +1,5 @@
+import time
+
 from events.events import Events
 from game_engine.models.cell.cell import Cell
 from server import Server
@@ -52,14 +54,13 @@ class ClientHelper:
     def send_ready_signal(self):
         self.emit(Events.CLIENT_READY)
 
-    def end_turn(self):
+    def end_turn(self, wait_for_processing=False):
         self.emit(Events.CLIENT_TURN_END)
+        if wait_for_processing:
+            time.sleep(0.01)
 
     def concede(self):
         self.emit(Events.CLIENT_MATCH_CONCEDE)
-
-    def request_spells(self):
-        self.emit(Events.CLIENT_REQUEST_SPELLS)
 
     def click_any_cell(self):
         self.click_cell_at(0, 0)
