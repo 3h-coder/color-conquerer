@@ -43,9 +43,8 @@ def get_home_state():
     match_handler = get_match_handler()
     match = match_handler.get_unit(room_id)
 
-    if (
-        match is None or match.is_ended()
-    ):  # TODO check if the match is ended from either the saved closure or something else TBD
+    # TODO : make this more reliable -> Check on ended matches (in memory ? in database ?)
+    if match is None:
         session_utils.clear_match_info()
         return (
             HomeStateDto(

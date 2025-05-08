@@ -1,0 +1,5 @@
+#intro-carousel-container {
+    height: fit-content;
+    width: fit-content;
+    margin-bottom: var(--spacing-medium1);
+}

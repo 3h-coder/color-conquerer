@@ -319,11 +319,11 @@ export default function GameGrid() {
     );
 }
 
-function GridOuter(props: ContainerProps) {
+export function GridOuter(props: ContainerProps) {
     return <div id="grid-outer">{props.children}</div>;
 }
 
-function GridInner(props: ContainerProps) {
+export function GridInner(props: ContainerProps) {
     return (
         <div id="grid-inner" style={props.style}>
             {props.children}
@@ -331,6 +331,6 @@ function GridInner(props: ContainerProps) {
     );
 }
 
-function GridRow(props: ContainerProps) {
+export function GridRow(props: ContainerProps) {
     return <div className="row">{props.children}</div>;
 }

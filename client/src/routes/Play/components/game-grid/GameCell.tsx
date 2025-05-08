@@ -23,6 +23,7 @@ interface GameCellProps {
     canInteract: boolean;
     canDisplayEffects: boolean;
     attachedBehavior?: AttachedCellBehavior;
+    style?: React.CSSProperties;
 }
 
 export default function GameCell(props: GameCellProps) {
@@ -35,7 +36,8 @@ export default function GameCell(props: GameCellProps) {
         cellInfo,
         canInteract,
         canDisplayEffects,
-        attachedBehavior
+        attachedBehavior,
+        style
     } = props;
 
     const selectable = canInteract && isSelectable(cellInfo);
@@ -84,7 +86,7 @@ export default function GameCell(props: GameCellProps) {
             ref={cellRef}
             className={classes}
             id={id}
-            style={computedBackgroundColor}
+            style={{ ...style, ...computedBackgroundColor }}
             onClick={onCellClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
