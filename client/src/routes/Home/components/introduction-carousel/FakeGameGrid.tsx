@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { getCellId } from "../../../../utils/cellUtils";
+import { delay } from "../../../../utils/domUtils";
 import GameCell from "../../../Play/components/game-grid/GameCell";
 import { GridInner, GridOuter, GridRow } from "../../../Play/components/game-grid/GameGrid";
+import { animationActionsSequence } from "./animations/actionAnimations";
 import { getDefaultGameGrid } from "./fakeGameGridSetupUtils";
 import { FakeGameGridSetup } from "./Setups/FakeGameGridSetup";
 
@@ -11,7 +13,9 @@ export interface FakeGameGridProps {
 
 export default function FakeGameGrid(props: FakeGameGridProps) {
     const { setup } = props;
-    const [boardArray, setBoardArray] = useState(getDefaultGameGrid(setup.coordinatesSetup));
+    const [key, setKey] = useState(0);
+    const forceRemount = () => setKey(prevKey => prevKey + 1);
+    const boardArray = getDefaultGameGrid(setup.coordinatesSetup);
     const gridStyle: React.CSSProperties = {
         gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`
     };
@@ -22,11 +26,21 @@ export default function FakeGameGrid(props: FakeGameGridProps) {
     };
 
     useEffect(() => {
+        animateSetup();
 
-    }, []);
+        async function animateSetup() {
+            const allAttacks = setup.actionsSetup;
+            const delayBetweenEachAttackInMs = 500;
+            const wrappingDelayInMs = 1000;
+            await delay(wrappingDelayInMs);
+            await animationActionsSequence(allAttacks, delayBetweenEachAttackInMs);
+            await delay(wrappingDelayInMs);
+            forceRemount();
+        }
+    });
 
     return (
-        <GridOuter className="fake-game-grid">
+        <GridOuter key={key}>
             <GridInner style={gridStyle}>
                 {boardArray.map((row, rowIndex) => (
                     <GridRow className="row" id={`r-${rowIndex}`} key={rowIndex}>

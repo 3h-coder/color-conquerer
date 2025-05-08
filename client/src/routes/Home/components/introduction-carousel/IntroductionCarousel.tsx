@@ -1,6 +1,6 @@
 import FakeGameGrid from './FakeGameGrid';
 import './IntroductionCarousel.css';
-import { getFullSetup1 } from './Setups/FullSetups';
+import { getFullSetup1 } from './Setups/fullSetups';
 
 export default function IntroductionCarousel() {
     return (

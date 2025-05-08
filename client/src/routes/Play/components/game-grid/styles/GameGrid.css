@@ -8,6 +8,7 @@
     height: fit-content;
     /* should be the same as the cell's border */
     border: 0.1rem solid var(--primary-grey2);
+    background-color: white;
     margin: var(--spacing-medium2) auto var(--spacing-medium2) auto;
     box-shadow: rgba(0, 0, 0, 0.25) 0px 0.3125rem 0.9375rem;
 }

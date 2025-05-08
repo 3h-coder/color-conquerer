@@ -27,7 +27,7 @@ export async function handleCellClashAnimation(action: MatchActionDto, isPlayer1
     );
 }
 
-async function animateCellClash(
+export async function animateCellClash(
     attackerCoords: CoordinatesDto, targetCoords: CoordinatesDto, cellAttackMetadata: CellAttackMetadataDto | null, isPlayer1: boolean) {
     if (!cellAttackMetadata) return;
 

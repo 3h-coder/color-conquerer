@@ -52,7 +52,7 @@ export function animateCellDeaths(deaths: CoordinatesDto[]) {
   });
 }
 
-function animateCellDeath(htmlCell: HTMLElement) {
+export function animateCellDeath(htmlCell: HTMLElement) {
   const cleanupDelayInMs = 500;
 
   if (activeTooltipTarget === htmlCell) {

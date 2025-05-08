@@ -7,17 +7,25 @@ import { animateManaBubblePop } from "../common";
 
 export function handleCellMovementAnimation(action: MatchActionDto, boardArray: CellDto[][]) {
     const sourceCoords = action.metadata.originatingCellCoords;
-    if (!sourceCoords) return;
+    if (!sourceCoords)
+        return;
 
     const targetCoords = action.metadata.impactedCoords;
     const targetCell = boardArray[targetCoords.rowIndex][targetCoords.columnIndex];
 
-    // Create moving cell clone
     const sourceElement = getHtmlCell(sourceCoords.rowIndex, sourceCoords.columnIndex);
     const targetElement = getHtmlCell(targetCoords.rowIndex, targetCoords.columnIndex);
+    if (!sourceElement || !targetElement)
+        return;
 
-    if (!sourceElement || !targetElement) return;
+    animateCellMovement(sourceElement, targetElement);
 
+    if (CellStateUtils.contains(targetCell.state, CellState.MANA_BUBBLE)) {
+        animateManaBubblePop(targetCoords.rowIndex, targetCoords.columnIndex);
+    }
+}
+
+export function animateCellMovement(sourceElement: HTMLElement, targetElement: HTMLElement) {
     const clone = sourceElement.cloneNode(true) as HTMLElement;
     const sourceBounds = sourceElement.getBoundingClientRect();
     const targetBounds = targetElement.getBoundingClientRect();
@@ -43,8 +51,4 @@ export function handleCellMovementAnimation(action: MatchActionDto, boardArray: 
     setTimeout(() => {
         clone.remove();
     }, 400);
-
-    if (CellStateUtils.contains(targetCell.state, CellState.MANA_BUBBLE)) {
-        animateManaBubblePop(targetCoords.rowIndex, targetCoords.columnIndex);
-    }
 }
