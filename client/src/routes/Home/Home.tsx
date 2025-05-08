@@ -1,9 +1,10 @@
 import { ContainerProps } from "../../components/containers";
 import HomeStateContextProvider from "../../contexts/HomeStateContext";
-import './Home.css';
 import HomeError from "./components/HomeError";
 import HomeTopMessage from "./components/HomeTopMessage";
+import IntroductionCarousel from "./components/introduction-carousel/IntroductionCarousel";
 import PlayButton from "./components/PlayButton";
+import './styles/Home.css';
 
 export default function Home() {
 
@@ -13,6 +14,7 @@ export default function Home() {
             <HomeContainer>
                 <HomeTopMessage />
                 <h1 className="main-title">Welcome to Color Conquerer</h1>
+                <IntroductionCarousel />
                 <PlayButton />
                 <HomeError />
             </HomeContainer>

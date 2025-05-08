@@ -6,7 +6,16 @@ settings for each deployed instance of the app.
 import os
 import pathlib
 
+RUNTIME_DATA_FOLDER_NAME = "runtime_data"
+TESTS_FOLDER_NAME = "tests"
+LOGS_FOLDER_NAME = "logs"
+
 root_path = pathlib.Path(__file__).parent.parent.resolve()
-runtime_data_path = os.path.join(root_path, "runtime_data")
-logs_root_path = os.path.join(runtime_data_path, "logs")
-test_logs_root_path = os.path.join(root_path, "tests", "logs")
+
+runtime_data_path = os.path.join(root_path, RUNTIME_DATA_FOLDER_NAME)
+runtime_test_data_path = os.path.join(
+    root_path, TESTS_FOLDER_NAME, RUNTIME_DATA_FOLDER_NAME
+)
+
+logs_root_path = os.path.join(runtime_data_path, LOGS_FOLDER_NAME)
+test_logs_root_path = os.path.join(runtime_test_data_path, LOGS_FOLDER_NAME)

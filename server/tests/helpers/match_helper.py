@@ -47,13 +47,6 @@ class MatchHelper:
                 current_client = player1_client
             current_client.end_turn(wait_for_processing=True)
 
-    # region is
-
-    def is_ended(self):
-        return self.match_handler_unit.is_ended()
-
-    # endregion
-
     # region Getters
 
     def get_clients(self):
