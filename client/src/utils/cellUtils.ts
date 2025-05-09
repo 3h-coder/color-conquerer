@@ -3,6 +3,7 @@ import { CellState, CellStateUtils } from "../enums/cellState";
 import { CellTransientState } from "../enums/cellTransientState";
 import { EMPTY_STRING } from "../env";
 import { cellStyle, colors } from "../style/constants";
+import { getDefaultGameGridId } from "./gameGridUtils";
 
 export interface AttachedCellBehavior {
   isActive?: boolean;
@@ -62,8 +63,9 @@ export function getOwnedCellColor(isMaster: boolean, ownCell: boolean) {
   return isMaster ? colors.cell.opponentMaster : colors.cell.opponent;
 }
 
-export function getHtmlCell(rowIndex: number, columnIndex: number) {
-  return document.getElementById(getCellId(rowIndex, columnIndex));
+export function getHtmlCell(rowIndex: number, columnIndex: number, gridId?: string) {
+  const grid = document.getElementById(gridId || getDefaultGameGridId());
+  return grid?.querySelector(`#${getCellId(rowIndex, columnIndex)}`) as HTMLElement | null;
 }
 
 export function isSelectable(cell: CellDto) {

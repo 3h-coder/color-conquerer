@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCellId } from "../../../../utils/cellUtils";
 import { delay } from "../../../../utils/domUtils";
+import { BoolRef } from "../../../../utils/typeAliases";
 import GameCell from "../../../Play/components/game-grid/GameCell";
 import { GridInner, GridOuter, GridRow } from "../../../Play/components/game-grid/GameGrid";
 import { animationActionsSequence } from "./animations/actionAnimations";
@@ -8,11 +9,12 @@ import { getDefaultGameGrid } from "./fakeGameGridSetupUtils";
 import { FakeGameGridSetup } from "./Setups/FakeGameGridSetup";
 
 export interface FakeGameGridProps {
+    gridId: string;
     setup: FakeGameGridSetup;
 }
 
 export default function FakeGameGrid(props: FakeGameGridProps) {
-    const { setup } = props;
+    const { gridId, setup } = props;
     const [key, setKey] = useState(0);
     const forceRemount = () => setKey(prevKey => prevKey + 1);
     const boardArray = getDefaultGameGrid(setup.coordinatesSetup);
@@ -26,6 +28,8 @@ export default function FakeGameGrid(props: FakeGameGridProps) {
     };
 
     useEffect(() => {
+        const isCancelledRef: BoolRef = { value: false };
+
         animateSetup();
 
         async function animateSetup() {
@@ -33,14 +37,21 @@ export default function FakeGameGrid(props: FakeGameGridProps) {
             const delayBetweenEachAttackInMs = 500;
             const wrappingDelayInMs = 1000;
             await delay(wrappingDelayInMs);
-            await animationActionsSequence(allAttacks, delayBetweenEachAttackInMs);
+            if (isCancelledRef.value) return;
+            await animationActionsSequence(allAttacks, delayBetweenEachAttackInMs, gridId, isCancelledRef);
+            if (isCancelledRef.value) return;
             await delay(wrappingDelayInMs);
+            if (isCancelledRef.value) return;
             forceRemount();
         }
+
+        return () => {
+            isCancelledRef.value = true;
+        };
     });
 
     return (
-        <GridOuter key={key}>
+        <GridOuter key={key} id={gridId}>
             <GridInner style={gridStyle}>
                 {boardArray.map((row, rowIndex) => (
                     <GridRow className="row" id={`r-${rowIndex}`} key={rowIndex}>

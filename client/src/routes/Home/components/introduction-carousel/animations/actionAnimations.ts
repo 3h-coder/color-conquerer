@@ -1,61 +1,69 @@
 import { animateCellClash } from "../../../../../board-animations/actions/attack";
 import { animateCellMovement } from "../../../../../board-animations/actions/movement";
 import { animateCellDeath, animateCellSpawn } from "../../../../../board-animations/common";
-import { colors } from "../../../../../style/constants";
+import { cellStyle, colors } from "../../../../../style/constants";
 import { getHtmlCell } from "../../../../../utils/cellUtils";
 import { delay } from "../../../../../utils/domUtils";
+import { BoolRef } from "../../../../../utils/typeAliases";
 import { ActionsSetup, CellAttackSetup, CellMovementSetup, isCellAttackSetup, isCellMovementSetup, isSpawnSetup, SpawnSetup } from "../Setups/ActionsSetup";
 
-export async function animationActionsSequence(actionsSetup: ActionsSetup, delayBetweenEachActionInMs: number) {
+export async function animationActionsSequence(
+    actionsSetup: ActionsSetup,
+    delayBetweenEachActionInMs: number,
+    gridId: string,
+    isCancelled: BoolRef) {
     for (const action of actionsSetup.actionsSequence) {
+        if (isCancelled.value)
+            return;
+
         if (isCellAttackSetup(action))
-            await animateAttack(action);
+            await animateAttack(action, gridId);
 
         else if (isCellMovementSetup(action))
-            animateMovement(action);
+            animateMovement(action, gridId);
 
         else if (isSpawnSetup(action))
-            animateSpawn(action);
+            animateSpawn(action, gridId);
 
         await delay(delayBetweenEachActionInMs);
     }
 }
 
-async function animateAttack(attack: CellAttackSetup) {
+async function animateAttack(attack: CellAttackSetup, gridId: string) {
     const attackerCoords = attack.attackerCoords;
     const targetCoords = attack.targetCoords;
-    await animateCellClash(attack.attackerCoords, attack.targetCoords, attack.metadata, false);
+    await animateCellClash(attack.attackerCoords, attack.targetCoords, attack.metadata, false, gridId);
 
-    const attackerCell = getHtmlCell(attackerCoords.rowIndex, attackerCoords.columnIndex);
-    const targetCell = getHtmlCell(targetCoords.rowIndex, targetCoords.columnIndex);
+    const attackerCell = getHtmlCell(attackerCoords.rowIndex, attackerCoords.columnIndex, gridId);
+    const targetCell = getHtmlCell(targetCoords.rowIndex, targetCoords.columnIndex, gridId);
     if (attackerCell !== null && attack.attackerDeath)
         animateCellDeath(attackerCell);
     if (targetCell !== null && attack.targetDeath)
         animateCellDeath(targetCell);
 }
 
-function animateMovement(movement: CellMovementSetup) {
+function animateMovement(movement: CellMovementSetup, gridId: string) {
     const originatingCoords = movement.originatingCoords;
     const targetCoords = movement.targetCoords;
 
-    const cellToMove = getHtmlCell(originatingCoords.rowIndex, originatingCoords.columnIndex);
-    const targetCell = getHtmlCell(targetCoords.rowIndex, targetCoords.columnIndex);
+    const cellToMove = getHtmlCell(originatingCoords.rowIndex, originatingCoords.columnIndex, gridId);
+    const targetCell = getHtmlCell(targetCoords.rowIndex, targetCoords.columnIndex, gridId);
     if (!cellToMove || !targetCell)
         return;
 
     animateCellMovement(cellToMove, targetCell);
 
-    const colorToApply = cellToMove.style.getPropertyValue("--bg");
-    cellToMove.style.setProperty("--bg", "white");
-    targetCell.style.setProperty("--bg", colorToApply);
+    const colorToApply = cellToMove.style.getPropertyValue(cellStyle.variableNames.backgroundColor);
+    cellToMove.style.setProperty(cellStyle.variableNames.backgroundColor, "white");
+    targetCell.style.setProperty(cellStyle.variableNames.backgroundColor, colorToApply);
 }
 
-function animateSpawn(spawn: SpawnSetup) {
+function animateSpawn(spawn: SpawnSetup, gridId: string) {
     const { rowIndex, columnIndex } = spawn.coordinates;
-    const cell = getHtmlCell(rowIndex, columnIndex);
+    const cell = getHtmlCell(rowIndex, columnIndex, gridId);
     if (!cell)
         return;
 
-    cell.style.setProperty("--bg", colors.cell.ownCellFreshlySpawned);
-    animateCellSpawn(rowIndex, columnIndex, true);
+    cell.style.setProperty(cellStyle.variableNames.backgroundColor, colors.cell.ownCellFreshlySpawned);
+    animateCellSpawn(rowIndex, columnIndex, true, gridId);
 }

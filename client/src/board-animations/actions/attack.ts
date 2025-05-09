@@ -9,7 +9,10 @@ import { getHtmlCell } from "../../utils/cellUtils";
 import { cleanup, delay, getElementCenterPoint } from "../../utils/domUtils";
 import { triggerAuraEffect } from "../common";
 
-export async function handleCellClashAnimation(action: MatchActionDto, isPlayer1: boolean) {
+export async function handleCellClashAnimation(
+    action: MatchActionDto,
+    isPlayer1: boolean
+) {
     const attackerCoords = action.metadata.originatingCellCoords;
     if (!attackerCoords) return;
 
@@ -28,13 +31,20 @@ export async function handleCellClashAnimation(action: MatchActionDto, isPlayer1
 }
 
 export async function animateCellClash(
-    attackerCoords: CoordinatesDto, targetCoords: CoordinatesDto, cellAttackMetadata: CellAttackMetadataDto | null, isPlayer1: boolean) {
+    attackerCoords: CoordinatesDto,
+    targetCoords: CoordinatesDto,
+    cellAttackMetadata: CellAttackMetadataDto | null,
+    isPlayer1: boolean,
+    gridId?: string
+) {
     if (!cellAttackMetadata) return;
 
-    const { rowIndex: attackerRowIndex, columnIndex: attackerColIndex } = attackerCoords;
-    const { rowIndex: targetRowIndex, columnIndex: targetColIndex } = targetCoords;
-    const attackerCell = getHtmlCell(attackerRowIndex, attackerColIndex);
-    const targetCell = getHtmlCell(targetRowIndex, targetColIndex);
+    const { rowIndex: attackerRowIndex, columnIndex: attackerColIndex } =
+        attackerCoords;
+    const { rowIndex: targetRowIndex, columnIndex: targetColIndex } =
+        targetCoords;
+    const attackerCell = getHtmlCell(attackerRowIndex, attackerColIndex, gridId);
+    const targetCell = getHtmlCell(targetRowIndex, targetColIndex, gridId);
 
     if (!attackerCell || !targetCell) return;
 
@@ -49,7 +59,11 @@ export async function animateCellClash(
     }
 }
 
-function animateMeleeAttack(attackerCell: HTMLElement, targetCell: HTMLElement, isPlayer1: boolean): Promise<void> {
+function animateMeleeAttack(
+    attackerCell: HTMLElement,
+    targetCell: HTMLElement,
+    isPlayer1: boolean
+): Promise<void> {
     return new Promise((resolve) => {
         const attackerCenter = getElementCenterPoint(attackerCell);
         const targetCenter = getElementCenterPoint(targetCell);
@@ -58,7 +72,9 @@ function animateMeleeAttack(attackerCell: HTMLElement, targetCell: HTMLElement, 
         // Calculate direction vector and normalize it
         const directionX = targetCenter.x - attackerCenter.x;
         const directionY = targetCenter.y - attackerCenter.y;
-        const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
+        const magnitude = Math.sqrt(
+            directionX * directionX + directionY * directionY
+        );
         const normalizedX = directionX / magnitude;
         const normalizedY = directionY / magnitude;
         // Make sure the attacker cell is on top of the target cell during the animation
@@ -68,19 +84,31 @@ function animateMeleeAttack(attackerCell: HTMLElement, targetCell: HTMLElement, 
         const animation = attackerCell.animate(
             [
                 // Starting position
-                { transform: 'translate(0, 0)', offset: 0 },
+                { transform: "translate(0, 0)", offset: 0 },
                 // Wind up (move back slightly)
-                { transform: `translate(${coefficient * normalizedX * 10}px, ${coefficient * normalizedY * 10}px)`, offset: 0.2 },
+                {
+                    transform: `translate(${coefficient * normalizedX * 10}px, ${coefficient * normalizedY * 10
+                        }px)`,
+                    offset: 0.2,
+                },
                 // Hold position briefly
-                { transform: `translate(${coefficient * normalizedX * 10}px, ${coefficient * normalizedY * 10}px)`, offset: 0.3 },
+                {
+                    transform: `translate(${coefficient * normalizedX * 10}px, ${coefficient * normalizedY * 10
+                        }px)`,
+                    offset: 0.3,
+                },
                 // Attack (move towards target)
-                { transform: `translate(${-coefficient * normalizedX * 20}px, ${-coefficient * normalizedY * 20}px)`, offset: 0.7 },
+                {
+                    transform: `translate(${-coefficient * normalizedX * 20}px, ${-coefficient * normalizedY * 20
+                        }px)`,
+                    offset: 0.7,
+                },
                 // Return to original position
-                { transform: 'translate(0, 0)', offset: 1 }
+                { transform: "translate(0, 0)", offset: 1 },
             ],
             {
                 duration: 500,
-                easing: 'ease-in-out',
+                easing: "ease-in-out",
             }
         );
 
@@ -94,13 +122,13 @@ function animateMeleeAttack(attackerCell: HTMLElement, targetCell: HTMLElement, 
 }
 
 function triggerCellAura(htmlCell: HTMLElement) {
-    triggerAuraEffect(
-        htmlCell,
-        () => getComputedStyle(htmlCell).backgroundColor
-    );
+    triggerAuraEffect(htmlCell, () => getComputedStyle(htmlCell).backgroundColor);
 }
 
-async function displayProjectileEffect(attackerCell: HTMLElement, targetCell: HTMLElement) {
+async function displayProjectileEffect(
+    attackerCell: HTMLElement,
+    targetCell: HTMLElement
+) {
     const projectile = document.createElement(HTMLElements.div);
     projectile.classList.add("projectile-effect");
 
@@ -133,4 +161,3 @@ async function displayProjectileEffect(attackerCell: HTMLElement, targetCell: HT
     await delay(durationInMs);
     triggerCellAura(targetCell);
 }
-

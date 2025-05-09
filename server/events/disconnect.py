@@ -71,7 +71,7 @@ def _handle_disconnection_in_queue(room_id: str, room_handler: RoomHandler):
 
     _logger.debug(f"({request.remote_addr}) | Disconnected while being in queue")
     room_handler.remove_open_room(room_id)
-    _leave_socket_room_and_clear_session(room_id, room_handler)
+    _leave_socket_room_and_clear_session(room_id)
 
 
 def _handle_disconnection_with_room_id_but_no_match(room_id: str):

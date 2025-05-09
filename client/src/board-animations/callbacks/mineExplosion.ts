@@ -9,6 +9,7 @@ import { HTMLElements, localStorageKeys, pixiApp } from "../../env";
 import { LandMine } from "../../routes/Play/components/game-grid/GameCellModifiers.tsx/LandMine";
 import { getHtmlCell } from "../../utils/cellUtils";
 import { cleanup, cleanupStyleClass, delay } from "../../utils/domUtils";
+import { getDefaultGameGridId } from "../../utils/gameGridUtils";
 import { startEmitting } from "../../utils/pixiUtils";
 
 export async function animateMineExplosion(callback: ActionCallbackDto, currentPlayerisPlayer1: boolean, setActionSpell: (spellAction: PartialSpellDto | null) => void) {
@@ -75,7 +76,7 @@ function triggerShockWave(htmlCell: HTMLElement) {
 
 function shakeGameGrid() {
     const shakeClass = "shake";
-    const gameGrid = document.getElementById("grid-outer");
+    const gameGrid = document.getElementById(getDefaultGameGridId());
     if (!gameGrid)
         return;
 

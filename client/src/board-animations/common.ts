@@ -1,6 +1,7 @@
 import { CoordinatesDto } from "../dto/misc/CoordinatesDto";
 import { EMPTY_STRING, HTMLElements } from "../env";
 import { activeTooltipTarget, cleanupActiveTooltip } from "../singletons/tooltip";
+import { cellStyle } from "../style/constants";
 import { getHtmlCell, getOwnedCellColor } from "../utils/cellUtils";
 import { cleanup } from "../utils/domUtils";
 
@@ -34,18 +35,18 @@ export function triggerAuraEffect(htmlCell: HTMLElement, colorRetriavalFunction:
   cleanup(aura, cleanupDelayInMs);
 }
 
-export function animateCellSpawn(rowIndex: number, colIndex: number, ownCell: boolean) {
-  const htmlCell = getHtmlCell(rowIndex, colIndex);
+export function animateCellSpawn(rowIndex: number, colIndex: number, ownCell: boolean, gridId?: string) {
+  const htmlCell = getHtmlCell(rowIndex, colIndex, gridId);
   if (!htmlCell)
     return;
 
   triggerAuraEffect(htmlCell, () => getOwnedCellColor(false, ownCell));
 }
 
-export function animateCellDeaths(deaths: CoordinatesDto[]) {
+export function animateCellDeaths(deaths: CoordinatesDto[], gridId?: string) {
 
   deaths.forEach((coord) => {
-    const htmlCell = getHtmlCell(coord.rowIndex, coord.columnIndex);
+    const htmlCell = getHtmlCell(coord.rowIndex, coord.columnIndex, gridId);
     if (htmlCell) {
       animateCellDeath(htmlCell);
     }
@@ -60,7 +61,7 @@ export function animateCellDeath(htmlCell: HTMLElement) {
   }
 
   htmlCell.style.transition = `background-color ${cleanupDelayInMs - 100}ms ease-in-out`;
-  htmlCell.style.setProperty("--bg", "white");
+  htmlCell.style.setProperty(cellStyle.variableNames.backgroundColor, "white");
 
   setTimeout(() => {
     htmlCell.style.transition = EMPTY_STRING;

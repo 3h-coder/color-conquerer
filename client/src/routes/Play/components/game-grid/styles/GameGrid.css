@@ -1,4 +1,4 @@
-#grid-outer {
+.grid-outer {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -13,7 +13,7 @@
     box-shadow: rgba(0, 0, 0, 0.25) 0px 0.3125rem 0.9375rem;
 }
 
-#grid-inner {
+.grid-inner {
     display: grid;
     background-color: transparent;
     width: fit-content;

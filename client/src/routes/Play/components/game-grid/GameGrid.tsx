@@ -21,6 +21,7 @@ import { cellStyle } from "../../../../style/constants";
 import { handlePossibleActionsAdditionalData } from "../../../../utils/actionHintUtils";
 import { getCellId } from "../../../../utils/cellUtils";
 import { delay } from "../../../../utils/domUtils";
+import { getDefaultGameGridId } from "../../../../utils/gameGridUtils";
 import { developmentLog } from "../../../../utils/loggingUtils";
 import Fatigue from "./Fatigue";
 import GameCell from "./GameCell";
@@ -286,7 +287,7 @@ export default function GameGrid() {
     };
 
     return (
-        <GridOuter>
+        <GridOuter id={getDefaultGameGridId()}>
             <GridInner style={gridStyle}>
                 {boardArray.map((row, rowIndex) => (
                     <GridRow className="row" id={`r-${rowIndex}`} key={rowIndex}>
@@ -320,12 +321,12 @@ export default function GameGrid() {
 }
 
 export function GridOuter(props: ContainerProps) {
-    return <div id="grid-outer">{props.children}</div>;
+    return <div id={props.id} className="grid-outer">{props.children}</div>;
 }
 
 export function GridInner(props: ContainerProps) {
     return (
-        <div id="grid-inner" style={props.style}>
+        <div className="grid-inner" style={props.style}>
             {props.children}
         </div>
     );
