@@ -1,5 +1,5 @@
 import { ActionsSetup } from "./ActionsSetup";
-import { GridCoordSetup as CellCoordSetup } from "./CellCoordSetup";
+import { GameBoardSetup as CellCoordSetup } from "./CellCoordSetup";
 
 export interface FakeGameGridSetup {
     coordinatesSetup: CellCoordSetup;

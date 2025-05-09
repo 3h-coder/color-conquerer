@@ -1,0 +1,16 @@
+.slider-overflow-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.slider-slides-container {
+    display: flex;
+    transition: all 0.8s ease;
+}
+
+.slider-slide-container {
+    flex: 0 0 100%;
+    background: transparent;
+    flex-shrink: 0;
+}

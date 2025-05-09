@@ -1,11 +1,21 @@
+import Slider from '../../../../components/slider/Slider';
 import FakeGameGrid from './FakeGameGrid';
-import './IntroductionCarousel.css';
-import { getFullSetup1 } from './Setups/fullSetups';
+import { allSetups } from './Setups/fullSetups';
+import './styles/IntroductionCarousel.css';
 
 export default function IntroductionCarousel() {
+    const fakeGameGrids = allSetups.map((setup, index) => (
+        <FakeGameGrid
+            key={`fake-game-grid-${index}`}
+            gridId={`fake-game-grid-${index}`}
+            index={index}
+            setup={setup}
+        />
+    ));
+
     return (
         <div id="intro-carousel-container">
-            <FakeGameGrid gridId="fake-game-grid-1" setup={getFullSetup1()} />
+            <Slider slidesContent={fakeGameGrids} />
         </div>
     );
 }

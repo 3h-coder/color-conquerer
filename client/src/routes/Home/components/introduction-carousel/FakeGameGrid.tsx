@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useSliderContext } from "../../../../components/slider/SliderContext";
+import { cellStyle } from "../../../../style/constants";
 import { getCellId } from "../../../../utils/cellUtils";
 import { delay } from "../../../../utils/domUtils";
 import { BoolRef } from "../../../../utils/typeAliases";
@@ -10,19 +12,25 @@ import { FakeGameGridSetup } from "./Setups/FakeGameGridSetup";
 
 export interface FakeGameGridProps {
     gridId: string;
+    index: number;
     setup: FakeGameGridSetup;
 }
 
 export default function FakeGameGrid(props: FakeGameGridProps) {
-    const { gridId, setup } = props;
+    const { gridId, index, setup } = props;
+    const { nextOrPreviousSlide, currentSlideIndex } = useSliderContext();
+    const inFrame = index === currentSlideIndex;
+
     const [key, setKey] = useState(0);
     const forceRemount = () => setKey(prevKey => prevKey + 1);
+
     const boardArray = getDefaultGameGrid(setup.coordinatesSetup);
     const gridStyle: React.CSSProperties = {
+        transform: cellStyle.rotate180deg,
         gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`
     };
     const cellSize = "max(15px, 3vmin)";
-    const cellStyle: React.CSSProperties = {
+    const cellDimensions: React.CSSProperties = {
         width: cellSize,
         height: cellSize
     };
@@ -30,25 +38,36 @@ export default function FakeGameGrid(props: FakeGameGridProps) {
     useEffect(() => {
         const isCancelledRef: BoolRef = { value: false };
 
-        animateSetup();
+        if (inFrame)
+            animateSetup();
 
         async function animateSetup() {
             const allAttacks = setup.actionsSetup;
             const delayBetweenEachAttackInMs = 500;
             const wrappingDelayInMs = 1000;
+
             await delay(wrappingDelayInMs);
-            if (isCancelledRef.value) return;
+            if (isCancelledRef.value)
+                return;
+
             await animationActionsSequence(allAttacks, delayBetweenEachAttackInMs, gridId, isCancelledRef);
-            if (isCancelledRef.value) return;
+            if (isCancelledRef.value)
+                return;
+
             await delay(wrappingDelayInMs);
-            if (isCancelledRef.value) return;
+            if (isCancelledRef.value)
+                return;
+
+            nextOrPreviousSlide();
+
+            await delay(wrappingDelayInMs);
             forceRemount();
         }
 
         return () => {
             isCancelledRef.value = true;
         };
-    });
+    }, [inFrame]);
 
     return (
         <GridOuter key={key} id={gridId}>
@@ -64,7 +83,7 @@ export default function FakeGameGrid(props: FakeGameGridProps) {
                                 canInteract={false}
                                 canDisplayEffects={false}
                                 attachedBehavior={undefined}
-                                style={cellStyle}
+                                style={cellDimensions}
                             />
                         ))}
                     </GridRow>

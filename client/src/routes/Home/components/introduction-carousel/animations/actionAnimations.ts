@@ -32,7 +32,7 @@ export async function animationActionsSequence(
 async function animateAttack(attack: CellAttackSetup, gridId: string) {
     const attackerCoords = attack.attackerCoords;
     const targetCoords = attack.targetCoords;
-    await animateCellClash(attack.attackerCoords, attack.targetCoords, attack.metadata, false, gridId);
+    await animateCellClash(attack.attackerCoords, attack.targetCoords, attack.metadata, true, gridId);
 
     const attackerCell = getHtmlCell(attackerCoords.rowIndex, attackerCoords.columnIndex, gridId);
     const targetCell = getHtmlCell(targetCoords.rowIndex, targetCoords.columnIndex, gridId);
