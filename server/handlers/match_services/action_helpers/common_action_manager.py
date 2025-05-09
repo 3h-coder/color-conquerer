@@ -163,9 +163,9 @@ class CommonActionManager(ActionManager):
                 )
 
             if not cell_to_select.belongs_to(processed_action.from_player1):
-                self._logger.debug(
-                    "The cell no longer belongs to the player, cancelling action recalculation"
-                )
+                # self._logger.debug(
+                #     "The cell no longer belongs to the player, cancelling action recalculation"
+                # )
                 self.set_server_mode(ServerMode.SHOW_PROCESSED_ACTION)
             else:
                 cell_selection_manager = (

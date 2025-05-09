@@ -8,6 +8,7 @@ export interface TurnContextDto {
     remainingTimeInS: number;
     durationInS: number;
     notifyTurnChange: boolean;
+    preMatchStart: boolean;
     gameContext: GameContextDto;
     newTurnProcessingInfo: TurnProcessingResultDto | null;
 }
@@ -18,6 +19,7 @@ export const undefinedTurnContext: TurnContextDto = {
     remainingTimeInS: 0,
     durationInS: 0,
     notifyTurnChange: false,
+    preMatchStart: false,
     gameContext: undefinedGameContextDto,
     newTurnProcessingInfo: null
 };

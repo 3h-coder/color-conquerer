@@ -12,7 +12,9 @@ from game_engine.models.match.match_closure import EndingReason
 from game_engine.models.match.match_context import MatchContext
 from game_engine.models.turn.turn_state import TurnState
 from handlers.match_services.client_notifications import notify_match_start
+from handlers.match_services.enums.match_status import MatchStatus
 from handlers.match_services.match_actions_service import MatchActionsService
+from handlers.match_services.match_start_service import MatchStartService
 from handlers.match_services.match_termination_service import MatchTerminationService
 from handlers.match_services.player_entry_watcher_service import (
     PlayerEntryWatcherService,
@@ -51,6 +53,8 @@ class MatchHandlerUnit:
         # to ensure they do happen in the same "transaction"
         self.lock = Lock()
 
+        self._match_start_service = MatchStartService(self)
+
         self._match_termination_service = MatchTerminationService(self)
 
         self._match_actions_service = MatchActionsService(self)
@@ -69,54 +73,14 @@ class MatchHandlerUnit:
 
     # region Lifecycle
 
-    def start(self):
+    def start(self, with_countdown: bool):
         """
         Starts the match, setting up the turn watcher and notifying the clients.
         """
-        try:
-            self.logger.info(
-                f"Match start requested for the match in the room {self.match_context.room_id}"
-            )
-
-            if not self.is_waiting_to_start():
-                self.logger.warning(
-                    f"Can only start a match that is waiting to start. The match status is {self.status.name}"
-                )
-                return
-
-            self.logger.info(
-                f"Starting the match in the room {self.match_context.room_id}"
-            )
-
-            # Important variables set up
-            self.match_context.current_turn = 1
-            self.match_context.is_player1_turn = True
-            self.turn_state.is_player1_turn = True
-
-            # Trigger the turn watcher service to process player turns
-            self._turn_watcher_service.trigger()
-            # Trigger the inactivity watcher service to watch for inactive players
-            self._player_inactivity_watcher_service.trigger()
-
-            # notify the clients
-            notify_match_start(
-                self.get_turn_context_dto(for_player1=True, for_new_turn=True),
-                self.get_turn_context_dto(for_player1=False, for_new_turn=True),
-                self.match_context.player1.individual_room_id,
-                self.match_context.player2.individual_room_id,
-                self.lock,
-            )
-
-            # IMPORTANT : This must be set at the end otherwise cancellation will be denied
-            # as only a match with the WAITING_TO_START status can be cancelled
-            self.status = MatchStatus.ONGOING
-        except Exception:
-            self.logger.exception(f"Failed to start the match")
-            self.cancel()
-
-            match_launch_error_redirect(
-                broadcast_to=self.match_context.room_id,
-            )
+        if with_countdown:
+            self._match_start_service.countdown_and_start()
+        else:
+            self._match_start_service.start()
 
     def cancel(self):
         """
@@ -249,15 +213,20 @@ class MatchHandlerUnit:
     def is_cancelled(self):
         return self.status == MatchStatus.ABORTED
 
-    def get_turn_context_dto(self, for_player1: bool, for_new_turn=False):
+    def get_turn_context_dto(
+        self, for_player1: bool, for_new_turn=False, pre_match_start=False
+    ):
         return TurnContextDto(
             currentPlayerId=self.get_current_player().player_id,
             isPlayer1Turn=self.match_context.is_player1_turn,
             remainingTimeInS=(
-                TURN_DURATION_IN_S if for_new_turn else self._get_remaining_turn_time()
+                TURN_DURATION_IN_S
+                if (for_new_turn or pre_match_start)
+                else self._get_remaining_turn_time()
             ),
             durationInS=TURN_DURATION_IN_S,
             notifyTurnChange=for_new_turn,
+            preMatchStart=pre_match_start,
             gameContext=self.get_game_context_dto(for_player1),
         )
 
@@ -318,6 +287,14 @@ class MatchHandlerUnit:
 
     # region Setters
 
+    def mark_as_ongoing(self):
+        """
+        WARNING : To only be used in the match start service.
+
+        Allows it not to import MatchStatus.
+        """
+        self.status = MatchStatus.ONGOING
+
     def mark_as_ended(self):
         """
         WARNING : To only be used in the match termination service.
@@ -335,10 +312,3 @@ class MatchHandlerUnit:
         self.status = MatchStatus.ABORTED
 
     # endregion
-
-
-class MatchStatus(Enum):
-    WAITING_TO_START = 0
-    ONGOING = 1
-    ENDED = 2
-    ABORTED = 3

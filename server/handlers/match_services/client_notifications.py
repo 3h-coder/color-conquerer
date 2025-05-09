@@ -18,6 +18,10 @@ if TYPE_CHECKING:
 _server: "Server" = None
 
 
+def notify_countdown(room_id: str, count: int):
+    _emit(Events.SERVER_COUNTDOWN, count, to=room_id)
+
+
 def notify_match_start(
     turn_context_1: TurnContextDto,
     turn_context_2: TurnContextDto,

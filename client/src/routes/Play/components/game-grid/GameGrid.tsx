@@ -23,6 +23,7 @@ import { getCellId } from "../../../../utils/cellUtils";
 import { delay } from "../../../../utils/domUtils";
 import { getDefaultGameGridId } from "../../../../utils/gameGridUtils";
 import { developmentLog } from "../../../../utils/loggingUtils";
+import CountdownNumber from "./CountdownNumber";
 import Fatigue from "./Fatigue";
 import GameCell from "./GameCell";
 import GameError from "./GameError";
@@ -35,12 +36,13 @@ import "./styles/GameGrid.css";
 export default function GameGrid() {
     const { matchInfo, onEmit } = useMatchContext();
     const { playerId, isPlayer1 } = usePlayerContext();
-    const { turnContext, canInteract, setCanInteract } = useTurnContext();
+    const { turnContext, canInteract, setCanInteract, setCanConcede } = useTurnContext();
     const { setGameContext } = useGameContext();
     const { getAnimationOngoing, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
     const { setPlayerMode } = usePlayerMode();
 
     const [turnSwapImagePath, setTurnSwapImagePath] = useState(YourTurnImage);
+    const [countdown, setCountdown] = useState<number | null>(null);
     const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [actionErrorMessage, setActionErrorMessage] = useState(EMPTY_STRING);
@@ -88,9 +90,17 @@ export default function GameGrid() {
             if (turnContext === undefinedTurnContext)
                 return;
 
-            setCanInteract(false);
-
             updateGameElements(isCurrentPlayerTurn);
+
+            setCanInteract(false);
+            if (turnContext.preMatchStart) {
+                setCanConcede(false);
+                return;
+            }
+
+            setCanConcede(true);
+            setCountdown(null);
+
             if (!turnContext.notifyTurnChange) {
                 setCanInteract(isCurrentPlayerTurn);
                 return;
@@ -268,12 +278,18 @@ export default function GameGrid() {
             setActionErrorMessage(errorMessage);
         }
 
+        function onServerCountdown(count: number) {
+            setCountdown(count);
+        }
+
+        socket.on(Events.SERVER_COUNTDOWN, onServerCountdown);
         socket.on(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
         socket.on(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
         socket.on(Events.SERVER_ACTION_ERROR, onServerActionError);
         socket.on(Events.SERVER_ACTION_CALLBACK, onServerActionCallback);
 
         return () => {
+            socket.off(Events.SERVER_COUNTDOWN, onServerCountdown);
             socket.off(Events.SERVER_POSSIBLE_ACTIONS, onServerPossibleActions);
             socket.off(Events.SERVER_PROCESSED_ACTIONS, onServerProcessedActions);
             socket.off(Events.SERVER_ACTION_ERROR, onServerActionError);
@@ -305,6 +321,9 @@ export default function GameGrid() {
                     </GridRow>
                 ))}
             </GridInner>
+            { /* Countdown number (before the match starts) */}
+            {countdown && <CountdownNumber count={countdown} />}
+
             { /* Image whenever the turn changes */}
             {showTurnSwapImage && <TurnSwapImage imagePath={turnSwapImagePath} />}
 

@@ -5,13 +5,12 @@ from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
 from dto.cell.cell_dto import CellDto
-from dto.misc.message_dto import MessageDto
 from events.events import Events
 from events.shared_notifications import match_launch_error_redirect
 from exceptions.server_error import ServerError
 from game_engine.models.match.match_closure import EndingReason
 from handlers.match_handler_unit import MatchHandlerUnit
-from server_gate import get_match_handler, get_session_cache_handler
+from server_gate import get_match_handler, get_server, get_session_cache_handler
 from session_management import session_utils
 from session_management.models.session_player import SessionPlayer
 from session_management.session_variables import (
@@ -95,19 +94,8 @@ def handle_client_ready():
 
     # NOTE : the play blueprint should already redirect the player if the following
     # session variables cannot be resolved, but this is an additional safety measure
-    player_info: SessionPlayer = _get_session_variable(PLAYER_INFO)
-    if player_info is None:
-        raise ServerError(
-            server_error_msg,
-            socket_connection_killer=True,
-        )
-
-    room_id = _get_session_variable(ROOM_ID)
-    if room_id is None:
-        raise ServerError(
-            server_error_msg,
-            socket_connection_killer=True,
-        )
+    player_info: SessionPlayer = _get_player_info_or_raise_error(server_error_msg)
+    room_id = _get_room_id_or_raise_error(server_error_msg)
 
     match_handler = get_match_handler()
     match = match_handler.get_unit(room_id)
@@ -133,7 +121,7 @@ def handle_client_ready():
         # Start the match if everyone is ready
         if match.all_players_ready():
             _logger.info(f"All players ready in the room {room_id}")
-            match.start()
+            match.start(with_countdown=not get_server().testing)
         # Otherwise notify the user that we're still waiting for their opponent
         else:
             emit(Events.SERVER_WAITING_FOR_OPPONENT)
@@ -215,6 +203,28 @@ def handle_session_clearing():
 def _join_socket_rooms(room_id: str, individual_room_id: str):
     join_room(room_id)
     join_room(individual_room_id)
+
+
+def _get_player_info_or_raise_error(error_msg: str):
+    player_info: SessionPlayer = _get_session_variable(PLAYER_INFO)
+    if player_info is None:
+        raise ServerError(
+            error_msg,
+            socket_connection_killer=True,
+        )
+
+    return player_info
+
+
+def _get_room_id_or_raise_error(error_msg: str):
+    room_id: str = _get_session_variable(ROOM_ID)
+    if room_id is None:
+        raise ServerError(
+            error_msg,
+            socket_connection_killer=True,
+        )
+
+    return room_id
 
 
 def _get_session_variable(variable_name: str):

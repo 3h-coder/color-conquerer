@@ -13,7 +13,7 @@ export default function Home() {
         <HomeStateContextProvider>
             <HomeContainer>
                 <HomeTopMessage />
-                <h1 className="main-title">Welcome to Color Conquerer</h1>
+                <h1 className="main-title">Color Conquerer</h1>
                 <IntroductionCarousel />
                 <PlayButton />
                 <HomeError />

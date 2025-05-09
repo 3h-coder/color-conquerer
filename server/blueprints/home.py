@@ -44,7 +44,7 @@ def get_home_state():
     match = match_handler.get_unit(room_id)
 
     # TODO : make this more reliable -> Check on ended matches (in memory ? in database ?)
-    if match is None:
+    if match is None or match.is_ended():
         session_utils.clear_match_info()
         return (
             HomeStateDto(

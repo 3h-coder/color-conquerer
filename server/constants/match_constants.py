@@ -3,6 +3,7 @@ Numeric values related to match events (such as the turn duration)
 that should not be manually configured but set only in the code.
 """
 
+COUNTDOWN_BEFORE_START_IN_S = 5
 DELAY_IN_S_TO_WAIT_FOR_EVERYONE = 10
 DELAY_IN_S_BEFORE_MATCH_EXCLUSION = 30
 DELAY_IN_S_BEFORE_MATCH_AND_CLOSED_ROOM_DELETION = 30

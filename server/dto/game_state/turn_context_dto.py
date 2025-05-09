@@ -18,6 +18,7 @@ class TurnContextDto(BaseDto):
     remainingTimeInS: int
     durationInS: int
     notifyTurnChange: bool
+    preMatchStart: bool
     gameContext: GameContextDto
     # None if not for a turn change
     newTurnProcessingInfo: TurnProcessingResultDto | None = None

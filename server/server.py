@@ -39,6 +39,7 @@ class Server:
     def __init__(self, app: Flask):
         self.logger = get_configured_logger(__name__)
         self.app = app
+        self.testing = app.testing
         # TODO: add the proper origins
         self.socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
         self.connection_handler = ConnectionHandler()
