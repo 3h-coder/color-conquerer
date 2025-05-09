@@ -8,8 +8,8 @@ interface TurnContextObject {
     setTurnContext: (t: TurnContextDto) => void;
     canInteract: boolean;
     setCanInteract: (c: boolean) => void;
-    canConcede: boolean;
-    setCanConcede: (c: boolean) => void;
+    matchStarted: boolean;
+    setMatchStarted: (s: boolean) => void;
 }
 
 
@@ -18,8 +18,8 @@ const TurnContext = createContext<TurnContextObject>({
     setTurnContext: (_turnInfo: TurnContextDto) => { },
     canInteract: false,
     setCanInteract: (_canInteract: boolean) => { },
-    canConcede: false,
-    setCanConcede: (_canConcede: boolean) => { }
+    matchStarted: false,
+    setMatchStarted: (_matchStarted: boolean) => { }
 });
 
 interface TurnContextProviderProps {
@@ -32,11 +32,11 @@ export default function TurnContextProvider(
     const { children } = props;
     const [turnContext, setTurnContext] = useState(undefinedTurnContext);
     const [canInteract, setCanInteract] = useState(false);
-    const [canConcede, setCanConcede] = useState(false);
+    const [matchStarted, setMatchStarted] = useState(false);
 
     return (
         <TurnContext.Provider
-            value={{ turnContext, setTurnContext, canInteract, setCanInteract, canConcede, setCanConcede }}
+            value={{ turnContext, setTurnContext, canInteract, setCanInteract, matchStarted, setMatchStarted }}
         >
             {children}
         </TurnContext.Provider>

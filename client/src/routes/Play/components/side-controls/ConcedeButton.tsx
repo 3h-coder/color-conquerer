@@ -5,7 +5,7 @@ import { Events } from "../../../../enums/events";
 import { socket } from "../../../../env";
 
 export default function ConcedeButton() {
-    const { canConcede } = useTurnContext();
+    const { matchStarted } = useTurnContext();
     const [modalOpen, setModalOpen] = useState(false);
 
     const text = "Concede";
@@ -28,7 +28,7 @@ export default function ConcedeButton() {
 
     return (
         <>
-            <button onClick={onClick} disabled={!canConcede}>
+            <button onClick={onClick} disabled={!matchStarted}>
                 {text}
             </button>
             <DoubleButtonModal

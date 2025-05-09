@@ -36,7 +36,7 @@ import "./styles/GameGrid.css";
 export default function GameGrid() {
     const { matchInfo, onEmit } = useMatchContext();
     const { playerId, isPlayer1 } = usePlayerContext();
-    const { turnContext, canInteract, setCanInteract, setCanConcede } = useTurnContext();
+    const { turnContext, canInteract, setCanInteract, setMatchStarted } = useTurnContext();
     const { setGameContext } = useGameContext();
     const { getAnimationOngoing, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
     const { setPlayerMode } = usePlayerMode();
@@ -94,11 +94,11 @@ export default function GameGrid() {
 
             setCanInteract(false);
             if (turnContext.preMatchStart) {
-                setCanConcede(false);
+                setMatchStarted(false);
                 return;
             }
 
-            setCanConcede(true);
+            setMatchStarted(true);
             setCountdown(null);
 
             if (!turnContext.notifyTurnChange) {
