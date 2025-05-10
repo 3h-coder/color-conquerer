@@ -29,7 +29,7 @@ export default function FakeGameGrid(props: FakeGameGridProps) {
         transform: cellStyle.rotate180deg,
         gridTemplateColumns: `repeat(${boardArray.length}, 1fr)`
     };
-    const cellSize = "max(15px, 3vmin)";
+    const cellSize = "max(20px, 3vmin)";
     const cellDimensions: React.CSSProperties = {
         width: cellSize,
         height: cellSize
