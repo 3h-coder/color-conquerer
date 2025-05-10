@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class AmbushSpell(Spell):
     ID = SpellId.AMBUSH
     NAME = "Ambush"
-    DESCRIPTION = "Select an enemy cell. Randomly spawn two friendly cells next to it"
+    DESCRIPTION = "Select an enemy cell. Randomly spawn two friendly cells next to it. If the target is on the opponent's side, spawn an extra cell."
     MANA_COST = SPELLS_MANA_COST.get(ID, 0)
     CONDITION_NOT_MET_ERROR_MESSAGE = "No enemy cell to ambush"
     INVALID_SELECTION_ERROR_MESSAGE = "Cannot ambush this cell"
@@ -46,8 +46,14 @@ class AmbushSpell(Spell):
             coordinates.row_index, coordinates.column_index
         )
 
+        number_of_cells_to_spawn = self.MAX_SPAWNED_CELLS
+        if coordinates.is_on_player_side(
+            of_player1=True if invocator == CellOwner.PLAYER_2 else False
+        ):
+            number_of_cells_to_spawn += 1
+
         selected_neighbours = random.sample(
-            idle_neighbours, min(self.MAX_SPAWNED_CELLS, len(idle_neighbours))
+            idle_neighbours, min(number_of_cells_to_spawn, len(idle_neighbours))
         )
         self._spawn_coordinates = []
 

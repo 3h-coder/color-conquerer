@@ -26,8 +26,9 @@ class MatchStartService(ServiceBase):
         """
         Triggers a 5 seconds
         """
-        count = COUNTDOWN_BEFORE_START_IN_S + 1
+        count = COUNTDOWN_BEFORE_START_IN_S
         self._notify_match_start(pre_countdown=True)
+        self.match.server.socketio.sleep(0.5)
         while count > 0:
             notify_countdown(room_id=self.room_id, count=count)
             count -= 1

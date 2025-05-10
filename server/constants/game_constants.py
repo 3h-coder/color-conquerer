@@ -8,6 +8,8 @@ from game_engine.models.spells.spell_id import SpellId
 
 # The number of rows and columns the board has
 BOARD_SIZE = 11  # Do not ever change that
+PLAYER_1_ROWS = (0, 4)  # Do not ever change that
+PLAYER_2_ROWS = (6, 10)  # Do not ever change that
 
 MAX_HP_VALUE = 12
 MAX_MP_VALUE = 9
