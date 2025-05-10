@@ -1,16 +1,35 @@
 /* Layout & home page specific styles */
 
-.home-container {
+#home-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: max(20px, 4vmin);
+  place-items: center;
 }
 
-.main-title {
+#logo-container {
+  position: relative;
+  display: flex;
+  place-items: center;
   width: fit-content;
+}
+
+#logo-container svg {
+  filter: drop-shadow(0.1rem 0.2rem 0.1rem rgb(0 0 0 / 0.2));
+  width: 50%;
+  margin: auto;
+}
+
+#logo-container h1 {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
   text-align: center;
+  pointer-events: none;
+  margin: 0;
+  transform: translateY(-50%);
+  text-shadow: 0.1rem 0.2rem 0.2rem var(--primary-purple3);
+  z-index: 2;
 }
 
 #home-buttons-container, #opponent-search-container {

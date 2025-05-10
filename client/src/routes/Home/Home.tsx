@@ -3,6 +3,7 @@ import HomeStateContextProvider from "../../contexts/HomeStateContext";
 import HomeError from "./components/HomeError";
 import HomeTopMessage from "./components/HomeTopMessage";
 import IntroductionCarousel from "./components/introduction-carousel/IntroductionCarousel";
+import LogoAndTitle from "./components/LogoAndTitle";
 import PlayButton from "./components/PlayButton";
 import './styles/Home.css';
 
@@ -13,7 +14,7 @@ export default function Home() {
         <HomeStateContextProvider>
             <HomeContainer>
                 <HomeTopMessage />
-                <h1 className="main-title">Color Conquerer</h1>
+                <LogoAndTitle />
                 <IntroductionCarousel />
                 <PlayButton />
                 <HomeError />
@@ -24,7 +25,7 @@ export default function Home() {
 
 function HomeContainer(props: ContainerProps) {
     return (
-        <div className="home-container">
+        <div id="home-container">
             {props.children}
         </div>
     );
