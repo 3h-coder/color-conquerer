@@ -89,7 +89,9 @@ class MatchHandlerUnit:
         """
         Cancels the match.
         """
-        self._match_termination_service.cancel_match()
+        self._match_termination_service.cancel_match(
+            cancellation_reason, penalized_player_id=penalized_player_id
+        )
 
     def end(
         self,

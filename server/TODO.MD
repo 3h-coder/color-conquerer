@@ -1,6 +1,6 @@
 # Server
 
-- Add more spells
+- Improved logging
 - Add rate limiting to certain events
 
 

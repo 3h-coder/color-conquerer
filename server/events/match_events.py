@@ -20,6 +20,7 @@ from session_management.session_variables import (
     SESSION_ID,
 )
 
+SERVER_ERROR_MSG = "A server error occured, unable to connect you to your match"
 _logger = get_configured_logger(__name__)
 
 # Used in tests as well
@@ -50,8 +51,8 @@ def only_if_current_turn(error_log_msg: str):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            room_id = _get_session_variable(ROOM_ID)
-            player_info: SessionPlayer = _get_session_variable(PLAYER_INFO)
+            room_id = _get_room_id_or_raise_error()
+            player_info: SessionPlayer = _get_player_info_or_raise_error()
             match = get_match_handler().get_unit(room_id)
 
             if match is None:
@@ -90,12 +91,13 @@ def handle_client_ready():
     Receives the signal of the given player's client and marks the player ready
     server side, possibly starting the match if everyone is.
     """
-    server_error_msg = "A server error occured, unable to connect you to your match"
 
     # NOTE : the play blueprint should already redirect the player if the following
-    # session variables cannot be resolved, but this is an additional safety measure
-    player_info: SessionPlayer = _get_player_info_or_raise_error(server_error_msg)
-    room_id = _get_room_id_or_raise_error(server_error_msg)
+    # session variables cannot be resolved, but this is an additional safety measure.
+    # The match entry watcher should cancel the match if an exception is raised here as the
+    # player will not be able to join it.
+    player_info: SessionPlayer = _get_player_info_or_raise_error()
+    room_id = _get_room_id_or_raise_error()
 
     match_handler = get_match_handler()
     match = match_handler.get_unit(room_id)
@@ -205,37 +207,35 @@ def _join_socket_rooms(room_id: str, individual_room_id: str):
     join_room(individual_room_id)
 
 
-def _get_player_info_or_raise_error(error_msg: str):
-    player_info: SessionPlayer = _get_session_variable(PLAYER_INFO)
-    if player_info is None:
-        raise ServerError(
-            error_msg,
-            socket_connection_killer=True,
-        )
-
-    return player_info
+def _get_player_info_or_raise_error():
+    return _get_session_variable(PLAYER_INFO)
 
 
-def _get_room_id_or_raise_error(error_msg: str):
-    room_id: str = _get_session_variable(ROOM_ID)
-    if room_id is None:
-        raise ServerError(
-            error_msg,
-            socket_connection_killer=True,
-        )
-
-    return room_id
+def _get_room_id_or_raise_error():
+    return _get_session_variable(ROOM_ID)
 
 
 def _get_session_variable(variable_name: str):
+    if SESSION_ID not in session:
+        _logger.error(
+            f"({request.remote_addr}) | The session id is not defined, therefore the player cannot be in a match"
+        )
+        raise ServerError(SERVER_ERROR_MSG, socket_connection_killer=True)
+
     value = session.get(variable_name)
     if value is None:
         _logger.error(
-            f"({request.remote_addr}) | {variable_name} was None, resorting to session cache"
+            f"({request.remote_addr}) | {variable_name} was None, resorting to session cache."
         )
         session_cache = get_session_cache_handler().get_cache_for_session(
             session[SESSION_ID]
         )
         value = session_cache.get(variable_name)
+
+    if value is None:
+        _logger.error(
+            f"({request.remote_addr}) | {variable_name} was still None, raising a server error."
+        )
+        raise ServerError(SERVER_ERROR_MSG, socket_connection_killer=True)
 
     return value

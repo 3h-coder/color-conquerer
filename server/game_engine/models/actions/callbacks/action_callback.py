@@ -16,8 +16,6 @@ from game_engine.models.spells.abstract.spell import Spell
 if TYPE_CHECKING:
     from game_engine.models.actions.action import Action
 
-_logger = get_configured_logger(__name__)
-
 
 class ActionCallback(WithCallbacks):
     """
