@@ -121,7 +121,7 @@ class ActionManager(TransientTurnStateHolder):
         current_player = self.get_current_player()
 
         if error_msg := self.get_error_message():
-            self._logger.debug(f"Sending to the client the error message : {error_msg}")
+            self.logger.debug(f"Sending to the client the error message : {error_msg}")
             notify_action_error(error_msg)
             self.set_error_message(None)
             return

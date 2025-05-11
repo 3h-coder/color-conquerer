@@ -39,7 +39,7 @@ class CommonActionManager(ActionManager):
         Validates the given action and processes it if it is valid.
         """
         if action not in self.get_possible_actions():
-            self._logger.error(
+            self.logger.error(
                 f"The following action was not registered in the possible actions : {action}"
             )
 
@@ -66,7 +66,7 @@ class CommonActionManager(ActionManager):
         if processed_action is None or not processed_action.has_callbacks_to_trigger():
             return
 
-        self._logger.debug(
+        self.logger.debug(
             f"Triggering the callbacks for the action : {processed_action}"
         )
         triggered_callbacks = set()
@@ -161,7 +161,7 @@ class CommonActionManager(ActionManager):
                 )
 
             if not cell_to_select.belongs_to(processed_action.from_player1):
-                # self._logger.debug(
+                # self.logger.debug(
                 #     "The cell no longer belongs to the player, cancelling action recalculation"
                 # )
                 self.set_server_mode(ServerMode.SHOW_PROCESSED_ACTION)
