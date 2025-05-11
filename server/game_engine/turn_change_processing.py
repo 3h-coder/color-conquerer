@@ -2,7 +2,7 @@ from constants.game_constants import (
     STATES_TO_CLEAR_AT_TURN_BEGINNING,
     STATES_TO_CLEAR_AT_TURN_END,
 )
-from game_engine.models.match.match_closure import EndingReason
+from game_engine.models.match.match_closure_info import EndingReason
 from game_engine.models.match.match_context import MatchContext
 from game_engine.models.player.player import Player
 from game_engine.models.turn.turn_processing_result import TurnProcessingResult

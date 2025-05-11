@@ -2,7 +2,7 @@ import functools
 from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
-from game_engine.models.match.match_closure import EndingReason
+from game_engine.models.match.match_closure_info import EndingReason
 from handlers.match_services.action_helpers.abstract.transient_turn_state_holder import (
     TransientTurnStateHolder,
 )

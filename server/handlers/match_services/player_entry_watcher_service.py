@@ -2,7 +2,8 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_TO_WAIT_FOR_EVERYONE
-from game_engine.models.match.match_closure import EndingReason
+from game_engine.models.match.cancellation_reason import CancellationReason
+from game_engine.models.match.match_closure_info import EndingReason
 from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:
@@ -59,13 +60,18 @@ class PlayerEntryWatcherService(ServiceBase):
             # No player could make it in time, so cancel the match
             if self._no_player_joined():
                 self._logger.info("No player joined the match")
-                self.match.cancel()
+                self.match.cancel(
+                    cancellation_reason=CancellationReason.BOTH_PLAYERS_NEVER_JOINED
+                )
                 return
 
-            # One of the players could not make it in time, the other automatically wins
+            # One of the players could not make it in time, the other gets notified about the cancellation
             for player_id in self._players_ready:
                 if not self._players_ready[player_id]:
-                    self.match.end(EndingReason.NEVER_JOINED, loser_id=player_id)
+                    self.match.cancel(
+                        cancellation_reason=CancellationReason.PLAYER_NEVER_JOINED,
+                        penalized_player_id=player_id,
+                    )
 
         self._server.socketio.start_background_task(
             target=prematurely_end_or_cancel_match_if_necessary

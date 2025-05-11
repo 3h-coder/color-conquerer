@@ -7,6 +7,7 @@ from dto.player.queue_player_dto import QueuePlayerDto
 from events.events import Events
 from events.shared_notifications import match_launch_error_redirect
 from exceptions.queue_error import QueueError
+from game_engine.models.match.cancellation_reason import CancellationReason
 from handlers.match_handler import MatchHandler
 from handlers.match_handler_unit import MatchHandlerUnit
 from handlers.room_handler import RoomHandler
@@ -103,7 +104,7 @@ def _try_to_launch_match(
     except Exception:
         _logger.exception(f"An error occured when trying to launch a match")
         if match is not None:
-            match.cancel()
+            match.cancel(cancellation_reason=CancellationReason.SERVER_ERROR)
 
         match_launch_error_redirect(broadcast_to=room_id)
 

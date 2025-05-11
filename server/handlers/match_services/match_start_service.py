@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from config.logging import get_configured_logger
 from constants.match_constants import COUNTDOWN_BEFORE_START_IN_S
 from events.shared_notifications import match_launch_error_redirect
+from game_engine.models.match.cancellation_reason import CancellationReason
 from handlers.match_services.client_notifications import (
     notify_countdown,
     notify_match_start,
@@ -72,7 +73,7 @@ class MatchStartService(ServiceBase):
             self.match.mark_as_ongoing()
         except Exception:
             self.logger.exception(f"Failed to start the match")
-            self.match.cancel()
+            self.match.cancel(cancellation_reason=CancellationReason.SERVER_ERROR)
 
             match_launch_error_redirect(
                 broadcast_to=self.match_context.room_id,

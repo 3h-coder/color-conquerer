@@ -8,7 +8,8 @@ from dto.game_state.game_context_dto import GameContextDto
 from dto.game_state.turn_context_dto import TurnContextDto
 from events.shared_notifications import match_launch_error_redirect
 from game_engine.models.dtos.room import Room
-from game_engine.models.match.match_closure import EndingReason
+from game_engine.models.match.cancellation_reason import CancellationReason
+from game_engine.models.match.match_closure_info import EndingReason
 from game_engine.models.match.match_context import MatchContext
 from game_engine.models.turn.turn_state import TurnState
 from handlers.match_services.client_notifications import notify_match_start
@@ -82,7 +83,9 @@ class MatchHandlerUnit:
         else:
             self._match_start_service.start()
 
-    def cancel(self):
+    def cancel(
+        self, cancellation_reason: CancellationReason, penalized_player_id: str = ""
+    ):
         """
         Cancels the match.
         """
@@ -246,9 +249,10 @@ class MatchHandlerUnit:
         player_ids = [player1.player_id, player2.player_id]
 
         if player_id not in player_ids:
-            raise ValueError(
+            self.logger.error(
                 f"The given player id ({player_id}) is not part of this match"
             )
+            return None
 
         return player1 if player_id == player_ids[0] else player2
 

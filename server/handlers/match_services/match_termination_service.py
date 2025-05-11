@@ -2,8 +2,13 @@ from typing import TYPE_CHECKING
 
 from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_AND_CLOSED_ROOM_DELETION
-from game_engine.models.match.match_closure import EndingReason, MatchClosure
-from handlers.match_services.client_notifications import notify_match_ending
+from game_engine.models.match.cancellation_reason import CancellationReason
+from game_engine.models.match.match_cancellation_info import MatchCancellationInfo
+from game_engine.models.match.match_closure_info import EndingReason, MatchClosureInfo
+from handlers.match_services.client_notifications import (
+    notify_match_cancelled,
+    notify_match_ending,
+)
 from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:
@@ -19,8 +24,10 @@ class MatchTerminationService(ServiceBase):
     def __init__(self, match_handler_unit: "MatchHandlerUnit"):
         super().__init__(match_handler_unit)
         self._logger = get_configured_logger(__name__)
-        # Dto which we use to share/save the final match data before disposing the handler unit
-        self.match_closure_info = None
+        # Data objects which we use to share/save the final match data before disposing the handler unit
+        # Note : both objects should never be populated at the same time
+        self.match_closure_info: MatchClosureInfo | None = None
+        self.match_cancellation_info: MatchCancellationInfo | None = None
 
     def end_match(
         self,
@@ -50,22 +57,24 @@ class MatchTerminationService(ServiceBase):
         winner, loser = self._get_winner_and_loser(winner_id, loser_id)
 
         self.match.mark_as_ended()
-        self.match_closure_info = MatchClosure(
-            endingReason=reason,
+
+        # TODO: save the match closure somewhere
+        self.match_closure_info = MatchClosureInfo(
+            ending_reason=reason,
             winner=winner,
             loser=loser,
-            totalTurns=self.match_context.current_turn,
-            actionsPerTurn=self.match.get_actions_per_turn(),
+            total_turns=self.match_context.current_turn,
+            actions_per_turn=self.match.get_actions_per_turn(),
         )
-
-        # TODO: save the match result into a database
         self._logger.debug(f"Match ended -> {self.match_closure_info.simple_str()}")
 
         self._notify_match_ending()
         self._close_room()
         self._schedule_garbage_collection()
 
-    def cancel_match(self):
+    def cancel_match(
+        self, cancellation_reason: CancellationReason, penalized_player_id: str = ""
+    ):
         """
         Cancels a match, scheduling its garbage collection.
 
@@ -83,6 +92,19 @@ class MatchTerminationService(ServiceBase):
             return
 
         self.match.mark_as_cancelled()
+
+        # TODO: save the match cancellation somewhere
+        other_player, penalized_player = self._get_winner_and_loser(
+            None, penalized_player_id
+        )
+        self.match_cancellation_info = MatchCancellationInfo(
+            cancellation_reason=cancellation_reason, penalized_player=penalized_player
+        )
+        notify_match_cancelled(
+            player_room=other_player.individual_room_id,
+            message="Your opponent did not join the match",
+        )
+
         self._schedule_garbage_collection()
 
     def _verify_ids(self, reason, winner_id, loser_id):

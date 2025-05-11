@@ -7,7 +7,6 @@ export enum EndingReason {
     PLAYER_CONCEDED = "player conceded",
     PLAYER_LEFT = "player left",
     PLAYER_INACTIVE = "player inactive",
-    NEVER_JOINED = "never joined",
     FATIGUE = "fatigue",
 }
 

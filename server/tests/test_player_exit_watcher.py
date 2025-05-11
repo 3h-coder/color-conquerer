@@ -1,7 +1,7 @@
 import time
 from unittest.mock import MagicMock
 
-from game_engine.models.match.match_closure import EndingReason
+from game_engine.models.match.match_closure_info import EndingReason
 from tests.helpers.match_helper import MatchHelper
 from utils.perf_utils import wait_until
 

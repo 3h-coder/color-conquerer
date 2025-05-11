@@ -3,7 +3,7 @@ from typing import Callable
 from unittest.mock import MagicMock
 
 from constants.game_constants import MAX_STAMINA_VALUE
-from game_engine.models.match.match_closure import EndingReason
+from game_engine.models.match.match_closure_info import EndingReason
 from tests.helpers.match_helper import MatchHelper
 
 

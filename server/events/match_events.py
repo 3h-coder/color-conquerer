@@ -8,7 +8,7 @@ from dto.cell.cell_dto import CellDto
 from events.events import Events
 from events.shared_notifications import match_launch_error_redirect
 from exceptions.server_error import ServerError
-from game_engine.models.match.match_closure import EndingReason
+from game_engine.models.match.match_closure_info import EndingReason
 from handlers.match_handler_unit import MatchHandlerUnit
 from server_gate import get_match_handler, get_server, get_session_cache_handler
 from session_management import session_utils

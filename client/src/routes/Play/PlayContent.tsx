@@ -218,9 +218,6 @@ export default function PlayContent() {
     if ((endingReason === EndingReason.PLAYER_LEFT || endingReason === EndingReason.PLAYER_INACTIVE) && isWinner)
       return "Your opponent left";
 
-    else if (endingReason === EndingReason.NEVER_JOINED && isWinner)
-      return "Your opponent did not join the match";
-
     else if (endingReason === EndingReason.PLAYER_CONCEDED && isWinner)
       return "Your opponent gave up";
 

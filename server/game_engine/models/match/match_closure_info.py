@@ -1,40 +1,29 @@
 from dataclasses import dataclass
-from enum import StrEnum
 
 from dto.match.match_closure_dto import MatchClosureDto
+from game_engine.models.match.ending_reason import EndingReason
 from game_engine.models.player.player import Player
 
 
-class EndingReason(StrEnum):
-    PLAYER_VICTORY = "player victory"
-    DRAW = "draw"
-    PLAYER_CONCEDED = "player conceded"
-    PLAYER_LEFT = "player left"
-    PLAYER_INACTIVE = "player inactive"
-    NEVER_JOINED = "never joined"
-    # When the player dies from damage due to low stamina
-    FATIGUE = "fatigue"
-
-
 @dataclass
-class MatchClosure:
-    endingReason: EndingReason
+class MatchClosureInfo:
+    ending_reason: EndingReason
     winner: Player | None  # None if draw or no winner
     loser: Player | None  # None if draw or no loser
-    totalTurns: int
-    actionsPerTurn: dict[int, list]
+    total_turns: int
+    actions_per_turn: dict[int, list]
 
     def simple_str(self) -> str:
         """
         Returns a simple string representation of the match closure information containing the ending reason, winner, loser, and total turns.
         """
-        return f"MatchClosureDto(endingReason={self.endingReason}, winner={self.winner}, loser={self.loser}, totalTurns={self.totalTurns})"
+        return f"MatchClosureDto(endingReason={self.ending_reason}, winner={self.winner}, loser={self.loser}, totalTurns={self.total_turns})"
 
     def to_dto(self):
         winner_dto = self.winner.to_dto() if self.winner else None
         loser_dto = self.loser.to_dto() if self.loser else None
         return MatchClosureDto(
-            endingReason=self.endingReason,
+            endingReason=self.ending_reason,
             winner=winner_dto,
             loser=loser_dto,
         )
