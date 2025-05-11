@@ -38,6 +38,9 @@ class MatchHelper:
         assert self.match_handler_unit.is_ongoing()
 
     def skip_n_turns(self, number: int):
+        """
+        Have both clients successively end their turns for the given number parameter.
+        """
         player1_client, player2_client = self.get_clients()
         for i in range(number):
             current_client = None

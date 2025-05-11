@@ -2,6 +2,7 @@ import time
 
 from events.events import Events
 from game_engine.models.cell.cell import Cell
+from game_engine.models.spells.spell_id import SpellId
 from server import Server
 from tests.utilities.mocks import mock_queue_player_dto
 from tests.utilities.utilities import initialize_session
@@ -72,9 +73,12 @@ class ClientHelper:
         self.emit(Events.CLIENT_CELL_CLICK, cell_dto.to_dict())
 
     def click_any_spell(self):
-        self.emit(Events.CLIENT_SPELL_BUTTON, 1)
+        self.click_spell(1)
 
     def click_spawn_button(self):
         self.emit(Events.CLIENT_SPAWN_BUTTON)
+
+    def click_spell(self, spell_id: SpellId):
+        self.emit(Events.CLIENT_SPELL_BUTTON, spell_id)
 
     # endregion
