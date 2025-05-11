@@ -1,4 +1,4 @@
-from flask import request, session
+from flask import session
 from flask_socketio import emit, join_room
 
 from config.logging import get_configured_logger
@@ -38,7 +38,7 @@ def handle_queue_registration(data: dict):
     player_id = _set_player_id(queue_player_dto)
 
     _logger.info(
-        f"({request.remote_addr}) | {Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
+        f"{Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
     )
 
     (room, closed) = _make_enter_in_room(queue_player_dto, room_handler)
@@ -67,26 +67,20 @@ def _raise_possible_errors(room_handler: RoomHandler):
     """
 
     if session.get(SESSION_ID) is None:
-        _logger.debug(
-            f"({request.remote_addr}) | Attempting to register with no initiated session, denying"
-        )
+        _logger.debug(f"Attempting to register with no initiated session, denying")
         raise QueueError(
             QueueError.NO_SESSION_ERROR_MSG,
             socket_connection_killer=True,
         )
 
     if session.get(ROOM_ID) is not None:
-        _logger.debug(
-            f"({request.remote_addr}) | Already in a room, ignoring registration request"
-        )
+        _logger.debug(f"Already in a room, ignoring registration request")
         raise QueueError(
             QueueError.ALREADY_REGISTERED_ERROR_MSG, socket_connection_killer=True
         )
 
     if room_handler.at_capacity():
-        _logger.info(
-            f"({request.remote_addr}) | Room handler at maximum capacity, denying queue registration"
-        )
+        _logger.info(f"Room handler at maximum capacity, denying queue registration")
         raise QueueError(
             QueueError.MAX_CAPACITY_ERROR_MSG,
             socket_connection_killer=True,

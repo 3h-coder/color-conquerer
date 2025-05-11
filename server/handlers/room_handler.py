@@ -67,7 +67,7 @@ class RoomHandler:
         if room_id not in self.open_rooms:
             return
 
-        self.logger.debug(f"Removing the room {room_id}")
+        self.logger.info(f"Removing the open room {room_id}")
         del self.open_rooms[room_id]
         self._log_rooms_count()
         # self._log_rooms()
@@ -76,7 +76,7 @@ class RoomHandler:
         if room_id not in self.closed_rooms:
             return
 
-        self.logger.debug(f"Removing the room {room_id}")
+        self.logger.info(f"Removing the closed room {room_id}")
         del self.closed_rooms[room_id]
         self._log_rooms_count()
 
@@ -85,5 +85,5 @@ class RoomHandler:
         self.logger.debug(f"Closed rooms {self.closed_rooms}")
 
     def _log_rooms_count(self):
-        self.logger.debug(f"Open rooms count : {len(self.open_rooms)}")
-        self.logger.debug(f"Closed rooms count : {len(self.closed_rooms)}")
+        self.logger.info(f"Open rooms count : {len(self.open_rooms)}")
+        self.logger.info(f"Closed rooms count : {len(self.closed_rooms)}")

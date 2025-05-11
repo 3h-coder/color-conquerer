@@ -7,7 +7,7 @@ from session_management.session_variables import SESSION_ID
 
 class ConnectionHandler:
     """
-    Class responsible for tracking all of the user socket connections.
+    Class responsible for tracking all of the user socket connections during a session.
     """
 
     def __init__(self):

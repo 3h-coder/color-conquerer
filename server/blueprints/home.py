@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, request, session
+from flask import Blueprint, current_app, session
 
 from dto.game_state.home_state_dto import HomeState, HomeStateDto
 from middlewares.error_handler import handle_error

@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any, Callable, Type
+from typing import Any, Type
 
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.callbacks.callback_factory import get_callback

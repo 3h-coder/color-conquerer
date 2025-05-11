@@ -1,5 +1,4 @@
 from dto.actions.match_action_dto import ActionType
-from game_engine.models.actions.action import Action
 from game_engine.models.actions.cell_action import CellAction
 from game_engine.models.actions.metadata.cell_attack_metadata import CellAttackMetadata
 from game_engine.models.cell.cell import Cell
