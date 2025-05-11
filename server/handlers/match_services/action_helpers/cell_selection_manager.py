@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from config.logging import get_configured_logger
 from game_engine.action_calculation import get_possible_movements_and_attacks
 from game_engine.models.actions.cell_attack import CellAttack
 from game_engine.models.actions.cell_movement import CellMovement
@@ -26,7 +25,6 @@ class CellSelectionManager(ActionManager):
 
     def __init__(self, match_actions_service: "MatchActionsService"):
         super().__init__(match_actions_service)
-        self._logger = get_configured_logger(__name__)
         self._turn_state = self._match_actions_service.turn_state
 
     @ActionManager.entry_point(with_turn_state_reset=True)

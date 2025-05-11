@@ -23,7 +23,7 @@ class MatchTerminationService(ServiceBase):
 
     def __init__(self, match_handler_unit: "MatchHandlerUnit"):
         super().__init__(match_handler_unit)
-        self._logger = get_configured_logger(__name__)
+        self._logger = match_handler_unit.logger
         # Data objects which we use to share/save the final match data before disposing the handler unit
         # Note : both objects should never be populated at the same time
         self.match_closure_info: MatchClosureInfo | None = None
@@ -82,7 +82,7 @@ class MatchTerminationService(ServiceBase):
         nor notification sent.
         """
         self._logger.info(
-            f"Match cancellation requested for the match in the room {self.match_context.room_id}"
+            f"Match cancellation requested for the match in the room {self.match_context.room_id}. The reason is {cancellation_reason.name}."
         )
 
         if not self.match.is_waiting_to_start():

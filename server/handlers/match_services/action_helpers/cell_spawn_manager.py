@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from config.logging import get_configured_logger
 from game_engine.action_calculation import get_possible_spawns
 from handlers.match_services.action_helpers.abstract.action_manager import ActionManager
 from handlers.match_services.action_helpers.enums.player_mode import PlayerMode
@@ -16,7 +15,6 @@ class CellSpawnManager(ActionManager):
 
     def __init__(self, match_actions_service: "MatchActionsService"):
         super().__init__(match_actions_service)
-        self._logger = get_configured_logger(__name__)
 
     @ActionManager.entry_point
     def handle_spawn_toggle(self):

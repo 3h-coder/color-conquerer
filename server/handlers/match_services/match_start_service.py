@@ -21,7 +21,7 @@ class MatchStartService(ServiceBase):
 
     def __init__(self, match_handler_unit: "MatchHandlerUnit"):
         super().__init__(match_handler_unit)
-        self.logger = get_configured_logger(__name__)
+        self._logger = match_handler_unit.logger
 
     def countdown_and_start(self):
         """
@@ -41,17 +41,17 @@ class MatchStartService(ServiceBase):
         Starts the match, setting up the turn watcher and notifying the clients.
         """
         try:
-            self.logger.info(
+            self._logger.info(
                 f"Match start requested for the match in the room {self.match_context.room_id}"
             )
 
             if not self.match.is_waiting_to_start():
-                self.logger.warning(
+                self._logger.warning(
                     f"Can only start a match that is waiting to start. The match status is {self.match.status.name}"
                 )
                 return
 
-            self.logger.info(
+            self._logger.info(
                 f"Starting the match in the room {self.match_context.room_id}"
             )
 
@@ -72,7 +72,7 @@ class MatchStartService(ServiceBase):
             # as only a match with the WAITING_TO_START status can be cancelled
             self.match.mark_as_ongoing()
         except Exception:
-            self.logger.exception(f"Failed to start the match")
+            self._logger.exception(f"Failed to start the match")
             self.match.cancel(cancellation_reason=CancellationReason.SERVER_ERROR)
 
             match_launch_error_redirect(

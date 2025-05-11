@@ -20,7 +20,7 @@ class TurnWatcherService(ServiceBase):
 
     def __init__(self, match_handler_unit: "MatchHandlerUnit"):
         super().__init__(match_handler_unit)
-        self._logger = get_configured_logger(__name__)
+        self._logger = match_handler_unit.logger
 
         self._turn_start_time: datetime = None
         self._turn_watcher_thread = None

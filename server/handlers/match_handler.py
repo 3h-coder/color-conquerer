@@ -16,9 +16,12 @@ class MatchHandler:
         """
         Instanciates a match handler unit and its corresponding match for a specific room.
         """
+        self.logger.info(f"Creating a match handler unit for the room {room.id}")
         room_id = room.id
         if room_id in self.units:
-            raise ValueError(f"The room {room_id} already has an attributed unit")
+            error_msg = f"The room {room_id} already has an attributed unit"
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
 
         match_handler_unit = MatchHandlerUnit(room)
 

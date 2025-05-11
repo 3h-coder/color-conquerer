@@ -15,9 +15,12 @@ from handlers.session_cache_handler import SessionCacheHandler
 from server_gate import get_match_handler, get_room_handler, get_session_cache_handler
 from session_management.models.session_player import SessionPlayer
 from session_management.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
+from utils import logging_utils
 from utils.id_generation_utils import generate_id
 
-_logger = get_configured_logger(__name__)
+_logger = get_configured_logger(
+    __name__, prefix_getter=lambda: logging_utils.flask_request_remote_addr_prefix()
+)
 
 
 def handle_queue_registration(data: dict):

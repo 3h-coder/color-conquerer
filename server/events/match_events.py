@@ -19,9 +19,12 @@ from session_management.session_variables import (
     ROOM_ID,
     SESSION_ID,
 )
+from utils import logging_utils
 
 SERVER_ERROR_MSG = "A server error occured, unable to connect you to your match"
-_logger = get_configured_logger(__name__)
+_logger = get_configured_logger(
+    __name__, prefix_getter=lambda: logging_utils.flask_request_remote_addr_prefix()
+)
 
 # Used in tests as well
 OUT_OF_MATCH_LOG_ERROR_MSG = "Tried to execute a match event outside of a match"

@@ -1,3 +1,5 @@
+import logging
+
 from config.logging import get_configured_logger
 from game_engine.action_processing import process_action
 from game_engine.models.actions.action import Action
@@ -12,8 +14,8 @@ class ActionProcessor:
     Note : Action validation should be done before calling this class's methods.
     """
 
-    def __init__(self, match_context: MatchContext):
-        self._logger = get_configured_logger(__name__)
+    def __init__(self, match_context: MatchContext, logger: logging.Logger):
+        self._logger = logger
         self._match_context = match_context
 
     def process_action(self, action: Action):

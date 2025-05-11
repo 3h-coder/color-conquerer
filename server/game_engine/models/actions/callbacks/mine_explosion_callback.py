@@ -1,13 +1,11 @@
 from typing import TYPE_CHECKING
 
-from config.logging import get_configured_logger
 from dto.actions.action_callback_dto import ActionCallbackDto
 from game_engine.models.actions.callbacks.action_callback import ActionCallback
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.mine_trap_spell import MineTrapSpell
-from utils.perf_utils import with_performance_logging
 
 if TYPE_CHECKING:
     from game_engine.models.actions.action import Action
@@ -25,7 +23,6 @@ class MineExplosionCallback(ActionCallback):
 
     def __init__(self, parent_action: "Action", parent_callback: ActionCallback = None):
         super().__init__(parent_action, parent_callback)
-        self._logger = get_configured_logger(__name__)
         self.explosion_center_coords: Coordinates | None = None
 
     def __eq__(self, other):

@@ -1,6 +1,7 @@
 import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
+from typing import Any, Callable
 
 from config import logs_root_path, test_logs_root_path
 from utils import os_utils
@@ -13,13 +14,27 @@ def enable_test_mode_for_logging():
     _testing = True
 
 
-def get_configured_logger(name: str, file_name: str = None):
+class PrefixFilter(logging.Filter):
+    def __init__(self, prefix_getter: Callable[[Any], str]):
+        super().__init__()
+        self.prefix_getter = prefix_getter
+
+    def filter(self, record: logging.LogRecord):
+        prefix = self.prefix_getter() if self.prefix_getter else None
+        record.prefix = f"{prefix} | " if prefix else ""
+        return True
+
+
+def get_configured_logger(
+    name: str, file_name: str = None, prefix_getter: Callable = None
+):
     """
     Creates a logger with the given name and sets up file & console handlers.
     Logs are saved in the 'logs' directory, and a log file name can be specified.
 
     :param name: The name of the logger (usually class or module).
     :param file_name: Optional log file name. If not provided, defaults to the logger name.
+    :param prefix_getter: Callable that returns the prefix string at runtime.
     :return: Configured logger instance.
     """
     global _testing
@@ -43,12 +58,16 @@ def get_configured_logger(name: str, file_name: str = None):
         handler = TimedRotatingFileHandler(
             LOG_FILE_PATH, when="midnight", interval=1, backupCount=120
         )
+        fmt = (
+            "%(asctime)s.%(msecs)03d | %(name)s | %(levelname)s | %(prefix)s%(message)s"
+        )
         formatter = logging.Formatter(
-            "%(asctime)s.%(msecs)03d | %(name)s | %(levelname)s | %(message)s",  # Include logger name
+            fmt,
             datefmt="%Y-%m-%d %H:%M:%S",
         )
 
         handler.setFormatter(formatter)
+        handler.addFilter(PrefixFilter(prefix_getter))
         logger.addHandler(handler)
         if logger.name == "root":
             logger.addHandler(logging.StreamHandler())

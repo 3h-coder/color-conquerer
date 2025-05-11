@@ -1,18 +1,15 @@
 import functools
-from enum import Enum
 from threading import Lock
 
 from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
 from dto.game_state.game_context_dto import GameContextDto
 from dto.game_state.turn_context_dto import TurnContextDto
-from events.shared_notifications import match_launch_error_redirect
 from game_engine.models.dtos.room import Room
 from game_engine.models.match.cancellation_reason import CancellationReason
 from game_engine.models.match.match_closure_info import EndingReason
 from game_engine.models.match.match_context import MatchContext
 from game_engine.models.turn.turn_state import TurnState
-from handlers.match_services.client_notifications import notify_match_start
 from handlers.match_services.enums.match_status import MatchStatus
 from handlers.match_services.match_actions_service import MatchActionsService
 from handlers.match_services.match_start_service import MatchStartService
@@ -26,6 +23,7 @@ from handlers.match_services.player_inactivity_watcher_service import (
 )
 from handlers.match_services.turn_watcher_service import TurnWatcherService
 from server_gate import get_server
+from utils import logging_utils
 from utils.id_generation_utils import generate_id
 
 
@@ -36,7 +34,10 @@ class MatchHandlerUnit:
     """
 
     def __init__(self, room: Room):
-        self.logger = get_configured_logger(__name__)
+        self.logger = get_configured_logger(
+            __name__,
+            prefix_getter=lambda: logging_utils.flask_request_remote_addr_prefix(),
+        )
         self.server = get_server()
 
         self.match_context: MatchContext = self._get_initial_match_context(room)

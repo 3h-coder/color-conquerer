@@ -7,8 +7,11 @@ from server_gate import get_connection_handler, get_match_handler, get_room_hand
 from session_management import session_utils
 from session_management.models.session_player import SessionPlayer
 from session_management.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
+from utils import logging_utils
 
-_logger = get_configured_logger(__name__)
+_logger = get_configured_logger(
+    __name__, prefix_getter=lambda: logging_utils.flask_request_remote_addr_prefix()
+)
 
 
 def handle_disconnection():
@@ -69,7 +72,7 @@ def handle_disconnection():
 def _handle_disconnection_in_queue(room_id: str, room_handler: RoomHandler):
     """Removes the room, leaves the socket room and clears the user's session information relative to match information"""
 
-    _logger.debug(f"({request.remote_addr}) | Disconnected while being in queue")
+    _logger.debug(f"Disconnected while being in queue")
     room_handler.remove_open_room(room_id)
     _leave_socket_room_and_clear_session(room_id)
 
@@ -77,23 +80,21 @@ def _handle_disconnection_in_queue(room_id: str, room_handler: RoomHandler):
 def _handle_disconnection_with_room_id_but_no_match(room_id: str):
     """Clears the user's session information relative to match information"""
 
-    _logger.debug(
-        f"({request.remote_addr}) | Disconnected with a set ROOM_ID but no match"
-    )
+    _logger.debug(f"Disconnected with a set ROOM_ID but no match")
     _leave_socket_room_and_clear_session(room_id)
 
 
 def _handle_disconnection_in_cancelled_match(room_id: str):
     """Leaves the socket room and clears the user's session information relative to match information"""
 
-    _logger.debug(f"({request.remote_addr}) | Disconnected after match cancellation")
+    _logger.debug(f"Disconnected after match cancellation")
     _leave_socket_room_and_clear_session(room_id)
 
 
 def _handle_disconnection_in_ended_match(room_id: str):
     """Leaves the socket room and clears the user's session information relative to match information"""
 
-    _logger.debug(f"({request.remote_addr}) | Disconnected after match ending")
+    _logger.debug(f"Disconnected after match ending")
     _leave_socket_room_and_clear_session(room_id)
 
 

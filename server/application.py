@@ -1,7 +1,7 @@
 import os
 
 from cachelib import FileSystemCache
-from flask import Flask
+from flask import Flask, has_request_context, request
 from flask_cors import CORS
 from flask_session import Session
 
@@ -13,6 +13,7 @@ from config.config import default_config, get_global_config
 from config.logging import enable_test_mode_for_logging, get_configured_logger
 from config.variables import OptionalVariables, RequiredVariables
 from middlewares.error_handler import handle_error
+from utils import logging_utils
 from utils.os_utils import delete_file_or_folder
 
 
@@ -27,7 +28,10 @@ class Application(Flask):
         if test_instance:
             enable_test_mode_for_logging()
 
-        self.logger = get_configured_logger(__name__)
+        self.logger = get_configured_logger(
+            __name__,
+            prefix_getter=lambda: logging_utils.flask_request_remote_addr_prefix(),
+        )
         self.logger.debug("Initializing application")
         super().__init__(import_name, **kwargs)
 

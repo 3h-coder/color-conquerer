@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from config.logging import get_configured_logger
 from game_engine.action_calculation import get_possible_spell_castings
 from game_engine.models.player.player_resources import PlayerResources
 from game_engine.models.spells.abstract.spell import Spell
@@ -20,7 +19,6 @@ class SpellManager(ActionManager):
 
     def __init__(self, match_actions_service: "MatchActionsService"):
         super().__init__(match_actions_service)
-        self._logger = get_configured_logger(__name__)
 
     @ActionManager.entry_point
     def handle_spell_request(self, spell_id: int):

@@ -32,7 +32,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
     def __init__(self, match_handler_unit: "MatchHandlerUnit"):
         ServiceBase.__init__(self, match_handler_unit)
         TransientTurnStateHolder.__init__(self, TransientTurnState())
-        self._logger = get_configured_logger(__name__)
+        self._logger = match_handler_unit.logger
 
         self.turn_state = self.match.turn_state
         # Dictionary storing all of the actions that happened during a match.

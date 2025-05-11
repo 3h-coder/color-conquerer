@@ -17,6 +17,7 @@ from handlers.match_services.client_notifications import (
     notify_processed_action,
     notify_triggered_callback,
 )
+from utils import logging_utils
 
 if TYPE_CHECKING:
     from handlers.match_services.match_actions_service import MatchActionsService
@@ -32,11 +33,14 @@ class ActionManager(TransientTurnStateHolder):
 
     def __init__(self, match_actions_service: "MatchActionsService"):
         super().__init__(match_actions_service.transient_turn_state)
+        self.logger = get_configured_logger(
+            "handlers.action_manager",
+            prefix_getter=lambda: logging_utils.flask_request_remote_addr_prefix(),
+        )
         self._match_actions_service = match_actions_service
         self._game_board = match_actions_service.match_context.game_board
         self._match = match_actions_service.match
         self._room_id = match_actions_service.match.match_context.room_id
-        self._logger = get_configured_logger(__name__)
 
     def get_current_player(self):
         return self._match_actions_service.current_player

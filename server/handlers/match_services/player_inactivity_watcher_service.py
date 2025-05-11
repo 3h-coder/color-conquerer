@@ -26,7 +26,7 @@ class PlayerInactivityWatcherService(ServiceBase):
 
     def __init__(self, match_handler_unit: "MatchHandlerUnit"):
         super().__init__(match_handler_unit)
-        self._logger = get_configured_logger(__name__)
+        self._logger = match_handler_unit.logger
 
         self._watching_player1: bool = True
 

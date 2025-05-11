@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from config.logging import get_configured_logger
 from game_engine.models.actions.action import Action
 from game_engine.models.actions.cell_attack import CellAttack
 from game_engine.models.actions.cell_movement import CellMovement
@@ -22,7 +21,6 @@ class CommonActionManager(ActionManager):
 
     def __init__(self, match_actions_service: "MatchActionsService"):
         super().__init__(match_actions_service)
-        self._logger = get_configured_logger(__name__)
 
         self.match_context = self._match_actions_service.match_context
         self.turn_state = self._match_actions_service.turn_state
@@ -30,7 +28,7 @@ class CommonActionManager(ActionManager):
         # region Match persistent fields
 
         self._actions_per_turn = self._match_actions_service.actions_per_turn
-        self._action_processor = ActionProcessor(self.match_context)
+        self._action_processor = ActionProcessor(self.match_context, logger=self.logger)
 
         # endregion
 
