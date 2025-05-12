@@ -3,7 +3,7 @@ from game_engine.models.spells.spell_id import SpellId
 from tests.helpers.match_helper import MatchHelper
 
 
-def test_mine_trap(started_match: MatchHelper):
+def test_mine_trap_spell(started_match: MatchHelper):
     # Arrange
     player1_client, player2_client = started_match.get_clients()
     _, player2_resources = started_match.get_both_players_resources()
