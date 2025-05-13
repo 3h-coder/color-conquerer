@@ -10,7 +10,7 @@ def test_ambush_spell_enemy_side(started_match: MatchHelper):
     enemy_row_index, enemy_col_index = player2_master_cell.get_coordinates().as_tuple()
 
     # Act
-    started_match.skip_n_turns(2)
+    started_match.skip_two_turns()
     player1_client.click_spell(SpellId.AMBUSH)
     player1_client.click_cell_at(enemy_row_index, enemy_col_index)
 
@@ -42,7 +42,7 @@ def test_ambush_spell_friendly_side(started_match: MatchHelper):
     # Act
     # Move the player 2 master cell next to the player 1's
     CellMovement._transfer_cell(player2_master_cell, random_neighbour)
-    started_match.skip_n_turns(2)
+    started_match.skip_two_turns()
     player1_client.click_spell(SpellId.AMBUSH)
     player1_client.click_cell_at(
         random_neighbour.row_index, random_neighbour.column_index

@@ -16,7 +16,7 @@ def test_mine_trap_spell(started_match: MatchHelper):
     row_index2, col_index2 = (master_row_index + 1, master_column_index + 1)
 
     # Act
-    started_match.skip_n_turns(2)
+    started_match.skip_two_turns()
     player1_client.click_spell(SpellId.MINE_TRAP)
     player1_client.click_cell_at(row_index1, col_index1)
 

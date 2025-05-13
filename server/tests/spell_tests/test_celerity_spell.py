@@ -42,7 +42,7 @@ def test_celerity_spell_works(started_match: MatchHelper):
     # Act
     player1_client.click_spawn_button()
     player1_client.click_cell_at(neighbour_row_index, neighbour_column_index)
-    started_match.skip_n_turns(2)
+    started_match.skip_two_turns()
 
     player1_client.click_spell(SpellId.CELERITY)
     transient_board = started_match.get_transient_game_board()
