@@ -3,7 +3,7 @@ from game_engine.models.spells.spell_id import SpellId
 from tests.helpers.match_helper import MatchHelper
 
 
-def test_celerity(started_match: MatchHelper):
+def test_celerity_spell(started_match: MatchHelper):
     # Arrange
     player1_client, _ = started_match.get_clients()
     player1_master_cell = started_match.get_master_cell(of_player_1=True)
