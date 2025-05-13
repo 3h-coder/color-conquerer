@@ -5,7 +5,7 @@ from game_engine.models.spells.spell_id import SpellId
 from tests.helpers.match_helper import MatchHelper
 
 
-def test_celerity_spell_condition(started_match: MatchHelper):
+def test_celerity_spell_should_not_be_usable(started_match: MatchHelper):
     # Arrange
     player1_client, _ = started_match.get_clients()
 
