@@ -1,7 +1,7 @@
 import time
 from functools import wraps
 from time import perf_counter
-from typing import Any, Callable
+from typing import Callable
 
 from config.logging import get_configured_logger
 
@@ -34,6 +34,9 @@ def wait_until(
     timeout_in_s: float = 1.0,
     poll_interval_in_s: float = 0.01,
 ):
+    """
+    Waits by polling (using `time.sleep`) until the given condition becomes true or the timeout occurs.
+    """
     start = time.time()
     while not condition() and time.time() - start < timeout_in_s:
         time.sleep(poll_interval_in_s)
