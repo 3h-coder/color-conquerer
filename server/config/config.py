@@ -5,57 +5,61 @@ import uuid
 from config import root_path, runtime_data_path
 from config.logging import root_logger
 from config.variable_types import VariableType
-from config.variables import OptionalVariables, RequiredVariables
+from config.variables import OptionalVariable, RequiredVariable
 
 # os.join is safer than pathlib.Path("directory", "subdirectory") as
 # it does not replace drive:// with drive:/
 CONFIG_FILE_PATH = os.path.join(root_path, "config.json")
 
 _config_vars_types = {
-    RequiredVariables.DEBUG.name: VariableType.BOOL,
-    RequiredVariables.CORS_ALLOWED_ORIGINS.name: VariableType.LIST_OF_STRINGS,
-    RequiredVariables.APP_SECRET_KEY.name: VariableType.STRING,
-    RequiredVariables.APP_SESSION_LIFETIME.name: VariableType.INT,
-    RequiredVariables.MAX_ROOM_CAPACITY.name: VariableType.INT,
+    RequiredVariable.DEBUG.name: VariableType.BOOL,
+    RequiredVariable.CORS_ALLOWED_ORIGINS.name: VariableType.LIST_OF_STRINGS,
+    RequiredVariable.APP_SECRET_KEY.name: VariableType.STRING,
+    RequiredVariable.APP_SESSION_LIFETIME.name: VariableType.INT,
+    RequiredVariable.MAX_ROOM_CAPACITY.name: VariableType.INT,
     # Optional Variables
-    OptionalVariables.APP_SESSION_FILE_DIR.name: VariableType.STRING,
-    OptionalVariables.RESET_SESSION_FILE_ON_STARTUP.name: VariableType.BOOL,
+    OptionalVariable.APP_SESSION_FILE_DIR.name: VariableType.STRING,
+    OptionalVariable.RESET_SESSION_FILE_ON_STARTUP.name: VariableType.BOOL,
 }
 
 _default_config = {
-    RequiredVariables.DEBUG.name: False,
+    RequiredVariable.DEBUG.name: False,
     # The front-end server
-    RequiredVariables.CORS_ALLOWED_ORIGINS.name: [
+    RequiredVariable.CORS_ALLOWED_ORIGINS.name: [
+        # TODO : Update that once the actual domain is obtained
         "https://color-conquerer.com",
         "http://localhost:5173",
     ],
-    RequiredVariables.APP_SECRET_KEY.name: f"{uuid.uuid4()}",
-    RequiredVariables.APP_SESSION_LIFETIME.name: 7200,  # Two hours
-    RequiredVariables.MAX_ROOM_CAPACITY.name: 50,
+    RequiredVariable.APP_SECRET_KEY.name: f"{uuid.uuid4()}",
+    RequiredVariable.APP_SESSION_LIFETIME.name: 7200,  # Two hours
+    RequiredVariable.MAX_ROOM_CAPACITY.name: 50,
     # Optional Variables
-    OptionalVariables.APP_SESSION_FILE_DIR.name: os.path.join(
+    OptionalVariable.APP_SESSION_FILE_DIR.name: os.path.join(
         runtime_data_path, "session_data"
     ),
-    OptionalVariables.RESET_SESSION_FILE_ON_STARTUP.name: False,
+    OptionalVariable.RESET_SESSION_FILE_ON_STARTUP.name: False,
 }
 
 # To be initialized at startup once
 _global_config = {}
 
 
-def get(config_variable: RequiredVariables | OptionalVariables):
+def get(config_variable: RequiredVariable | OptionalVariable):
     """
     Returns the value of a key in the configuration.
-    If the key is not found, returns the value from default_config.
+    If the key is not found, returns the value from `_default_config`.
+
+    Raises:
+        TypeError: If `config_variable` is not of type `RequiredVariable` or `OptionalVariable`
     """
     global _global_config
     if not _global_config:
         _global_config = _get_config()
 
-    if not isinstance(config_variable, (RequiredVariables, OptionalVariables)):
+    if not isinstance(config_variable, (RequiredVariable, OptionalVariable)):
         raise TypeError(
-            f"[CONFIG] | The config variable must be an instance of {RequiredVariables.__name__}"
-            f" or {OptionalVariables.__name__}, got {type(config_variable).__name__} instead."
+            f"[CONFIG] | The config variable must be an instance of {RequiredVariable.__name__}"
+            f" or {OptionalVariable.__name__}, got {type(config_variable).__name__} instead."
         )
 
     key = config_variable.name
@@ -134,16 +138,16 @@ def _check_for_inconsistencies_between_default_config_and_var_types():
 
 def _check_for_missing_required_vars_in_default_config():
     """
-    Validates that all required variables are defined in the default configuration.
+    Validates that all variables (optional or not) are defined in the default configuration.
 
     Raises:
         ValueError: If one or more required variables are not defined in the default configuration.
     """
 
-    missing_vars_in_default_config = _missing_required_vars_in_default_config()
+    missing_vars_in_default_config = _missing_vars_in_default_config()
     if missing_vars_in_default_config:
         raise ValueError(
-            f"The following required variables are not defined in the default configuration : {missing_vars_in_default_config}"
+            f"The following variables are not defined in the default configuration : {missing_vars_in_default_config}"
         )
 
 
@@ -172,7 +176,7 @@ def _check_for_incorrect_var_types(config):
     incorrect_var_types = _incorrect_var_types(config)
     if incorrect_var_types:
         exception_message = _get_incorrect_var_types_err(incorrect_var_types)
-        raise ValueError(exception_message)
+        raise TypeError(exception_message)
 
 
 # endregion
@@ -190,18 +194,22 @@ def _write_config(config):
         file.write(json.dumps(config, indent=2))
 
 
-def _missing_required_vars_in_default_config():
+def _missing_vars_in_default_config():
     """
-    Checks whether or not a required variable is missing from default_config
+    Checks whether or not a variable (required or optional) is missing from default_config
     """
-    return [var.name for var in RequiredVariables if var.name not in _default_config]
+    return [
+        var.name
+        for var in (*RequiredVariable, *OptionalVariable)
+        if var.name not in _default_config
+    ]
 
 
 def _missing_required_vars_in_loaded_config(config):
     """
     Checks whether or not a required variable is missing from the loaded
     """
-    return [var.name for var in RequiredVariables if var.name not in config]
+    return [var.name for var in RequiredVariable if var.name not in config]
 
 
 def _incorrect_var_types(config):

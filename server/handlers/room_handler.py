@@ -1,6 +1,6 @@
 from config import config
 from config.logging import get_configured_logger
-from config.variables import RequiredVariables
+from config.variables import RequiredVariable
 from dto.player.queue_player_dto import QueuePlayerDto
 from game_engine.models.dtos.room import Room
 from utils.id_generation_utils import generate_id
@@ -16,7 +16,7 @@ class RoomHandler:
         self.logger = get_configured_logger(__name__)
         self.open_rooms: dict[str, Room] = {}
         self.closed_rooms: dict[str, Room] = {}
-        self.MAX_CLOSED_ROOMS = config.get(RequiredVariables.MAX_ROOM_CAPACITY)
+        self.MAX_CLOSED_ROOMS = config.get(RequiredVariable.MAX_ROOM_CAPACITY)
 
     def at_capacity(self):
         """

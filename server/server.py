@@ -6,7 +6,7 @@ from flask_socketio import SocketIO, emit
 
 from config import config
 from config.logging import get_configured_logger
-from config.variables import RequiredVariables
+from config.variables import RequiredVariable
 from dto.misc.error_dto import ErrorDto
 from events.connect import handle_connection
 from events.disconnect import handle_disconnection
@@ -47,7 +47,7 @@ class Server:
 
         self.socketio = SocketIO(
             app,
-            cors_allowed_origins=config.get(RequiredVariables.CORS_ALLOWED_ORIGINS),
+            cors_allowed_origins=config.get(RequiredVariable.CORS_ALLOWED_ORIGINS),
             manage_session=False,
         )
 

@@ -10,7 +10,7 @@ from blueprints.play import play_bp
 from blueprints.session import session_bp
 from config import config, runtime_test_data_path
 from config.logging import enable_test_mode_for_logging, get_configured_logger
-from config.variables import OptionalVariables, RequiredVariables
+from config.variables import OptionalVariable, RequiredVariable
 from middlewares.error_handler import handle_error
 from utils import logging_utils
 from utils.os_utils import delete_file_or_folder
@@ -47,7 +47,7 @@ class Application(Flask):
         if not self.testing:
             CORS(
                 self,
-                origins=config.get(RequiredVariables.CORS_ALLOWED_ORIGINS),
+                origins=config.get(RequiredVariable.CORS_ALLOWED_ORIGINS),
                 supports_credentials=True,
             )
 
@@ -61,10 +61,10 @@ class Application(Flask):
             return
 
         # folder cleanup
-        delete_session = config.get(OptionalVariables.RESET_SESSION_FILE_ON_STARTUP)
+        delete_session = config.get(OptionalVariable.RESET_SESSION_FILE_ON_STARTUP)
         if delete_session:
             self.logger.debug("Deleting session directory")
-            delete_file_or_folder(config.get(OptionalVariables.APP_SESSION_FILE_DIR))
+            delete_file_or_folder(config.get(OptionalVariable.APP_SESSION_FILE_DIR))
 
     def _set_config(self):
         """
@@ -94,9 +94,9 @@ class Application(Flask):
         self.register_blueprint(play_bp)
 
     def _set_production_config(self):
-        self.debug = config.get(RequiredVariables.DEBUG)
+        self.debug = config.get(RequiredVariable.DEBUG)
         # https://flask.palletsprojects.com/en/latest/config/#SECRET_KEY
-        self.config["SECRET_KEY"] = config.get(RequiredVariables.APP_SECRET_KEY)
+        self.config["SECRET_KEY"] = config.get(RequiredVariable.APP_SECRET_KEY)
         # https://flask.palletsprojects.com/en/latest/config/#SESSION_COOKIE_SECURE
         # ⚠️ MUST be True
         self.config["SESSION_COOKIE_SECURE"] = True
@@ -105,13 +105,15 @@ class Application(Flask):
         # the back-end, along with Secure=True (right above) and "credential":"include" in the frontend
         self.config["SESSION_COOKIE_SAMESITE"] = "None"
 
+        # TODO : Check whether or not sessions must be permanent and how to extend their
+        # lifetime during a match
         # self.config["PERMANENT_SESSION_LIFETIME"] = global_config[
         #     RequiredVariables.APP_SESSION_LIFETIME.name
         # ]
         self.config["SESSION_TYPE"] = "cachelib"
-        self.config["SESSION_SERIALIZATION_FORMAT"] = "json"
+        # TODO : Make this file system if debug otherwise redis
         self.config["SESSION_CACHELIB"] = FileSystemCache(
-            cache_dir=config.get(OptionalVariables.APP_SESSION_FILE_DIR),
+            cache_dir=config.get(OptionalVariable.APP_SESSION_FILE_DIR),
             threshold=500,
         )
 
