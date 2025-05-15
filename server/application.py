@@ -31,11 +31,10 @@ class Application(Flask):
             __name__,
             prefix_getter=lambda: logging_utils.flask_request_remote_addr_prefix(),
         )
+
         self.logger.debug("Initializing application")
         super().__init__(import_name, **kwargs)
-
-        if test_instance:
-            self.testing = True
+        self.testing = test_instance
 
         self._initialize()
 
@@ -91,9 +90,17 @@ class Application(Flask):
         self.register_blueprint(play_bp)
 
     def _set_production_config(self):
+        self.debug = config.get(RequiredVariables.DEBUG)
+        # https://flask.palletsprojects.com/en/latest/config/#SECRET_KEY
         self.config["SECRET_KEY"] = config.get(RequiredVariables.APP_SECRET_KEY)
-        self.config["SESSION_COOKIE_SAMESITE"] = "None"
+        # https://flask.palletsprojects.com/en/latest/config/#SESSION_COOKIE_SECURE
+        # ⚠️ MUST be True
         self.config["SESSION_COOKIE_SECURE"] = True
+        # https://flask.palletsprojects.com/en/latest/config/#SESSION_COOKIE_SAMESITE
+        # ⚠️ MUST be "None" for the browser to accept cookie sending between the frontend and
+        # the back-end, along with Secure=True (right above) and "credential":"include" in the frontend
+        self.config["SESSION_COOKIE_SAMESITE"] = "None"
+
         # self.config["PERMANENT_SESSION_LIFETIME"] = global_config[
         #     RequiredVariables.APP_SESSION_LIFETIME.name
         # ]

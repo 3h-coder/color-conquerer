@@ -4,7 +4,9 @@ from typing import Callable
 from flask import Flask
 from flask_socketio import SocketIO, emit
 
+from config import config
 from config.logging import get_configured_logger
+from config.variables import RequiredVariables
 from dto.misc.error_dto import ErrorDto
 from events.connect import handle_connection
 from events.disconnect import handle_disconnection
@@ -81,8 +83,12 @@ class Server:
         self.socketio.on_event(event_name, listener)
         self.event_listeners[event_name] = listener
 
-    def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):
-        # TODO : Make debug dependant on a config variable
+    def run(self, host="0.0.0.0", port=5000, **kwargs):
         self.socketio.run(
-            self.app, host=host, port=port, debug=debug, use_reloader=False, **kwargs
+            app=self.app,
+            host=host,
+            port=port,
+            debug=self.app.debug,
+            use_reloader=False,
+            **kwargs,
         )
