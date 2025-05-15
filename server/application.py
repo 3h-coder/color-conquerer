@@ -1,15 +1,14 @@
 import os
 
 from cachelib import FileSystemCache
-from flask import Flask, has_request_context, request
+from flask import Flask
 from flask_cors import CORS
 from flask_session import Session
 
 from blueprints.home import home_bp
 from blueprints.play import play_bp
 from blueprints.session import session_bp
-from config import runtime_test_data_path
-from config.config import default_config, get_global_config
+from config import config, runtime_test_data_path
 from config.logging import enable_test_mode_for_logging, get_configured_logger
 from config.variables import OptionalVariables, RequiredVariables
 from middlewares.error_handler import handle_error
@@ -37,8 +36,6 @@ class Application(Flask):
 
         if test_instance:
             self.testing = True
-        else:
-            self.global_config = get_global_config()
 
         self._initialize()
 
@@ -61,22 +58,16 @@ class Application(Flask):
             return
 
         # folder cleanup
-        delete_session = self._get_from_config_or_default_config(
-            OptionalVariables.RESET_SESSION_FILE_ON_STARTUP.name
-        )
+        delete_session = config.get(OptionalVariables.RESET_SESSION_FILE_ON_STARTUP)
         if delete_session:
             self.logger.debug("Deleting session directory")
-            delete_file_or_folder(
-                self._get_from_config_or_default_config(
-                    OptionalVariables.APP_SESSION_FILE_DIR.name
-                )
-            )
+            delete_file_or_folder(config.get(OptionalVariables.APP_SESSION_FILE_DIR))
 
     def _set_config(self):
         """
         Sets the configuration of the flask application.
 
-        Links
+        Resources
         - Flask config : https://flask.palletsprojects.com/en/latest/config
         - Flask session : https://flask-session.readthedocs.io/en/latest/config.html
         """
@@ -100,19 +91,16 @@ class Application(Flask):
         self.register_blueprint(play_bp)
 
     def _set_production_config(self):
-        self.config["SECRET_KEY"] = self.global_config[
-            RequiredVariables.APP_SECRET_KEY.name
-        ]
+        self.config["SECRET_KEY"] = config.get(RequiredVariables.APP_SECRET_KEY)
         self.config["SESSION_COOKIE_SAMESITE"] = "None"
         self.config["SESSION_COOKIE_SECURE"] = True
-        # self.config["SESSION_PERMANENT"] = True
         # self.config["PERMANENT_SESSION_LIFETIME"] = global_config[
         #     RequiredVariables.APP_SESSION_LIFETIME.name
         # ]
         self.config["SESSION_TYPE"] = "cachelib"
-        app_session_file_dir = OptionalVariables.APP_SESSION_FILE_DIR.name
+        self.config["SESSION_SERIALIZATION_FORMAT"] = "json"
         self.config["SESSION_CACHELIB"] = FileSystemCache(
-            cache_dir=self._get_from_config_or_default_config(app_session_file_dir),
+            cache_dir=config.get(OptionalVariables.APP_SESSION_FILE_DIR),
             threshold=500,
         )
 
@@ -123,6 +111,3 @@ class Application(Flask):
             cache_dir=self.TEST_SESSION_FILE_DIR, threshold=20
         )
         self.config["SESSION_PERMANENT"] = False
-
-    def _get_from_config_or_default_config(self, variable: str):
-        return self.global_config.get(variable, default_config[variable])

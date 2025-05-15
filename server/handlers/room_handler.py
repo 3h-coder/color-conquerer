@@ -1,4 +1,4 @@
-from config.config import get_from_config
+from config import config
 from config.logging import get_configured_logger
 from config.variables import RequiredVariables
 from dto.player.queue_player_dto import QueuePlayerDto
@@ -12,12 +12,11 @@ class RoomHandler:
     during a match.
     """
 
-    MAX_CLOSED_ROOMS = get_from_config(RequiredVariables.MAX_ROOM_CAPACITY.name, 50)
-
     def __init__(self):
         self.logger = get_configured_logger(__name__)
         self.open_rooms: dict[str, Room] = {}
         self.closed_rooms: dict[str, Room] = {}
+        self.MAX_CLOSED_ROOMS = config.get(RequiredVariables.MAX_ROOM_CAPACITY)
 
     def at_capacity(self):
         """

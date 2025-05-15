@@ -82,6 +82,7 @@ class Server:
         self.event_listeners[event_name] = listener
 
     def run(self, host="0.0.0.0", port=5000, debug=True, **kwargs):
+        # TODO : Make debug dependant on a config variable
         self.socketio.run(
             self.app, host=host, port=port, debug=debug, use_reloader=False, **kwargs
         )
