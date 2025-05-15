@@ -45,7 +45,11 @@ class Application(Flask):
         self._register_blueprints()
         Session(self)
         if not self.testing:
-            CORS(self, supports_credentials=True)  # TODO: add the proper origins
+            CORS(
+                self,
+                origins=config.get(RequiredVariables.CORS_ALLOWED_ORIGINS),
+                supports_credentials=True,
+            )
 
     def _clean_up(self):
         """

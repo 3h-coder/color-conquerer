@@ -13,6 +13,7 @@ CONFIG_FILE_PATH = os.path.join(root_path, "config.json")
 
 _config_vars_types = {
     RequiredVariables.DEBUG.name: VariableType.BOOL,
+    RequiredVariables.CORS_ALLOWED_ORIGINS.name: VariableType.LIST_OF_STRINGS,
     RequiredVariables.APP_SECRET_KEY.name: VariableType.STRING,
     RequiredVariables.APP_SESSION_LIFETIME.name: VariableType.INT,
     RequiredVariables.MAX_ROOM_CAPACITY.name: VariableType.INT,
@@ -23,6 +24,11 @@ _config_vars_types = {
 
 _default_config = {
     RequiredVariables.DEBUG.name: False,
+    # The front-end server
+    RequiredVariables.CORS_ALLOWED_ORIGINS.name: [
+        "https://color-conquerer.com",
+        "http://localhost:5173",
+    ],
     RequiredVariables.APP_SECRET_KEY.name: f"{uuid.uuid4()}",
     RequiredVariables.APP_SESSION_LIFETIME.name: 7200,  # Two hours
     RequiredVariables.MAX_ROOM_CAPACITY.name: 50,
@@ -221,11 +227,18 @@ def _incorrect_var_types(config):
         ] == VariableType.FLOAT and not _is_valid_float(config[variable_name]):
             incorrect_var_types[variable_name] = VariableType.FLOAT
 
+        elif _config_vars_types[
+            variable_name
+        ] == VariableType.LIST_OF_STRINGS and not _is_valid_list_of_strings(
+            config[variable_name]
+        ):
+            incorrect_var_types[variable_name] = VariableType.LIST_OF_STRINGS
+
     return incorrect_var_types
 
 
 def _get_incorrect_var_types_err(incorrect_var_types: dict[str, VariableType]):
-    err_message = "One of more variable(s) have the wrong type : \n"
+    err_message = "One or more variable(s) have the wrong type : \n"
     for index, var in enumerate(incorrect_var_types):
         new_line = "\n" if index != len(incorrect_var_types) - 1 else ""
         err_message += (
@@ -256,6 +269,10 @@ def _is_valid_float(var):
         return True
     except ValueError:
         return False
+
+
+def _is_valid_list_of_strings(var):
+    return isinstance(var, list) and all(isinstance(value, str) for value in var)
 
 
 # endregion

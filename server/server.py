@@ -40,14 +40,22 @@ class Server:
 
     def __init__(self, app: Flask):
         self.logger = get_configured_logger(__name__)
+
         self.app = app
+        self.debug = app.debug
         self.testing = app.testing
-        # TODO: add the proper origins
-        self.socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
+
+        self.socketio = SocketIO(
+            app,
+            cors_allowed_origins=config.get(RequiredVariables.CORS_ALLOWED_ORIGINS),
+            manage_session=False,
+        )
+
         self.connection_handler = ConnectionHandler()
         self.match_handler = MatchHandler()
         self.room_handler = RoomHandler()
         self.session_cache_handler = SessionCacheHandler()
+
         self.event_listeners: dict[str, Callable] = {}
         self._add_event_listeners()
 
@@ -88,7 +96,7 @@ class Server:
             app=self.app,
             host=host,
             port=port,
-            debug=self.app.debug,
+            debug=self.debug,
             use_reloader=False,
             **kwargs,
         )

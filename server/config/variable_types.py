@@ -6,3 +6,4 @@ class VariableType(Enum):
     INT = 2
     BOOL = 3
     FLOAT = 4
+    LIST_OF_STRINGS = 5
