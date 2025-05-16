@@ -4,9 +4,12 @@ from logging.handlers import TimedRotatingFileHandler
 from typing import Any, Callable
 
 from config import logs_root_path, test_logs_root_path
-from utils import os_utils
+from config.variables import RequiredVariable
+from utils import logging_utils, os_utils
 
 _testing = False
+
+ROOT_LOGGER_NAME = "root"
 
 
 def enable_test_mode_for_logging():
@@ -69,13 +72,15 @@ def get_configured_logger(
         handler.setFormatter(formatter)
         handler.addFilter(PrefixFilter(prefix_getter))
         logger.addHandler(handler)
-        if logger.name == "root":
-            logger.addHandler(logging.StreamHandler())
 
-        # TODO: handle the level dynamically
-        logger.setLevel(logging.DEBUG)
+        if logger.name == ROOT_LOGGER_NAME:
+            logger.addHandler(logging.StreamHandler())
+        else:
+            # Note : The root logger's logging level is re-adjusted
+            # right after the config gets loaded
+            logging_utils.set_logging_level_from_config(logger)
 
     return logger
 
 
-root_logger = get_configured_logger("root")
+root_logger = get_configured_logger(ROOT_LOGGER_NAME)

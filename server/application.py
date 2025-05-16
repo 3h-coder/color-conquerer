@@ -9,7 +9,11 @@ from blueprints.home import home_bp
 from blueprints.play import play_bp
 from blueprints.session import session_bp
 from config import config, runtime_test_data_path
-from config.logging import enable_test_mode_for_logging, get_configured_logger
+from config.logging import (
+    enable_test_mode_for_logging,
+    get_configured_logger,
+    root_logger,
+)
 from config.variables import OptionalVariable, RequiredVariable
 from middlewares.error_handler import handle_error
 from utils import logging_utils
@@ -32,11 +36,13 @@ class Application(Flask):
             prefix_getter=lambda: logging_utils.flask_request_remote_addr_prefix(),
         )
 
-        self.logger.debug("Initializing application")
+        self.logger.info("Initializing the application")
         super().__init__(import_name, **kwargs)
+
         self.testing = test_instance
 
         self._initialize()
+        logging_utils.set_logging_level_from_config(root_logger)
 
     def _initialize(self):
         self._clean_up()
