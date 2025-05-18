@@ -16,7 +16,7 @@ from config.logging import (
 )
 from config.variables import OptionalVariable, RequiredVariable
 from middlewares.error_handler import handle_error
-from utils import logging_utils
+from utils import logging_utils, redis_utils
 from utils.os_utils import delete_file_or_folder
 
 
@@ -113,15 +113,16 @@ class Application(Flask):
 
         # TODO : Check whether or not sessions must be permanent and how to extend their
         # lifetime during a match
-        # self.config["PERMANENT_SESSION_LIFETIME"] = global_config[
-        #     RequiredVariables.APP_SESSION_LIFETIME.name
-        # ]
-        self.config["SESSION_TYPE"] = "cachelib"
-        # TODO : Make this file system if debug otherwise redis
-        self.config["SESSION_CACHELIB"] = FileSystemCache(
-            cache_dir=config.get(OptionalVariable.APP_SESSION_FILE_DIR),
-            threshold=500,
+        self.config["PERMANENT_SESSION_LIFETIME"] = config.get(
+            RequiredVariable.APP_SESSION_LIFETIME
         )
+        # https://flask-session.readthedocs.io/en/latest/config.html#SESSION_KEY_PREFIX
+        # Note : This is already the default, but we're making it explicit
+        self.config["SESSION_KEY_PREFIX"] = "session:"
+        if config.get(RequiredVariable.APP_REDIS_SESSION_STORAGE):
+            self._set_up_redis_session()
+        else:
+            self._setup_file_system_session()
 
     def _set_testing_config(self):
         self.config["SECRET_KEY"] = "test_secret_key"
@@ -130,3 +131,27 @@ class Application(Flask):
             cache_dir=self.TEST_SESSION_FILE_DIR, threshold=20
         )
         self.config["SESSION_PERMANENT"] = False
+
+    def _set_up_redis_session(self):
+        """
+        Will make the app store the session data on the running redis server.
+        """
+        if not redis_utils.is_redis_up_and_running(logger=self.logger):
+            raise RuntimeError(
+                "The app could not be initialized as it could not connect to the redis server"
+            )
+
+        self.config["SESSION_TYPE"] = "redis"
+        self.config["SESSION_REDIS"] = redis_utils.create_connection(logger=self.logger)
+
+    def _setup_file_system_session(self):
+        """
+        Will make the app rely on a file system session.
+
+        WARNING : This is handy in development but not recommended in production.
+        """
+        self.config["SESSION_TYPE"] = "cachelib"
+        self.config["SESSION_CACHELIB"] = FileSystemCache(
+            cache_dir=config.get(OptionalVariable.APP_SESSION_FILE_DIR),
+            threshold=500,
+        )

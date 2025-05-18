@@ -17,14 +17,16 @@ _config_vars_types = {
     RequiredVariable.CORS_ALLOWED_ORIGINS.name: VariableType.LIST_OF_STRINGS,
     RequiredVariable.APP_SECRET_KEY.name: VariableType.STRING,
     RequiredVariable.APP_SESSION_LIFETIME.name: VariableType.INT,
+    RequiredVariable.APP_REDIS_SESSION_STORAGE.name: VariableType.BOOL,
     RequiredVariable.MAX_ROOM_CAPACITY.name: VariableType.INT,
     # Optional Variables
     OptionalVariable.APP_SESSION_FILE_DIR.name: VariableType.STRING,
+    OptionalVariable.APP_REDIS_SERVER_PORT.name: VariableType.INT,
     OptionalVariable.RESET_SESSION_FILE_ON_STARTUP.name: VariableType.BOOL,
 }
 
 _default_config = {
-    RequiredVariable.DEBUG.name: False,
+    RequiredVariable.DEBUG.name: True,
     # The front-end server
     RequiredVariable.CORS_ALLOWED_ORIGINS.name: [
         # TODO : Update that once the actual domain is obtained
@@ -32,12 +34,14 @@ _default_config = {
         "http://localhost:5173",
     ],
     RequiredVariable.APP_SECRET_KEY.name: f"{uuid.uuid4()}",
+    RequiredVariable.APP_REDIS_SESSION_STORAGE.name: False,
     RequiredVariable.APP_SESSION_LIFETIME.name: 7200,  # Two hours
     RequiredVariable.MAX_ROOM_CAPACITY.name: 50,
     # Optional Variables
     OptionalVariable.APP_SESSION_FILE_DIR.name: os.path.join(
         runtime_data_path, "session_data"
     ),
+    OptionalVariable.APP_REDIS_SERVER_PORT.name: 6379,  # Default redis port
     OptionalVariable.RESET_SESSION_FILE_ON_STARTUP.name: False,
 }
 

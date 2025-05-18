@@ -45,7 +45,7 @@ def handle_disconnection():
         _handle_disconnection_in_queue(room_id, room_handler)
         return
 
-    player_info: SessionPlayer = session.get(PLAYER_INFO)
+    player_info: SessionPlayer = session_utils.get_session_player()
     if not player_info:
         return
 

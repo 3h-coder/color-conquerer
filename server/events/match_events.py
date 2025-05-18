@@ -149,7 +149,7 @@ def handle_match_concede():
     """
     Receives the client match concession request, and ends the match.
     """
-    player_info: SessionPlayer = _get_session_variable(PLAYER_INFO)
+    player_info: SessionPlayer = session_utils.get_session_player()
     player_id = player_info.player_id
     room_id = _get_session_variable(ROOM_ID)
 
@@ -211,7 +211,12 @@ def _join_socket_rooms(room_id: str, individual_room_id: str):
 
 
 def _get_player_info_or_raise_error():
-    return _get_session_variable(PLAYER_INFO)
+    player_info = _get_session_variable(PLAYER_INFO)
+    return (
+        player_info
+        if isinstance(player_info, SessionPlayer)
+        else SessionPlayer.from_dict(player_info)
+    )
 
 
 def _get_room_id_or_raise_error():

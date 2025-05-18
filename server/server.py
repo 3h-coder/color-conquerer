@@ -54,7 +54,11 @@ class Server:
         self.connection_handler = ConnectionHandler()
         self.match_handler = MatchHandler()
         self.room_handler = RoomHandler()
-        self.session_cache_handler = SessionCacheHandler()
+
+        # Do not enable that with redis sessions
+        self.session_cache_handler = SessionCacheHandler(
+            enabled=not config.get(RequiredVariable.APP_REDIS_SESSION_STORAGE)
+        )
 
         self.event_listeners: dict[str, Callable] = {}
         self._add_event_listeners()

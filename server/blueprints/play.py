@@ -95,7 +95,7 @@ def _get_player_info_or_raise_error(session_cache_handler: SessionCacheHandler):
     Tries to get the player info from the session or session cache.
     If it fails to get it, throws an unauthorized error.
     """
-    player_info: SessionPlayer = session.get(PLAYER_INFO)
+    player_info: SessionPlayer = session_utils.get_session_player()
     if player_info is None:
         current_app.logger.warning(
             "The player info was not defined, resorting to session cache"

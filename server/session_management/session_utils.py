@@ -1,6 +1,7 @@
 from flask import session
 
 from server_gate import get_session_cache_handler
+from session_management.models.session_player import SessionPlayer
 from session_management.session_variables import (
     IN_MATCH,
     PLAYER_INFO,
@@ -29,6 +30,15 @@ def is_in_match():
 def save_into_session(key: str, value):
     session[key] = value
     session.modified = True
+
+
+def get_session_player():
+    raw_session_player = session.get(PLAYER_INFO)
+    return (
+        raw_session_player
+        if isinstance(raw_session_player, SessionPlayer)
+        else SessionPlayer.from_dict(raw_session_player)
+    )
 
 
 def clear_match_info():

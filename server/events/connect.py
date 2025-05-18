@@ -5,6 +5,7 @@ from config.logging import get_configured_logger
 from dto.misc.message_dto import MessageDto
 from events.events import Events
 from server_gate import get_connection_handler, get_match_handler
+from session_management import session_utils
 from session_management.models.session_player import SessionPlayer
 from session_management.session_variables import PLAYER_INFO, ROOM_ID, SOCKET_CONNECTED
 from utils import logging_utils
@@ -43,7 +44,7 @@ def handle_connection(_):
     if match.is_ongoing():
         _logger.debug("Player rejoinded the match, stopping exit watcher")
 
-        player_info: SessionPlayer = session.get(PLAYER_INFO)
+        player_info: SessionPlayer = session_utils.get_session_player()
         match.stop_watching_player_exit(player_info.player_id)
 
     elif match.is_ended():

@@ -11,3 +11,7 @@ class SessionPlayer:
 
     def to_dto(self):
         return PlayerDto(playerId=self.player_id, isPlayer1=self.is_player1)
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(**data)
