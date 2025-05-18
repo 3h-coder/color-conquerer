@@ -10,5 +10,7 @@
 
 # Client
 
+- FIX : Have spell cast animation tip override each other
+
 
 

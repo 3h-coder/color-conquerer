@@ -1,4 +1,9 @@
 .grid-outer {
+    --z-index-action-spell-desc: 1;
+    --z-index-turn-swap-image: 2;
+    --z-index-blur-overlay: 1000;
+    --z-index-countdown-number: 1001;
+
     position: relative;
     display: flex;
     flex-direction: column;
@@ -24,6 +29,17 @@
     display: contents;
 }
 
+.blur-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: var(--z-index-blur-overlay);
+    pointer-events: none;
+    backdrop-filter: blur(0.2rem);
+}
+
 .countdown-number-container {
     position: absolute;
     background-color: transparent;
@@ -33,7 +49,7 @@
     pointer-events: none;
     height: 80%;
     width: 80%;
-    z-index: 2;
+    z-index: var(--z-index-countdown-number);
     opacity: 0;
     animation: appear-growing-long 0.5s ease-in-out alternate infinite;
 }
@@ -54,7 +70,7 @@
     width: 80%;
     opacity: 0;
     animation: appear-growing-long 1s ease-in-out 2 alternate;
-    z-index: 2;
+    z-index: var(--z-index-turn-swap-image);
 }
 
 .turn-swap-image {
@@ -110,7 +126,7 @@
     background-color: var(--deep-blue);
     padding: var(--spacing-small2);
     border-radius: 0.5rem;
-    z-index: 1;
+    z-index: var(--z-index-action-spell-desc);
 
     animation: glow 1s ease-in-out infinite alternate;
 }

@@ -36,7 +36,7 @@ import "./styles/GameGrid.css";
 export default function GameGrid() {
     const { matchInfo, onEmit } = useMatchContext();
     const { playerId, isPlayer1 } = usePlayerContext();
-    const { turnContext, canInteract, setCanInteract, setMatchStarted } = useTurnContext();
+    const { turnContext, canInteract, setCanInteract, matchStarted, setMatchStarted } = useTurnContext();
     const { setGameContext } = useGameContext();
     const { getAnimationOngoing, signalAnimationStart, signalAnimationEnd } = useAnimationContext();
     const { setPlayerMode } = usePlayerMode();
@@ -321,6 +321,11 @@ export default function GameGrid() {
                     </GridRow>
                 ))}
             </GridInner>
+
+            { /* Blur before the match starts */}
+            {!matchStarted && <BlurOverlay />}
+
+
             { /* Countdown number (before the match starts) */}
             {countdown && <CountdownNumber count={countdown} />}
 
@@ -353,4 +358,8 @@ export function GridInner(props: ContainerProps) {
 
 export function GridRow(props: ContainerProps) {
     return <div className="row">{props.children}</div>;
+}
+
+function BlurOverlay() {
+    return <div className="blur-overlay" />;
 }
