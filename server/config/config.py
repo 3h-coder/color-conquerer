@@ -1,5 +1,6 @@
 import json
 import os
+import traceback
 import uuid
 
 from config import root_path, runtime_data_path
@@ -16,13 +17,14 @@ _config_vars_types = {
     RequiredVariable.DEBUG.name: VariableType.BOOL,
     RequiredVariable.CORS_ALLOWED_ORIGINS.name: VariableType.LIST_OF_STRINGS,
     RequiredVariable.APP_SECRET_KEY.name: VariableType.STRING,
-    RequiredVariable.APP_SESSION_LIFETIME.name: VariableType.INT,
+    RequiredVariable.APP_SESSION_LIFETIME_IN_S.name: VariableType.INT,
     RequiredVariable.APP_REDIS_SESSION_STORAGE.name: VariableType.BOOL,
     RequiredVariable.MAX_ROOM_CAPACITY.name: VariableType.INT,
     # Optional Variables
     OptionalVariable.APP_SESSION_FILE_DIR.name: VariableType.STRING,
     OptionalVariable.APP_REDIS_SERVER_PORT.name: VariableType.INT,
     OptionalVariable.RESET_SESSION_FILE_ON_STARTUP.name: VariableType.BOOL,
+    OptionalVariable.RUN_TESTS_ON_STARTUP.name: VariableType.BOOL,
 }
 
 _default_config = {
@@ -35,7 +37,7 @@ _default_config = {
     ],
     RequiredVariable.APP_SECRET_KEY.name: f"{uuid.uuid4()}",
     RequiredVariable.APP_REDIS_SESSION_STORAGE.name: False,
-    RequiredVariable.APP_SESSION_LIFETIME.name: 7200,  # Two hours
+    RequiredVariable.APP_SESSION_LIFETIME_IN_S.name: 7200,  # Two hours
     RequiredVariable.MAX_ROOM_CAPACITY.name: 50,
     # Optional Variables
     OptionalVariable.APP_SESSION_FILE_DIR.name: os.path.join(
@@ -43,6 +45,7 @@ _default_config = {
     ),
     OptionalVariable.APP_REDIS_SERVER_PORT.name: 6379,  # Default redis port
     OptionalVariable.RESET_SESSION_FILE_ON_STARTUP.name: False,
+    OptionalVariable.RUN_TESTS_ON_STARTUP.name: False,
 }
 
 # To be initialized at startup once

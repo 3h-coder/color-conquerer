@@ -1,12 +1,17 @@
 import LoadingSpinner from "../../../components/LoadingSpinner";
 
-export default function OpponentSearch() {
+interface OpponentSearchProps {
+    text: string;
+}
+
+export default function OpponentSearch(props: OpponentSearchProps) {
+    const { text } = props;
     const loadingSpinnerDimensions = "max(20px, 3vmin)";
 
     return (
         <div id="opponent-search-container">
             <LoadingSpinner style={{ width: loadingSpinnerDimensions, height: loadingSpinnerDimensions }} />
-            <h3 className="no-margin">Searching for an opponent...</h3>
+            <h3 className="no-margin">{text}</h3>
         </div>
     );
 }

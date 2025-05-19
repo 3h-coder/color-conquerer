@@ -23,6 +23,7 @@ class Events(StrEnum):
     SERVER_ACTION_ERROR = "server-actionError"
     SERVER_COUNTDOWN = "server-countdown"  # before the match actually starts
     SERVER_ERROR = "server-error"
+    SERVER_GO_TO_MATCH_ROOM = "server-go-to-match"
     SERVER_INACTIVITY_WARNING = "server-inactivity-warning"
     SERVER_MATCH_END = "server-match-end"
     SERVER_MATCH_INFO = "server-match-info"

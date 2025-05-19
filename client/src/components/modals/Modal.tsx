@@ -2,8 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BugIcon, InfoIcon, WarningTriangleIcon, XMarkIcon } from "../../assets/svg";
 import { ModalIcon } from "../../enums/modalIcons";
-import { SvgContainer } from "../containers";
 import { getOrCreateDomElement } from "../../utils/domUtils";
+import { SvgContainer } from "../containers";
 
 export interface ModalProps {
     isOpenState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
@@ -48,7 +48,7 @@ interface IconProps {
 
 function Icon(props: IconProps) {
     const { icon } = props;
-    const crossButtonDimensions = "max(25px, 3vmin)";
+    let crossButtonDimensions = "max(25px, 3vmin)";
 
     let actualIcon: JSX.Element;
     switch (icon) {
@@ -65,6 +65,7 @@ function Icon(props: IconProps) {
             break;
 
         default:
+            crossButtonDimensions = "0";
             actualIcon = <></>;
             break;
     }

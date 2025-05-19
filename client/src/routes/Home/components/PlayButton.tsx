@@ -5,6 +5,7 @@ import { useHomeError } from "../../../contexts/HomeErrorContext";
 import { useHomeState } from "../../../contexts/HomeStateContext";
 import { useUser } from "../../../contexts/UserContext";
 import { ErrorDto } from "../../../dto/misc/ErrorDto";
+import { QueuePlayerDto } from "../../../dto/player/QueuePlayerDto";
 import { Events } from "../../../enums/events";
 import { HomeState } from "../../../enums/homeState";
 import { EMPTY_STRING, socket } from "../../../env";
@@ -14,7 +15,6 @@ import {
 } from "../../../utils/loggingUtils";
 import { fullPaths } from "../../paths";
 import OpponentSearch from "./OpponentSearch";
-import { QueuePlayerDto } from "../../../dto/player/QueuePlayerDto";
 
 export default function PlayButton() {
     const navigate = useNavigate();
@@ -26,7 +26,9 @@ export default function PlayButton() {
         () => { }
     );
     const [mainButtonText, setMainButtonText] = useState(EMPTY_STRING);
+    const [opponentSearchText, setOpponentSearchText] = useState("Searching for an opponent...");
     const [modalOpen, setModalOpen] = useState(false);
+    const [modalCanBeClosed, setModalCanBeClosed] = useState(true);
     const intendedDisconnection = useRef(false);
 
     const queuePlayerDto: QueuePlayerDto = {
@@ -85,6 +87,7 @@ export default function PlayButton() {
 
         function onDisconnect() {
             setModalOpen(false);
+            setModalCanBeClosed(true);
             if (!intendedDisconnection) {
                 setHomeError("The connexion with the server has been lost");
             }
@@ -98,6 +101,11 @@ export default function PlayButton() {
 
         function onOpponentFound() {
             developmentLog("Opponent found!");
+            setOpponentSearchText("Opponent found");
+            setModalCanBeClosed(false);
+        }
+
+        function onGoToMatchRoom() {
             socket.disconnect();
             navigate(fullPaths.play);
         }
@@ -106,12 +114,14 @@ export default function PlayButton() {
         socket.on(Events.SERVER_ERROR, onError);
         socket.on(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess);
         socket.on(Events.SERVER_QUEUE_OPPONENT_FOUND, onOpponentFound);
+        socket.on(Events.SERVER_GO_TO_MATCH_ROOM, onGoToMatchRoom);
 
         return () => {
             socket.off(Events.DISCONNECT, onDisconnect);
             socket.off(Events.SERVER_ERROR, onError);
             socket.off(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess);
             socket.off(Events.SERVER_QUEUE_OPPONENT_FOUND, onOpponentFound);
+            socket.off(Events.SERVER_GO_TO_MATCH_ROOM, onGoToMatchRoom);
         };
     }, []);
 
@@ -145,11 +155,12 @@ export default function PlayButton() {
                 </button>
             </div>
             <SingleButtonModal
+                enableClosing={modalCanBeClosed}
                 isOpenState={[modalOpen, setModalOpen]}
                 onClose={cancelMultiplayerMatchRequest}
                 buttonText="Cancel"
             >
-                <OpponentSearch />
+                <OpponentSearch text={opponentSearchText} />
             </SingleButtonModal>
         </>
     );

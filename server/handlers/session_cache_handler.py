@@ -4,10 +4,11 @@ from config.logging import get_configured_logger
 class SessionCacheHandler:
     """
     Class used to store session values to retrieve when the session
-    fails to properly persist between requests.
+    fails to properly persist between requests (ofen happens when a redirect comes right after a session save).
 
-    ⚠️ This auxiliary session cache is suitable for a file system session approach (i.e. during development)
-    but becomes irrelevant when using performance centric data stores such as redis.
+    ⚠️ This auxiliary session cache is suitable for session storages that are tied to the app's
+    instance lifetime (example : file system session storage during development).
+    It becomes irrelevant as soon as we want to use separate session data stores that persist between app restarts (i.e. redis)
     """
 
     def __init__(self, enabled: bool):

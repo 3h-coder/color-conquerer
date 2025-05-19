@@ -9,6 +9,7 @@ from blueprints.home import home_bp
 from blueprints.play import play_bp
 from blueprints.session import session_bp
 from config import config, runtime_test_data_path
+from config.app_config import AppConfigKeys, AppSessionType
 from config.logging import (
     enable_test_mode_for_logging,
     get_configured_logger,
@@ -102,35 +103,36 @@ class Application(Flask):
     def _set_production_config(self):
         self.debug = config.get(RequiredVariable.DEBUG)
         # https://flask.palletsprojects.com/en/latest/config/#SECRET_KEY
-        self.config["SECRET_KEY"] = config.get(RequiredVariable.APP_SECRET_KEY)
+        self.config[AppConfigKeys.SECRET_KEY] = config.get(
+            RequiredVariable.APP_SECRET_KEY
+        )
         # https://flask.palletsprojects.com/en/latest/config/#SESSION_COOKIE_SECURE
         # ⚠️ MUST be True
-        self.config["SESSION_COOKIE_SECURE"] = True
+        self.config[AppConfigKeys.SESSION_COOKIE_SECURE] = True
         # https://flask.palletsprojects.com/en/latest/config/#SESSION_COOKIE_SAMESITE
         # ⚠️ MUST be "None" for the browser to accept cookie sending between the frontend and
         # the back-end, along with Secure=True (right above) and "credential":"include" in the frontend
-        self.config["SESSION_COOKIE_SAMESITE"] = "None"
+        self.config[AppConfigKeys.SESSION_COOKIE_SAMESITE] = "None"
 
-        # TODO : Check whether or not sessions must be permanent and how to extend their
-        # lifetime during a match
-        self.config["PERMANENT_SESSION_LIFETIME"] = config.get(
-            RequiredVariable.APP_SESSION_LIFETIME
+        # https://flask.palletsprojects.com/en/latest/config/#PERMANENT_SESSION_LIFETIME
+        self.config[AppConfigKeys.PERMANENT_SESSION_LIFETIME] = config.get(
+            RequiredVariable.APP_SESSION_LIFETIME_IN_S
         )
         # https://flask-session.readthedocs.io/en/latest/config.html#SESSION_KEY_PREFIX
         # Note : This is already the default, but we're making it explicit
-        self.config["SESSION_KEY_PREFIX"] = "session:"
+        self.config[AppConfigKeys.SESSION_KEY_PREFIX] = "session:"
         if config.get(RequiredVariable.APP_REDIS_SESSION_STORAGE):
             self._set_up_redis_session()
         else:
             self._setup_file_system_session()
 
     def _set_testing_config(self):
-        self.config["SECRET_KEY"] = "test_secret_key"
-        self.config["SESSION_TYPE"] = "cachelib"
-        self.config["SESSION_CACHELIB"] = FileSystemCache(
+        self.config[AppConfigKeys.SECRET_KEY] = "test_secret_key"
+        self.config[AppConfigKeys.SESSION_TYPE] = AppSessionType.CACHELIB
+        self.config[AppConfigKeys.SESSION_CACHELIB] = FileSystemCache(
             cache_dir=self.TEST_SESSION_FILE_DIR, threshold=20
         )
-        self.config["SESSION_PERMANENT"] = False
+        self.config[AppConfigKeys.SESSION_PERMANENT] = False
 
     def _set_up_redis_session(self):
         """
@@ -141,8 +143,10 @@ class Application(Flask):
                 "The app could not be initialized as it could not connect to the redis server"
             )
 
-        self.config["SESSION_TYPE"] = "redis"
-        self.config["SESSION_REDIS"] = redis_utils.create_connection(logger=self.logger)
+        self.config[AppConfigKeys.SESSION_TYPE] = AppSessionType.REDIS
+        self.config[AppConfigKeys.SESSION_REDIS] = redis_utils.create_connection(
+            logger=self.logger
+        )
 
     def _setup_file_system_session(self):
         """
@@ -150,8 +154,8 @@ class Application(Flask):
 
         WARNING : This is handy in development but not recommended in production.
         """
-        self.config["SESSION_TYPE"] = "cachelib"
-        self.config["SESSION_CACHELIB"] = FileSystemCache(
+        self.config[AppConfigKeys.SESSION_TYPE] = "cachelib"
+        self.config[AppConfigKeys.SESSION_CACHELIB] = FileSystemCache(
             cache_dir=config.get(OptionalVariable.APP_SESSION_FILE_DIR),
             threshold=500,
         )

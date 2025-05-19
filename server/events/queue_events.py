@@ -12,7 +12,13 @@ from handlers.match_handler import MatchHandler
 from handlers.match_handler_unit import MatchHandlerUnit
 from handlers.room_handler import RoomHandler
 from handlers.session_cache_handler import SessionCacheHandler
-from server_gate import get_match_handler, get_room_handler, get_session_cache_handler
+from server_gate import (
+    get_match_handler,
+    get_room_handler,
+    get_server,
+    get_session_cache_handler,
+)
+from session_management import session_utils
 from session_management.models.session_player import SessionPlayer
 from session_management.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from utils import logging_utils
@@ -55,9 +61,17 @@ def handle_queue_registration(data: dict):
     # If the room is closed, then it already had a player waiting.
     # In that case, notify both clients that an opponent was found and initiate the match.
     if closed:
+        server = get_server()
         match_handler = get_match_handler()
-        # Notify the clients so they can go to the play room
+        # Notify the clients
         emit(Events.SERVER_QUEUE_OPPONENT_FOUND, to=room_id, broadcast=True)
+
+        # Note : This leaves the time for the second client to actually save the player info and room_id into
+        # the session (often fails with instant redirects)
+        server.socketio.sleep(1)
+
+        # Order the client to go to the match room, and launch the match
+        emit(Events.SERVER_GO_TO_MATCH_ROOM, to=room_id, broadcast=True)
         _try_to_launch_match(room_id, room_handler, match_handler)
 
 
@@ -146,4 +160,4 @@ def _save_into_session(
     session_cache = session_cache_handler.get_cache_for_session(session.get(SESSION_ID))
     session[ROOM_ID] = session_cache[ROOM_ID] = room_id
     session[PLAYER_INFO] = session_cache[PLAYER_INFO] = player_info
-    session.modified = True
+    session_utils.forcefully_save_session()

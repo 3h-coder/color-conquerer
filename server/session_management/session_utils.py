@@ -1,5 +1,9 @@
-from flask import session
+import logging
 
+import redis
+from flask import current_app, make_response, session
+
+from config.app_config import AppConfigKeys, AppSessionType
 from server_gate import get_session_cache_handler
 from session_management.models.session_player import SessionPlayer
 from session_management.session_variables import (
@@ -32,6 +36,14 @@ def save_into_session(key: str, value):
     session.modified = True
 
 
+def forcefully_save_session():
+    """
+    To be use when you need to have certain session values saved before the end of a request.
+    """
+    session.modified = True
+    current_app.session_interface.save_session(current_app, session, make_response())
+
+
 def get_session_player():
     raw_session_player = session.get(PLAYER_INFO)
     return (
@@ -39,6 +51,31 @@ def get_session_player():
         if isinstance(raw_session_player, SessionPlayer)
         else SessionPlayer.from_dict(raw_session_player)
     )
+
+
+def refresh_session_lifetime(logger: logging.Logger = None):
+    """
+    Extends/resets the session's lifetime in Redis by updating its TTL.
+    Call this function whenever you want to prevent the session from expiring.
+    """
+    session.modified = True
+
+    if not current_app.config.get(AppConfigKeys.SESSION_TYPE) == AppSessionType.REDIS:
+        return
+
+    redis_connection: redis.Redis = current_app.config.get(AppConfigKeys.SESSION_REDIS)
+    session_key = current_app.config.get(AppConfigKeys.SESSION_KEY_PREFIX)
+    session_id = session.sid if hasattr(session, "sid") else None
+    if session_id:
+        redis_key = f"{session_key}{session_id}"
+        redis_connection.expire(
+            redis_key,
+            int(current_app.config.get(AppConfigKeys.PERMANENT_SESSION_LIFETIME)),
+        )
+    elif logger:
+        logger.warning(
+            "Unable to extend the session's lifetime duration as the session_id is not defined"
+        )
 
 
 def clear_match_info():

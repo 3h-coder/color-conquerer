@@ -2,8 +2,6 @@ import uuid
 
 from flask import Blueprint, jsonify, session
 
-from config import config
-from config.variables import RequiredVariable
 from middlewares.error_handler import handle_error
 from server_gate import get_session_cache_handler
 from session_management.session_variables import SESSION_ID

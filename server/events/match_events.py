@@ -29,14 +29,21 @@ _logger = get_configured_logger(
 # Used in tests as well
 OUT_OF_MATCH_LOG_ERROR_MSG = "Tried to execute a match event outside of a match"
 
+# region Validation decorators
 
-def only_if_in_match(func):
+
+def player_action(func):
     """
-    Decorator that only allows the execution of the decorated function if the
+    Decorator that :
+
+    - Refreshes the session's lifetime
+    - Only allows the execution of the decorated function if the
     player is in a match, uing the session variable IN_MATCH.
     """
 
     def wrapper(*args, **kwargs):
+        session_utils.refresh_session_lifetime()
+
         if not session_utils.is_in_match():
             _logger.error(f"({request.remote_addr}) | {OUT_OF_MATCH_LOG_ERROR_MSG}")
             return
@@ -89,6 +96,11 @@ def only_if_current_turn(error_log_msg: str):
     return decorator
 
 
+# endregion
+
+# region One time events
+
+
 def handle_client_ready():
     """
     Receives the signal of the given player's client and marks the player ready
@@ -132,7 +144,12 @@ def handle_client_ready():
             emit(Events.SERVER_WAITING_FOR_OPPONENT)
 
 
-@only_if_in_match
+# endregion
+
+# region Regular match events
+
+
+@player_action
 @only_if_current_turn(
     "The end of turn can only be requested by the player whose turn it is"
 )
@@ -144,7 +161,7 @@ def handle_turn_end(match: MatchHandlerUnit):
     match.force_turn_swap()
 
 
-@only_if_in_match
+@player_action
 def handle_match_concede():
     """
     Receives the client match concession request, and ends the match.
@@ -159,7 +176,7 @@ def handle_match_concede():
     match.end(EndingReason.PLAYER_CONCEDED, loser_id=player_id)
 
 
-@only_if_in_match
+@player_action
 @only_if_current_turn(
     "Cannot process the click of the player as it is the turn of their opponent"
 )
@@ -172,7 +189,7 @@ def handle_cell_click(match: MatchHandlerUnit, data: dict):
     match.handle_cell_selection(row, col)
 
 
-@only_if_in_match
+@player_action
 @only_if_current_turn(
     "Cannot process the spawn request as it is the turn of their opponent"
 )
@@ -183,7 +200,7 @@ def handle_spawn_button(match: MatchHandlerUnit):
     match.handle_spawn_button()
 
 
-@only_if_in_match
+@player_action
 @only_if_current_turn(
     "Cannot process the spell request of the player as it is the turn of their opponent"
 )
@@ -197,12 +214,9 @@ def handle_spell_button(match: MatchHandlerUnit, spell_id: int):
     match.handle_spell_button(spell_id)
 
 
-def handle_session_clearing():
-    """
-    Sent by the client after acknowledging the end of a match.
-    Clears all the match related session variables so they may queue for a new match.
-    """
-    session_utils.clear_match_info()
+# endregion
+
+# region Private utility methods
 
 
 def _join_socket_rooms(room_id: str, individual_room_id: str):
@@ -247,3 +261,6 @@ def _get_session_variable(variable_name: str):
         raise ServerError(SERVER_ERROR_MSG, socket_connection_killer=True)
 
     return value
+
+
+# endregion

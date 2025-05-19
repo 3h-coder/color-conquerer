@@ -14,4 +14,6 @@ class SessionPlayer:
 
     @classmethod
     def from_dict(cls, data):
+        if data is None:
+            return None
         return cls(**data)
