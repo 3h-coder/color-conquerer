@@ -17,6 +17,7 @@ class MatchHelper:
         self.player2_client = ClientHelper(self.server, is_player1=False)
         self.match_handler_unit: MatchHandlerUnit | None = None
         self.match_context_helper: MatchContextHelper | None = None
+        self._set_up_server_for_tests()
 
     def initiate(self):
         # ⚠️ The order is important
@@ -121,5 +122,9 @@ class MatchHelper:
     def _set_up_match_for_tests(self):
         # This will cancel automatic turn swapping for tests
         self.match_handler_unit._turn_watcher_service.turn_duration_in_s = None
+
+    def _set_up_server_for_tests(self):
+        # This will prevent the wait during the queue process
+        self.server.match_handler._sleep_duration_in_s_after_opponent_found = 0
 
     # endregion

@@ -52,7 +52,7 @@ class Server:
         )
 
         self.connection_handler = ConnectionHandler()
-        self.match_handler = MatchHandler()
+        self.match_handler = MatchHandler(server=self)
         self.room_handler = RoomHandler()
 
         # Do not enable that with redis sessions

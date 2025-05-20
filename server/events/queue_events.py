@@ -58,21 +58,10 @@ def handle_queue_registration(data: dict):
     )
     _save_into_session(room_id, player_info, session_cache_handler)
 
-    # If the room is closed, then it already had a player waiting.
-    # In that case, notify both clients that an opponent was found and initiate the match.
+    # Initiate the match if the room is closed
     if closed:
-        server = get_server()
         match_handler = get_match_handler()
-        # Notify the clients
-        emit(Events.SERVER_QUEUE_OPPONENT_FOUND, to=room_id, broadcast=True)
-
-        # Note : This leaves the time for the second client to actually save the player info and room_id into
-        # the session (often fails with instant redirects)
-        server.socketio.sleep(1)
-
-        # Order the client to go to the match room, and launch the match
-        emit(Events.SERVER_GO_TO_MATCH_ROOM, to=room_id, broadcast=True)
-        _try_to_launch_match(room_id, room_handler, match_handler)
+        match_handler.notify_clients_and_initiate_match(room)
 
 
 def _raise_possible_errors(room_handler: RoomHandler):
@@ -110,7 +99,7 @@ def _try_to_launch_match(
     match: MatchHandlerUnit = None
     try:
         room = room_handler.closed_rooms[room_id]
-        match = match_handler.initiate_match_and_return_unit(room)
+        match = match_handler._create_match_handler_unit(room)
         match.watch_player_entry()
     except Exception:
         _logger.exception(f"An error occured when trying to launch a match")
