@@ -46,7 +46,7 @@ export default function GameGrid() {
     const [showTurnSwapImage, setShowTurnSwapImage] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [actionErrorMessage, setActionErrorMessage] = useState(EMPTY_STRING);
-    const [actionSpell, setActionSpell] = useState<PartialSpellDto | null>(null);
+    const [actionSpell, setSpellAction] = useState<PartialSpellDto | null>(null);
     const [fatigueDamage, setFatigueDamage] = useState<number | null>(null);
     const [boardArray, setBoardArray] = useState(matchInfo.boardArray);
     const { canDisplayCellEffects, triggerCellEffectSync } = useCellEffectSync();
@@ -191,7 +191,7 @@ export default function GameGrid() {
 
                 while (callbackAnimationQueueRef.current.length > 0) {
                     const actionCallback = callbackAnimationQueueRef.current.shift();
-                    await animateActionCallback(actionCallback!, isPlayer1, { setBoardArray, setActionSpell, setGameContext });
+                    await animateActionCallback(actionCallback!, isPlayer1, { setBoardArray, setActionSpell: setSpellAction, setGameContext });
                 }
                 triggerCellEffectSync();
             } finally {
@@ -253,7 +253,7 @@ export default function GameGrid() {
             setGameContext(processedActionDto.updatedGameContext);
 
             // Trigger animations
-            await animateProcessedAction(processedActionDto.processedAction, isPlayer1, isMyTurn, boardArray, setActionSpell);
+            await animateProcessedAction(processedActionDto.processedAction, isPlayer1, isMyTurn, boardArray, setSpellAction);
 
             // Update the board array with the new cell info
             if (isMyTurn && processedActionDto.overridingTransientBoard) {
@@ -336,7 +336,7 @@ export default function GameGrid() {
             {actionErrorMessage && <GameError errorMessage={actionErrorMessage} />}
 
             { /* Spell description card whenever a player casts a spell */}
-            {actionSpell && <SpellAction spell={actionSpell} />}
+            {actionSpell && <SpellAction spell={actionSpell} setSpellAction={setSpellAction} />}
 
             { /* Fatigue animation */}
             {fatigueDamage && <Fatigue fatigue={fatigueDamage} />}

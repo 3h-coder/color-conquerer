@@ -8,6 +8,7 @@ import { handleArcheryVowAnimation } from "./archeryVow";
 import { handleCelerityAnimation } from "./celerity";
 import { handleShieldFormationAnimation } from "./shieldFormation";
 
+
 const SPELL_ANIMATION_HANDLERS: Record<SpellId, ((spellAction: MatchActionDto) => void) | null> = {
     [SpellId.SHIELD_FORMATION]: handleShieldFormationAnimation,
     [SpellId.CELERITY]: handleCelerityAnimation,
@@ -15,6 +16,8 @@ const SPELL_ANIMATION_HANDLERS: Record<SpellId, ((spellAction: MatchActionDto) =
     [SpellId.AMBUSH]: handleAmbushAnimation,
     [SpellId.MINE_TRAP]: null,
 };
+
+let _spellDetailsTimeout: ReturnType<typeof setTimeout> | null = null;
 
 export function handleSpellCastingAnimation(
     spellAction: MatchActionDto,
@@ -28,7 +31,6 @@ export function handleSpellCastingAnimation(
         );
         return;
     }
-
     showSpellDetails(isMyTurn, setActionSpell, spell);
     handleSpellAnimation(spellAction);
 }
@@ -46,6 +48,7 @@ function handleSpellAnimation(spellAction: MatchActionDto) {
 
 function showSpellDetails(isMyTurn: boolean, setActionSpell: (spellAction: PartialSpellDto | null) => void, spellAction: PartialSpellDto) {
     const cleanupDelayInMs = 3500;
+    const remountDelayInMs = 10;
     const spellActionDescriptionTitle = isMyTurn
         ? "You used"
         : "Your opponent used";
@@ -53,9 +56,20 @@ function showSpellDetails(isMyTurn: boolean, setActionSpell: (spellAction: Parti
         localStorageKeys.playPage.spellActionDescription,
         spellActionDescriptionTitle
     );
-    setActionSpell(spellAction);
+
+    // Clear any existing timeout to prevent overlapping
+    if (_spellDetailsTimeout) {
+        clearTimeout(_spellDetailsTimeout);
+    }
+
+    setActionSpell(null); // Force unmount
     setTimeout(() => {
-        setActionSpell(null);
-    }, cleanupDelayInMs);
+        setActionSpell(spellAction);
+
+        _spellDetailsTimeout = setTimeout(() => {
+            setActionSpell(null);
+            _spellDetailsTimeout = null;
+        }, cleanupDelayInMs);
+    }, remountDelayInMs); // Small delay to force remount
 }
 

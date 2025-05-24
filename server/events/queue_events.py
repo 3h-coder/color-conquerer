@@ -5,19 +5,10 @@ from config.logging import get_configured_logger
 from dto.match.client_stored_match_info_dto import ClientStoredMatchInfoDto
 from dto.player.queue_player_dto import QueuePlayerDto
 from events.events import Events
-from events.shared_notifications import match_launch_error_redirect
 from exceptions.queue_error import QueueError
-from game_engine.models.match.cancellation_reason import CancellationReason
-from handlers.match_handler import MatchHandler
-from handlers.match_handler_unit import MatchHandlerUnit
 from handlers.room_handler import RoomHandler
 from handlers.session_cache_handler import SessionCacheHandler
-from server_gate import (
-    get_match_handler,
-    get_room_handler,
-    get_server,
-    get_session_cache_handler,
-)
+from server_gate import get_match_handler, get_room_handler, get_session_cache_handler
 from session_management import session_utils
 from session_management.models.session_player import SessionPlayer
 from session_management.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
@@ -35,6 +26,7 @@ def handle_queue_registration(data: dict):
 
     Is in charge of creating the room up to creating the match.
     """
+    session_utils.refresh_session_lifetime()
     room_handler = get_room_handler()
     session_cache_handler = get_session_cache_handler()
 
@@ -88,25 +80,6 @@ def _raise_possible_errors(room_handler: RoomHandler):
             QueueError.MAX_CAPACITY_ERROR_MSG,
             socket_connection_killer=True,
         )
-
-
-def _try_to_launch_match(
-    room_id, room_handler: RoomHandler, match_handler: MatchHandler
-):
-    """
-    Tries to launch a match, saving the second player's session information at the same time.
-    """
-    match: MatchHandlerUnit = None
-    try:
-        room = room_handler.closed_rooms[room_id]
-        match = match_handler._create_match_handler_unit(room)
-        match.watch_player_entry()
-    except Exception:
-        _logger.exception(f"An error occured when trying to launch a match")
-        if match is not None:
-            match.cancel(cancellation_reason=CancellationReason.SERVER_ERROR)
-
-        match_launch_error_redirect(broadcast_to=room_id)
 
 
 def _set_player_id(queue_player_dto: QueuePlayerDto):

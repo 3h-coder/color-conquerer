@@ -6,17 +6,18 @@ import { getSpellIcon } from "../shared";
 
 interface SpellActionProps {
     spell: PartialSpellDto;
+    setSpellAction: (spellAction: PartialSpellDto | null) => void;
 }
 
 export default function SpellAction(props: SpellActionProps) {
-    const { spell } = props;
+    const { spell, setSpellAction } = props;
     // We're not using extractKey as this component gets re-rendered when
     // the user selects a cell of their own
     const titleText = localStorage.getItem(localStorageKeys.playPage.spellActionDescription);
     const iconSize = "1.2rem";
 
     return (
-        <div id="action-spell-description-outer">
+        <div id="action-spell-description-outer" onClick={() => setSpellAction(null)}>
             {titleText && <h3>{titleText}</h3>}
             <div id="action-spell-description-inner">
                 <HeaderSection>

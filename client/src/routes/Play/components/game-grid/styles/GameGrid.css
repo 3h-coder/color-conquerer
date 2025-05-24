@@ -99,13 +99,19 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    left: 85%;
+    left: 0;
     width: max(45%, 150px);
     transition: all 0.3s ease-in-out;
     animation: fade-in-out var(--animation-duration) ease-out;
 
+    transform: translateX(-110%);
+
+    @media (max-width: 760px) {
+        left: 15%;
+    }
+
     @media (max-width: 570px) {
-        left: 60%;
+        left: 40%;
     }
 
     @media (max-width: 400px) {

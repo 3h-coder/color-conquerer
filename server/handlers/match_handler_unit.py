@@ -251,7 +251,7 @@ class MatchHandlerUnit:
         player2 = self.match_context.player2
         player_ids = [player1.player_id, player2.player_id]
 
-        if player_id not in player_ids:
+        if not player_id or player_id not in player_ids:
             self.logger.error(
                 f"The given player id ({player_id}) is not part of this match"
             )
