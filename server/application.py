@@ -4,6 +4,7 @@ from cachelib import FileSystemCache
 from flask import Flask
 from flask_cors import CORS
 from flask_session import Session
+from flask_sqlalchemy import SQLAlchemy
 
 from blueprints.home import home_bp
 from blueprints.play import play_bp
@@ -17,7 +18,7 @@ from config.logging import (
 )
 from config.variables import OptionalVariable, RequiredVariable
 from middlewares.error_handler import handle_error
-from utils import logging_utils, redis_utils
+from utils import logging_utils, postgre_utils, redis_utils
 from utils.os_utils import delete_file_or_folder
 
 
@@ -51,12 +52,13 @@ class Application(Flask):
         self._register_middlewares()
         self._register_blueprints()
         Session(self)
+        CORS(
+            self,
+            origins=config.get(RequiredVariable.CORS_ALLOWED_ORIGINS),
+            supports_credentials=True,
+        )
         if not self.testing:
-            CORS(
-                self,
-                origins=config.get(RequiredVariable.CORS_ALLOWED_ORIGINS),
-                supports_credentials=True,
-            )
+            self.db = SQLAlchemy(self)
 
     def _clean_up(self):
         """
@@ -125,6 +127,14 @@ class Application(Flask):
             self._set_up_redis_session()
         else:
             self._setup_file_system_session()
+
+        postgre_utils.check_postgre_connection(logger=self.logger)
+        # https://flask-sqlalchemy.readthedocs.io/en/stable/config/#flask_sqlalchemy.config.SQLALCHEMY_DATABASE_URI
+        self.config[AppConfigKeys.SQLALCHEMY_DATABASE_URI] = (
+            postgre_utils.get_prostgre_uri()
+        )
+        # https://flask-sqlalchemy.readthedocs.io/en/stable/config/#flask_sqlalchemy.config.SQLALCHEMY_TRACK_MODIFICATIONS
+        self.config[AppConfigKeys.SQLALCHEMY_TRACK_MODIFICATIONS] = False
 
     def _set_testing_config(self):
         self.config[AppConfigKeys.SECRET_KEY] = "test_secret_key"

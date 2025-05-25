@@ -19,7 +19,12 @@ _config_vars_types = {
     RequiredVariable.APP_SECRET_KEY.name: VariableType.STRING,
     RequiredVariable.APP_SESSION_LIFETIME_IN_S.name: VariableType.INT,
     RequiredVariable.APP_REDIS_SESSION_STORAGE.name: VariableType.BOOL,
-    RequiredVariable.MAX_ROOM_CAPACITY.name: VariableType.INT,
+    RequiredVariable.APP_POSTGRES_USER.name: VariableType.STRING,
+    RequiredVariable.APP_POSTGRES_PASSWORD.name: VariableType.STRING,
+    RequiredVariable.APP_POSTGRES_HOST.name: VariableType.STRING,
+    RequiredVariable.APP_POSTGRES_PORT.name: VariableType.INT,
+    RequiredVariable.APP_POSTGRES_DB_NAME.name: VariableType.STRING,
+    RequiredVariable.GAME_MAX_ROOM_CAPACITY.name: VariableType.INT,
     # Optional Variables
     OptionalVariable.APP_SESSION_FILE_DIR.name: VariableType.STRING,
     OptionalVariable.APP_REDIS_SERVER_PORT.name: VariableType.INT,
@@ -38,7 +43,12 @@ _default_config = {
     RequiredVariable.APP_SECRET_KEY.name: f"{uuid.uuid4()}",
     RequiredVariable.APP_REDIS_SESSION_STORAGE.name: False,
     RequiredVariable.APP_SESSION_LIFETIME_IN_S.name: 7200,  # Two hours
-    RequiredVariable.MAX_ROOM_CAPACITY.name: 50,
+    RequiredVariable.APP_POSTGRES_USER.name: "postgres",
+    RequiredVariable.APP_POSTGRES_PASSWORD.name: "postgres",  # ⚠️ Default password, should be changed in production
+    RequiredVariable.APP_POSTGRES_HOST.name: "localhost",
+    RequiredVariable.APP_POSTGRES_PORT.name: 5432,  # Default postgres port
+    RequiredVariable.APP_POSTGRES_DB_NAME.name: "flaskpg",
+    RequiredVariable.GAME_MAX_ROOM_CAPACITY.name: 50,
     # Optional Variables
     OptionalVariable.APP_SESSION_FILE_DIR.name: os.path.join(
         runtime_data_path, "session_data"

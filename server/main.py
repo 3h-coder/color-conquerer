@@ -1,5 +1,3 @@
-import socket
-
 from application import Application
 from server import Server
 from utils import sys_utils

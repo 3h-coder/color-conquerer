@@ -18,7 +18,7 @@ class RoomHandler:
         self.logger = get_configured_logger(__name__)
         self.open_rooms: dict[str, Room] = {}
         self.closed_rooms: dict[str, Room] = {}
-        self.MAX_CLOSED_ROOMS = config.get(RequiredVariable.MAX_ROOM_CAPACITY)
+        self.MAX_CLOSED_ROOMS = config.get(RequiredVariable.GAME_MAX_ROOM_CAPACITY)
 
     def at_capacity(self):
         """

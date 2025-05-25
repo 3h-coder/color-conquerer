@@ -16,7 +16,7 @@ def is_redis_up_and_running(logger: logging.Logger):
     """
     port = config.get(OptionalVariable.APP_REDIS_SERVER_PORT)
     logger.info(
-        f"Checking if a socket connection can be established to the Redis port ({port})"
+        f"Checking if a socket connection can be established to the Redis port ({port})..."
     )
 
     try:
