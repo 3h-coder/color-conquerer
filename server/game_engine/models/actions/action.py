@@ -1,6 +1,7 @@
 from functools import wraps
 from typing import Any, Type
 
+from dto.base_dto import BaseDto
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.callbacks.callback_factory import get_callback
 from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
@@ -62,7 +63,7 @@ class Action(WithCallbacks, metaclass=ActionMeta):
             f"callbacks_to_trigger={self._callbacks_to_trigger})>"
         )
 
-    def to_dto(self) -> Any:
+    def to_dto(self) -> BaseDto:
         raise NotImplementedError
 
     @staticmethod

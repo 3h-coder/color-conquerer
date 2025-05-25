@@ -28,6 +28,9 @@ class CommonActionManager(ActionManager):
         # region Match persistent fields
 
         self._actions_per_turn = self._match_actions_service.actions_per_turn
+        self._actions_per_turn_serialized = (
+            self._match_actions_service.actions_per_turn_serialized
+        )
         self._action_processor = ActionProcessor(self.match_context, logger=self.logger)
 
         # endregion
@@ -118,7 +121,13 @@ class CommonActionManager(ActionManager):
         if current_turn not in self._actions_per_turn:
             self._actions_per_turn[current_turn] = []
 
+        if current_turn not in self._actions_per_turn_serialized:
+            self._actions_per_turn_serialized[current_turn] = []
+
         self._actions_per_turn[current_turn].append(action)
+        self._actions_per_turn_serialized[current_turn].append(
+            action.to_dto().to_dict()
+        )
 
         if isinstance(action, CellMovement):
             self.turn_state.register_movement(action.cell_id)

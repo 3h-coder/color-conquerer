@@ -11,7 +11,7 @@ class MatchClosureInfo:
     winner: Player | None  # None if draw or no winner
     loser: Player | None  # None if draw or no loser
     total_turns: int
-    actions_per_turn: dict[int, list]
+    actions_per_turn_serialized: dict[int, list[dict]]
 
     def simple_str(self) -> str:
         """

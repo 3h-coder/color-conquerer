@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from config.logging import get_configured_logger
 from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_AND_CLOSED_ROOM_DELETION
 from game_engine.models.match.cancellation_reason import CancellationReason
 from game_engine.models.match.match_cancellation_info import MatchCancellationInfo
@@ -10,6 +9,8 @@ from handlers.match_services.client_notifications import (
     notify_match_ending,
 )
 from handlers.match_services.service_base import ServiceBase
+from persistence.database import db
+from persistence.database.models.ended_match import EndedMatch
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -58,17 +59,21 @@ class MatchTerminationService(ServiceBase):
 
         self.match.mark_as_ended()
 
-        # TODO: save the match closure somewhere
         self.match_closure_info = MatchClosureInfo(
             ending_reason=reason,
             winner=winner,
             loser=loser,
             total_turns=self.match_context.current_turn,
-            actions_per_turn=self.match.get_actions_per_turn(),
+            actions_per_turn_serialized=self.match.get_actions_per_turn(
+                serialized=True
+            ),
         )
         self._logger.debug(f"Match ended -> {self.match_closure_info.simple_str()}")
 
+        self._save_ended_match_into_database()
+
         self._notify_match_ending()
+
         self._close_room()
         self._schedule_garbage_collection()
 
@@ -169,3 +174,21 @@ class MatchTerminationService(ServiceBase):
             return
 
         del match_handler.units[room_id]
+
+    def _save_ended_match_into_database(self):
+        """
+        Saves the ended match information into the database.
+        Does nothing if the server is in testing mode.
+        """
+        if self.match.server.testing:
+            return
+
+        try:
+            ended_match = EndedMatch.from_closure_info(self.match_closure_info)
+            db.session.add(ended_match)
+            db.session.commit()
+        except Exception as ex:
+            self._logger.error(
+                f"Failed to save the ended match into the database: {ex}"
+            )
+            db.session.rollback()

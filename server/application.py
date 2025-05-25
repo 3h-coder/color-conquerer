@@ -4,7 +4,6 @@ from cachelib import FileSystemCache
 from flask import Flask
 from flask_cors import CORS
 from flask_session import Session
-from flask_sqlalchemy import SQLAlchemy
 
 from blueprints.home import home_bp
 from blueprints.play import play_bp
@@ -18,12 +17,10 @@ from config.logging import (
 )
 from config.variables import OptionalVariable, RequiredVariable
 from middlewares.error_handler import handle_error
-from persistence.database import postgre_utils
+from persistence.database import db, postgre_utils
 from persistence.session import redis_utils
 from utils import logging_utils
 from utils.os_utils import delete_file_or_folder
-
-db = SQLAlchemy()
 
 
 class Application(Flask):
@@ -63,6 +60,10 @@ class Application(Flask):
         )
         if not self.testing:
             db.init_app(self)
+
+            with self.app_context():
+                self.logger.info("Creating all database tables")
+                db.create_all()
 
     def _clean_up(self):
         """

@@ -259,11 +259,16 @@ class MatchHandlerUnit:
 
         return player1 if player_id == player_ids[0] else player2
 
-    def get_actions_per_turn(self):
+    def get_actions_per_turn(self, serialized: bool = False):
         """
-        Returns the actions per turn dictionary.
+        Returns the actions per turn dictionary. If `serialized` is True,
+        returns the serialized version of the actions per turn.
         """
-        return self._match_actions_service.actions_per_turn
+        return (
+            self._match_actions_service.actions_per_turn
+            if not serialized
+            else self._match_actions_service.actions_per_turn_serialized
+        )
 
     def get_players_resources(self):
         """

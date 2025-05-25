@@ -38,6 +38,8 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         # Dictionary storing all of the actions that happened during a match.
         # Key : turn number | Value : list of actions
         self.actions_per_turn: dict[int, list] = {}
+        # Currently used to store the upper into the database
+        self.actions_per_turn_serialized: dict[int, list[dict]] = {}
 
         self.common_action_manager = CommonActionManager(self)
         self.cell_selection_manager = CellSelectionManager(self)
@@ -86,6 +88,7 @@ class MatchActionsService(ServiceBase, TransientTurnStateHolder):
         Meant to be used as a callback for the turn watcher service.
         """
         self.actions_per_turn[self.match_context.current_turn] = []
+        self.actions_per_turn_serialized[self.match_context.current_turn] = []
         self.current_player = self.match.get_current_player()
         self.turn_state.reset_for_new_turn()
         self.set_player_as_idle()
