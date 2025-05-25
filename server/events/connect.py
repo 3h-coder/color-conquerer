@@ -4,10 +4,10 @@ from flask_socketio import emit
 from config.logging import get_configured_logger
 from dto.misc.message_dto import MessageDto
 from events.events import Events
+from persistence.session import session_utils
+from persistence.session.models.session_player import SessionPlayer
+from persistence.session.session_variables import ROOM_ID, SOCKET_CONNECTED
 from server_gate import get_connection_handler, get_match_handler
-from session_management import session_utils
-from session_management.models.session_player import SessionPlayer
-from session_management.session_variables import ROOM_ID, SOCKET_CONNECTED
 from utils import logging_utils
 
 _logger = get_configured_logger(

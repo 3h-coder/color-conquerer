@@ -2,9 +2,9 @@ from flask import Blueprint, current_app, session
 
 from dto.game_state.home_state_dto import HomeState, HomeStateDto
 from middlewares.error_handler import handle_error
+from persistence.session import session_utils
+from persistence.session.session_variables import IN_MATCH, ROOM_ID
 from server_gate import get_match_handler
-from session_management import session_utils
-from session_management.session_variables import IN_MATCH, ROOM_ID
 
 home_bp = Blueprint("home", __name__)
 home_bp.register_error_handler(Exception, handle_error)

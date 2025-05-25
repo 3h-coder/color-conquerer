@@ -18,8 +18,12 @@ from config.logging import (
 )
 from config.variables import OptionalVariable, RequiredVariable
 from middlewares.error_handler import handle_error
-from utils import logging_utils, postgre_utils, redis_utils
+from persistence.database import postgre_utils
+from persistence.session import redis_utils
+from utils import logging_utils
 from utils.os_utils import delete_file_or_folder
+
+db = SQLAlchemy()
 
 
 class Application(Flask):
@@ -58,7 +62,7 @@ class Application(Flask):
             supports_credentials=True,
         )
         if not self.testing:
-            self.db = SQLAlchemy(self)
+            db.init_app(self)
 
     def _clean_up(self):
         """

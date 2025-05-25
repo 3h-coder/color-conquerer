@@ -10,15 +10,15 @@ from events.shared_notifications import match_launch_error_redirect
 from exceptions.server_error import ServerError
 from game_engine.models.match.match_closure_info import EndingReason
 from handlers.match_handler_unit import MatchHandlerUnit
-from server_gate import get_match_handler, get_server, get_session_cache_handler
-from session_management import session_utils
-from session_management.models.session_player import SessionPlayer
-from session_management.session_variables import (
+from persistence.session import session_utils
+from persistence.session.models.session_player import SessionPlayer
+from persistence.session.session_variables import (
     IN_MATCH,
     PLAYER_INFO,
     ROOM_ID,
     SESSION_ID,
 )
+from server_gate import get_match_handler, get_server, get_session_cache_handler
 from utils import logging_utils
 
 SERVER_ERROR_MSG = "A server error occured, unable to connect you to your match"

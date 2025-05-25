@@ -4,15 +4,15 @@ import redis
 from flask import current_app, make_response, session
 
 from config.app_config import AppConfigKeys, AppSessionType
-from server_gate import get_session_cache_handler
-from session_management.models.session_player import SessionPlayer
-from session_management.session_variables import (
+from persistence.session.models.session_player import SessionPlayer
+from persistence.session.session_variables import (
     IN_MATCH,
     PLAYER_INFO,
     ROOM_ID,
     SESSION_ID,
     SOCKET_CONNECTED,
 )
+from server_gate import get_session_cache_handler
 
 
 def get_session_data():

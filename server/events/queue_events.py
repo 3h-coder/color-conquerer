@@ -8,10 +8,10 @@ from events.events import Events
 from exceptions.queue_error import QueueError
 from handlers.room_handler import RoomHandler
 from handlers.session_cache_handler import SessionCacheHandler
+from persistence.session import session_utils
+from persistence.session.models.session_player import SessionPlayer
+from persistence.session.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from server_gate import get_match_handler, get_room_handler, get_session_cache_handler
-from session_management import session_utils
-from session_management.models.session_player import SessionPlayer
-from session_management.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from utils import logging_utils
 from utils.id_generation_utils import generate_id
 

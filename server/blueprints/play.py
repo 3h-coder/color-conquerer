@@ -6,10 +6,10 @@ from exceptions.unauthorized_error import UnauthorizedError
 from game_engine.models.match.match_context import MatchContext
 from handlers.session_cache_handler import SessionCacheHandler
 from middlewares.error_handler import handle_error
+from persistence.session import session_utils
+from persistence.session.models.session_player import SessionPlayer
+from persistence.session.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 from server_gate import get_match_handler, get_session_cache_handler
-from session_management import session_utils
-from session_management.models.session_player import SessionPlayer
-from session_management.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
 
 play_bp = Blueprint("play", __name__)
 play_bp.register_error_handler(Exception, handle_error)

@@ -25,7 +25,7 @@ def check_postgre_connection(logger: logging.Logger = None):
     Returns True if the connection is successful, False otherwise.
     """
     if logger:
-        logger.info("Checking connection to PostgreSQL database...")
+        logger.info("Checking connection to the PostgreSQL database...")
 
     try:
         engine = create_engine(get_prostgre_uri())
