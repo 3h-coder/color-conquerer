@@ -10,7 +10,9 @@ from handlers.match_services.client_notifications import (
 )
 from handlers.match_services.service_base import ServiceBase
 from persistence.database import db
+from persistence.database.models.cancelled_match import CancelledMatch
 from persistence.database.models.ended_match import EndedMatch
+from utils.perf_utils import with_performance_logging
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -70,9 +72,9 @@ class MatchTerminationService(ServiceBase):
         )
         self._logger.debug(f"Match ended -> {self.match_closure_info.simple_str()}")
 
-        self._save_ended_match_into_database()
-
         self._notify_match_ending()
+
+        self._save_ended_match_into_database()
 
         self._close_room()
         self._schedule_garbage_collection()
@@ -98,7 +100,6 @@ class MatchTerminationService(ServiceBase):
 
         self.match.mark_as_cancelled()
 
-        # TODO: save the match cancellation somewhere
         other_player, penalized_player = self._get_winner_and_loser(
             None, penalized_player_id
         )
@@ -109,6 +110,8 @@ class MatchTerminationService(ServiceBase):
             player_room=other_player.individual_room_id,
             message="Your opponent did not join the match",
         )
+
+        self._save_cancelled_match_into_database()
 
         self._schedule_garbage_collection()
 
@@ -175,6 +178,7 @@ class MatchTerminationService(ServiceBase):
 
         del match_handler.units[room_id]
 
+    @with_performance_logging
     def _save_ended_match_into_database(self):
         """
         Saves the ended match information into the database.
@@ -190,5 +194,26 @@ class MatchTerminationService(ServiceBase):
         except Exception as ex:
             self._logger.error(
                 f"Failed to save the ended match into the database: {ex}"
+            )
+            db.session.rollback()
+
+    @with_performance_logging
+    def _save_cancelled_match_into_database(self):
+        """
+        Saves the cancelled match information into the database.
+        Does nothing if the server is in testing mode.
+        """
+        if self.match.server.testing:
+            return
+
+        try:
+            cancelled_match = CancelledMatch.from_cancellation_info(
+                self.match_cancellation_info
+            )
+            db.session.add(cancelled_match)
+            db.session.commit()
+        except Exception as ex:
+            self._logger.error(
+                f"Failed to save the cancelled match into the database: {ex}"
             )
             db.session.rollback()
