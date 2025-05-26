@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from config.logging import get_configured_logger
+from flask import copy_current_request_context
+
 from constants.match_constants import DELAY_IN_S_TO_WAIT_FOR_EVERYONE
 from game_engine.models.match.cancellation_reason import CancellationReason
-from game_engine.models.match.match_closure_info import EndingReason
 from handlers.match_services.service_base import ServiceBase
 
 if TYPE_CHECKING:
@@ -50,6 +50,7 @@ class PlayerEntryWatcherService(ServiceBase):
         if at least one player did not join.
         """
 
+        @copy_current_request_context
         def prematurely_end_or_cancel_match_if_necessary():
             self._server.socketio.sleep(DELAY_IN_S_TO_WAIT_FOR_EVERYONE)
 

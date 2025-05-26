@@ -26,7 +26,7 @@ def handle_queue_registration(data: dict):
 
     Is in charge of creating the room up to creating the match.
     """
-    session_utils.refresh_session_lifetime()
+    session_utils.refresh_session_lifetime(logger=_logger)
     room_handler = get_room_handler()
     session_cache_handler = get_session_cache_handler()
 
@@ -121,5 +121,5 @@ def _save_into_session(
     """
     session_cache = session_cache_handler.get_cache_for_session(session.get(SESSION_ID))
     session[ROOM_ID] = session_cache[ROOM_ID] = room_id
-    session[PLAYER_INFO] = session_cache[PLAYER_INFO] = player_info
+    session[PLAYER_INFO] = session_cache[PLAYER_INFO] = player_info.to_dict()
     session_utils.forcefully_save_session()

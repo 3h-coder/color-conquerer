@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 from dto.player.player_dto import PlayerDto
 
@@ -17,3 +17,6 @@ class SessionPlayer:
         if data is None:
             return None
         return cls(**data)
+
+    def to_dict(self):
+        return asdict(self)
