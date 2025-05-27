@@ -1,11 +1,13 @@
 ![Python](https://img.shields.io/badge/Python-3.12-blue.svg)
-![Flask](https://img.shields.io/badge/Flask-3.1.1-lightgrey.svg)
+![Flask](https://img.shields.io/badge/Flask-3.1.1-yellow.svg)
 ![Socket.IO](https://img.shields.io/badge/Socket.IO-4.7.5-black.svg?logo=socket.io)
 ![Redis](https://img.shields.io/badge/Redis-5.0.1-red.svg)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0.22-orange.svg)
 ![React](https://img.shields.io/badge/React-18.2.0-61DAFB.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-3178C6.svg)
 ![Vite](https://img.shields.io/badge/Vite-5.2.0-646CFF.svg)
+![Vite](https://img.shields.io/badge/PostgreSQL-17.5-purple.svg)
+
 
 # Project color conquerer
 
@@ -38,6 +40,8 @@ Simple online turn based board game where you need to defeat the opponent by dam
 # How to play
 
 Go to the official website at (insert-website-here).
-Press the Play button and wait for opponent (or open up an icognito tab to play against yourself).
+Press the Play button and wait for opponent (or open up an incognito tab to play against yourself).
+
 ![image](https://i.imgur.com/spMHIx4.png)
+
 Once an opponent has been found the match starts, try and defeat your opponent, good luck!
