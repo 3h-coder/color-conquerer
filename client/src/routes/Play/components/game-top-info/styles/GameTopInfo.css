@@ -16,6 +16,7 @@
     width: 40%;
     height: max(20px, 3vmin);
     box-sizing: border-box;
+    user-select: none;
     overflow: hidden;
 }
 

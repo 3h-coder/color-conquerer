@@ -134,6 +134,7 @@ button:focus,
 }
 button:disabled, .button:disabled {
   border: 0.16rem solid transparent;
+  user-select: none;
   cursor: default;
 }
 

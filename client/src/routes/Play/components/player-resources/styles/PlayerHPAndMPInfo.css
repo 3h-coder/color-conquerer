@@ -58,6 +58,7 @@
   transition: all 0.1s ease-in-out;
   width: 30%;
   overflow: hidden;
+  user-select: none;
   background-color: var(--primary-grey2);
 }
 
@@ -88,6 +89,7 @@
   border: 0rem solid transparent;
   border-radius: 50%;
   background-color: grey;
+  user-select: none;
   transition: background-color 1s ease-in-out;
 }
 

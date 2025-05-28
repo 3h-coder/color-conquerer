@@ -120,6 +120,7 @@
     align-items: center;
     width: var(--spacing-medium1);
     height: var(--spacing-medium1);
+    user-select: none;
 
     transform: translate(45%, -45%);
     transition: all 0.25s ease;
