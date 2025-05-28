@@ -262,6 +262,14 @@ svg {
   max-width: 50vw;
   text-align: center;
   z-index: 100;
+
+  @media (max-width: 760px) {
+    max-width: 70vw;
+  }
+
+  @media (max-width: 400px) {
+    max-width: 80vw;
+  }
 }
 
 #modal-header {

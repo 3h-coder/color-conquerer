@@ -1,5 +1,6 @@
 import { ContainerProps } from "../../components/containers";
 import HomeStateContextProvider from "../../contexts/HomeStateContext";
+import GameRulesHelp from "./components/GameRulesHelp";
 import HomeError from "./components/HomeError";
 import HomeTopMessage from "./components/HomeTopMessage";
 import IntroductionCarousel from "./components/introduction-carousel/IntroductionCarousel";
@@ -16,7 +17,10 @@ export default function Home() {
                 <HomeTopMessage />
                 <LogoAndTitle />
                 <IntroductionCarousel />
-                <PlayButton />
+                <PlayButtonWrapper>
+                    <PlayButton />
+                    <GameRulesHelp />
+                </PlayButtonWrapper>
                 <HomeError />
             </HomeContainer>
         </HomeStateContextProvider>
@@ -26,6 +30,14 @@ export default function Home() {
 function HomeContainer(props: ContainerProps) {
     return (
         <div id="home-container">
+            {props.children}
+        </div>
+    );
+}
+
+function PlayButtonWrapper(props: ContainerProps) {
+    return (
+        <div id="play-button-wrapper">
             {props.children}
         </div>
     );

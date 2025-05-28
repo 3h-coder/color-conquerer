@@ -8,6 +8,27 @@
   overflow: hidden;
 }
 
+#game-rules {
+  width: var(--spacing-medium2);
+  height: var(--spacing-medium2);
+  position: absolute;
+  cursor: pointer;
+  top: 50%;;
+  left: 120%;
+
+  transform: translateY(-50%);
+}
+
+#game-rules:hover svg {
+  filter: drop-shadow(0.1rem 0.2rem 0.1rem rgb(0 0 0 / 0.2));
+}
+
+#game-rules-list {
+  text-align: left;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
 #logo-container {
   position: relative;
   display: flex;
@@ -84,6 +105,10 @@
 
 .home-top-message-text {
   padding: max(1vmin, 10px);
+}
+
+#play-button-wrapper {
+  position: relative;
 }
 
 .play {
