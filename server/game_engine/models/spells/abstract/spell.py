@@ -7,7 +7,9 @@ from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.dtos.coordinates import Coordinates
 
 if TYPE_CHECKING:
+    from game_engine.models.actions.callbacks.action_callback import ActionCallback
     from game_engine.models.game_board import GameBoard
+    from game_engine.models.match.match_context import MatchContext
 
 
 class Spell:
@@ -22,6 +24,9 @@ class Spell:
     ORIGINAL_COUNT = DEFAULT_SPELL_ORIGINAL_COUNT
     CONDITION_NOT_MET_ERROR_MESSAGE = "Cannot cast this spell"
     INVALID_SELECTION_ERROR_MESSAGE = "Invalid selection for this spell"
+
+    def __init__(self):
+        self._callbacks_to_trigger_for_parent_spell_casting: list["ActionCallback"] = []
 
     def to_dto(self, count: int):
         return SpellDto(
@@ -56,7 +61,10 @@ class Spell:
         raise NotImplementedError
 
     def invoke(
-        self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
+        self,
+        coordinates: Coordinates,
+        match_context: "MatchContext",
+        invocator: CellOwner,
     ):
         raise NotImplementedError
 

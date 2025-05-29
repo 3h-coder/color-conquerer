@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, Any, Generator
 
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
-from game_engine.models.match.match_context import MatchContext
 
 if TYPE_CHECKING:
     from game_engine.models.actions.callbacks.action_callback import ActionCallback
+    from game_engine.models.match.match_context import MatchContext
 
 
 class WithCallbacks:
@@ -37,5 +37,5 @@ class WithCallbacks:
         while unique_callbacks:
             yield unique_callbacks.pop(0)
 
-    def register_callbacks(self, match_context: MatchContext):
+    def register_callbacks(self, match_context: "MatchContext"):
         raise NotImplementedError

@@ -85,8 +85,11 @@ class SpellCasting(Action):
     def apply(self, match_context: MatchContext):
         self.spell.invoke(
             coordinates=self.metadata.impacted_coords,
-            board=match_context.game_board,
+            match_context=match_context,
             invocator=CellOwner.PLAYER_1 if self.from_player1 else CellOwner.PLAYER_2,
+        )
+        self._callbacks_to_trigger = (
+            self.spell._callbacks_to_trigger_for_parent_spell_casting
         )
         self._decrease_spell_count(match_context)
 

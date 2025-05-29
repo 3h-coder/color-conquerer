@@ -9,6 +9,7 @@ from game_engine.models.spells.spell_id import SpellId
 
 if TYPE_CHECKING:
     from game_engine.models.game_board import GameBoard
+    from game_engine.models.match.match_context import MatchContext
 
 
 class ShieldFormationSpell(PositioningSpell):
@@ -56,8 +57,12 @@ class ShieldFormationSpell(PositioningSpell):
         return possible_targets
 
     def invoke(
-        self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
+        self,
+        coordinates: Coordinates,
+        match_context: "MatchContext",
+        invocator: CellOwner,
     ):
+        board = match_context.game_board
         corresponding_square_index = self._formation_per_cell[coordinates]
         corresponding_square = self._cell_formations[corresponding_square_index]
 

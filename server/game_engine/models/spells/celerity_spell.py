@@ -9,6 +9,7 @@ from game_engine.models.spells.spell_id import SpellId
 
 if TYPE_CHECKING:
     from game_engine.models.game_board import GameBoard
+    from game_engine.models.match.match_context import MatchContext
 
 
 class CeleritySpell(PositioningSpell):
@@ -58,8 +59,12 @@ class CeleritySpell(PositioningSpell):
         return possible_targets
 
     def invoke(
-        self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
+        self,
+        coordinates: Coordinates,
+        match_context: "MatchContext",
+        invocator: CellOwner,
     ):
+        board = match_context.game_board
         diagonal_index = self._formation_per_cell[coordinates]
         diagonal = self._cell_formations[diagonal_index]
 

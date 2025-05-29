@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from dto.actions.match_action_dto import ActionType, MatchActionDto
 from game_engine.models.actions.action import Action
@@ -7,7 +8,9 @@ from game_engine.models.actions.hooks.mana_bubble_hook import ManaBubbleHook
 from game_engine.models.cell.cell import Cell
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
-from game_engine.models.match.match_context import MatchContext
+
+if TYPE_CHECKING:
+    from game_engine.models.match.match_context import MatchContext
 
 
 @dataclass
@@ -93,7 +96,7 @@ class CellSpawn(Action):
 
         return possible_spawns
 
-    def apply(self, match_context: MatchContext):
+    def apply(self, match_context: "MatchContext"):
         """
         Spawns a cell at the given coordinates for the given player.
         """

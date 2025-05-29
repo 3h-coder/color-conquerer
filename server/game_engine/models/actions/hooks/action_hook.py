@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING
 
-from game_engine.models.match.match_context import MatchContext
-
 if TYPE_CHECKING:
     from game_engine.models.actions.action import Action
+    from game_engine.models.match.match_context import MatchContext
 
 
 class ActionHook:
@@ -12,5 +11,5 @@ class ActionHook:
     called before the action is performed.
     """
 
-    def trigger(self, action: "Action", match_context: MatchContext):
+    def trigger(self, action: "Action", match_context: "MatchContext"):
         raise NotImplementedError

@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from config.logging import get_configured_logger
 from constants.game_constants import SPELLS_MANA_COST
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
@@ -10,6 +9,7 @@ from game_engine.models.spells.spell_id import SpellId
 
 if TYPE_CHECKING:
     from game_engine.models.game_board import GameBoard
+    from game_engine.models.match.match_context import MatchContext
 
 
 class ArcheryVowSpell(Spell):
@@ -41,8 +41,12 @@ class ArcheryVowSpell(Spell):
         return possible_targets
 
     def invoke(
-        self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
+        self,
+        coordinates: Coordinates,
+        match_context: "MatchContext",
+        invocator: CellOwner,
     ):
+        board = match_context.game_board
         cell = board.get(coordinates.row_index, coordinates.column_index)
         cell.add_modifier(CellState.ARCHER)
 

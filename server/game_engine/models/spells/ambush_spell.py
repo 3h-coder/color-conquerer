@@ -10,6 +10,7 @@ from game_engine.models.spells.spell_id import SpellId
 
 if TYPE_CHECKING:
     from game_engine.models.game_board import GameBoard
+    from game_engine.models.match.match_context import MatchContext
 
 
 class AmbushSpell(Spell):
@@ -40,8 +41,14 @@ class AmbushSpell(Spell):
         return possible_targets
 
     def invoke(
-        self, coordinates: Coordinates, board: "GameBoard", invocator: CellOwner
+        self,
+        coordinates: Coordinates,
+        match_context: "MatchContext",
+        invocator: CellOwner,
     ):
+        from game_engine.models.actions.cell_spawn import CellSpawn
+
+        board = match_context.game_board
         idle_neighbours = board.get_idle_neighbours(
             coordinates.row_index, coordinates.column_index
         )
@@ -58,10 +65,17 @@ class AmbushSpell(Spell):
         self._spawn_coordinates = []
 
         for neighbour in selected_neighbours:
-            board.spawn_cell(
-                neighbour.get_coordinates(), invocator == CellOwner.PLAYER_1
+            coordinates = neighbour.get_coordinates()
+            cell_spawn = CellSpawn.create(
+                from_player1=invocator == CellOwner.PLAYER_1,
+                row_index=coordinates.row_index,
+                column_index=coordinates.column_index,
             )
-            self._spawn_coordinates.append(neighbour.get_coordinates())
+            cell_spawn.apply(match_context)
+            self._callbacks_to_trigger_for_parent_spell_casting.extend(
+                cell_spawn._callbacks_to_trigger
+            )
+            self._spawn_coordinates.append(coordinates)
 
     def get_specific_metadata_dto(self):
         return self._get_spawn_info_dto()

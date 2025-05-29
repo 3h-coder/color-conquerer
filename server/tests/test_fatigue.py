@@ -1,5 +1,3 @@
-import time
-from typing import Callable
 from unittest.mock import MagicMock
 
 from constants.game_constants import MAX_STAMINA_VALUE
