@@ -19,13 +19,11 @@ class WithCallbacks:
         self._callbacks_to_trigger: list["ActionCallback"] = []
 
     def has_callbacks_to_trigger(self):
-        return self._callbacks_to_trigger is not None and bool(
-            self._callbacks_to_trigger
-        )
+        return bool(self._callbacks_to_trigger)
 
     def get_callbacks_to_trigger(self) -> Generator["ActionCallback", Any, None]:
         """
-        Returns the callbacks to trigger in the order they should be triggered,
+        Yields the callbacks to trigger in the order they should be triggered,
         while emptying the internal list.
         """
         # Convert to set and back to list to ensure uniqueness while preserving latest order

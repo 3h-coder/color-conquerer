@@ -30,7 +30,7 @@ class PlayerResources:
             max_hp=MAX_HP_VALUE,
             current_hp=MAX_HP_VALUE,
             max_mp=MAX_MP_VALUE,
-            current_mp=MAX_MP_VALUE,
+            current_mp=1,
             spells=get_initial_spell_deck(),
             current_stamina=MAX_STAMINA_VALUE,
             max_stamina=MAX_STAMINA_VALUE,
