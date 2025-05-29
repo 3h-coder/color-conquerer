@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Type
 
 from config.logging import get_configured_logger
 from dto.actions.action_callback_dto import ActionCallbackDto
@@ -17,7 +17,35 @@ if TYPE_CHECKING:
     from game_engine.models.actions.abstract.action import Action
 
 
-class ActionCallback(WithCallbacks):
+class ActionCallbackMeta(type):
+    """
+    Metaclass to automatically wrap the 'trigger' method of ActionCallback subclasses
+    with check_for_callbacks and update_game_board_and_player_resources.
+    """
+
+    def __new__(
+        mcs: Type[type], name: str, bases: tuple[type, ...], namespace: dict[str, Any]
+    ):
+        TRIGGER_METHOD_NAME = "trigger"
+        trigger_func = namespace.get(TRIGGER_METHOD_NAME)
+        if trigger_func is not None and callable(trigger_func):
+
+            @wraps(trigger_func)
+            def wrapped_trigger(self: "ActionCallback", match_context: MatchContext):
+                """
+                Wraps the trigger method to ensure that callbacks are checked
+                and game board/player resources are updated after the action is triggered.
+                """
+                trigger_func(self, match_context)
+
+                self.check_for_callbacks(match_context)
+                self.update_game_board_and_player_resources(match_context)
+
+            namespace[TRIGGER_METHOD_NAME] = wrapped_trigger
+        return super().__new__(mcs, name, bases, namespace)
+
+
+class ActionCallback(WithCallbacks, metaclass=ActionCallbackMeta):
     """
     Defines an action that is indirectly triggered by another, and therefore
     should be called after an action is performed.
@@ -74,37 +102,21 @@ class ActionCallback(WithCallbacks):
     def can_be_triggered(self, match_context: MatchContext):
         raise NotImplementedError
 
-    def check_for_callbacks(trigger_func):
+    def check_for_callbacks(self, match_context: MatchContext):
         """
-        Decorator to automatically register eventual callbacks
+        Registers eventual callbacks
         after the callback has triggered.
         """
+        if self.can_trigger_callbacks:
+            self.register_callbacks(match_context)
 
-        @wraps(trigger_func)
-        def wrapper(self: "ActionCallback", match_context: MatchContext):
-            trigger_func(self, match_context)
-
-            if self.can_trigger_callbacks:
-                self.register_callbacks(match_context)
-
-        return wrapper
-
-    def update_game_board_and_player_resources(trigger_func):
+    def update_game_board_and_player_resources(self, match_context: MatchContext):
         """
-        Decorator to automatically set the updated_game_board field after
+        Sets the updated_game_board field after
         triggering the callback.
         """
+        self.updated_game_board = match_context.game_board.clone()
+        self.updated_player_resources = match_context.get_both_players_resources()
 
-        @wraps(trigger_func)
-        def wrapper(self: "ActionCallback", match_context: MatchContext):
-            trigger_func(self, match_context)
-
-            self.updated_game_board = match_context.game_board.clone()
-            self.updated_player_resources = match_context.get_both_players_resources()
-
-        return wrapper
-
-    @check_for_callbacks
-    @update_game_board_and_player_resources
     def trigger(self, match_context: MatchContext):
         raise NotImplementedError

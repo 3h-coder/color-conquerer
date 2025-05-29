@@ -83,8 +83,6 @@ class MineExplosionCallback(ActionCallback):
         for radius in explosions_per_radius:
             self._callbacks_to_trigger += explosions_per_radius[radius]
 
-    @ActionCallback.check_for_callbacks
-    @ActionCallback.update_game_board_and_player_resources
     def trigger(self, match_context):
         game_board = match_context.game_board
 
