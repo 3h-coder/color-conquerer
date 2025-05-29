@@ -25,9 +25,6 @@ class Spell:
     CONDITION_NOT_MET_ERROR_MESSAGE = "Cannot cast this spell"
     INVALID_SELECTION_ERROR_MESSAGE = "Invalid selection for this spell"
 
-    def __init__(self):
-        self._callbacks_to_trigger_for_parent_spell_casting: list["ActionCallback"] = []
-
     def to_dto(self, count: int):
         return SpellDto(
             id=self.ID,
@@ -65,7 +62,10 @@ class Spell:
         coordinates: Coordinates,
         match_context: "MatchContext",
         invocator: CellOwner,
-    ):
+    ) -> list["ActionCallback"] | None:
+        """
+        Invokes the spell at the given coordinates, and possibly returns a list of action callbacks.
+        """
         raise NotImplementedError
 
     def get_specific_metadata_dto(self) -> None | Any:

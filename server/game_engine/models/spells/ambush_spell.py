@@ -64,6 +64,7 @@ class AmbushSpell(Spell):
         )
         self._spawn_coordinates = []
 
+        callbacks = []
         for neighbour in selected_neighbours:
             coordinates = neighbour.get_coordinates()
             cell_spawn = CellSpawn.create(
@@ -72,10 +73,10 @@ class AmbushSpell(Spell):
                 column_index=coordinates.column_index,
             )
             cell_spawn.apply(match_context)
-            self._callbacks_to_trigger_for_parent_spell_casting.extend(
-                cell_spawn._callbacks_to_trigger
-            )
+            callbacks.extend(cell_spawn._callbacks_to_trigger)
             self._spawn_coordinates.append(coordinates)
+
+        return callbacks
 
     def get_specific_metadata_dto(self):
         return self._get_spawn_info_dto()

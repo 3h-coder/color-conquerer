@@ -74,6 +74,9 @@ class CommonActionManager(ActionManager):
         )
         triggered_callbacks = set()
         for callback in self._action_processor.trigger_callbacks(processed_action):
+            if not callback.did_trigger:
+                continue
+
             self._recalculate_possible_actions()
 
             triggered_callbacks.add(callback)

@@ -1,4 +1,7 @@
+from functools import wraps
 from typing import TYPE_CHECKING
+
+from flask import current_app, has_request_context
 
 from constants.match_constants import DELAY_IN_S_BEFORE_MATCH_AND_CLOSED_ROOM_DELETION
 from game_engine.models.match.cancellation_reason import CancellationReason
@@ -31,6 +34,21 @@ class MatchTerminationService(ServiceBase):
         # Note : both objects should never be populated at the same time
         self.match_closure_info: MatchClosureInfo | None = None
         self.match_cancellation_info: MatchCancellationInfo | None = None
+
+    def _with_request_context(db_save_func):
+        @wraps(db_save_func)
+        def wrapper(self, *args, **kwargs):
+            """
+            Decorator to ensure that the database save function is called
+            within a request context, creating one if necessary.
+            """
+            if has_request_context():
+                return db_save_func(self, *args, **kwargs)
+            else:
+                with current_app.app_context():
+                    return db_save_func(self, *args, **kwargs)
+
+        return wrapper
 
     def end_match(
         self,
@@ -179,6 +197,7 @@ class MatchTerminationService(ServiceBase):
         del match_handler.units[room_id]
 
     @with_performance_logging
+    @_with_request_context
     def _save_ended_match_into_database(self):
         """
         Saves the ended match information into the database.
@@ -198,6 +217,7 @@ class MatchTerminationService(ServiceBase):
             db.session.rollback()
 
     @with_performance_logging
+    @_with_request_context
     def _save_cancelled_match_into_database(self):
         """
         Saves the cancelled match information into the database.

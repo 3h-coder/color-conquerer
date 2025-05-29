@@ -50,16 +50,16 @@ class MineExplosionCallback(ActionCallback):
         return dto
 
     def can_be_triggered(self, match_context):
-        if self.explosion_center_coords is not None:
-            return True
+        coords = self.explosion_center_coords
+        if coords is None:
+            parent_action = self.parent_action
+            if not parent_action:
+                return False
+            coords = parent_action.metadata.impacted_coords
+            self.explosion_center_coords = coords
 
-        parent_action = self.parent_action
-
-        self.explosion_center_coords = impacted_coords = (
-            parent_action.metadata.impacted_coords
-        )
         impacted_cell = match_context.game_board.get(
-            impacted_coords.row_index, impacted_coords.column_index
+            coords.row_index, coords.column_index
         )
         return impacted_cell.is_mine_trap()
 

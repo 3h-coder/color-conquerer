@@ -83,14 +83,14 @@ class SpellCasting(Action):
         return possible_spell_targets
 
     def apply(self, match_context: MatchContext):
-        self.spell.invoke(
+        callbacks = self.spell.invoke(
             coordinates=self.metadata.impacted_coords,
             match_context=match_context,
             invocator=CellOwner.PLAYER_1 if self.from_player1 else CellOwner.PLAYER_2,
         )
-        self._callbacks_to_trigger = (
-            self.spell._callbacks_to_trigger_for_parent_spell_casting
-        )
+        if callbacks:
+            # Remove duplicates
+            self._callbacks_to_trigger.extend(list(set(callbacks)))
         self._decrease_spell_count(match_context)
 
     def _decrease_spell_count(self, match_context: MatchContext):

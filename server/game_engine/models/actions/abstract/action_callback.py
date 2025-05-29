@@ -36,10 +36,17 @@ class ActionCallbackMeta(type):
                 Wraps the trigger method to ensure that callbacks are checked
                 and game board/player resources are updated after the action is triggered.
                 """
-                trigger_func(self, match_context)
+                try:
+                    # The board may have been updated since the callback was registered,
+                    # so we need to check again if the callback can still be triggered.
+                    if not self.can_be_triggered(match_context):
+                        return
 
-                self.check_for_callbacks(match_context)
-                self.update_game_board_and_player_resources(match_context)
+                    trigger_func(self, match_context)
+                    self.did_trigger = True
+                    self.check_for_callbacks(match_context)
+                finally:
+                    self.update_game_board_and_player_resources(match_context)
 
             namespace[TRIGGER_METHOD_NAME] = wrapped_trigger
         return super().__new__(mcs, name, bases, namespace)
@@ -66,6 +73,7 @@ class ActionCallback(WithCallbacks, metaclass=ActionCallbackMeta):
         ) = None
         self.deaths: list[Coordinates] = []
         self.can_trigger_callbacks = True
+        self.did_trigger = False
 
     def __eq__(self, other):
         return (
@@ -115,7 +123,7 @@ class ActionCallback(WithCallbacks, metaclass=ActionCallbackMeta):
         Sets the updated_game_board field after
         triggering the callback.
         """
-        self.updated_game_board = match_context.game_board.clone()
+        self.updated_game_board = match_context.game_board
         self.updated_player_resources = match_context.get_both_players_resources()
 
     def trigger(self, match_context: MatchContext):
