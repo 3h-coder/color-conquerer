@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from game_engine.models.actions.action import Action
+from game_engine.models.actions.abstract.action import Action
 from game_engine.models.actions.cell_attack import CellAttack
 from game_engine.models.actions.cell_movement import CellMovement
 from game_engine.models.cell.cell import Cell

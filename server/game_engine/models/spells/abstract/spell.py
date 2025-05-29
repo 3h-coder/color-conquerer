@@ -7,7 +7,7 @@ from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.dtos.coordinates import Coordinates
 
 if TYPE_CHECKING:
-    from game_engine.models.actions.callbacks.action_callback import ActionCallback
+    from game_engine.models.actions.abstract.action_callback import ActionCallback
     from game_engine.models.game_board import GameBoard
     from game_engine.models.match.match_context import MatchContext
 

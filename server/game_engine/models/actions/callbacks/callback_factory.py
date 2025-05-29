@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 
 if TYPE_CHECKING:
-    from game_engine.models.actions.action import Action
-    from game_engine.models.actions.callbacks.action_callback import ActionCallback
+    from game_engine.models.actions.abstract.action import Action
+    from game_engine.models.actions.abstract.action_callback import ActionCallback
 
 
 def get_callback(

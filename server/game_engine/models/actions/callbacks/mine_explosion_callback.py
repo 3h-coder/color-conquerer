@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING
 
 from dto.actions.action_callback_dto import ActionCallbackDto
-from game_engine.models.actions.callbacks.action_callback import ActionCallback
+from game_engine.models.actions.abstract.action_callback import ActionCallback
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.spells.mine_trap_spell import MineTrapSpell
 
 if TYPE_CHECKING:
-    from game_engine.models.actions.action import Action
+    from game_engine.models.actions.abstract.action import Action
 
 
 class MineExplosionCallback(ActionCallback):

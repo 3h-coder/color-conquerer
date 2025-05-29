@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from dto.actions.match_action_dto import ActionType, MatchActionDto
-from game_engine.models.actions.action import Action
+from game_engine.models.actions.abstract.action import Action
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.hooks.mana_bubble_hook import ManaBubbleHook
 from game_engine.models.cell.cell import Cell

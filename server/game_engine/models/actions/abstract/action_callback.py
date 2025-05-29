@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING
 from config.logging import get_configured_logger
 from dto.actions.action_callback_dto import ActionCallbackDto
 from dto.game_state.game_context_dto import GameContextDto
+from game_engine.models.actions.abstract.with_callbacks import WithCallbacks
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.callbacks.callback_factory import get_callback
-from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.game_board import GameBoard
 from game_engine.models.match.match_context import MatchContext
@@ -14,7 +14,7 @@ from game_engine.models.player.player_resources import PlayerResources
 from game_engine.models.spells.abstract.spell import Spell
 
 if TYPE_CHECKING:
-    from game_engine.models.actions.action import Action
+    from game_engine.models.actions.abstract.action import Action
 
 
 class ActionCallback(WithCallbacks):

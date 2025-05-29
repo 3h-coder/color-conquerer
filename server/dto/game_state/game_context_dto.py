@@ -7,7 +7,7 @@ from dto.player.player_resources_bundle_dto import PlayerResourceBundleDto
 from dto.spell.spells_dto import SpellsDto
 
 if TYPE_CHECKING:
-    from game_engine.models.actions.callbacks.action_callback import ActionCallback
+    from game_engine.models.actions.abstract.action_callback import ActionCallback
     from game_engine.models.match.match_context import MatchContext
 
 

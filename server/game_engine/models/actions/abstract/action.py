@@ -2,9 +2,9 @@ from functools import wraps
 from typing import Any, Type
 
 from dto.base_dto import BaseDto
+from game_engine.models.actions.abstract.with_callbacks import WithCallbacks
 from game_engine.models.actions.callbacks.action_callback_id import ActionCallBackId
 from game_engine.models.actions.callbacks.callback_factory import get_callback
-from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
 from game_engine.models.actions.hooks.action_hook import ActionHook
 from game_engine.models.actions.metadata.action_metadata import ActionMedatata
 from game_engine.models.dtos.coordinates import Coordinates

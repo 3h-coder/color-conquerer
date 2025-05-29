@@ -1,4 +1,4 @@
-from game_engine.models.actions.action import Action
+from game_engine.models.actions.abstract.action import Action
 from game_engine.models.actions.hooks.action_hook import ActionHook
 from game_engine.models.match.match_context import MatchContext
 

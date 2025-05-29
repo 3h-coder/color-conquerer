@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 from config.logging import get_configured_logger
 from dto.actions.possible_actions_dto import PossibleActionsDto
 from dto.actions.processed_action_dto import ProcessedActionDto
-from game_engine.models.actions.action import Action
-from game_engine.models.actions.callbacks.action_callback import ActionCallback
+from game_engine.models.actions.abstract.action import Action
+from game_engine.models.actions.abstract.action_callback import ActionCallback
 from handlers.match_services.action_helpers.abstract.transient_turn_state_holder import (
     TransientTurnStateHolder,
 )

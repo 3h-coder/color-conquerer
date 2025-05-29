@@ -1,5 +1,5 @@
 from dto.actions.match_action_dto import ActionType
-from game_engine.models.actions.cell_action import CellAction
+from game_engine.models.actions.abstract.cell_action import CellAction
 from game_engine.models.actions.metadata.cell_attack_metadata import CellAttackMetadata
 from game_engine.models.cell.cell import Cell
 from game_engine.models.dtos.coordinates import Coordinates

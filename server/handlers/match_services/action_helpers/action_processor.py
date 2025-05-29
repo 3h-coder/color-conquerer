@@ -2,8 +2,8 @@ import logging
 
 from config.logging import get_configured_logger
 from game_engine.action_processing import process_action
-from game_engine.models.actions.action import Action
-from game_engine.models.actions.callbacks.with_callbacks import WithCallbacks
+from game_engine.models.actions.abstract.action import Action
+from game_engine.models.actions.abstract.with_callbacks import WithCallbacks
 from game_engine.models.match.match_context import MatchContext
 
 
