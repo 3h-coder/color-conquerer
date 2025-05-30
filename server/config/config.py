@@ -36,8 +36,7 @@ _default_config = {
     RequiredVariable.DEBUG.name: True,
     # The front-end server
     RequiredVariable.CORS_ALLOWED_ORIGINS.name: [
-        # TODO : Update that once the actual domain is obtained
-        "https://color-conquerer.com",
+        "https://colorconquerer.com",
         "http://localhost:5173",
     ],
     RequiredVariable.APP_SECRET_KEY.name: f"{uuid.uuid4()}",
