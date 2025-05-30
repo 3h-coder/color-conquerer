@@ -15,6 +15,7 @@ from handlers.match_services.service_base import ServiceBase
 from persistence.database import db
 from persistence.database.models.cancelled_match import CancelledMatch
 from persistence.database.models.ended_match import EndedMatch
+from server_gate import get_server
 from utils.perf_utils import with_performance_logging
 
 if TYPE_CHECKING:
@@ -37,7 +38,7 @@ class MatchTerminationService(ServiceBase):
 
     def _with_request_context(db_save_func):
         @wraps(db_save_func)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(self: "MatchTerminationService", *args, **kwargs):
             """
             Decorator to ensure that the database save function is called
             within a request context, creating one if necessary.
@@ -45,7 +46,7 @@ class MatchTerminationService(ServiceBase):
             if has_request_context():
                 return db_save_func(self, *args, **kwargs)
             else:
-                with current_app.app_context():
+                with get_server().app.app_context():
                     return db_save_func(self, *args, **kwargs)
 
         return wrapper

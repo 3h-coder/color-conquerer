@@ -55,7 +55,7 @@ _default_config = {
     ),
     OptionalVariable.APP_REDIS_SERVER_PORT.name: 6379,  # Default redis port
     OptionalVariable.RESET_SESSION_FILE_ON_STARTUP.name: False,
-    OptionalVariable.RUN_TESTS_ON_STARTUP.name: False,
+    OptionalVariable.RUN_TESTS_ON_STARTUP.name: False,  # Should be set to False in production, as it slows down the startup
 }
 
 # To be initialized at startup once

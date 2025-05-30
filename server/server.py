@@ -1,12 +1,13 @@
+import subprocess
 import traceback
 from typing import Callable
 
 from flask import Flask
 from flask_socketio import SocketIO, emit
 
-from config import config
+from config import TESTS_FOLDER_NAME, config
 from config.logging import get_configured_logger
-from config.variables import RequiredVariable
+from config.variables import OptionalVariable, RequiredVariable
 from dto.misc.error_dto import ErrorDto
 from events.connect import handle_connection
 from events.disconnect import handle_disconnection
@@ -66,6 +67,22 @@ class Server:
         # Allow the instance to be available everywhere
         set_server(self)
 
+    def run(self, host="0.0.0.0", port=5000, **kwargs):
+        test_success = self._run_tests()
+        if not test_success:
+            self.logger.error("Tests failed, not starting the server.")
+            return
+
+        self.logger.info(f"Starting server on {host}:{port} with debug={self.debug}")
+        self.socketio.run(
+            app=self.app,
+            host=host,
+            port=port,
+            debug=self.debug,
+            use_reloader=False,
+            **kwargs,
+        )
+
     def _add_event_listeners(self):
         self._add_listener("connect", handle_connection)
         self._add_listener("disconnect", handle_disconnection)
@@ -95,12 +112,31 @@ class Server:
         self.socketio.on_event(event_name, listener)
         self.event_listeners[event_name] = listener
 
-    def run(self, host="0.0.0.0", port=5000, **kwargs):
-        self.socketio.run(
-            app=self.app,
-            host=host,
-            port=port,
-            debug=self.debug,
-            use_reloader=False,
-            **kwargs,
+    def _run_tests(self) -> bool:
+        """
+        Run tests for the server.
+        Returns:
+            bool: True if all tests passed or were skipped, False otherwise.
+        """
+        if not config.get(OptionalVariable.RUN_TESTS_ON_STARTUP):
+            self.logger.info("Skipping server tests as per configuration.")
+            return True
+
+        self.logger.info("Running server tests with pytest...")
+        # Run pytest and stream output live to the console
+        process = subprocess.Popen(
+            ["pytest", TESTS_FOLDER_NAME],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
         )
+        # Print each line as it comes
+        output_lines = []
+        for line in process.stdout:
+            print(line, end="")
+            output_lines.append(line)
+        process.wait()
+
+        self.logger.info(f"Pytest output:\n{"".join(output_lines)}")
+        return process.returncode == 0
