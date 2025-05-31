@@ -12,7 +12,9 @@ class RequiredVariable(Enum):
     APP_POSTGRES_HOST = 8
     APP_POSTGRES_PORT = 9
     APP_POSTGRES_DB_NAME = 10
-    GAME_MAX_ROOM_CAPACITY = 11
+    FRONTEND_SERVER_PORT = 11
+    BACKEND_SERVER_PORT = 12
+    GAME_MAX_ROOM_CAPACITY = 13
 
 
 class OptionalVariable(Enum):

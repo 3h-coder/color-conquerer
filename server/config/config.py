@@ -1,17 +1,17 @@
 import json
 import os
-import traceback
 import uuid
 
 from config import root_path, runtime_data_path
 from config.logging import root_logger
 from config.variable_types import VariableType
 from config.variables import OptionalVariable, RequiredVariable
-from utils import logging_utils
 
 # os.join is safer than pathlib.Path("directory", "subdirectory") as
 # it does not replace drive:// with drive:/
-CONFIG_FILE_PATH = os.path.join(root_path, "config.json")
+CONFIG_FILE_PATH = CONFIG_FILE_PATH = os.environ.get(
+    "COLOR_CONQUERER_CONFIG_PATH", os.path.join(root_path.parent, "config.json")
+)
 
 _config_vars_types = {
     RequiredVariable.DEBUG.name: VariableType.BOOL,
@@ -24,6 +24,8 @@ _config_vars_types = {
     RequiredVariable.APP_POSTGRES_HOST.name: VariableType.STRING,
     RequiredVariable.APP_POSTGRES_PORT.name: VariableType.INT,
     RequiredVariable.APP_POSTGRES_DB_NAME.name: VariableType.STRING,
+    RequiredVariable.FRONTEND_SERVER_PORT.name: VariableType.INT,
+    RequiredVariable.BACKEND_SERVER_PORT.name: VariableType.INT,
     RequiredVariable.GAME_MAX_ROOM_CAPACITY.name: VariableType.INT,
     # Optional Variables
     OptionalVariable.APP_SESSION_FILE_DIR.name: VariableType.STRING,
@@ -47,6 +49,8 @@ _default_config = {
     RequiredVariable.APP_POSTGRES_HOST.name: "localhost",
     RequiredVariable.APP_POSTGRES_PORT.name: 5432,  # Default postgres port
     RequiredVariable.APP_POSTGRES_DB_NAME.name: "flaskpg",
+    RequiredVariable.FRONTEND_SERVER_PORT.name: 5173,  # Default vite port
+    RequiredVariable.BACKEND_SERVER_PORT.name: 5000,  # Default flask port
     RequiredVariable.GAME_MAX_ROOM_CAPACITY.name: 50,
     # Optional Variables
     OptionalVariable.APP_SESSION_FILE_DIR.name: os.path.join(

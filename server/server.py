@@ -67,11 +67,14 @@ class Server:
         # Allow the instance to be available everywhere
         set_server(self)
 
-    def run(self, host="0.0.0.0", port=5000, **kwargs):
+    def run(self, host="0.0.0.0", port=None, **kwargs):
         test_success = self._run_tests()
         if not test_success:
             self.logger.error("Tests failed, not starting the server.")
             return
+
+        if port is None:
+            port = config.get(RequiredVariable.BACKEND_SERVER_PORT)
 
         self.logger.info(f"Starting server on {host}:{port} with debug={self.debug}")
         self.socketio.run(
