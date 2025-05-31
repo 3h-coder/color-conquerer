@@ -72,11 +72,17 @@ Find below the setup steps
 
 [TBD]
 
-## Gunicorn
-
-
-
 ## App depencencies
+
+Note that python is already installed by default on ubuntu.
+The script will automatically setup the venv and install the python dependencies before running the web app.
+Check the [serve](#serve-the-web-app) section for that.
+
+### Npm
+
+Find the steps below to install npm:
+- Update apt : `sudo apt update`
+- Install : `sudo apt install npm`
 
 ### Redis
 
@@ -104,6 +110,6 @@ Now setup a password for the postgres superuser
 - Change the password : `\password postgres`
 You may now connect to the server in pgAdmin4, see the default postgres database and create the database for the web app.
 
-## Launch the web app
+## Serve the web app
 
 ### Getting the production version through git

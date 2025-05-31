@@ -5,7 +5,7 @@ Used to run the backend server for the application.
 import os
 import subprocess
 
-from shared import venv_python
+from shared import kill_process_on_port, venv_python
 
 from scripts.shared import ServerType, wait_for_server
 from server.config.logging import root_logger
@@ -16,11 +16,11 @@ def launch_backend(port: int):
     server_dir = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..", "server")
     )
+    kill_process_on_port(port)
 
-    root_logger.info(f"Launching backend server in {server_dir} on port {port}...")
     try:
         # Run the server with gunicorn and eventlet worker, showing logs in the current window
-        process = subprocess.Popen(
+        subprocess.Popen(
             [
                 venv_python,
                 "-m",
@@ -33,7 +33,6 @@ def launch_backend(port: int):
             ],
             cwd=server_dir,
         )
-        process.wait()  # Wait for the server process to exit (Ctrl+C to stop)
     except subprocess.CalledProcessError as e:
         root_logger.error(f"Error running command: {e.cmd}")
         root_logger.error(f"Exit code: {e.returncode}")

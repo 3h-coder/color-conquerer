@@ -1,3 +1,7 @@
+import eventlet
+
+eventlet.monkey_patch()
+
 from application import Application
 from server import Server
 from utils import sys_utils

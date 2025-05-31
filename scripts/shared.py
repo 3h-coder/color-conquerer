@@ -1,5 +1,6 @@
 import os
 import socket
+import subprocess
 import time
 from enum import StrEnum, auto
 
@@ -12,6 +13,21 @@ venv_python = os.path.join(venv_dir, "bin", "python")
 class ServerType(StrEnum):
     Frontend = auto()
     Backend = auto()
+
+
+def kill_process_on_port(port: int):
+    """
+    Kills the process running on the given port using npx kill-port.
+    Requires Node.js and npx to be installed.
+    """
+    try:
+        root_logger.info(f"Killing any process on port {port} using npx kill-port...")
+        subprocess.check_call(["npx", "kill-port", str(port)])
+        root_logger.info(f"Successfully killed process on port {port}.")
+    except subprocess.CalledProcessError as e:
+        root_logger.error(f"Failed to kill process on port {port}: {e}")
+    except Exception as e:
+        root_logger.error(f"Unexpected error while killing process on port {port}: {e}")
 
 
 def wait_for_server(port: int, server: ServerType, tries=5, delay=1):
