@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, StrEnum
 
 
 class RequiredVariable(Enum):
@@ -22,3 +22,12 @@ class OptionalVariable(Enum):
     APP_REDIS_SERVER_PORT = 2
     RESET_SESSION_FILE_ON_STARTUP = 3
     RUN_TESTS_ON_STARTUP = 4
+
+
+class EnvironmentVariable(StrEnum):
+    """
+    Should be set in the machine's environment to configure the application.
+    """
+
+    LOGS_PATH = "COLOR_CONQUERER_LOGS_PATH"
+    CONFIG_PATH = "COLOR_CONQUERER_CONFIG_PATH"

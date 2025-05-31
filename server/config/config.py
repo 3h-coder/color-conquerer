@@ -5,12 +5,12 @@ import uuid
 from config import root_path, runtime_data_path
 from config.logging import root_logger
 from config.variable_types import VariableType
-from config.variables import OptionalVariable, RequiredVariable
+from config.variables import EnvironmentVariable, OptionalVariable, RequiredVariable
 
 # os.join is safer than pathlib.Path("directory", "subdirectory") as
 # it does not replace drive:// with drive:/
 CONFIG_FILE_PATH = CONFIG_FILE_PATH = os.environ.get(
-    "COLOR_CONQUERER_CONFIG_PATH", os.path.join(root_path.parent, "config.json")
+    EnvironmentVariable.CONFIG_PATH, os.path.join(root_path.parent, "config.json")
 )
 
 _config_vars_types = {
