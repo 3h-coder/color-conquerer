@@ -5,15 +5,14 @@ Used to run the frontend server for the application.
 import os
 import subprocess
 
+from config import root_path
+from config.logging import root_logger
 from scripts.shared import ServerType, kill_process_on_port, wait_for_server
-from server.config.logging import root_logger
 
 
 def launch_frontend(port: int):
     """Launches the frontend server for the application."""
-    client_dir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "client")
-    )
+    client_dir = os.path.abspath(os.path.join(root_path, "..", "client"))
     kill_process_on_port(port)
 
     root_logger.info(f"Launching frontend server in {client_dir} on port {port}...")

@@ -2,20 +2,21 @@
 Used to run the backend server for the application.
 """
 
-import os
 import subprocess
 
-from shared import kill_process_on_port, venv_python
-
-from scripts.shared import ServerType, wait_for_server
-from server.config.logging import root_logger
+from config import root_path
+from config.logging import root_logger
+from scripts.shared import (
+    ServerType,
+    kill_process_on_port,
+    venv_python,
+    wait_for_server,
+)
 
 
 def launch_backend(port: int):
     """Launches the backend Flask-SocketIO server using gunicorn and eventlet."""
-    server_dir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "server")
-    )
+    server_dir = root_path
     kill_process_on_port(port)
 
     try:

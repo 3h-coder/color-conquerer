@@ -6,7 +6,7 @@ settings for each deployed instance of the app.
 import os
 import pathlib
 
-from server.config.variables import EnvironmentVariable
+from .variables import EnvironmentVariable
 
 RUNTIME_DATA_FOLDER_NAME = "runtime_data"
 TESTS_FOLDER_NAME = "tests"

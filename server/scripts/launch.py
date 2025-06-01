@@ -9,11 +9,11 @@ import sys
 
 from shared import venv_dir, venv_python
 
+from config import config
+from config.logging import root_logger
+from config.variables import RequiredVariable
 from scripts.backend import launch_backend, wait_for_backend
 from scripts.frontend import launch_frontend, wait_for_frontend
-from server.config import config
-from server.config.logging import root_logger
-from server.config.variables import RequiredVariable
 
 
 def restart_nginx():
@@ -28,9 +28,7 @@ def restart_nginx():
 
 def check_venv():
     # Paths
-    requirements_path = os.path.join(
-        os.path.dirname(__file__), "..", "server", "requirements.txt"
-    )
+    requirements_path = os.path.join(os.path.dirname(__file__), "requirements.txt")
 
     # Check if venv exists
     if not os.path.exists(venv_python):
@@ -60,8 +58,10 @@ def main(force_nginx_restart=False):
         restart_nginx()
 
     check_venv()
+
     launch_backend(back_end_port)
     wait_for_backend(back_end_port)
+
     launch_frontend(front_end_port)
     wait_for_frontend(front_end_port)
 

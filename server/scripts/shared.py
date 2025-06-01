@@ -4,9 +4,9 @@ import subprocess
 import time
 from enum import StrEnum, auto
 
-from server.config.logging import root_logger
+from config.logging import root_logger
 
-venv_dir = os.path.join(os.path.dirname(__file__), "..", "venv")
+venv_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "venv"))
 venv_python = os.path.join(venv_dir, "bin", "python")
 
 
