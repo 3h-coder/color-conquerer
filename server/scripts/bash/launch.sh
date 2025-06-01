@@ -4,4 +4,4 @@
 cd "$(dirname "$0")/../.."
 
 # Run the launch module
-python -m scripts.launch
+python3 -m scripts.launch

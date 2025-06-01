@@ -89,7 +89,7 @@ server {
     ssl_certificate /etc/letsencrypt/live/myDomain.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/myDomain.com/privkey.pem;
 
-    root /var/www/myDomain.com/html;
+    root /srv/repo_name/client/build;
     index index.html;
 
     # Serve React front-end
@@ -162,3 +162,7 @@ You may now connect to the server in pgAdmin4, see the default postgres database
 ## Serve the web app
 
 ### Getting the production version through git
+
+- First, make sure that you have [set an access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) over on github.
+- Clone your repo where you want it to be. I went for srv/color-conquerer -> `sudo git clone https://<YOUR_GITHUB_USERNAME>:<YOUR_TOKEN>@github.com/<YOUR_GITHUB_USERNAME>/<REPO_NAME>.git`
+- For a stable production version, please checkout on the latest tag (or a tag at least) : 
