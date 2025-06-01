@@ -28,6 +28,8 @@ def launch_backend(port: int):
                 "gunicorn",
                 "--worker-class",
                 "eventlet",
+                "-w",
+                "1",  # Number of workers
                 "--bind",
                 f"0.0.0.0:{port}",
                 "main:socketio",

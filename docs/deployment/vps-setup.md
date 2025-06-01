@@ -70,7 +70,56 @@ Find below the setup steps
 
 ### Configuration
 
-[TBD]
+Create the configuration file first
+- Under `/etc/nginx/sites-available` `sudo touch domain_com`
+- Write down the actual configuration
+```
+server {
+    listen 80;
+    server_name myDomain.com;
+
+    # Redirect HTTP to HTTPS (optional, if you’ll use SSL)
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name myDomain.com;
+
+    ssl_certificate /etc/letsencrypt/live/myDomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/myDomain.com/privkey.pem;
+
+    root /var/www/myDomain.com/html;
+    index index.html;
+
+    # Serve React front-end
+    location / {
+        try_files $uri /index.html;
+    }
+
+    # Proxy to Flask backend
+    location /api/ {
+        proxy_pass http://127.0.0.1:5000/;
+
+        # Required for WebSockets:
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        # General proxy headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+- Link the configuration file :
+```
+sudo ln -s /etc/nginx/sites-available/mydomain /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
 
 ## App depencencies
 
