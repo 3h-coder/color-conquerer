@@ -27,7 +27,9 @@ def restart_nginx():
 
 def check_venv():
     # Paths
-    requirements_path = os.path.join(os.path.dirname(__file__), "requirements.txt")
+    requirements_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "requirements.txt")
+    )
 
     # Check if venv exists
     if not os.path.exists(venv_python):

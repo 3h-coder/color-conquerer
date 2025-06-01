@@ -166,3 +166,12 @@ You may now connect to the server in pgAdmin4, see the default postgres database
 - First, make sure that you have [set an access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) over on github.
 - Clone your repo where you want it to be. I went for srv/color-conquerer -> `sudo git clone https://<YOUR_GITHUB_USERNAME>:<YOUR_TOKEN>@github.com/<YOUR_GITHUB_USERNAME>/<REPO_NAME>.git`
 - For a stable production version, please checkout on the latest tag (or a tag at least) : 
+
+### Environment variable setup
+
+Do not forget to set the following environment variables
+
+### Launching the apps
+
+- On ubuntu, you will need the python3 venv package : `sudo apt update` `sudo apt install python3.12-venv -y`
+- 
