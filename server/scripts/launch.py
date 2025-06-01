@@ -75,7 +75,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        main(force_restart_nginx=args.force)
+        main(force_nginx_restart=args.force)
     except Exception as e:
         root_logger.error(
             "An error occurred while launching the servers.", exc_info=True
