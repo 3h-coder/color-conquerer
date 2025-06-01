@@ -4,8 +4,7 @@ from logging.handlers import TimedRotatingFileHandler
 from typing import Any, Callable
 
 from config import logs_root_path, test_logs_root_path
-from config.variables import RequiredVariable
-from utils import logging_utils, os_utils
+from utils import os_utils
 
 _testing = False
 
@@ -76,6 +75,8 @@ def get_configured_logger(
         if logger.name == ROOT_LOGGER_NAME:
             logger.addHandler(logging.StreamHandler())
         else:
+            from utils import logging_utils
+
             # Note : The root logger's logging level is re-adjusted
             # right after the config gets loaded
             logging_utils.set_logging_level_from_config(logger)
