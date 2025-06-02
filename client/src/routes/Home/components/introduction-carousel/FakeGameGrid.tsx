@@ -7,8 +7,8 @@ import { BoolRef } from "../../../../utils/typeAliases";
 import GameCell from "../../../Play/components/game-grid/GameCell";
 import { GridInner, GridOuter, GridRow } from "../../../Play/components/game-grid/GameGrid";
 import { animationActionsSequence } from "./animations/actionAnimations";
+import { FakeGameGridSetup } from "./Chola/FakeGameGridSetup";
 import { getDefaultGameGrid } from "./fakeGameGridSetupUtils";
-import { FakeGameGridSetup } from "./Setups/FakeGameGridSetup";
 
 export interface FakeGameGridProps {
     gridId: string;
