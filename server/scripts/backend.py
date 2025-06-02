@@ -25,7 +25,7 @@ def launch_backend(port: int):
             [
                 venv_python,
                 "main.py",
-                f"--port={port}",
+                f"port={port}",
             ],
             cwd=server_dir,
         )
