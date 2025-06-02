@@ -2,9 +2,6 @@ import subprocess
 import traceback
 from typing import Callable
 
-from flask import Flask
-from flask_socketio import SocketIO, emit
-
 from config import TESTS_FOLDER_NAME, config
 from config.logging import get_configured_logger
 from config.variables import OptionalVariable, RequiredVariable
@@ -23,6 +20,8 @@ from events.match_events import (
 from events.queue_events import handle_queue_registration
 from exceptions.custom_exception import CustomException
 from exceptions.server_error import ServerError
+from flask import Flask
+from flask_socketio import SocketIO, emit
 from handlers.connection_handler import ConnectionHandler
 from handlers.match_handler import MatchHandler
 from handlers.room_handler import RoomHandler
@@ -85,6 +84,8 @@ class Server:
             use_reloader=False,
             **kwargs,
         )
+
+        self.logger.info("\n===== Flask socketio server startup complete =====\n")
 
     def _add_event_listeners(self):
         self._add_listener("connect", handle_connection)

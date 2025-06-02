@@ -1,4 +1,4 @@
-import { HomeStateDto } from "../dto/HomeStateDto";
+import { HomeStateDto } from "../dto/gameState/HomeStateDto";
 import { DEFAULT_HEADERS, fetchAs } from "./fetch";
 
 export async function fetchHomeState() {
@@ -6,5 +6,5 @@ export async function fetchHomeState() {
         method: "GET",
         headers: DEFAULT_HEADERS,
         credentials: "include"
-    })
+    });
 }

@@ -1,6 +1,6 @@
 import Slider from '../../../../components/slider/Slider';
 import FakeGameGrid from './FakeGameGrid';
-import { allSetups } from './Setups/fullSetups';
+import { allSetups } from './Setups/fullSetupsy';
 import './styles/IntroductionCarousel.css';
 
 export default function IntroductionCarousel() {

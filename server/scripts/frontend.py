@@ -23,9 +23,9 @@ def launch_frontend(port: int):
         # Build for production
         subprocess.check_call(["npm", "run", "build"], cwd=client_dir)
 
-        # Serve the build directory in a shell, showing logs in the current window
+        # Serve the dist directory in a shell, showing logs in the current window
         subprocess.Popen(
-            ["npx", "serve", "-s", "build", "-l", str(port)],
+            ["npx", "serve", "-s", "dist", "-l", str(port)],
             cwd=client_dir,
         )
     except subprocess.CalledProcessError as e:
