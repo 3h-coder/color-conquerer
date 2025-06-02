@@ -53,7 +53,6 @@ def check_venv():
 
 def main(force_nginx_restart=False):
     back_end_port = config.get(RequiredVariable.BACKEND_SERVER_PORT)
-    front_end_port = config.get(RequiredVariable.FRONTEND_SERVER_PORT)
 
     if force_nginx_restart:
         restart_nginx()
@@ -63,7 +62,7 @@ def main(force_nginx_restart=False):
     launch_backend(back_end_port)
     wait_for_backend(back_end_port)
 
-    build_frontend_static_files(front_end_port)
+    build_frontend_static_files()
 
 
 if __name__ == "__main__":
