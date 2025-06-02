@@ -4,7 +4,7 @@ import { CellOwner } from "../../../../enums/cellOwner";
 import { CellState } from "../../../../enums/cellState";
 import { CellTransientState } from "../../../../enums/cellTransientState";
 import { create2DArray } from "../../../../utils/arrayUtils";
-import { GameBoardSetup } from "./Chola/CellCoordSetup";
+import { GameBoardSetup } from "./setups/CellCoordSetup";
 
 export function getDefaultGameGrid(setup: GameBoardSetup) {
     const board_size = 11;

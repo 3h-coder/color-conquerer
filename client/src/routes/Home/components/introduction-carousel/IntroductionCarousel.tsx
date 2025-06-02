@@ -1,6 +1,6 @@
 import Slider from '../../../../components/slider/Slider';
-import { allSetups } from './Chola/fullSetups';
 import FakeGameGrid from './FakeGameGrid';
+import { allSetups } from './setups/fullSetups';
 import './styles/IntroductionCarousel.css';
 
 export default function IntroductionCarousel() {

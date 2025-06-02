@@ -5,7 +5,7 @@ import { cellStyle, colors } from "../../../../../style/constants";
 import { getHtmlCell } from "../../../../../utils/cellUtils";
 import { delay } from "../../../../../utils/domUtils";
 import { BoolRef } from "../../../../../utils/typeAliases";
-import { ActionsSetup, CellAttackSetup, CellMovementSetup, isCellAttackSetup, isCellMovementSetup, isSpawnSetup, SpawnSetup } from "../Chola/ActionsSetup";
+import { ActionsSetup, CellAttackSetup, CellMovementSetup, isCellAttackSetup, isCellMovementSetup, isSpawnSetup, SpawnSetup } from "../setups/ActionsSetup";
 
 export async function animationActionsSequence(
     actionsSetup: ActionsSetup,
