@@ -9,10 +9,9 @@ from utils import sys_utils
 # WARNING : always set the current working directory as this file's
 # one before running it
 
-app = Application(__name__)
-server = Server(app)
-# Needs to be exposed for gunicorn to find it
-socketio = server.socketio
-
-if __name__ == "__main__" and server.debug:
+if __name__ == "__main__":
+    app = Application(__name__)
+    server = Server(app)
+    # Note: this calls socketio.run which is a production ready server
+    # See https://flask-socketio.readthedocs.io/en/latest/deployment.html
     server.run(**sys_utils.get_kwargs())

@@ -169,7 +169,16 @@ You may now connect to the server in pgAdmin4, see the default postgres database
 
 ### Environment variable setup
 
-Do not forget to set the following environment variables
+Currently, the launch script is expected to read environment variables from `/etc/profile.d/envvars.sh`
+- Inside of the file : `export MY_ENV_VAR="some value"`
+- Make the script executable : `sudo chmod +x /etc/profile/envvars.sh`
+- At the top of the launch script (typically `launch.sh`) there should be a `source /etc/profile.d/envvars.sh`
+
+
+Do not forget to set the following environment variables :
+- COLOR_CONQUERER_LOGS_PATH : Where the logs directory for the app is located on the machine (recommended path -> `/var/log/myapp/`)
+  - Do not forget that logs require write permission -> `sudo chown youruser:youruser /var/log/myapp`
+- COLOR_CONQUERER_CONFIG_PATH : Where the json config file for the app is located on the machine (recommended path -> `/etc/myapp/config.json`)
 
 ### Launching the apps
 
