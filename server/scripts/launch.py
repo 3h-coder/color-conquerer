@@ -11,7 +11,7 @@ from config import config
 from config.logging import root_logger
 from config.variables import RequiredVariable
 from scripts.backend import launch_backend, wait_for_backend
-from scripts.frontend import launch_frontend, wait_for_frontend
+from scripts.frontend import build_frontend_static_files, wait_for_frontend
 from scripts.shared import venv_dir, venv_python
 
 
@@ -63,8 +63,7 @@ def main(force_nginx_restart=False):
     launch_backend(back_end_port)
     wait_for_backend(back_end_port)
 
-    launch_frontend(front_end_port)
-    wait_for_frontend(front_end_port)
+    build_frontend_static_files(front_end_port)
 
 
 if __name__ == "__main__":

@@ -89,7 +89,7 @@ server {
     ssl_certificate /etc/letsencrypt/live/myDomain.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/myDomain.com/privkey.pem;
 
-    root /srv/repo_name/client/build;
+    root /srv/repo_name/client/dist;
     index index.html;
 
     # Serve React front-end
@@ -176,11 +176,28 @@ Currently, the launch script is expected to read environment variables from `/et
 
 
 Do not forget to set the following environment variables :
-- COLOR_CONQUERER_LOGS_PATH : Where the logs directory for the app is located on the machine (recommended path -> `/var/log/myapp/`)
+- **COLOR_CONQUERER_LOGS_PATH** : Where the logs directory for the app is located on the machine (recommended path -> `/var/log/myapp/`)
   - Do not forget that logs require write permission -> `sudo chown youruser:youruser /var/log/myapp`
-- COLOR_CONQUERER_CONFIG_PATH : Where the json config file for the app is located on the machine (recommended path -> `/etc/myapp/config.json`)
+- **COLOR_CONQUERER_CONFIG_PATH** : Where the json config file for the app is located on the machine (recommended path -> `/etc/myapp/config.json`)
 
-### Launching the apps
+### Launching the app
 
 - On ubuntu, you will need the python3 venv package : `sudo apt update` `sudo apt install python3.12-venv -y`
-- 
+- Create shortcuts for both launch files, located under `/server/scripts/bash` (typically launch.sh)
+  - Make sure the script is executable : `chmod +x /path/to/your/script.sh`
+  - In the desktop, create a .desktop file : `nano ~/Desktop/MyScript.desktop`
+  - Add the following contents to the file : 
+  ``` 
+    [Desktop Entry]
+    Version=1.0
+    Name=My Script
+    Comment=Runs my custom bash script
+    Exec=/path/to/your/script.sh
+    Icon=utilities-terminal
+    Terminal=true
+    Type=Application
+    Categories=Utility;
+    ```
+    - Make the desktop file executable : `chmod +x ~/Desktop/MyScript.desktop`
+    - Launch the script from the desktop :-)
+

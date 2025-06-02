@@ -7,33 +7,23 @@ import subprocess
 
 from config import root_path
 from config.logging import root_logger
-from scripts.shared import ServerType, kill_process_on_port, wait_for_server
 
 
-def launch_frontend(port: int):
+def build_frontend_static_files():
     """Launches the frontend server for the application."""
     client_dir = os.path.abspath(os.path.join(root_path, "..", "client"))
-    kill_process_on_port(port)
 
-    root_logger.info(f"Launching frontend server in {client_dir} on port {port}...")
+    root_logger.info(f"Building frontend in directory: {client_dir}")
     try:
         # Install dependencies
         subprocess.check_call(["npm", "install"], cwd=client_dir)
 
         # Build for production
         subprocess.check_call(["npm", "run", "build"], cwd=client_dir)
+        root_logger.info("===== Frontend build completed successfully. =====")
 
-        # Serve the dist directory in a shell, showing logs in the current window
-        subprocess.Popen(
-            ["npx", "serve", "-s", "dist", "-l", str(port)],
-            cwd=client_dir,
-        )
+        # Nginx will server the static files from the dist directory, so we do nothing more
     except subprocess.CalledProcessError as e:
         root_logger.error(f"Error running command: {e.cmd}")
         root_logger.error(f"Exit code: {e.returncode}")
         raise
-
-
-def wait_for_frontend(port: int, tries=5, delay=1):
-    """Pings the given port to check if the server is up, retrying up to `tries` times."""
-    wait_for_server(port, ServerType.Frontend, tries, delay)
