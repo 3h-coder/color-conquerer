@@ -11,7 +11,7 @@ from config import config
 from config.logging import root_logger
 from config.variables import RequiredVariable
 from scripts.backend import launch_backend, wait_for_backend
-from scripts.frontend import build_frontend_static_files, wait_for_frontend
+from scripts.frontend import build_frontend_static_files
 from scripts.shared import venv_dir, venv_python
 
 
