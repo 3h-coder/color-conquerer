@@ -24,15 +24,8 @@ def launch_backend(port: int):
         subprocess.Popen(
             [
                 venv_python,
-                "-m",
-                "gunicorn",
-                "--worker-class",
-                "eventlet",
-                "-w",
-                "1",  # Number of workers
-                "--bind",
-                f"0.0.0.0:{port}",
-                "main:socketio",
+                "main.py",
+                f"--port={port}",
             ],
             cwd=server_dir,
         )

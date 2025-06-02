@@ -3,8 +3,9 @@ import eventlet
 eventlet.monkey_patch()
 
 from application import Application
-from server import Server
 from utils import sys_utils
+
+from server import Server
 
 # WARNING : always set the current working directory as this file's
 # one before running it
