@@ -67,7 +67,7 @@ class Server:
         # Allow the instance to be available everywhere
         set_server(self)
 
-    def run(self, host="localhost", port=None, **kwargs):
+    def run(self, host="127.0.0.1", port=None, **kwargs):
         test_success = self._run_tests()
         if not test_success:
             self.logger.error("Tests failed, not starting the server.")
