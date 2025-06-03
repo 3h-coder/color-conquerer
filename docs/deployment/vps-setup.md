@@ -45,6 +45,11 @@ After all of this, you may connect from a Windows machine using the built in Rem
 
 For increased security, it's better to access the VPS through ssh tunelling for the packets to be encrypted. Find details in [this section](./security.md#xrdp-through-ssh-tunelling).
 
+### Development and file navigation on the VPS
+
+Because virtual machines are usually sluggish and very tiresome to work with directly inside of, unless you absolutely need to, it is recommended that you connect to it through vs code via ssh. 
+See [this link](https://code.visualstudio.com/docs/remote/ssh) for how to do it.
+
 ## Firewall setup
 
 A good firewall command line tool is [ufw](https://help.ubuntu.com/community/UFW). By default, all ports and connections are closed except the ones explicitly allowed in the defined rules. You may check the rules with `sudo ufw status verbose`.

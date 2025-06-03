@@ -10,7 +10,7 @@ from config.variables import EnvironmentVariable, OptionalVariable, RequiredVari
 # os.join is safer than pathlib.Path("directory", "subdirectory") as
 # it does not replace drive:// with drive:/
 CONFIG_FILE_PATH = CONFIG_FILE_PATH = os.environ.get(
-    EnvironmentVariable.CONFIG_PATH, os.path.join(root_path.parent, "config.json")
+    EnvironmentVariable.CONFIG_PATH, "config.json"
 )
 
 _config_vars_types = {

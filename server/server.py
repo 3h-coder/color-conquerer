@@ -2,6 +2,9 @@ import subprocess
 import traceback
 from typing import Callable
 
+from flask import Flask
+from flask_socketio import SocketIO, emit
+
 from config import TESTS_FOLDER_NAME, config
 from config.logging import get_configured_logger
 from config.variables import OptionalVariable, RequiredVariable
@@ -20,8 +23,6 @@ from events.match_events import (
 from events.queue_events import handle_queue_registration
 from exceptions.custom_exception import CustomException
 from exceptions.server_error import ServerError
-from flask import Flask
-from flask_socketio import SocketIO, emit
 from handlers.connection_handler import ConnectionHandler
 from handlers.match_handler import MatchHandler
 from handlers.room_handler import RoomHandler
@@ -66,7 +67,7 @@ class Server:
         # Allow the instance to be available everywhere
         set_server(self)
 
-    def run(self, host="0.0.0.0", port=None, **kwargs):
+    def run(self, host="localhost", port=None, **kwargs):
         test_success = self._run_tests()
         if not test_success:
             self.logger.error("Tests failed, not starting the server.")
