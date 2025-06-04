@@ -25,20 +25,21 @@ def restart_nginx():
         raise
 
 
-def check_venv():
+def refresh_venv():
     # Paths
     requirements_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..", "requirements.txt")
     )
 
-    # Check if venv exists
-    if not os.path.exists(venv_python):
-        root_logger.info("Virtual environment not found. Creating venv...")
-        subprocess.check_call([sys.executable, "-m", "venv", venv_dir])
-    else:
-        root_logger.info("Virtual environment found.")
+    # Delete the virtual environment if it exists
+    if os.path.exists(venv_python):
+        root_logger.info("Virtual environment found, deleting it...")
+        subprocess.check_call(["sudo", "rm", "-rf", venv_dir])
 
-    # Install requirements if needed
+    root_logger.info("Creating a new virtual environment...")
+    subprocess.check_call([sys.executable, "-m", "venv", venv_dir])
+
+    # Install requirements
     try:
         root_logger.info("Checking and installing required packages...")
         subprocess.check_call([venv_python, "-m", "pip", "install", "--upgrade", "pip"])
@@ -57,7 +58,7 @@ def main(force_nginx_restart=False):
     if force_nginx_restart:
         restart_nginx()
 
-    check_venv()
+    refresh_venv()
 
     launch_backend(back_end_port)
     wait_for_backend(back_end_port)

@@ -43,7 +43,7 @@ export const pixiApp = getPixiApp();
 // https://socket.io/docs/v4/client-options/
 // ⚠️ The path must match the one set in the Flask socketio app (-> https://socket.io/docs/v4/client-options/#path)
 export const socket = io(HOST, {
-  path: `/${BACKEND_PREFIX}/socket.io/`,
+  path: `${BACKEND_PREFIX}/socket.io/`,
   autoConnect: false,
   withCredentials: true,
 });
