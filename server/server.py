@@ -45,7 +45,7 @@ class Server:
         socketio_path = "socket.io" # default value
         # Must be the same as the one used in the frontend
         # Debug should be set to true during development
-        path = f"/api/{socketio_path}/" if not self.debug and not self.testing else socketio_path
+        path = f"api/{socketio_path}" if not self.debug and not self.testing else socketio_path
 
         self.socketio = SocketIO(
             app,
