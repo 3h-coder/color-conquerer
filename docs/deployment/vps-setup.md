@@ -103,6 +103,7 @@ server {
     }
 
     # Proxy to Flask backend
+    # Note: If using "localhost", make sure that the resolving to 127.0.0.1 works well!
     location /api/ {
         proxy_pass http://127.0.0.1:5000/;
 

@@ -12,14 +12,9 @@ from dto.misc.error_dto import ErrorDto
 from events.connect import handle_connection
 from events.disconnect import handle_disconnection
 from events.events import Events
-from events.match_events import (
-    handle_cell_click,
-    handle_client_ready,
-    handle_match_concede,
-    handle_spawn_button,
-    handle_spell_button,
-    handle_turn_end,
-)
+from events.match_events import (handle_cell_click, handle_client_ready,
+                                 handle_match_concede, handle_spawn_button,
+                                 handle_spell_button, handle_turn_end)
 from events.queue_events import handle_queue_registration
 from exceptions.custom_exception import CustomException
 from exceptions.server_error import ServerError
@@ -46,10 +41,16 @@ class Server:
         self.debug = app.debug
         self.testing = app.testing
 
+    
+        socketio_path = "socket.io"
+        # Must be the same as the one used in the frontend
+        path = f"/api/{socketio_path}/" if not self.debug and not self.testing else socketio_path
+
         self.socketio = SocketIO(
             app,
             cors_allowed_origins=config.get(RequiredVariable.CORS_ALLOWED_ORIGINS),
             manage_session=False,
+            path=path
         )
 
         self.connection_handler = ConnectionHandler()
