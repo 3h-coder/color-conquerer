@@ -6,7 +6,8 @@ from handlers.room_handler import RoomHandler
 from persistence.session import session_utils
 from persistence.session.models.session_player import SessionPlayer
 from persistence.session.session_variables import ROOM_ID, SOCKET_CONNECTED
-from server_gate import get_connection_handler, get_match_handler, get_room_handler
+from server_gate import (get_connection_handler, get_match_handler,
+                         get_room_handler)
 from utils import logging_utils
 
 _logger = get_configured_logger(
@@ -14,7 +15,7 @@ _logger = get_configured_logger(
 )
 
 
-def handle_disconnection():
+def handle_disconnection(sid=None):
     """
     Performs all the necessary actions when a socket disconnection occurs.
 

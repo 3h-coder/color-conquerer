@@ -41,17 +41,10 @@ class Server:
         self.debug = app.debug
         self.testing = app.testing
 
-    
-        # socketio_path = "socket.io" # default value
-        # # Must be the same as the one used in the frontend
-        # # Debug should be set to true during development
-        # path = f"api/{socketio_path}/" if not self.debug and not self.testing else socketio_path
-
         self.socketio = SocketIO(
             app,
             cors_allowed_origins=config.get(RequiredVariable.CORS_ALLOWED_ORIGINS),
             manage_session=False,
-            # path=path
         )
 
         self.connection_handler = ConnectionHandler()
