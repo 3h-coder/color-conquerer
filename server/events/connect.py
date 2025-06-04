@@ -14,8 +14,8 @@ _logger = get_configured_logger(
     __name__, prefix_getter=lambda: logging_utils.flask_request_remote_addr_prefix()
 )
 
-
-def handle_connection(_):
+# Always provide this argument, even if not used
+def handle_connection(auth=None):
     """
     Handles all of the possible action when a socket (re)connection occurs.
 

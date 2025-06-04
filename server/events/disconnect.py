@@ -14,7 +14,7 @@ _logger = get_configured_logger(
     __name__, prefix_getter=lambda: logging_utils.flask_request_remote_addr_prefix()
 )
 
-
+# Always provide this argument, even if not used
 def handle_disconnection(sid=None):
     """
     Performs all the necessary actions when a socket disconnection occurs.
