@@ -4,7 +4,8 @@ from game_engine.models.spells.ambush_spell import AmbushSpell
 from game_engine.models.spells.archery_vow_spell import ArcheryVowSpell
 from game_engine.models.spells.celerity_spell import CeleritySpell
 from game_engine.models.spells.mine_trap_spell import MineTrapSpell
-from game_engine.models.spells.shield_formation_spell import ShieldFormationSpell
+from game_engine.models.spells.shield_formation_spell import \
+    ShieldFormationSpell
 from game_engine.models.spells.spell_id import SpellId
 
 _SPELLS = {
@@ -27,8 +28,8 @@ def get_initial_spell_deck():
     spell_count = DEFAULT_SPELL_ORIGINAL_COUNT
     # ranked by mana cost (least expensive to most expensive)
     return {
-        SpellId.CELERITY: spell_count,
         SpellId.MINE_TRAP: spell_count,
+        SpellId.CELERITY: spell_count,
         SpellId.AMBUSH: spell_count,
         SpellId.ARCHERY_VOW: spell_count,
         SpellId.SHIELD_FORMATION: spell_count,
