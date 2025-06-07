@@ -39,7 +39,7 @@ Simple online turn based board game where you need to defeat the opponent by dam
 
 # How to play
 
-Go to the official website at (insert-website-here).
+Go to the official website at [colorconquerer.com](https://colorconquerer.com).
 Press the Play button and wait for opponent (or open up an incognito tab to play against yourself).
 
 ![image](https://i.imgur.com/spMHIx4.png)
