@@ -2,6 +2,7 @@ import React, { createElement } from "react";
 import { createRoot, Root } from "react-dom/client";
 import { EMPTY_STRING, HTMLElements } from "../env";
 import { getOrCreateDomElement } from "../utils/domUtils";
+import { calculateTooltipPosition, getPositionPriority, isTooltipInViewport } from "../utils/tooltipUtils";
 
 export enum TooltipPosition {
     TOP,
@@ -129,11 +130,38 @@ function adjustTooltipPosition(
         const targetElementRect = targetElement.getBoundingClientRect();
         const tooltipRect = _activeTooltipElement.getBoundingClientRect();
 
-        const { left, top } = calculateTooltipPosition(
-            targetElementRect,
-            tooltipRect,
-            position ?? TooltipPosition.TOP
-        );
+        const actualPosition = position ?? TooltipPosition.TOP;
+        const positionsToTry = getPositionPriority(actualPosition);
+
+        let found = false;
+        let left = "0px";
+        let top = "0px";
+
+        // Try different positions until the tooltip fits in the viewport
+        for (const pos of positionsToTry) {
+            const coords = calculateTooltipPosition(targetElementRect, tooltipRect, pos);
+            const l = parseFloat(coords.left);
+            const t = parseFloat(coords.top);
+
+            if (isTooltipInViewport(l, t, tooltipRect)) {
+                left = coords.left;
+                top = coords.top;
+                found = true;
+                break;
+            }
+        }
+
+        // If none fit, fallback to the original position
+        if (!found) {
+            const coords = calculateTooltipPosition(
+                targetElementRect,
+                tooltipRect,
+                actualPosition
+            );
+            left = coords.left;
+            top = coords.top;
+        }
+
         _activeTooltipElement.style.left = left;
         _activeTooltipElement.style.top = top;
     }, 20);
@@ -166,79 +194,6 @@ function resetMutationObserver(targetElement: HTMLElement) {
 function destroyMutationObserver() {
     _observer?.disconnect();
     _observer = null;
-}
-
-function calculateTooltipPosition(
-    targetRect: DOMRect,
-    tooltipRect: DOMRect,
-    position: TooltipPosition
-): { left: string; top: string; } {
-    const spacing = 5; // Space between the tooltip and the target element
-
-    switch (position) {
-        case TooltipPosition.TOP:
-            return {
-                left: `${targetRect.left +
-                    window.scrollX +
-                    targetRect.width / 2 -
-                    tooltipRect.width / 2
-                    }px`,
-                top: `${targetRect.top + window.scrollY - tooltipRect.height - spacing
-                    }px`,
-            };
-        case TooltipPosition.BOTTOM:
-            return {
-                left: `${targetRect.left +
-                    window.scrollX +
-                    targetRect.width / 2 -
-                    tooltipRect.width / 2
-                    }px`,
-                top: `${targetRect.bottom + window.scrollY + spacing}px`,
-            };
-        case TooltipPosition.LEFT:
-            return {
-                left: `${targetRect.left + window.scrollX - tooltipRect.width - spacing
-                    }px`,
-                top: `${targetRect.top +
-                    window.scrollY +
-                    targetRect.height / 2 -
-                    tooltipRect.height / 2
-                    }px`,
-            };
-        case TooltipPosition.RIGHT:
-            return {
-                left: `${targetRect.right + window.scrollX + spacing}px`,
-                top: `${targetRect.top +
-                    window.scrollY +
-                    targetRect.height / 2 -
-                    tooltipRect.height / 2
-                    }px`,
-            };
-        case TooltipPosition.TOP_LEFT:
-            return {
-                left: `${targetRect.right + window.scrollX - tooltipRect.width}px`,
-                top: `${targetRect.top + window.scrollY - tooltipRect.height - spacing
-                    }px`,
-            };
-        case TooltipPosition.BOTTOM_LEFT:
-            return {
-                left: `${targetRect.right + window.scrollX - tooltipRect.width}px`,
-                top: `${targetRect.bottom + window.scrollY + spacing}px`,
-            };
-        case TooltipPosition.TOP_RIGHT:
-            return {
-                left: `${targetRect.left + window.scrollX}px`,
-                top: `${targetRect.top + window.scrollY - tooltipRect.height - spacing
-                    }px`,
-            };
-        case TooltipPosition.BOTTOM_RIGHT:
-            return {
-                left: `${targetRect.left + window.scrollX}px`,
-                top: `${targetRect.bottom + window.scrollY + spacing}px`,
-            };
-        default:
-            return { left: "0px", top: "0px" };
-    }
 }
 
 // #endregion

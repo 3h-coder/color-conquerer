@@ -61,6 +61,10 @@
     white-space: nowrap;
 
     transition: width 0.2s ease-in-out;
+
+    @media (max-width: 660px) {
+        font-size: 0.9rem;
+    }
 }
 
 .spell-card.greyed-out:enabled:hover {

@@ -119,10 +119,6 @@ button, .button {
   background-color: var(--primary-black);
   cursor: pointer;
   transition: all 0.25s ease;
-
-  @media (max-width: 660px) {
-    font-size: 0.7rem;
-  }
 }
 button:hover,.button:hover {
   border-color: white;
@@ -183,13 +179,9 @@ svg {
   background-color: var(--deep-blue);
   padding: var(--spacing-small2);
   border-radius: 0.5rem;
-  max-width: max(25vmin, 120px);
+  max-width: max(20vw, 190px);
 
   animation: fade-in 0.3s ease-in-out forwards;
-
-  @media (max-width: 660px) {
-    font-size: 0.75rem;
-  }
 }
 
 .transparent {
