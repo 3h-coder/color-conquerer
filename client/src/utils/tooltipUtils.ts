@@ -1,6 +1,44 @@
 import { TooltipPosition } from "../singletons/tooltip";
 
-export function calculateTooltipPosition(
+/**
+ * Calculates the tooltip coordinates based on the target element's position, tooltip size, and the desired position.
+ * If the tooltip does not fit in the viewport, it will try different positions until it finds one that fits.
+ */
+export function getTooltipCoordinates(targetElementRect: DOMRect, tooltipRect: DOMRect, actualPosition: TooltipPosition) {
+    let found = false;
+    let left = "0px";
+    let top = "0px";
+
+    const positionsToTry = getPositionPriority(actualPosition);
+
+    // Try different positions until the tooltip fits in the viewport
+    for (const pos of positionsToTry) {
+        const coords = calculateTooltipPosition(targetElementRect, tooltipRect, pos);
+        const l = parseFloat(coords.left);
+        const t = parseFloat(coords.top);
+
+        if (isTooltipInViewport(l, t, tooltipRect)) {
+            left = coords.left;
+            top = coords.top;
+            found = true;
+            break;
+        }
+    }
+
+    // If none fit, fallback to the original position
+    if (!found) {
+        const coords = calculateTooltipPosition(
+            targetElementRect,
+            tooltipRect,
+            actualPosition
+        );
+        left = coords.left;
+        top = coords.top;
+    }
+    return { left, top };
+}
+
+function calculateTooltipPosition(
     targetRect: DOMRect,
     tooltipRect: DOMRect,
     position: TooltipPosition
@@ -73,7 +111,7 @@ export function calculateTooltipPosition(
     }
 }
 
-export function isTooltipInViewport(left: number, top: number, tooltipRect: DOMRect): boolean {
+function isTooltipInViewport(left: number, top: number, tooltipRect: DOMRect): boolean {
     const right = left + tooltipRect.width;
     const bottom = top + tooltipRect.height;
     return (
@@ -89,7 +127,7 @@ export function isTooltipInViewport(left: number, top: number, tooltipRect: DOMR
  * @param original 
  * @returns 
  */
-export function getPositionPriority(original: TooltipPosition): TooltipPosition[] {
+function getPositionPriority(original: TooltipPosition): TooltipPosition[] {
 
     switch (original) {
         case TooltipPosition.TOP:

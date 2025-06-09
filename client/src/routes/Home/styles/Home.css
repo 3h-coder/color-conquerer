@@ -29,6 +29,14 @@
   overflow-y: auto;
 }
 
+#game-rules-list li {
+  margin-top: var(--spacing-small2);
+  margin-right: var(--spacing-small2);
+  padding: var(--spacing-small2);
+  background-color: var(--primary-purple1);
+  border-radius: 0.5rem;
+}
+
 #logo-container {
   position: relative;
   display: flex;

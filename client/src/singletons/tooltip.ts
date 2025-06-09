@@ -2,7 +2,7 @@ import React, { createElement } from "react";
 import { createRoot, Root } from "react-dom/client";
 import { EMPTY_STRING, HTMLElements } from "../env";
 import { getOrCreateDomElement } from "../utils/domUtils";
-import { calculateTooltipPosition, getPositionPriority, isTooltipInViewport } from "../utils/tooltipUtils";
+import { getTooltipCoordinates } from "../utils/tooltipUtils";
 
 export enum TooltipPosition {
     TOP,
@@ -131,36 +131,8 @@ function adjustTooltipPosition(
         const tooltipRect = _activeTooltipElement.getBoundingClientRect();
 
         const actualPosition = position ?? TooltipPosition.TOP;
-        const positionsToTry = getPositionPriority(actualPosition);
 
-        let found = false;
-        let left = "0px";
-        let top = "0px";
-
-        // Try different positions until the tooltip fits in the viewport
-        for (const pos of positionsToTry) {
-            const coords = calculateTooltipPosition(targetElementRect, tooltipRect, pos);
-            const l = parseFloat(coords.left);
-            const t = parseFloat(coords.top);
-
-            if (isTooltipInViewport(l, t, tooltipRect)) {
-                left = coords.left;
-                top = coords.top;
-                found = true;
-                break;
-            }
-        }
-
-        // If none fit, fallback to the original position
-        if (!found) {
-            const coords = calculateTooltipPosition(
-                targetElementRect,
-                tooltipRect,
-                actualPosition
-            );
-            left = coords.left;
-            top = coords.top;
-        }
+        const { left, top } = getTooltipCoordinates(targetElementRect, tooltipRect, actualPosition);
 
         _activeTooltipElement.style.left = left;
         _activeTooltipElement.style.top = top;
