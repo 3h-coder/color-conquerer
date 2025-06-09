@@ -31,7 +31,7 @@ export default function Modal(props: ModalProps) {
                 <div id="modal-container" style={style}>
                     <div id="modal-header">
                         <Icon icon={icon ?? ModalIcon.None} />
-                        <h4 style={{ margin: 0 }}>{title}</h4>
+                        <h2 style={{ margin: 0 }}>{title}</h2>
                         {enableClosing !== false && <CloseButton onClick={closeModal} />}
                     </div>
                     {children}
