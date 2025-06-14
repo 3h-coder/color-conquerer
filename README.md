@@ -25,7 +25,7 @@ Currently licensed under the Creative Commons Attribution-NonCommercial 4.0 lice
 - A player wins when their opponent's health reaches 0.
 - Master cells (deep blue and red cells) represent their respective player. Basically, the blue team is you and the red team is your opponent.
 - A player loses HP whenever their master cell takes damage.
-- Players begin with 1 mana point each, and gain an additional one each turn until they reach a maximum of 9.
+- Players begin with 1 mana point each and gain an additional one each turn, up to a maximum of 9.
 - Mana points can be used to spawn cells or cast spells.
 - Cells can move or attack each turn, except the turn where they were spawned.
 - Starting from their second turn, players lose 1 stamina point per turn. Once they arrive at 0 stamina, they enter the fatigue state and start taking damage at the beginning of each turn.
@@ -37,14 +37,16 @@ Currently licensed under the Creative Commons Attribution-NonCommercial 4.0 lice
 ### Additional information
 
 - Inactivity warnings pop up after a certain amount of time when the player did not perform any action (such as spawning a cell, or ending their turn for example) and eventually lead to the player's automatic loss if they do not participate in the game.
-- Players can concede the game to their opponent at any time.
-- English is the only supported language.
+- Players may concede the game to their opponent at any time.
+- Currently, only English is supported.
 
 # How to play
 
 Go to the official website at [colorconquerer.com](https://colorconquerer.com).
-Press the Play button and wait for opponent (or open up an incognito tab to play against yourself).
+Press the Play button and wait for an opponent.
+
+Note: It is very unlikely that anyone is queuing so you may open up another browser or incognito tab to play against yourself.
 
 ![image](https://i.imgur.com/spMHIx4.png)
 
-Once an opponent has been found the match starts, try and defeat your opponent, good luck!
+Once an opponent has been found, the match starts. Try to defeat your opponent. Good luck!
