@@ -15,6 +15,9 @@ Simple online turn based board game where you need to defeat the opponent by dam
 
 ![image](https://i.imgur.com/wUTYZCw.png)
 
+This is a portfolio project and although deployed on the internet, it is not intended for commercial use.
+Currently licensed under the Creative Commons Attribution-NonCommercial 4.0 license (see [LICENSE](./LICENSE)).
+
 # Game rules
 
 - 1v1 matches, turn based.
