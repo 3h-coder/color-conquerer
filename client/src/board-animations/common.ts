@@ -47,13 +47,16 @@ export function animateCellDeaths(deaths: CoordinatesDto[], gridId?: string) {
 
   deaths.forEach((coord) => {
     const htmlCell = getHtmlCell(coord.rowIndex, coord.columnIndex, gridId);
-    if (htmlCell) {
+    if (htmlCell)
       animateCellDeath(htmlCell);
-    }
+
   });
 }
 
 export function animateCellDeath(htmlCell: HTMLElement) {
+  if (!htmlCell)
+    return;
+
   const cleanupDelayInMs = 500;
 
   if (activeTooltipTarget === htmlCell) {
