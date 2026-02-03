@@ -1,6 +1,14 @@
+import sys
 import eventlet
 
-eventlet.monkey_patch()
+# On Windows, eventlet needs specific configuration.
+# Note that Windows should only be used for development purposes.
+if sys.platform == "win32":
+    eventlet.patcher.monkey_patch(
+        os=False, select=False, socket=True, thread=True, time=True
+    )
+else:
+    eventlet.monkey_patch()
 
 from application import Application
 from utils import sys_utils
