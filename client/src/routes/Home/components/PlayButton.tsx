@@ -68,7 +68,7 @@ export default function PlayButton() {
             setMainButtonFunction(() => {
                 return () => requestMultiplayerMatch();
             });
-            setMainButtonText("Play");
+            setMainButtonText("Play vs Player");
             setMainButtonVisible(true);
         }
     }, [homeState.state, homeStateLoading]);

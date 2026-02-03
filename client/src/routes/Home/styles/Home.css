@@ -66,6 +66,7 @@
 
 #home-buttons-container, #opponent-search-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: max(10px, 1vmin);
   width: fit-content;
@@ -74,6 +75,7 @@
 #home-buttons-container button {
   /* Don't allow the font-size to shrink, even on small screens */
   font-size: 1rem;
+  min-width: 200px;
 }
 
 .home-error-container {
@@ -117,6 +119,10 @@
 
 #play-button-wrapper {
   position: relative;
+}
+
+#play-ai-button {
+  margin-top: var(--spacing-small2);
 }
 
 .play {

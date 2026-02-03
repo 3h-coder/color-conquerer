@@ -22,9 +22,10 @@ class PlayerEntryWatcherService(ServiceBase):
         self._logger = match_handler_unit.logger
 
         # Dictionary used to determine which player is ready or not
+        # Note: AI players are considered ready from the start
         self._players_ready = {
-            self.match_context.player1.player_id: False,
-            self.match_context.player2.player_id: False,
+            self.match_context.player1.player_id: self.match_context.player1.is_ai,
+            self.match_context.player2.player_id: self.match_context.player2.is_ai,
         }
 
     def mark_player_as_ready(self, player_id):

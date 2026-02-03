@@ -1,6 +1,7 @@
 import functools
 from threading import Lock
 
+from ai.ai_player import AIPlayer
 from config.logging import get_configured_logger
 from constants.match_constants import TURN_DURATION_IN_S
 from dto.game_state.game_context_dto import GameContextDto
@@ -55,6 +56,14 @@ class MatchHandlerUnit:
         # to ensure they do happen in the same "transaction"
         self.lock = Lock()
 
+        # Initialize AI player if one exists
+        self.ai_player = None
+        if player1.is_ai:
+            self.ai_player = AIPlayer(self, player1.player_id)
+        elif player2.is_ai:
+            self.ai_player = AIPlayer(self, player2.player_id)
+
+        # Initialize services
         self._match_start_service = MatchStartService(self)
 
         self._match_termination_service = MatchTerminationService(self)
@@ -71,6 +80,7 @@ class MatchHandlerUnit:
         self._turn_watcher_service.add_external_callbacks(
             self._match_actions_service.reset_for_new_turn,
             self._player_inactivity_watcher_service.on_turn_swap,
+            self._on_turn_swap,
         )
 
     # region Lifecycle
@@ -324,3 +334,13 @@ class MatchHandlerUnit:
         self.status = MatchStatus.ABORTED
 
     # endregion
+
+    def _on_turn_swap(self):
+        """
+        Callback triggered when turn swaps. If it's the AI's turn, trigger AI action.
+        """
+        if (
+            self.ai_player
+            and self.get_current_player().player_id == self.ai_player.player_id
+        ):
+            self.server.socketio.start_background_task(target=self.ai_player.take_turn)

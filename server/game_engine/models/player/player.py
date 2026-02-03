@@ -17,6 +17,7 @@ class Player:
     # Irrelevant for now, but just in case account registration gets implemented
     user_id: str
     is_player_1: bool
+    is_ai: bool
     resources: PlayerResources
     match_data: PlayerMatchData
 
@@ -25,13 +26,14 @@ class Player:
 
     @staticmethod
     def get_initial(
-        player_id: str, individual_room_id: str, user_id: str, is_player_1: bool
+        player_id: str, individual_room_id: str, user_id: str, is_player_1: bool, is_ai: bool = False
     ):
         return Player(
             player_id=player_id,
             individual_room_id=individual_room_id,
             user_id=user_id,
             is_player_1=is_player_1,
+            is_ai=is_ai,
             resources=PlayerResources.get_initial(),
             match_data=PlayerMatchData.get_initial(),
         )

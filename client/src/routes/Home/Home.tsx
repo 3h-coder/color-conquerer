@@ -5,6 +5,7 @@ import HomeError from "./components/HomeError";
 import HomeTopMessage from "./components/HomeTopMessage";
 import IntroductionCarousel from "./components/introduction-carousel/IntroductionCarousel";
 import LogoAndTitle from "./components/LogoAndTitle";
+import PlayAIButton from "./components/PlayAIButton";
 import PlayButton from "./components/PlayButton";
 import './styles/Home.css';
 
@@ -21,6 +22,7 @@ export default function Home() {
                     <PlayButton />
                     <GameRulesHelp />
                 </PlayButtonWrapper>
+                <PlayAIButton />
                 <HomeError />
             </HomeContainer>
         </HomeStateContextProvider>

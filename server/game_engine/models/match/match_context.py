@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from ai import AI_PLAYER_USERNAME
 from dto.match.match_context_dto import MatchContextDto
 from game_engine.models.dtos.room import Room
 from game_engine.models.game_board import GameBoard
@@ -49,12 +50,14 @@ class MatchContext:
                 individual_room_id=room.player1_room_id,
                 user_id=room.player1_queue_dto.user.id,
                 is_player_1=True,
+                is_ai=False,
             ),
             player2=Player.get_initial(
                 player_id=room.player2_queue_dto.playerId,
                 individual_room_id=room.player2_room_id,
                 user_id=room.player2_queue_dto.user.id,
                 is_player_1=False,
+                is_ai=room.player2_queue_dto.user.username == AI_PLAYER_USERNAME,
             ),
         )
 

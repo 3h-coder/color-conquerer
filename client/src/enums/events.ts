@@ -8,6 +8,7 @@ export enum Events {
     CLIENT_MATCH_CONCEDE = "client-match-concede",
     CLIENT_MATCH_INFO = "client-match-info",
     CLIENT_QUEUE_REGISTER = "queue-register",
+    CLIENT_QUEUE_AI_REGISTER = "queue-ai-register",
     CLIENT_READY = "client-ready", // ready to start or resume a game,
     CLIENT_SPAWN_BUTTON = "client-spawn-button",
     CLIENT_SPELL_BUTTON = "client-spell-button",

@@ -15,7 +15,7 @@ from events.events import Events
 from events.match_events import (handle_cell_click, handle_client_ready,
                                  handle_match_concede, handle_spawn_button,
                                  handle_spell_button, handle_turn_end)
-from events.queue_events import handle_queue_registration
+from events.queue_events import handle_ai_queue_registration, handle_queue_registration
 from exceptions.custom_exception import CustomException
 from exceptions.server_error import ServerError
 from handlers.connection_handler import ConnectionHandler
@@ -87,6 +87,7 @@ class Server:
         self._add_listener("connect", handle_connection)
         self._add_listener("disconnect", handle_disconnection)
         self._add_listener(Events.CLIENT_QUEUE_REGISTER, handle_queue_registration)
+        self._add_listener(Events.CLIENT_QUEUE_AI_REGISTER, handle_ai_queue_registration)
         self._add_listener(Events.CLIENT_READY, handle_client_ready)
         self._add_listener(Events.CLIENT_TURN_END, handle_turn_end)
         self._add_listener(Events.CLIENT_MATCH_CONCEDE, handle_match_concede)
