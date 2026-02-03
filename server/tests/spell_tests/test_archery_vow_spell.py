@@ -1,5 +1,6 @@
 from game_engine.models.actions.cell_attack import CellAttack
-from game_engine.models.actions.metadata.cell_attack_metadata import CellAttackMetadata
+from game_engine.models.actions.metadata.cell_attack_metadata import \
+    CellAttackMetadata
 from game_engine.models.cell.cell_transient_state import CellTransientState
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.spells.spell_id import SpellId
@@ -18,12 +19,14 @@ def test_archer_spell_should_not_be_usable(started_match: MatchHelper):
     # Act
     player1_client.click_spawn_button()
     player1_client.click_cell_at(spawn_row_index, spawn_col_index)
-    started_match.skip_two_turns()
+    started_match.skip_n_turns(
+        4
+    )  # Skip 4 turns to accumulate 3 mana (player gets 2 turns)
     player1_client.click_spell(SpellId.ARCHERY_VOW)
 
     transient_board = started_match.get_transient_game_board()
 
-    # Assert
+    # Assert - spell should fail because master cell is adjacent to a non-master cell
     cells = transient_board.get_cells_owned_by_player(player1=True)
     assert all(cell.transient_state == CellTransientState.NONE for cell in cells)
 
@@ -41,7 +44,7 @@ def test_archer_spell_works(started_match: MatchHelper):
     # Act
     player1_client.click_spawn_button()
     player1_client.click_cell_at(spawn_row_index, spawn_col_index)
-    started_match.skip_two_turns()
+    started_match.skip_n_turns(4)  # Skip 4 turns to accumulate 3 mana (player gets 2 turns)
     # Move the master cell away
     player1_client.click_cell_at(
         player1_master_cell.row_index, player1_master_cell.column_index

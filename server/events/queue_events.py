@@ -1,6 +1,3 @@
-from flask import session
-from flask_socketio import emit, join_room
-
 from ai import AI_PLAYER_USERNAME
 from config.logging import get_configured_logger
 from dto.match.client_stored_match_info_dto import ClientStoredMatchInfoDto
@@ -8,13 +5,17 @@ from dto.player.queue_player_dto import QueuePlayerDto
 from dto.player.user_dto import UserDto
 from events.events import Events
 from exceptions.queue_error import QueueError
+from flask import session
+from flask_socketio import emit, join_room
 from game_engine.models.dtos.room import Room
 from handlers.room_handler import RoomHandler
 from handlers.session_cache_handler import SessionCacheHandler
 from persistence.session import session_utils
 from persistence.session.models.session_player import SessionPlayer
-from persistence.session.session_variables import PLAYER_INFO, ROOM_ID, SESSION_ID
-from server_gate import get_match_handler, get_room_handler, get_session_cache_handler
+from persistence.session.session_variables import (PLAYER_INFO, ROOM_ID,
+                                                   SESSION_ID)
+from server_gate import (get_match_handler, get_room_handler,
+                         get_session_cache_handler)
 from utils import logging_utils
 from utils.id_generation_utils import generate_id
 
@@ -29,34 +30,28 @@ def handle_queue_registration(data: dict):
 
     Is in charge of creating the room up to creating the match.
     """
-    session_utils.refresh_session_lifetime(logger=_logger)
-    room_handler = get_room_handler()
-    session_cache_handler = get_session_cache_handler()
+    # Step 1: Initialize handlers and validate session
+    room_handler, session_cache_handler = _initialize_and_validate()
 
-    _raise_possible_errors(room_handler)
+    # Step 2: Prepare player data
+    queue_player_dto, player_id = _prepare_player_data(data, Events.SERVER_QUEUE_REGISTERED)
 
-    queue_player_dto = QueuePlayerDto.from_dict(data)
-    player_id = _set_player_id(queue_player_dto)
-
-    _logger.info(
-        f"{Events.SERVER_QUEUE_REGISTERED.name} event : {queue_player_dto.playerId}"
-    )
-
+    # Step 3: Enter the player into a room and emit registration confirmation
     (room, closed) = _make_enter_in_room(queue_player_dto, room_handler)
-    room_id = room.id
     is_player1 = not closed
 
-    player_info = SessionPlayer(
+    # Step 4: Save player session data
+    _save_player_session(
+        room_id=room.id,
         player_id=player_id,
         is_player1=is_player1,
         individual_room_id=room.player1_room_id if is_player1 else room.player2_room_id,
+        session_cache_handler=session_cache_handler,
     )
-    _save_into_session(room_id, player_info, session_cache_handler)
 
-    # Initiate the match if the room is closed
+    # Step 5: Initiate the match if the room is now full
     if closed:
-        match_handler = get_match_handler()
-        match_handler.notify_clients_and_initiate_match(room)
+        _initiate_match(room)
 
 
 def handle_ai_queue_registration(data: dict):
@@ -64,43 +59,88 @@ def handle_ai_queue_registration(data: dict):
     Handles AI match requests. Creates a room with the human player and an AI opponent,
     then immediately starts the match.
     """
-    session_utils.refresh_session_lifetime(logger=_logger)
-    room_handler = get_room_handler()
-    session_cache_handler = get_session_cache_handler()
+    # Step 1: Initialize handlers and validate session
+    room_handler, session_cache_handler = _initialize_and_validate()
 
-    _raise_possible_errors(room_handler)
+    # Step 2: Prepare player data
+    queue_player_dto, player_id = _prepare_player_data(data, Events.CLIENT_QUEUE_AI_REGISTER)
 
-    queue_player_dto = QueuePlayerDto.from_dict(data)
-    player_id = _set_player_id(queue_player_dto)
-
-    _logger.info(
-        f"{Events.CLIENT_QUEUE_AI_REGISTER.name} event : {queue_player_dto.playerId}"
-    )
-
-    # Create AI player
+    # Step 3: Create AI opponent and room
     ai_queue_dto = _create_ai_player_dto()
-
-    # Create a room with both players
     room = _create_ai_room(queue_player_dto, ai_queue_dto, room_handler)
 
-    # Save player info for the human player
-    player_info = SessionPlayer(
+    # Step 4: Save player session data and join room
+    _save_player_session(
+        room_id=room.id,
         player_id=player_id,
         is_player1=True,
         individual_room_id=room.player1_room_id,
+        session_cache_handler=session_cache_handler,
     )
-    _save_into_session(room.id, player_info, session_cache_handler)
-
     join_room(room.id)
-
     emit(
         Events.SERVER_QUEUE_REGISTERED,
         ClientStoredMatchInfoDto(queue_player_dto.playerId, room.id).to_dict(),
     )
 
-    # Initiate the match immediately
-    match_handler = get_match_handler()
-    match_handler.notify_clients_and_initiate_match(room)
+    # Step 5: Initiate the match immediately
+    _initiate_match(room)
+
+
+def _initialize_and_validate() -> tuple[RoomHandler, SessionCacheHandler]:
+    """
+    Initializes handlers, refreshes session, and validates that registration is possible.
+    
+    Returns:
+        Tuple of (room_handler, session_cache_handler)
+    """
+    session_utils.refresh_session_lifetime(logger=_logger)
+    room_handler = get_room_handler()
+    session_cache_handler = get_session_cache_handler()
+    _raise_possible_errors(room_handler)
+    return room_handler, session_cache_handler
+
+
+def _prepare_player_data(data: dict, event: Events) -> tuple[QueuePlayerDto, str]:
+    """
+    Prepares player data from the request and assigns a player ID.
+    
+    Args:
+        data: The incoming event data
+        event: The event type for logging
+    
+    Returns:
+        Tuple of (queue_player_dto, player_id)
+    """
+    queue_player_dto = QueuePlayerDto.from_dict(data)
+    player_id = _set_player_id(queue_player_dto)
+    _logger.info(f"{event.name} event : {queue_player_dto.playerId}")
+    return queue_player_dto, player_id
+
+
+def _save_player_session(
+    room_id: str,
+    player_id: str,
+    is_player1: bool,
+    individual_room_id: str,
+    session_cache_handler: SessionCacheHandler,
+):
+    """
+    Creates a SessionPlayer and saves it into the session.
+    
+    Args:
+        room_id: The room ID
+        player_id: The player ID
+        is_player1: Whether the player is player 1
+        individual_room_id: The player's individual room ID
+        session_cache_handler: Handler for session cache operations
+    """
+    player_info = SessionPlayer(
+        player_id=player_id,
+        is_player1=is_player1,
+        individual_room_id=individual_room_id,
+    )
+    _save_into_session(room_id, player_info, session_cache_handler)
 
 
 def _raise_possible_errors(room_handler: RoomHandler):
@@ -207,3 +247,11 @@ def _create_ai_room(
     room_handler._log_rooms_count()
 
     return room
+
+
+def _initiate_match(room: Room):
+    """
+    Initiates a match for the given room by notifying clients and starting the game.
+    """
+    match_handler = get_match_handler()
+    match_handler.notify_clients_and_initiate_match(room)
