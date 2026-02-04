@@ -7,10 +7,12 @@ import IntroductionCarousel from "./components/introduction-carousel/Introductio
 import LogoAndTitle from "./components/LogoAndTitle";
 import PlayAIButton from "./components/PlayAIButton";
 import PlayButton from "./components/PlayButton";
+import { useHomeSocketManager } from "./hooks/useHomeSocketManager";
 import './styles/Home.css';
 
 export default function Home() {
-
+    // Centralized socket management for all home page components
+    const socketManager = useHomeSocketManager();
 
     return (
         <HomeStateContextProvider>
@@ -19,10 +21,10 @@ export default function Home() {
                 <LogoAndTitle />
                 <IntroductionCarousel />
                 <PlayButtonWrapper>
-                    <PlayButton />
+                    <PlayButton socketManager={socketManager} />
                     <GameRulesHelp />
                 </PlayButtonWrapper>
-                <PlayAIButton />
+                <PlayAIButton socketManager={socketManager} />
                 <HomeError />
             </HomeContainer>
         </HomeStateContextProvider>

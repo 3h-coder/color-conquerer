@@ -1,25 +1,29 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SingleButtonModal from "../../../components/modals/SingleButtonModal";
-import { useHomeError } from "../../../contexts/HomeErrorContext";
 import { useHomeState } from "../../../contexts/HomeStateContext";
 import { useUser } from "../../../contexts/UserContext";
-import { ErrorDto } from "../../../dto/misc/ErrorDto";
 import { QueuePlayerDto } from "../../../dto/player/QueuePlayerDto";
 import { Events } from "../../../enums/events";
 import { HomeState } from "../../../enums/homeState";
 import { EMPTY_STRING, socket } from "../../../env";
 import {
-    developmentErrorLog,
     developmentLog,
 } from "../../../utils/loggingUtils";
 import { fullPaths } from "../../paths";
 import OpponentSearch from "./OpponentSearch";
 
-export default function PlayButton() {
+interface PlayButtonProps {
+    socketManager: {
+        markIntentionalDisconnection: () => void;
+        clearIntentionalDisconnection: () => void;
+        registerModalCloseCallback: (callback: () => void) => () => void;
+    };
+}
+
+export default function PlayButton({ socketManager }: PlayButtonProps) {
     const navigate = useNavigate();
     const { user } = useUser();
-    const { setHomeError } = useHomeError();
     const { homeState, loading: homeStateLoading } = useHomeState();
     const [mainButtonVisible, setMainButtonVisible] = useState(false);
     const [mainButtonFunction, setMainButtonFunction] = useState<() => void>(
@@ -29,7 +33,6 @@ export default function PlayButton() {
     const [opponentSearchText, setOpponentSearchText] = useState("Searching for an opponent...");
     const [modalOpen, setModalOpen] = useState(false);
     const [modalCanBeClosed, setModalCanBeClosed] = useState(true);
-    const intendedDisconnection = useRef(false);
 
     const queuePlayerDto: QueuePlayerDto = {
         user: user,
@@ -74,27 +77,16 @@ export default function PlayButton() {
     }, [homeState.state, homeStateLoading]);
 
     useEffect(() => {
-        function onError(errorDto: ErrorDto) {
-            developmentErrorLog("An error occured", errorDto);
-
-            setModalOpen(false);
-
-            if (errorDto.socketConnectionKiller) socket.disconnect();
-
-            if (errorDto.displayToUser) setHomeError(errorDto.error);
-            else setHomeError("An unexpected error occured");
-        }
-
-        function onDisconnect() {
+        // Register callback to close modal on disconnect/error
+        const unregister = socketManager.registerModalCloseCallback(() => {
             setModalOpen(false);
             setModalCanBeClosed(true);
-            if (!intendedDisconnection) {
-                setHomeError("The connexion with the server has been lost");
-            }
-            // prevent the socket client from automatically trying to reconnect
-            socket.disconnect();
-        }
+        });
 
+        return unregister;
+    }, [socketManager]);
+
+    useEffect(() => {
         function onQueueRegistrationSuccess() {
             developmentLog("Registered in the queue");
         }
@@ -105,29 +97,18 @@ export default function PlayButton() {
             setModalCanBeClosed(false);
         }
 
-        function onGoToMatchRoom() {
-            socket.disconnect();
-            navigate(fullPaths.play);
-        }
-
-        socket.on(Events.DISCONNECT, onDisconnect);
-        socket.on(Events.SERVER_ERROR, onError);
         socket.on(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess);
         socket.on(Events.SERVER_QUEUE_OPPONENT_FOUND, onOpponentFound);
-        socket.on(Events.SERVER_GO_TO_MATCH_ROOM, onGoToMatchRoom);
 
         return () => {
-            socket.off(Events.DISCONNECT, onDisconnect);
-            socket.off(Events.SERVER_ERROR, onError);
             socket.off(Events.SERVER_QUEUE_REGISTERED, onQueueRegistrationSuccess);
             socket.off(Events.SERVER_QUEUE_OPPONENT_FOUND, onOpponentFound);
-            socket.off(Events.SERVER_GO_TO_MATCH_ROOM, onGoToMatchRoom);
         };
     }, []);
 
     function requestMultiplayerMatch() {
         setModalOpen(true);
-        intendedDisconnection.current = false;
+        socketManager.clearIntentionalDisconnection();
 
         if (!socket.connected) socket.connect();
 
@@ -137,7 +118,7 @@ export default function PlayButton() {
 
     function cancelMultiplayerMatchRequest() {
         setModalOpen(false);
-        intendedDisconnection.current = true;
+        socketManager.markIntentionalDisconnection();
 
         developmentLog("Queue player dto in cancellation", queuePlayerDto);
         socket.disconnect();

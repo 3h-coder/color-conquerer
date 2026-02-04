@@ -15,8 +15,9 @@ import { MessageDto } from "../../dto/misc/MessageDto";
 import { Events } from "../../enums/events";
 import { ModalIcon } from "../../enums/modalIcons";
 import { PlayerMode } from "../../enums/playerMode";
-import { EMPTY_STRING, isDevelopment, localStorageKeys, socket } from "../../env";
+import { EMPTY_STRING, isDevelopment, socket } from "../../env";
 import { developmentLog } from "../../utils/loggingUtils";
+import { fullPaths } from "../paths";
 import ActionBoard from "./components/action-board/ActionBoard";
 import GameGrid from "./components/game-grid/GameGrid";
 import GameTopInfo from "./components/game-top-info/GameTopInfo";
@@ -130,7 +131,7 @@ export default function PlayContent() {
         setModalText(getMatchEndingText(playerId, matchClosureDto));
         setModalOpen(true);
         setModalExit(() => {
-          return () => navigate("/");
+          return () => navigate(fullPaths.home, { state: { intentionalDisconnect: true } });
         });
 
         socket.disconnect();
@@ -147,7 +148,7 @@ export default function PlayContent() {
       if (errorDto.socketConnectionKiller) {
         socket.disconnect();
         setModalExit(() => {
-          return () => navigate("/");
+          return () => navigate(fullPaths.home, { state: { intentionalDisconnect: true } });
         });
       }
     }
@@ -163,7 +164,7 @@ export default function PlayContent() {
       if (!isDevelopment)
         return;
 
-      // navigate("/");
+      // navigate(fullPaths.home);
     }
 
     socket.on(Events.DISCONNECT, onDisconnect);
@@ -191,11 +192,7 @@ export default function PlayContent() {
   }, [playerId]);
 
   function sendHomeWithError(errorMessage: string) {
-    localStorage.setItem(
-      localStorageKeys.homePage.error,
-      errorMessage
-    );
-    navigate("/");
+    navigate(fullPaths.home, { state: { error: errorMessage, intentionalDisconnect: true } });
   }
 
   function showErrorInModal(errorDto: ErrorDto) {

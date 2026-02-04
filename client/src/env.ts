@@ -21,10 +21,8 @@ const BACKEND_PREFIX = isDevelopment ? EMPTY_STRING : "/api";
 export const API_URL = `${HOST}${BACKEND_PREFIX}`;
 
 export const localStorageKeys = {
-  homePage: {
-    error: "homeError"
-  },
   playPage: {
+    // Used for temporary UI state during spell animations within the same page
     spellActionDescription: "spellActionDescription"
   }
 };
