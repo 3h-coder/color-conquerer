@@ -40,8 +40,9 @@ export async function animateMineExplosion(callback: ActionCallbackDto, currentP
 }
 
 function showSpellCauseDescription(setActionSpell: (spellAction: PartialSpellDto | null) => void, callback: ActionCallbackDto) {
-    // Prevent the action description card from showing the main title
-    localStorage.removeItem(localStorageKeys.playPage.spellActionDescription);
+    // Prevent the action description card from showing the main title 
+    // which we don't want in this case
+    localStorage.removeItem(localStorageKeys.playPage.spellActionDescriptionTitle);
     setActionSpell(callback.spellCause);
     setTimeout(() => setActionSpell(null), 3500);
 }

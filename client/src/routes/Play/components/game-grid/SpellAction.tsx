@@ -13,7 +13,7 @@ export default function SpellAction(props: SpellActionProps) {
     const { spell, setSpellAction } = props;
     // We're not using extractKey as this component gets re-rendered when
     // the user selects a cell of their own
-    const titleText = localStorage.getItem(localStorageKeys.playPage.spellActionDescription);
+    const titleText = localStorage.getItem(localStorageKeys.playPage.spellActionDescriptionTitle);
     const iconSize = "1.2rem";
 
     return (

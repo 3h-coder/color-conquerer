@@ -52,8 +52,10 @@ function showSpellDetails(isMyTurn: boolean, setActionSpell: (spellAction: Parti
     const spellActionDescriptionTitle = isMyTurn
         ? "You used"
         : "Your opponent used";
+
+    // Store the title in the local storage for the spell card to retrieve it when rendering
     localStorage.setItem(
-        localStorageKeys.playPage.spellActionDescription,
+        localStorageKeys.playPage.spellActionDescriptionTitle,
         spellActionDescriptionTitle
     );
 

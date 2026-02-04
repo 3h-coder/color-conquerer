@@ -23,7 +23,7 @@ export const API_URL = `${HOST}${BACKEND_PREFIX}`;
 export const localStorageKeys = {
   playPage: {
     // Used for temporary UI state during spell animations within the same page
-    spellActionDescription: "spellActionDescription"
+    spellActionDescriptionTitle: "spellActionDescriptionTitle"
   }
 };
 
