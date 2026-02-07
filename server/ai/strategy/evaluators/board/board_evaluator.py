@@ -17,6 +17,7 @@ from game_engine.models.game_board import GameBoard
 from game_engine.models.dtos.coordinates import Coordinates
 from ai.strategy.evaluators.board.board_evaluation import BoardEvaluation
 from utils.board_utils import manhattan_distance
+from ai.strategy.evaluators.base_evaluator import BaseEvaluator
 from ai.strategy.evaluators.board.evaluation_constants import (
     THREAT_DETECTION_RANGE,
     THREAT_PER_ENEMY_CELL,
@@ -31,40 +32,41 @@ from ai.strategy.evaluators.board.evaluation_constants import (
 from utils.perf_utils import with_performance_logging
 
 if TYPE_CHECKING:
-    from game_engine.models.match.match_context import MatchContext
+    from handlers.match_handler_unit import MatchHandlerUnit
 
 
-class BoardEvaluator:
+class BoardEvaluator(BaseEvaluator):
     """
     Evaluates the current board state to provide strategic insights for AI decision-making.
     """
 
-    def __init__(self):
-        pass
-
     @with_performance_logging
-    def evaluate(
-        self, match_context: "MatchContext", ai_is_player1: bool
-    ) -> BoardEvaluation:
+    def evaluate(self) -> BoardEvaluation:
         """
         Performs a comprehensive evaluation of the current board state.
-
-        Args:
-            match_context: The current match context containing all game state
-            ai_is_player1: True if AI is player 1, False if AI is player 2
 
         Returns:
             BoardEvaluation object with all analysis results
         """
-        game_board = match_context.game_board
+        game_board = self._match_context.game_board
 
         # Get AI and enemy player references
-        ai_player = match_context.player1 if ai_is_player1 else match_context.player2
-        enemy_player = match_context.player2 if ai_is_player1 else match_context.player1
+        ai_player = (
+            self._match_context.player1
+            if self._ai_is_player1
+            else self._match_context.player2
+        )
+        enemy_player = (
+            self._match_context.player2
+            if self._ai_is_player1
+            else self._match_context.player1
+        )
 
         # Get all cells for both players
-        ai_cells = game_board.get_cells_owned_by_player(player1=ai_is_player1)
-        enemy_cells = game_board.get_cells_owned_by_player(player1=not ai_is_player1)
+        ai_cells = game_board.get_cells_owned_by_player(player1=self._ai_is_player1)
+        enemy_cells = game_board.get_cells_owned_by_player(
+            player1=not self._ai_is_player1
+        )
 
         # Find master cells
         ai_master_cell = self._find_master_cell(ai_cells)
@@ -262,6 +264,7 @@ class BoardEvaluator:
                     target_coords.row_index,
                     target_coords.column_index,
                 )
+                # TODO : count in the movement ?
                 if distance == 1:  # Adjacent cells only
                     cells_that_can_attack.append(cell)
 

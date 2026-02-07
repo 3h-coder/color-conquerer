@@ -119,11 +119,21 @@ class ActionManager(TransientTurnStateHolder):
         """
         player_mode = self.get_player_mode()
         current_player = self.get_current_player()
+        player1_room, player2_room = self._match.get_individual_player_rooms()
 
+        # First, check if there is an error message to send to the client.
+        # If the current player is an AI, we log the error instead.
         if error_msg := self.get_error_message():
-            self.logger.debug(f"Sending to the client the error message : {error_msg}")
-            notify_action_error(error_msg)
-            self.set_error_message(None)
+            if current_player.is_ai:
+                self.logger.error(f"Error during AI action processing: {error_msg}")
+                self.set_error_message(None)
+            else:
+                self.logger.debug(
+                    f"Sending to the client the error message : {error_msg}"
+                )
+                notify_action_error(error_msg)
+                self.set_error_message(None)
+
             return
 
         server_mode = self.get_server_mode()
@@ -132,6 +142,10 @@ class ActionManager(TransientTurnStateHolder):
 
         # Send the possible actions
         if server_mode == ServerMode.SHOW_POSSIBLE_ACTIONS:
+            # The ai doesn't need to be notified
+            if current_player.is_ai:
+                return
+
             notify_possible_actions(
                 PossibleActionsDto(
                     playerMode=player_mode,
@@ -149,7 +163,7 @@ class ActionManager(TransientTurnStateHolder):
         processed_action_dto_2 = self._get_processed_action_dto(
             player_mode, processed_action, False
         )
-        player1_room, player2_room = self._match.get_individual_player_rooms()
+
         # Send the processed action
         if server_mode == ServerMode.SHOW_PROCESSED_ACTION:
             notify_processed_action(
@@ -208,14 +222,32 @@ class ActionManager(TransientTurnStateHolder):
     def _get_processed_action_dto(
         self, player_mode: PlayerMode, processed_action: Action, for_player1: bool
     ):
+        # The player mode should only be sent for the current player to update their UI.
+        # Otherwise, the client should remain in IDLE mode.
+        current_player = self.get_current_player()
+        recipient_is_current_player = for_player1 == current_player.is_player_1
+        effective_player_mode = (
+            player_mode if recipient_is_current_player else PlayerMode.IDLE
+        )
+
         return ProcessedActionDto(
             processedAction=processed_action.to_dto(),
-            playerMode=player_mode,
+            playerMode=effective_player_mode,
             updatedGameContext=self._match.get_game_context_dto(for_player1),
             overridingTransientBoard=None,
         )
 
     def _get_client_friendly_transient_board(self, for_player1: bool):
+        """
+        Get a client-friendly representation of the transient game board.
+
+        Args:
+            for_player1 (bool): Whether the board is for player 1.
+
+        Returns:
+            A DTO representation of the transient game board if it exists,
+            otherwise a DTO of the main game board.
+        """
         transient_game_board = self.get_transient_game_board()
         return (
             transient_game_board.to_dto(for_player1)

@@ -5,11 +5,14 @@ These tests construct specific game board scenarios and verify the evaluation re
 """
 
 import pytest
+from unittest.mock import MagicMock
 
 from ai.strategy.evaluators.board.board_evaluator import BoardEvaluator
 from ai.strategy.evaluators.board.evaluation_constants import (
     CRITICAL_HP_THRESHOLD,
     WINNING_CELL_ADVANTAGE_THRESHOLD,
+    LOSING_CELL_DISADVANTAGE_THRESHOLD,
+    MIN_THREAT_LEVEL,
 )
 from game_engine.models.match.match_context import MatchContext
 from game_engine.models.game_board import GameBoard
@@ -20,29 +23,28 @@ from game_engine.models.player.player import Player
 from game_engine.models.player.player_resources import PlayerResources
 from game_engine.models.player.player_match_data import PlayerMatchData
 from constants.game_constants import BOARD_SIZE
+from handlers.match_handler_unit import MatchHandlerUnit
 
 
 class TestBoardEvaluator:
     """Test suite for BoardEvaluator functionality."""
 
-    @pytest.fixture
-    def evaluator(self) -> BoardEvaluator:
-        """Provides a BoardEvaluator instance."""
-        return BoardEvaluator()
+    def _get_evaluator(
+        self, match_context: MatchContext, ai_is_player1: bool = True
+    ) -> BoardEvaluator:
+        """Helper to create a BoardEvaluator with a specific context."""
+        mock_match = MagicMock(spec=MatchHandlerUnit)
+        mock_match.match_context = match_context
+        return BoardEvaluator(mock_match, ai_is_player1)
 
-    @pytest.fixture
-    def basic_match_context(self) -> MatchContext:
-        """Creates a basic match context with two players and empty board."""
-        return create_test_match_context()
-
-    def test_initial_board_evaluation(
-        self, evaluator: BoardEvaluator, basic_match_context: MatchContext
-    ) -> None:
+    def test_initial_board_evaluation(self) -> None:
         """Test evaluation of an initial game board with just master cells."""
-        # === Arrange ===: basic_match_context fixture provides initial game state
+        # === Arrange ===
+        match_context = create_test_match_context()
+        evaluator = self._get_evaluator(match_context)
 
         # === Act ===
-        evaluation = evaluator.evaluate(basic_match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         # Both players should have 1 cell (their master)
@@ -51,14 +53,14 @@ class TestBoardEvaluator:
         assert evaluation.cell_control_advantage == 0
 
         # No immediate threats at game start
-        assert evaluation.master_threat_level == 0
+        assert evaluation.master_threat_level == MIN_THREAT_LEVEL
         assert len(evaluation.enemy_cells_near_ai_master) == 0
         assert len(evaluation.ai_cells_near_enemy_master) == 0
 
         # Both players start with full HP
         assert evaluation.ai_hp == evaluation.enemy_hp
 
-    def test_cell_control_advantage(self, evaluator: BoardEvaluator) -> None:
+    def test_cell_control_advantage(self) -> None:
         """Test that cell control advantage is calculated correctly."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -72,15 +74,17 @@ class TestBoardEvaluator:
         # Give enemy 1 additional cell
         spawn_cell(board, 8, 5, CellOwner.PLAYER_2)
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         assert evaluation.ai_cell_count == 4  # Master + 3 spawned
         assert evaluation.enemy_cell_count == 2  # Master + 1 spawned
         assert evaluation.cell_control_advantage == 2
 
-    def test_threat_detection_adjacent_enemies(self, evaluator: BoardEvaluator) -> None:
+    def test_threat_detection_adjacent_enemies(self) -> None:
         """Test that adjacent enemy cells are detected as threats."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -90,14 +94,16 @@ class TestBoardEvaluator:
         spawn_cell(board, 1, 4, CellOwner.PLAYER_2)  # Left of AI master
         spawn_cell(board, 2, 5, CellOwner.PLAYER_2)  # Below AI master
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         assert len(evaluation.enemy_cells_near_ai_master) == 2
         assert evaluation.master_threat_level > 0
 
-    def test_archer_threat_from_distance(self, evaluator: BoardEvaluator) -> None:
+    def test_archer_threat_from_distance(self) -> None:
         """Test that archer cells are considered threats even from far away."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -107,8 +113,10 @@ class TestBoardEvaluator:
         archer_cell = spawn_cell(board, 8, 8, CellOwner.PLAYER_2)
         archer_cell.add_modifier(CellState.ARCHER)
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         # Archer should not be in "near" list (it's far away)
@@ -117,7 +125,7 @@ class TestBoardEvaluator:
         # But threat level should still be elevated due to archer
         assert evaluation.master_threat_level > 0
 
-    def test_lethal_opportunity_detection(self, evaluator: BoardEvaluator) -> None:
+    def test_lethal_opportunity_detection(self) -> None:
         """Test detection of lethal opportunities when AI can kill enemy master."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -130,16 +138,16 @@ class TestBoardEvaluator:
         spawn_cell(board, 9, 4, CellOwner.PLAYER_1)  # Left of enemy master
         spawn_cell(board, 8, 5, CellOwner.PLAYER_1)  # Above enemy master
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         # 2 cells × 1 damage each = 2 damage, which equals enemy HP
         assert evaluation.ai_has_lethal_opportunity()
 
-    def test_no_lethal_opportunity_insufficient_damage(
-        self, evaluator: BoardEvaluator
-    ) -> None:
+    def test_no_lethal_opportunity_insufficient_damage(self) -> None:
         """Test that lethal opportunity is not detected when damage is insufficient."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -152,14 +160,16 @@ class TestBoardEvaluator:
         spawn_cell(board, 9, 4, CellOwner.PLAYER_1)
         spawn_cell(board, 8, 5, CellOwner.PLAYER_1)
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         # 2 cells × 1 damage = 2 damage, which is less than 5 HP
         assert not evaluation.ai_has_lethal_opportunity()
 
-    def test_lethal_opportunity_with_archers(self, evaluator: BoardEvaluator) -> None:
+    def test_lethal_opportunity_with_archers(self) -> None:
         """Test lethal opportunity calculation includes distant archers."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -175,15 +185,17 @@ class TestBoardEvaluator:
         archer2 = spawn_cell(board, 6, 6, CellOwner.PLAYER_1)
         archer2.add_modifier(CellState.ARCHER)
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         # 3 cells that can attack × 1 damage = 3 damage = enemy HP
         assert evaluation.ai_has_lethal_opportunity()
         assert len(evaluation.ai_cells_that_can_attack_enemy_master) == 3
 
-    def test_critical_danger_detection(self, evaluator: BoardEvaluator) -> None:
+    def test_critical_danger_detection(self) -> None:
         """Test detection of critical danger to AI master."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -197,13 +209,15 @@ class TestBoardEvaluator:
         spawn_cell(board, 2, 5, CellOwner.PLAYER_2)
         spawn_cell(board, 1, 6, CellOwner.PLAYER_2)
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         assert evaluation.ai_master_in_critical_danger()
 
-    def test_winning_position_detection(self, evaluator: BoardEvaluator) -> None:
+    def test_winning_position_detection(self) -> None:
         """Test detection of winning position."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -217,36 +231,42 @@ class TestBoardEvaluator:
         match_context.player1.resources.current_hp = 10
         match_context.player2.resources.current_hp = 7
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         assert evaluation.ai_is_winning()
 
-    def test_losing_position_detection(self, evaluator: BoardEvaluator) -> None:
+    def test_losing_position_detection(self) -> None:
         """Test detection of losing position."""
         # === Arrange ===
         match_context = create_test_match_context()
         board = match_context.game_board
 
         # Give enemy significant cell advantage (spread across board to avoid out of bounds)
-        spawn_cell(board, 7, 5, CellOwner.PLAYER_2)
-        spawn_cell(board, 8, 5, CellOwner.PLAYER_2)
-        spawn_cell(board, 7, 4, CellOwner.PLAYER_2)
-        spawn_cell(board, 8, 4, CellOwner.PLAYER_2)
-        spawn_cell(board, 7, 6, CellOwner.PLAYER_2)
+        # LOSING_CELL_DISADVANTAGE_THRESHOLD is e.g. -3.
+        # We need AI_CELLS - ENEMY_CELLS <= -3
+        # AI has 1 (master). So 1 - ENEMY_CELLS <= -3 => ENEMY_CELLS >= 4.
+        # Enemy already has 1 (master). So spawn at least 3 more.
+        num_to_spawn = abs(LOSING_CELL_DISADVANTAGE_THRESHOLD) + 1
+        for i in range(num_to_spawn):
+            spawn_cell(board, 7, i, CellOwner.PLAYER_2)
 
         # Enemy has more HP
         match_context.player1.resources.current_hp = 6
         match_context.player2.resources.current_hp = 10
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         assert evaluation.ai_is_losing()
 
-    def test_positional_advantage_calculation(self, evaluator: BoardEvaluator) -> None:
+    def test_positional_advantage_calculation(self) -> None:
         """Test that positional advantage is calculated correctly."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -260,14 +280,16 @@ class TestBoardEvaluator:
         spawn_cell(board, 5, 9, CellOwner.PLAYER_2)
         spawn_cell(board, 6, 9, CellOwner.PLAYER_2)
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         # Positive positional advantage means AI is closer to enemy
         assert evaluation.positional_advantage > 0
 
-    def test_enemy_clustering_detection(self, evaluator: BoardEvaluator) -> None:
+    def test_enemy_clustering_detection(self) -> None:
         """Test detection of enemy cell clusters (useful for AoE spells)."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -282,8 +304,10 @@ class TestBoardEvaluator:
         # Create an isolated enemy cell
         spawn_cell(board, 6, 9, CellOwner.PLAYER_2)
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         # Should detect 2 clusters (one with 4 cells, one with 1 cell)
@@ -291,9 +315,7 @@ class TestBoardEvaluator:
         assert len(evaluation.enemy_cell_clusters) >= 2
         assert evaluation.largest_enemy_cluster_size == 4
 
-    def test_threat_level_increases_with_low_hp(
-        self, evaluator: BoardEvaluator
-    ) -> None:
+    def test_threat_level_increases_with_low_hp(self) -> None:
         """Test that threat level increases when HP is low."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -305,11 +327,13 @@ class TestBoardEvaluator:
         # === Act ===
         # Test with high HP
         match_context.player1.resources.current_hp = 10
-        evaluation_high_hp = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluator_high = self._get_evaluator(match_context)
+        evaluation_high_hp = evaluator_high.evaluate()
 
         # Test with low HP
         match_context.player1.resources.current_hp = 2
-        evaluation_low_hp = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluator_low = self._get_evaluator(match_context)
+        evaluation_low_hp = evaluator_low.evaluate()
 
         # === Assert ===
         # Threat should be higher when HP is low
@@ -318,7 +342,7 @@ class TestBoardEvaluator:
             > evaluation_high_hp.master_threat_level
         )
 
-    def test_ai_as_player2(self, evaluator: BoardEvaluator) -> None:
+    def test_ai_as_player2(self) -> None:
         """Test evaluation works correctly when AI is player 2."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -328,8 +352,10 @@ class TestBoardEvaluator:
         spawn_cell(board, 7, 5, CellOwner.PLAYER_2)
         spawn_cell(board, 8, 5, CellOwner.PLAYER_2)
 
+        evaluator = self._get_evaluator(match_context, ai_is_player1=False)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=False)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         assert evaluation.ai_cell_count == 3  # Master + 2 spawned
@@ -338,22 +364,22 @@ class TestBoardEvaluator:
         assert evaluation.ai_master_cell.belongs_to_player_2()
         assert evaluation.enemy_master_cell.belongs_to_player_1()
 
-    def test_master_cells_excluded_from_attack_calculations(
-        self, evaluator: BoardEvaluator
-    ) -> None:
+    def test_master_cells_excluded_from_attack_calculations(self) -> None:
         """Test that master cells are not counted as potential attackers."""
         # === Arrange ===
         match_context = create_test_match_context()
         # Only master cells exist, no other units
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         # Master cells should not be able to attack
         assert len(evaluation.ai_cells_that_can_attack_enemy_master) == 0
 
-    def test_adjacent_melee_cells_can_attack(self, evaluator: BoardEvaluator) -> None:
+    def test_adjacent_melee_cells_can_attack(self) -> None:
         """Test that non-archer cells must be adjacent to attack."""
         # === Arrange ===
         match_context = create_test_match_context()
@@ -365,8 +391,10 @@ class TestBoardEvaluator:
         # Place a non-archer cell 2 spaces away from enemy master
         spawn_cell(board, 7, 5, CellOwner.PLAYER_1)
 
+        evaluator = self._get_evaluator(match_context)
+
         # === Act ===
-        evaluation = evaluator.evaluate(match_context, ai_is_player1=True)
+        evaluation = evaluator.evaluate()
 
         # === Assert ===
         # Only the adjacent cell should be able to attack
