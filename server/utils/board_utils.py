@@ -37,3 +37,19 @@ def is_out_of_bounds(index, board_size: int = None, square_board: list[list] = N
         return index >= len(square_board[0])
 
     return False
+
+
+def manhattan_distance(row1: int, col1: int, row2: int, col2: int) -> int:
+    """
+    Calculates Manhattan distance between two coordinates.
+
+    Args:
+        row1: Row index of first position
+        col1: Column index of first position
+        row2: Row index of second position
+        col2: Column index of second position
+
+    Returns:
+        Manhattan distance (sum of absolute differences)
+    """
+    return abs(row1 - row2) + abs(col1 - col2)

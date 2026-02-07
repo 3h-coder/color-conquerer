@@ -198,15 +198,17 @@ server/
 - Match handler detects and instantiates AI player
 - Client "Play vs AI" button functional
 - AI alternates turns automatically
+- `BoardEvaluator` fully implemented with comprehensive test coverage
+- Board evaluation integrated into AI turn logic
 
-**Current behavior:** AI passes its turn after 0.5s delay
+**Current behavior:** AI evaluates board state each turn and logs detailed analysis, then passes turn
 
 ### 🔄 Phase 2: Strategy (NEXT)
 
 **Goal:** Intelligent decision-making
 
 **Components to implement:**
-- `BoardEvaluator` - Analyze game state, identify threats/opportunities
+- ✅ `BoardEvaluator` - Analyze game state, identify threats/opportunities
 - `AttackDecider` - Target selection based on threat level and HP
 - `MovementDecider` - Optimal positioning (offense/defense balance)
 - `SpawnDecider` - Strategic spawn placement
@@ -265,7 +267,8 @@ server/
 ## Testing Strategy
 
 ### Unit Tests
-**File:** `server/tests/test_ai_player.py`
+**File:** `server/tests/ai_tests/test_board_evaluator.py`
+- ✅ BoardEvaluator comprehensive test coverage
 - AI completes full match
 - AI respects turn order
 - AI makes only valid moves

@@ -133,8 +133,12 @@ class MineExplosionCallback(ActionCallback):
         row_index, col_index = coords
         origin_row, origin_col = origin_coords
 
+        from utils.board_utils import manhattan_distance
+
         # Calculate Manhattan distance from origin explosion
-        current_radius = abs(row_index - origin_row) + abs(col_index - origin_col)
+        current_radius = manhattan_distance(
+            row_index, col_index, origin_row, origin_col
+        )
         if current_radius > 0:  # Don't add the origin mine
             if current_radius not in explosions_per_radius:
                 explosions_per_radius[current_radius] = []

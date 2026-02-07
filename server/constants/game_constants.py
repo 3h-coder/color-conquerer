@@ -26,6 +26,9 @@ SPELLS_MANA_COST = {
     SpellId.SHIELD_FORMATION: 3,
 }
 
+# Combat mechanics
+DAMAGE_PER_ATTACK = 1  # Each attack deals 1 HP damage to the target
+
 # States that do no persist beyond a single turn
 
 STATES_TO_CLEAR_AT_TURN_BEGINNING = [CellState.FRESHLY_SPAWNED]
