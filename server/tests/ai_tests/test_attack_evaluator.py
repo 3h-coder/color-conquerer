@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from ai.strategy.evaluators.cell_evaluator import CellEvaluator
+from ai.strategy.evaluators.attack_evaluator import AttackEvaluator
 from ai.config.ai_config import (
     ATTACK_WEIGHT_BASE_ATTACK,
     ATTACK_WEIGHT_THREAT_DEFENSE,
@@ -12,11 +12,11 @@ from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.cell.cell import Cell
 
 
-class TestCellEvaluatorTarget:
-    """Tests for evaluate_target_cell."""
+class TestAttackEvaluator:
+    """Tests for AttackEvaluator."""
 
-    def test_evaluate_target_cell_enemy_master(
-        self, evaluator: CellEvaluator, board_evaluation: MagicMock
+    def test_evaluate_enemy_master(
+        self, attack_evaluator: AttackEvaluator, board_evaluation: MagicMock
     ) -> None:
         """Test that attacking the enemy master is highly prioritized."""
         # Arrange
@@ -25,13 +25,13 @@ class TestCellEvaluatorTarget:
         board_evaluation.ai_has_lethal_opportunity.return_value = False
 
         # Act
-        score = evaluator.evaluate_target_cell(coords, board_evaluation)
+        score = attack_evaluator.evaluate(coords, board_evaluation)
 
         # Assert
         assert score == ATTACK_WEIGHT_ENEMY_MASTER
 
-    def test_evaluate_target_cell_lethal_master(
-        self, evaluator: CellEvaluator, board_evaluation: MagicMock
+    def test_evaluate_lethal_master(
+        self, attack_evaluator: AttackEvaluator, board_evaluation: MagicMock
     ) -> None:
         """Test that lethal opportunities on enemy master get a major bonus."""
         # Arrange
@@ -40,13 +40,13 @@ class TestCellEvaluatorTarget:
         board_evaluation.ai_has_lethal_opportunity.return_value = True
 
         # Act
-        score = evaluator.evaluate_target_cell(coords, board_evaluation)
+        score = attack_evaluator.evaluate(coords, board_evaluation)
 
         # Assert
         assert score == ATTACK_WEIGHT_ENEMY_MASTER + ATTACK_WEIGHT_LETHAL_ON_MASTER
 
-    def test_evaluate_target_cell_basic_unit(
-        self, evaluator: CellEvaluator, board_evaluation: MagicMock
+    def test_evaluate_basic_unit(
+        self, attack_evaluator: AttackEvaluator, board_evaluation: MagicMock
     ) -> None:
         """Test basic attack scoring for regular units."""
         # Arrange
@@ -56,17 +56,17 @@ class TestCellEvaluatorTarget:
         target_cell = MagicMock(spec=Cell)
         target_cell.is_shielded.return_value = True
 
-        evaluator._match_context.game_board = MagicMock()
-        evaluator._match_context.game_board.get.return_value = target_cell
+        attack_evaluator._match_context.game_board = MagicMock()
+        attack_evaluator._match_context.game_board.get.return_value = target_cell
 
         # Act
-        score = evaluator.evaluate_target_cell(coords, board_evaluation)
+        score = attack_evaluator.evaluate(coords, board_evaluation)
 
         # Assert
         assert score == ATTACK_WEIGHT_BASE_ATTACK
 
-    def test_evaluate_target_cell_threat_defensive(
-        self, evaluator: CellEvaluator, board_evaluation: MagicMock
+    def test_evaluate_threat_defensive(
+        self, attack_evaluator: AttackEvaluator, board_evaluation: MagicMock
     ) -> None:
         """Test that targets near our own master are prioritized."""
         # Arrange
@@ -75,17 +75,17 @@ class TestCellEvaluatorTarget:
         target_cell.is_shielded.return_value = True
 
         board_evaluation.enemy_cells_near_ai_master = [target_cell]
-        evaluator._match_context.game_board = MagicMock()
-        evaluator._match_context.game_board.get.return_value = target_cell
+        attack_evaluator._match_context.game_board = MagicMock()
+        attack_evaluator._match_context.game_board.get.return_value = target_cell
 
         # Act
-        score = evaluator.evaluate_target_cell(coords, board_evaluation)
+        score = attack_evaluator.evaluate(coords, board_evaluation)
 
         # Assert
         assert score == ATTACK_WEIGHT_BASE_ATTACK + ATTACK_WEIGHT_THREAT_DEFENSE
 
-    def test_evaluate_target_cell_low_hp_clear(
-        self, evaluator: CellEvaluator, board_evaluation: MagicMock
+    def test_evaluate_low_hp_clear(
+        self, attack_evaluator: AttackEvaluator, board_evaluation: MagicMock
     ) -> None:
         """Test that non-shielded targets get a bonus (easier to clear)."""
         # Arrange
@@ -94,11 +94,11 @@ class TestCellEvaluatorTarget:
         target_cell.is_shielded.return_value = False
         board_evaluation.enemy_cells_near_ai_master = []
 
-        evaluator._match_context.game_board = MagicMock()
-        evaluator._match_context.game_board.get.return_value = target_cell
+        attack_evaluator._match_context.game_board = MagicMock()
+        attack_evaluator._match_context.game_board.get.return_value = target_cell
 
         # Act
-        score = evaluator.evaluate_target_cell(coords, board_evaluation)
+        score = attack_evaluator.evaluate(coords, board_evaluation)
 
         # Assert
         assert score == ATTACK_WEIGHT_BASE_ATTACK + ATTACK_WEIGHT_LOW_HP_BONUS

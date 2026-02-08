@@ -260,14 +260,14 @@ class TestMovementDecider:
     @patch(
         "ai.strategy.decision_makers.movement_decider.get_possible_movements_and_attacks"
     )
-    def test_delegates_scoring_to_cell_evaluator(
+    def test_delegates_scoring_to_evaluator(
         self,
         mock_get_options: MagicMock,
         decider: MovementDecider,
         mock_match: MagicMock,
         board_evaluation: MagicMock,
     ) -> None:
-        """The decider should use CellEvaluator.evaluate_movement_destination for scoring."""
+        """The decider should use MovementEvaluator.evaluate for scoring."""
         # Arrange
         cell: MagicMock = MagicMock()
         mock_match.match_context.game_board.get_cells_owned_by_player.return_value = [
@@ -279,9 +279,7 @@ class TestMovementDecider:
         mock_get_options.return_value = {move_a, move_b}
 
         # Rig the evaluator to prefer move_b (score 100 vs 50)
-        with patch.object(
-            decider._cell_evaluator, "evaluate_movement_destination"
-        ) as mock_eval:
+        with patch.object(decider._evaluator, "evaluate") as mock_eval:
             mock_eval.side_effect = lambda coords, _: (
                 50.0 if coords == move_a.metadata.impacted_coords else 100.0
             )

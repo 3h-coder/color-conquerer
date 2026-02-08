@@ -1,6 +1,8 @@
 import pytest
 from unittest.mock import MagicMock
-from ai.strategy.evaluators.cell_evaluator import CellEvaluator
+from ai.strategy.evaluators.spawn_evaluator import SpawnEvaluator
+from ai.strategy.evaluators.attack_evaluator import AttackEvaluator
+from ai.strategy.evaluators.movement_evaluator import MovementEvaluator
 from ai.strategy.evaluators.board.board_evaluation import BoardEvaluation
 from ai.strategy.evaluators.board.evaluation_constants import MIN_THREAT_LEVEL
 from game_engine.models.dtos.coordinates import Coordinates
@@ -16,8 +18,18 @@ def mock_match() -> MagicMock:
 
 
 @pytest.fixture
-def evaluator(mock_match: MagicMock) -> CellEvaluator:
-    return CellEvaluator(mock_match, ai_is_player1=True)
+def spawn_evaluator(mock_match: MagicMock) -> SpawnEvaluator:
+    return SpawnEvaluator(mock_match, ai_is_player1=True)
+
+
+@pytest.fixture
+def attack_evaluator(mock_match: MagicMock) -> AttackEvaluator:
+    return AttackEvaluator(mock_match, ai_is_player1=True)
+
+
+@pytest.fixture
+def movement_evaluator(mock_match: MagicMock) -> MovementEvaluator:
+    return MovementEvaluator(mock_match, ai_is_player1=True)
 
 
 @pytest.fixture

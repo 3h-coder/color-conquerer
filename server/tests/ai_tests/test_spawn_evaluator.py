@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from ai.strategy.evaluators.cell_evaluator import CellEvaluator
+from ai.strategy.evaluators.spawn_evaluator import SpawnEvaluator
 from ai.strategy.evaluators.board.evaluation_constants import (
     MAX_THREAT_LEVEL,
     MIN_THREAT_LEVEL,
@@ -13,9 +13,9 @@ from ai.config.ai_config import (
 from game_engine.models.dtos.coordinates import Coordinates
 
 
-class TestCellEvaluatorSpawn:
+class TestSpawnEvaluator:
     def test_evaluate_spawn_location_proximity_to_enemy(
-        self, evaluator: CellEvaluator, board_evaluation: MagicMock
+        self, spawn_evaluator: SpawnEvaluator, board_evaluation: MagicMock
     ) -> None:
         """Test that spawns closer to enemy master are scored higher for pressure."""
         # Arrange
@@ -23,14 +23,14 @@ class TestCellEvaluatorSpawn:
         far_coords = Coordinates(2, 5)  # Dist 7 to enemy (9,5)
 
         # Act
-        score_near = evaluator.evaluate_spawn_location(near_coords, board_evaluation)
-        score_far = evaluator.evaluate_spawn_location(far_coords, board_evaluation)
+        score_near = spawn_evaluator.evaluate(near_coords, board_evaluation)
+        score_far = spawn_evaluator.evaluate(far_coords, board_evaluation)
 
         # Assert
         assert score_near > score_far
 
     def test_evaluate_spawn_location_defensive_priority(
-        self, evaluator: CellEvaluator, board_evaluation: MagicMock
+        self, spawn_evaluator: SpawnEvaluator, board_evaluation: MagicMock
     ) -> None:
         """Test that under high threat, spawns closer to own master are prioritized."""
         # Arrange
@@ -43,14 +43,14 @@ class TestCellEvaluatorSpawn:
         far_own = Coordinates(5, 8)
 
         # Act
-        score_near = evaluator.evaluate_spawn_location(near_own, board_evaluation)
-        score_far = evaluator.evaluate_spawn_location(far_own, board_evaluation)
+        score_near = spawn_evaluator.evaluate(near_own, board_evaluation)
+        score_far = spawn_evaluator.evaluate(far_own, board_evaluation)
 
         # Assert
         assert score_near > score_far
 
     def test_evaluate_spawn_location_no_defense_when_safe(
-        self, evaluator: CellEvaluator, board_evaluation: MagicMock
+        self, spawn_evaluator: SpawnEvaluator, board_evaluation: MagicMock
     ) -> None:
         """Test that when safe (threat=0), distance to own master doesn't significantly boost score."""
         # Arrange
@@ -64,19 +64,15 @@ class TestCellEvaluatorSpawn:
         pos_equidistant = Coordinates(5, 8)
 
         # Act
-        score_near_own = evaluator.evaluate_spawn_location(
-            pos_near_own, board_evaluation
-        )
-        score_far_away = evaluator.evaluate_spawn_location(
-            pos_equidistant, board_evaluation
-        )
+        score_near_own = spawn_evaluator.evaluate(pos_near_own, board_evaluation)
+        score_far_away = spawn_evaluator.evaluate(pos_equidistant, board_evaluation)
 
         # Assert: Since threat is 0, the distance to own master should be ignored.
         # Both should have similar scores because their distance to enemy is the same.
         assert score_near_own == pytest.approx(score_far_away)
 
     def test_evaluate_spawn_location_at_enemy_master(
-        self, evaluator: CellEvaluator, board_evaluation: MagicMock
+        self, spawn_evaluator: SpawnEvaluator, board_evaluation: MagicMock
     ) -> None:
         """Test score when spawning right next to enemy master (theoretical maximum)."""
         # Arrange
@@ -84,7 +80,7 @@ class TestCellEvaluatorSpawn:
         pos = Coordinates(8, 5)  # Distance 1
 
         # Act
-        score = evaluator.evaluate_spawn_location(pos, board_evaluation)
+        score = spawn_evaluator.evaluate(pos, board_evaluation)
 
         # Assert
         expected_score = (
@@ -94,7 +90,7 @@ class TestCellEvaluatorSpawn:
         assert score == expected_score
 
     def test_evaluate_spawn_location_at_max_distance(
-        self, evaluator: CellEvaluator, board_evaluation: MagicMock
+        self, spawn_evaluator: SpawnEvaluator, board_evaluation: MagicMock
     ) -> None:
         """Test score when spawning at maximum possible distance from enemy master."""
         # Arrange
@@ -102,7 +98,7 @@ class TestCellEvaluatorSpawn:
         pos = Coordinates(0, 0)  # Dist to (9,5) is 9+5 = 14.
 
         # Act
-        score = evaluator.evaluate_spawn_location(pos, board_evaluation)
+        score = spawn_evaluator.evaluate(pos, board_evaluation)
 
         # Assert
         expected_score = (

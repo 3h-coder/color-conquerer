@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional, List
 from game_engine.models.actions.cell_attack import CellAttack
 from game_engine.action_calculation import get_possible_movements_and_attacks
 from ai.strategy.decision_makers.base_decider import BaseDecider
-from ai.strategy.evaluators.cell_evaluator import CellEvaluator
+from ai.strategy.evaluators.attack_evaluator import AttackEvaluator
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -18,7 +18,7 @@ class AttackDecider(BaseDecider):
 
     def __init__(self, match: "MatchHandlerUnit", ai_is_player1: bool):
         super().__init__(match, ai_is_player1)
-        self._cell_evaluator = CellEvaluator(match, ai_is_player1)
+        self._evaluator = AttackEvaluator(match, ai_is_player1)
 
     def decide_attack(
         self,
@@ -31,13 +31,14 @@ class AttackDecider(BaseDecider):
         2. Damage to enemy master
         3. Attacks on high-value enemy cells
         """
-        game_board = self._match_context.game_board
         transient_board = self._get_transient_board()
         turn_state = self._match.turn_state
 
         # 1. Gather all potential attacks
         # Must use FRESH cells from the current board state, not stale board_evaluation cells
-        ai_cells = game_board.get_cells_owned_by_player(player1=self._ai_is_player1)
+        ai_cells = self.game_board.get_cells_owned_by_player(
+            player1=self._ai_is_player1
+        )
         all_possible_attacks: List[CellAttack] = []
 
         for cell in ai_cells:
@@ -49,27 +50,10 @@ class AttackDecider(BaseDecider):
                 if isinstance(option, CellAttack):
                     all_possible_attacks.append(option)
 
-        if not all_possible_attacks:
-            return None
-
-        # 2. Check for lethal on enemy master
-        # (This is handled by prioritization in _score_attack but could be explicit)
-
-        # 3. Score and pick the best attack
-        best_attack = None
-        max_score = -1
-
-        for attack in all_possible_attacks:
-            score = self._score_attack(attack, board_evaluation)
-            if score > max_score:
-                max_score = score
-                best_attack = attack
-
-        return best_attack
-
-    def _score_attack(self, attack: CellAttack, evaluation: "BoardEvaluation") -> float:
-        """
-        Calculates a priority score for an attack using CellEvaluator.
-        """
-        target_coords = attack.metadata.impacted_coords
-        return self._cell_evaluator.evaluate_target_cell(target_coords, evaluation)
+        # 2. Score and pick the best attack
+        return self._pick_best_action(
+            all_possible_attacks,
+            lambda attack: self._evaluator.evaluate(
+                attack.metadata.impacted_coords, board_evaluation
+            ),
+        )

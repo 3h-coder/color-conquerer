@@ -116,9 +116,7 @@ class TestSpawnDecider:
         evaluation: BoardEvaluation = MagicMock(spec=BoardEvaluation)
 
         # Mock the evaluator to prefer spawn2
-        with patch.object(
-            decider._cell_evaluator, "evaluate_spawn_location"
-        ) as mock_eval:
+        with patch.object(decider._evaluator, "evaluate") as mock_eval:
             mock_eval.side_effect = lambda coords, _: (
                 10.0 if coords == spawn1.metadata.impacted_coords else 20.0
             )

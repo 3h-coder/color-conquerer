@@ -70,7 +70,7 @@ class TestAttackDecider:
         mock_get_options.return_value = {attack1, attack2}
 
         # Mock the evaluator to prefer attack2
-        with patch.object(decider._cell_evaluator, "evaluate_target_cell") as mock_eval:
+        with patch.object(decider._evaluator, "evaluate") as mock_eval:
             mock_eval.side_effect = lambda coords, _: (
                 100.0 if coords == attack1.metadata.impacted_coords else 200.0
             )
