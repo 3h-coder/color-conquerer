@@ -13,6 +13,8 @@ from ai.config.ai_config import (
     MOVE_WEIGHT_ARCHER_CREATION_BONUS,
     MOVE_WEIGHT_ARCHER_RETREAT_FROM_ENEMIES,
     MOVE_WEIGHT_ENEMY_ARCHER_NEIGHBOR_BONUS,
+    MOVE_WEIGHT_DEFENSIVE_POSITIONING,
+    MASTER_CRITICAL_HEALTH_THRESHOLD,
 )
 from ai.strategy.evaluators.base_evaluator import BaseEvaluator
 
@@ -61,8 +63,19 @@ class MovementEvaluator(BaseEvaluator):
         """
         Standard positioning: move closer to enemy master for offensive pressure,
         or closer to own master if defensive positioning is needed.
+        When master is at critical health, strongly prioritize defensive positioning.
         """
         score = 0.0
+
+        # Check if master is at critical health
+        ai_player = (
+            self._match_context.player1
+            if self._ai_is_player1
+            else self._match_context.player2
+        )
+        master_is_critical = (
+            ai_player.resources.current_hp <= MASTER_CRITICAL_HEALTH_THRESHOLD
+        )
 
         # Offensive pressure: closer to enemy master is better
         dist_to_enemy_master = manhattan_distance(
@@ -75,8 +88,11 @@ class MovementEvaluator(BaseEvaluator):
             MAX_BOARD_DISTANCE - dist_to_enemy_master
         ) * MOVE_WEIGHT_DISTANCE_TO_ENEMY_MASTER
 
-        # Defensive positioning when master is threatened
-        if board_evaluation.master_threat_level >= DEFENSIVE_MOVE_THREAT_THRESHOLD:
+        # Defensive positioning when master is threatened or at critical health
+        if (
+            board_evaluation.master_threat_level >= DEFENSIVE_MOVE_THREAT_THRESHOLD
+            or master_is_critical
+        ):
             dist_to_own = manhattan_distance(
                 dest_coords.row_index,
                 dest_coords.column_index,
@@ -86,6 +102,12 @@ class MovementEvaluator(BaseEvaluator):
             score += (
                 MAX_BOARD_DISTANCE - dist_to_own
             ) * MOVE_WEIGHT_DISTANCE_TO_OWN_MASTER
+
+            # Extra boost when master is critical - urgently move toward master
+            if master_is_critical:
+                score += (
+                    MAX_BOARD_DISTANCE - dist_to_own
+                ) * MOVE_WEIGHT_DEFENSIVE_POSITIONING
 
         return score
 

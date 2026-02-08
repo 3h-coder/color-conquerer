@@ -48,9 +48,7 @@ MOVE_WEIGHT_MANA_BUBBLE_NEIGHBOR_BONUS = (
 )
 MOVE_WEIGHT_ARCHER_CREATION_BONUS = 30.0  # Bonus for creating archer opportunities
 MOVE_WEIGHT_ARCHER_RETREAT_FROM_ENEMIES = 2.0  # Archers favor distance from enemies
-MOVE_WEIGHT_ENEMY_ARCHER_NEIGHBOR_BONUS = (
-    50.0  # Position next to enemy archer for follow-up kill
-)
+MOVE_WEIGHT_ENEMY_ARCHER_NEIGHBOR_BONUS = 120.0  # Very high priority - moving next to enemy archer to kill it next turn beats ambush
 
 # AI Decision Weights for AttackDecider
 ATTACK_WEIGHT_ENEMY_MASTER = 150.0
@@ -64,12 +62,21 @@ ATTACK_WEIGHT_ARCHER_TARGET_BONUS = (
 ATTACK_WEIGHT_MASTER_RETALIATION_PENALTY = (
     -40.0  # Penalty: master should avoid attacking non-masters (loses HP)
 )
+ATTACK_WEIGHT_CRITICAL_THREAT_DEFENSE = (
+    40.0  # Bonus for defending threats when master is critical
+)
+
+# AI Decision Weights for MovementDecider - Defensive positioning
+MOVE_WEIGHT_DEFENSIVE_POSITIONING = (
+    3.0  # Boost movement toward own master when critical
+)
 
 # AI Decision Weights for SpawnDecider - Defensive positioning
 SPAWN_WEIGHT_MASTER_DEFENSE_BONUS = (
     50.0  # Strong priority when master health is critical
 )
-MASTER_CRITICAL_HEALTH_THRESHOLD = 2  # HP ≤ this triggers defensive mode
+MASTER_CRITICAL_HEALTH_THRESHOLD = 4  # HP ≤ this triggers defensive mode
+MASTER_SUICIDAL_HEALTH_THRESHOLD = 1  # HP = this means master will die from any damage
 
 # Evaluation Constants
 BASE_SPAWN_SCORE = 45.0
@@ -83,9 +90,14 @@ SPELL_WEIGHT_AMBUSH_BASE = (
     20.0  # Low base - ambush only valuable in specific situations
 )
 SPELL_WEIGHT_AMBUSH_EXTRA_SPAWN_BONUS = 60.0  # High bonus when we get +1 spawn
-SPELL_WEIGHT_AMBUSH_ARCHER_TARGET_BONUS = 70.0  # Bonus for targeting an archer directly
+SPELL_WEIGHT_AMBUSH_ARCHER_TARGET_BONUS = (
+    95.0  # Strong bonus for targeting an archer directly
+)
 SPELL_WEIGHT_AMBUSH_MASTER_TARGET_BONUS = (
     90.0  # Massive bonus when targeting enemy master for pressure
+)
+SPELL_WEIGHT_AMBUSH_CRITICAL_HEALTH_BONUS = (
+    50.0  # Extra bonus when targeting threats and master is critical
 )
 SPELL_WEIGHT_MINE_TRAP_BASE = 25.0
 SPELL_WEIGHT_MINE_TRAP_OWN_MASTER_PROXIMITY_FACTOR = 3.0
