@@ -52,6 +52,8 @@ class AttackDecider(BaseDecider):
         return self._pick_best_action(
             all_possible_attacks,
             lambda attack: self._evaluator.evaluate(
-                attack.metadata.impacted_coords, board_evaluation
+                attack.metadata.impacted_coords,
+                board_evaluation,
+                attack.metadata.originating_coords,
             ),
         )

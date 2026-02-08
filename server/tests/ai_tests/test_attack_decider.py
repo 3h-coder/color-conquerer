@@ -71,7 +71,7 @@ class TestAttackDecider:
 
         # Mock the evaluator to prefer attack2
         with patch.object(decider._evaluator, "evaluate") as mock_eval:
-            mock_eval.side_effect = lambda coords, _: (
+            mock_eval.side_effect = lambda coords, _, attacker: (
                 100.0 if coords == attack1.metadata.impacted_coords else 200.0
             )
 

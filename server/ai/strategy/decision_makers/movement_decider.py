@@ -52,7 +52,5 @@ class MovementDecider(BaseDecider):
         # 4. Evaluate each possible move and pick the best one
         return self._pick_best_action(
             all_possible_movements,
-            lambda move: self._evaluator.evaluate(
-                move.metadata.impacted_coords, board_evaluation
-            ),
+            lambda move: self._evaluator.evaluate(move, board_evaluation),
         )

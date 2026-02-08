@@ -53,3 +53,60 @@ def manhattan_distance(row1: int, col1: int, row2: int, col2: int) -> int:
         Manhattan distance (sum of absolute differences)
     """
     return abs(row1 - row2) + abs(col1 - col2)
+
+
+def get_diagonal_formations(
+    start_row: int, start_col: int, valid_coords: set[tuple[int, int]]
+) -> tuple[list[tuple[int, int]], list[tuple[int, int]]]:
+    """
+    Finds diagonal formations passing through a given coordinate.
+    Returns both diagonals that pass through the starting position.
+
+    Args:
+        start_row: Starting row index
+        start_col: Starting column index
+        valid_coords: Set of (row, col) tuples representing valid positions
+
+    Returns:
+        Tuple of two lists: (diagonal1, diagonal2) where:
+        - diagonal1: top-left to bottom-right diagonal
+        - diagonal2: bottom-left to top-right diagonal
+        Each list contains (row, col) tuples, empty if less than 2 cells
+    """
+    # Diagonal 1: top-left to bottom-right (↘)
+    diagonal1 = []
+    # Start from current position and go down-right
+    r, c = start_row, start_col
+    while (r, c) in valid_coords:
+        diagonal1.append((r, c))
+        r += 1
+        c += 1
+    # Go back and check up-left from starting position
+    r, c = start_row - 1, start_col - 1
+    while (r, c) in valid_coords:
+        diagonal1.insert(0, (r, c))
+        r -= 1
+        c -= 1
+
+    # Diagonal 2: bottom-left to top-right (↗)
+    diagonal2 = []
+    # Start from current position and go up-right
+    r, c = start_row, start_col
+    while (r, c) in valid_coords:
+        diagonal2.append((r, c))
+        r -= 1
+        c += 1
+    # Go back and check down-left from starting position
+    r, c = start_row + 1, start_col - 1
+    while (r, c) in valid_coords:
+        diagonal2.insert(0, (r, c))
+        r += 1
+        c -= 1
+
+    # Only return diagonals with at least 2 cells
+    if len(diagonal1) < 2:
+        diagonal1 = []
+    if len(diagonal2) < 2:
+        diagonal2 = []
+
+    return diagonal1, diagonal2

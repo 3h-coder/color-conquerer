@@ -60,10 +60,26 @@ Add a significant bonus (~65) when a movement destination is a mana bubble cell.
 
 When Archery Vow is available (count > 0, MP ≥ 3), add a bonus to movements that would leave a neighboring friendly cell isolated (creating an archer target). The iterative action loop naturally chains: move → then cast Archery Vow on the now-isolated cell.
 
-### Step 7: Master Retaliation Penalty in Attack Evaluator
-**Files:** `attack_evaluator.py`, `attack_decider.py`
+### Step 7: Master Retaliation Penalty in Attack Evaluator ✅
+**Files:** `attack_evaluator.py`, `attack_decider.py`, `ai_config.py`
 
-When the attacking cell is the AI's master and the target is NOT the enemy master, apply a penalty (~-40). Prevents casual master attacks that lose HP.
+When the attacking cell is the AI's master and the target is NOT the enemy master, apply a penalty (~-40). Prevents casual master attacks that lose HP. The master should only attack when:
+- It's targeting the enemy master directly
+- OR it's a lethal attack on the enemy master
+
+**Implementation:**
+- `attack_decider.py` passes `attacker_coords` to evaluator
+- `attack_evaluator.evaluate()` checks if attacker is master, applies `ATTACK_WEIGHT_MASTER_RETALIATION_PENALTY` if attacking non-master
+
+### Step 8: Master Defensive Spawning ✅
+**Files:** `spawn_evaluator.py`, `ai_config.py`
+
+When the AI's master health is at critical level (≤ 2 HP), strongly prioritize spawning cells adjacent to the master for protection. This creates a defensive wall and delays lethal attacks.
+
+**Implementation:**
+- `spawn_evaluator.py` checks `ai_player.resources.current_hp <= MASTER_CRITICAL_HEALTH_THRESHOLD`
+- Applies `SPAWN_WEIGHT_MASTER_DEFENSE_BONUS` to spawns near master when health is critical
+- Weight is high (50.0) but slightly lower than mana bubble grab (80.0) - health is important but not as much as resource economy early game
 
 ---
 
@@ -73,6 +89,7 @@ When the attacking cell is the AI's master and the target is NOT the enemy maste
 - [x] Step 2: Weight recalibration
 - [x] Step 3: current_turn in BoardEvaluation
 - [x] Step 4: Per-spell turn-awareness
-- [ ] Step 5: Mana bubble bonus
-- [ ] Step 6: Archer creation awareness
-- [ ] Step 7: Master retaliation penalty
+- [x] Step 5: Mana bubble bonus
+- [x] Step 6: Archer creation awareness
+- [x] Step 7: Master retaliation penalty
+- [x] Step 8: Master defensive spawning

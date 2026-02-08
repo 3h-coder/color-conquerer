@@ -55,6 +55,7 @@ class TestAttackEvaluator:
 
         target_cell = MagicMock(spec=Cell)
         target_cell.is_shielded.return_value = True
+        target_cell.is_archer.return_value = False
 
         attack_evaluator._match_context.game_board = MagicMock()
         attack_evaluator._match_context.game_board.get.return_value = target_cell
@@ -73,6 +74,7 @@ class TestAttackEvaluator:
         coords = Coordinates(2, 5)
         target_cell = MagicMock(spec=Cell)
         target_cell.is_shielded.return_value = True
+        target_cell.is_archer.return_value = False
 
         board_evaluation.enemy_cells_near_ai_master = [target_cell]
         attack_evaluator._match_context.game_board = MagicMock()
@@ -92,6 +94,7 @@ class TestAttackEvaluator:
         coords = Coordinates(5, 5)
         target_cell = MagicMock(spec=Cell)
         target_cell.is_shielded.return_value = False
+        target_cell.is_archer.return_value = False
         board_evaluation.enemy_cells_near_ai_master = []
 
         attack_evaluator._match_context.game_board = MagicMock()

@@ -7,6 +7,7 @@ from game_engine.models.actions.spell_casting import SpellCasting
 from config.logging import get_configured_logger
 
 from ai.config.ai_config import (
+    DELAY_BEFORE_PASSING_TURN_IN_S,
     DELAY_IN_BETWEEN_CLICKS_IN_S,
     MAX_ACTIONS_PER_TURN,
     THINKING_DELAY_MIN_IN_S,
@@ -50,6 +51,9 @@ class AIPlayer:
 
         if self._is_my_turn():
             self._logger.info("AI turn completed, passing turn.")
+            # Wait a little so the player can see the final action before
+            # the turn swap
+            self._sleep(DELAY_BEFORE_PASSING_TURN_IN_S)
             self._match.force_turn_swap()
         else:
             self._logger.info("AI turn was terminated externally or completed.")

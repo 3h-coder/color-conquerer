@@ -19,19 +19,42 @@ def mock_match() -> MagicMock:
     match_context = MagicMock(spec=MatchContext)
     match.match_context = match_context
 
+    # Add turn_state for movement decider tests
+    match.turn_state = MagicMock()
+
     # Ensure game_board is accessible on both match and match_context
     game_board = MagicMock(spec=GameBoard)
-    game_board.board = [[MagicMock() for _ in range(11)] for _ in range(11)]
+    # Create mock cells with is_mana_bubble() returning False by default
+    board_cells = []
+    for i in range(11):
+        row = []
+        for j in range(11):
+            cell = MagicMock()
+            cell.is_mana_bubble.return_value = False
+            cell.is_archer.return_value = False  # Default: cells are not archers
+            row.append(cell)
+        board_cells.append(row)
+    game_board.board = board_cells
+    # Make get() return the appropriate cell
+    game_board.get = lambda r, c: board_cells[r][c]
+    # Make get_owned_neighbours return empty list by default
+    game_board.get_owned_neighbours.return_value = []
     match.game_board = game_board
     match_context.game_board = game_board
 
-    # Mock players
+    # Mock players with resources
     player1 = MagicMock(spec=Player)
     player1.resources = MagicMock(spec=PlayerResources)
+    player1.resources.spells = {}  # Empty spell dict by default
+    player1.resources.current_mp = 5
+    player1.resources.current_hp = 5  # Default health
     match_context.player1 = player1
 
     player2 = MagicMock(spec=Player)
     player2.resources = MagicMock(spec=PlayerResources)
+    player2.resources.spells = {}  # Empty spell dict by default
+    player2.resources.current_mp = 5
+    player2.resources.current_hp = 5  # Default health
     match_context.player2 = player2
 
     return match

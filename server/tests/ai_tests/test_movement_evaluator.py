@@ -11,18 +11,31 @@ from ai.config.ai_config import (
     MAX_BOARD_DISTANCE,
 )
 from game_engine.models.dtos.coordinates import Coordinates
+from game_engine.models.actions.cell_movement import CellMovement
 
 
 class TestMovementEvaluator:
     """Tests for MovementEvaluator."""
+
+    def _make_movement(self, source: Coordinates, dest: Coordinates) -> MagicMock:
+        """Helper to create a mock CellMovement."""
+        move = MagicMock(spec=CellMovement)
+        move.metadata = MagicMock()
+        move.metadata.originating_coords = source
+        move.metadata.impacted_coords = dest
+        return move
 
     def test_movement_closer_to_enemy_scores_higher(
         self, movement_evaluator: MovementEvaluator, board_evaluation: MagicMock
     ) -> None:
         """Destination closer to enemy master should score higher."""
         # Arrange
-        near = Coordinates(8, 5)  # dist 1 to enemy (9,5)
-        far = Coordinates(3, 5)  # dist 6 to enemy (9,5)
+        near = self._make_movement(
+            Coordinates(7, 5), Coordinates(8, 5)
+        )  # dist 1 to enemy
+        far = self._make_movement(
+            Coordinates(4, 5), Coordinates(3, 5)
+        )  # dist 6 to enemy
 
         # Act
         score_near = movement_evaluator.evaluate(near, board_evaluation)
@@ -37,12 +50,12 @@ class TestMovementEvaluator:
         """Two destinations at equal distance from enemy master should score the same when not threatened."""
         # Arrange
         # Both dist 4 from enemy at (9,5)
-        pos_a = Coordinates(5, 5)  # dist = |5-9| + |5-5| = 4
-        pos_b = Coordinates(7, 3)  # dist = |7-9| + |3-5| = 4
+        move_a = self._make_movement(Coordinates(4, 5), Coordinates(5, 5))  # dist 4
+        move_b = self._make_movement(Coordinates(6, 3), Coordinates(7, 3))  # dist 4
 
         # Act
-        score_a = movement_evaluator.evaluate(pos_a, board_evaluation)
-        score_b = movement_evaluator.evaluate(pos_b, board_evaluation)
+        score_a = movement_evaluator.evaluate(move_a, board_evaluation)
+        score_b = movement_evaluator.evaluate(move_b, board_evaluation)
 
         # Assert
         assert score_a == pytest.approx(score_b)
@@ -55,8 +68,12 @@ class TestMovementEvaluator:
         board_evaluation.master_threat_level = MAX_THREAT_LEVEL
 
         # Both equidistant from enemy (9,5) at dist 7
-        near_own = Coordinates(2, 5)  # dist to own (1,5) = 1, dist to enemy = 7
-        far_own = Coordinates(5, 8)  # dist to own (1,5) = 7, dist to enemy = 7
+        near_own = self._make_movement(
+            Coordinates(1, 5), Coordinates(2, 5)
+        )  # dist to own = 1
+        far_own = self._make_movement(
+            Coordinates(4, 8), Coordinates(5, 8)
+        )  # dist to own = 7
 
         # Act
         score_near = movement_evaluator.evaluate(near_own, board_evaluation)
@@ -73,8 +90,12 @@ class TestMovementEvaluator:
         board_evaluation.master_threat_level = MIN_THREAT_LEVEL
 
         # Same enemy distance, different own-master distance
-        near_own = Coordinates(2, 5)  # dist to own (1,5) = 1, dist to enemy = 7
-        far_own = Coordinates(5, 8)  # dist to own (1,5) = 7, dist to enemy = 7
+        near_own = self._make_movement(
+            Coordinates(1, 5), Coordinates(2, 5)
+        )  # dist to own = 1
+        far_own = self._make_movement(
+            Coordinates(4, 8), Coordinates(5, 8)
+        )  # dist to own = 7
 
         # Act
         score_near = movement_evaluator.evaluate(near_own, board_evaluation)
@@ -88,11 +109,11 @@ class TestMovementEvaluator:
     ) -> None:
         """Same input should always produce the same score."""
         # Arrange
-        coords = Coordinates(5, 5)
+        move = self._make_movement(Coordinates(4, 5), Coordinates(5, 5))
 
         # Act
-        score1 = movement_evaluator.evaluate(coords, board_evaluation)
-        score2 = movement_evaluator.evaluate(coords, board_evaluation)
+        score1 = movement_evaluator.evaluate(move, board_evaluation)
+        score2 = movement_evaluator.evaluate(move, board_evaluation)
 
         # Assert
         assert score1 == score2
@@ -102,10 +123,12 @@ class TestMovementEvaluator:
     ) -> None:
         """Verify exact score computation for a destination adjacent to the enemy master."""
         # Arrange
-        pos = Coordinates(8, 5)  # dist 1 to enemy (9,5)
+        move = self._make_movement(
+            Coordinates(7, 5), Coordinates(8, 5)
+        )  # dist 1 to enemy
 
         # Act
-        score = movement_evaluator.evaluate(pos, board_evaluation)
+        score = movement_evaluator.evaluate(move, board_evaluation)
 
         # Assert
         expected = (

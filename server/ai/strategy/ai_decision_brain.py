@@ -5,6 +5,7 @@ from ai.strategy.decision_makers.attack_decider import AttackDecider
 from ai.strategy.decision_makers.movement_decider import MovementDecider
 from ai.strategy.decision_makers.spell_decider import SpellDecider
 from ai.strategy.scored_action import ScoredAction
+from config.logging import get_configured_logger
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -17,6 +18,7 @@ class AIDecisionBrain:
     """
 
     def __init__(self, match: "MatchHandlerUnit", ai_is_player1: bool):
+        self._logger = get_configured_logger(__name__)
         self._match = match
         self._ai_is_player1 = ai_is_player1
 
@@ -66,5 +68,9 @@ class AIDecisionBrain:
         if not candidates:
             return None
 
+        self._logger.info("All candidate actions: %s", candidates)
         best = max(candidates, key=lambda c: c.score)
+        self._logger.info(
+            "Selected best action: %s with score %s", best.action, best.score
+        )
         return best.action

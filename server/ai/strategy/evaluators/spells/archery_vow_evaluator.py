@@ -4,6 +4,7 @@ from utils.board_utils import manhattan_distance
 from ai.config.ai_config import (
     SPELL_WEIGHT_ARCHERY_VOW_BASE,
     SPELL_WEIGHT_ARCHERY_VOW_FORWARD_POSITION_BONUS,
+    SPELL_WEIGHT_ARCHERY_VOW_AVAILABILITY_BONUS,
     MAX_BOARD_DISTANCE,
 )
 
@@ -17,8 +18,19 @@ class ArcheryVowEvaluator(BaseSpellEvaluator):
         self, action: "SpellCasting", board_evaluation: "BoardEvaluation"
     ) -> float:
         # Archery vow targets isolated cells (guaranteed by calculation logic)
-        score = SPELL_WEIGHT_ARCHERY_VOW_BASE
         target_coords = action.metadata.impacted_coords
+        board = self._match_context.game_board
+        target_cell = board.get(target_coords.row_index, target_coords.column_index)
+
+        # Don't cast on cells that are already archers (avoid wasting mana)
+        if target_cell.is_archer():
+            return 0.0
+
+        score = SPELL_WEIGHT_ARCHERY_VOW_BASE
+
+        # Significant bonus since the spell is actually castable (has valid targets)
+        # This ensures we follow through after moves that create archer opportunities
+        score += SPELL_WEIGHT_ARCHERY_VOW_AVAILABILITY_BONUS
 
         # Bonus if the isolated cell is in a forward position (offensive pressure)
         dist_to_enemy = manhattan_distance(

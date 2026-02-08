@@ -13,13 +13,6 @@ from game_engine.models.game_board import GameBoard
 
 class TestMovementDecider:
     @pytest.fixture
-    def mock_match(self) -> MagicMock:
-        match = MagicMock()
-        match.match_context = MagicMock(spec=MatchContext)
-        match.match_context.game_board = MagicMock(spec=GameBoard)
-        return match
-
-    @pytest.fixture
     def decider(self, mock_match: MagicMock) -> MovementDecider:
         return MovementDecider(mock_match, ai_is_player1=True)
 
@@ -280,9 +273,7 @@ class TestMovementDecider:
 
         # Rig the evaluator to prefer move_b (score 100 vs 50)
         with patch.object(decider._evaluator, "evaluate") as mock_eval:
-            mock_eval.side_effect = lambda coords, _: (
-                50.0 if coords == move_a.metadata.impacted_coords else 100.0
-            )
+            mock_eval.side_effect = lambda move, _: (50.0 if move == move_a else 100.0)
 
             # Act
             action: Optional[CellMovement] = decider.decide_movement(board_evaluation)

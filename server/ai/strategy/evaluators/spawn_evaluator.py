@@ -7,6 +7,9 @@ from ai.config.ai_config import (
     BASE_SPAWN_SCORE,
     MAX_BOARD_DISTANCE,
     DEFENSIVE_SPAWN_THREAT_THRESHOLD,
+    SPAWN_WEIGHT_MANA_BUBBLE_BONUS,
+    SPAWN_WEIGHT_MASTER_DEFENSE_BONUS,
+    MASTER_CRITICAL_HEALTH_THRESHOLD,
 )
 from ai.strategy.evaluators.base_evaluator import BaseEvaluator
 
@@ -30,29 +33,78 @@ class SpawnEvaluator(BaseEvaluator):
         """
         score = BASE_SPAWN_SCORE
 
-        # 1. Distance to enemy master (closer is better for pressure)
-        dist_to_enemy = manhattan_distance(
+        score += self._evaluate_mana_bubble_bonus(coords)
+        score += self._evaluate_offensive_pressure(coords, board_evaluation)
+        score += self._evaluate_defensive_positioning(coords, board_evaluation)
+        score += self._evaluate_master_critical_defense(coords, board_evaluation)
+
+        return score
+
+    def _evaluate_mana_bubble_bonus(self, coords: Coordinates) -> float:
+        """
+        Check if spawning directly on a mana bubble - very high priority!
+        """
+        board = self._match_context.game_board
+        spawn_cell = board.get(coords.row_index, coords.column_index)
+        if spawn_cell.is_mana_bubble():
+            return SPAWN_WEIGHT_MANA_BUBBLE_BONUS
+        return 0.0
+
+    def _evaluate_offensive_pressure(
+        self, coords: Coordinates, board_evaluation: "BoardEvaluation"
+    ) -> float:
+        """
+        Distance to enemy master - closer is better for offensive pressure.
+        """
+        dist_to_enemy_master = manhattan_distance(
             coords.row_index,
             coords.column_index,
             board_evaluation.enemy_master_coords.row_index,
             board_evaluation.enemy_master_coords.column_index,
         )
-        # Using a simple inverse relationship: score increases as distance decreases
-        score += (
-            MAX_BOARD_DISTANCE - dist_to_enemy
+        return (
+            MAX_BOARD_DISTANCE - dist_to_enemy_master
         ) * SPAWN_WEIGHT_DISTANCE_TO_ENEMY_MASTER
 
-        # 2. Distance to own master (closer is better for defense if threatened)
-        if board_evaluation.master_threat_level > DEFENSIVE_SPAWN_THREAT_THRESHOLD:
-            dist_to_own = manhattan_distance(
-                coords.row_index,
-                coords.column_index,
-                board_evaluation.ai_master_coords.row_index,
-                board_evaluation.ai_master_coords.column_index,
-            )
-            # Prioritize blocking or defending when threatened
-            score += (
-                MAX_BOARD_DISTANCE - dist_to_own
-            ) * SPAWN_WEIGHT_DISTANCE_TO_OWN_MASTER
+    def _evaluate_defensive_positioning(
+        self, coords: Coordinates, board_evaluation: "BoardEvaluation"
+    ) -> float:
+        """
+        Distance to own master - prioritize blocking when threatened.
+        """
+        if board_evaluation.master_threat_level <= DEFENSIVE_SPAWN_THREAT_THRESHOLD:
+            return 0.0
 
-        return score
+        dist_to_own_master = manhattan_distance(
+            coords.row_index,
+            coords.column_index,
+            board_evaluation.ai_master_coords.row_index,
+            board_evaluation.ai_master_coords.column_index,
+        )
+        return (
+            MAX_BOARD_DISTANCE - dist_to_own_master
+        ) * SPAWN_WEIGHT_DISTANCE_TO_OWN_MASTER
+
+    def _evaluate_master_critical_defense(
+        self, coords: Coordinates, board_evaluation: "BoardEvaluation"
+    ) -> float:
+        """
+        When master health is critical, strongly prioritize spawning adjacent to master for protection.
+        """
+        ai_player = (
+            self._match_context.player1
+            if self._ai_is_player1
+            else self._match_context.player2
+        )
+        if ai_player.resources.current_hp > MASTER_CRITICAL_HEALTH_THRESHOLD:
+            return 0.0
+
+        dist_to_own_master = manhattan_distance(
+            coords.row_index,
+            coords.column_index,
+            board_evaluation.ai_master_coords.row_index,
+            board_evaluation.ai_master_coords.column_index,
+        )
+        return (
+            MAX_BOARD_DISTANCE - dist_to_own_master
+        ) * SPAWN_WEIGHT_MASTER_DEFENSE_BONUS

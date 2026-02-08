@@ -1,10 +1,8 @@
-import pytest
 from unittest.mock import MagicMock, patch
 from ai.strategy.decision_makers.spell_decider import SpellDecider
 from game_engine.models.spells.spell_id import SpellId
 from game_engine.models.actions.spell_casting import SpellCasting
 from game_engine.models.dtos.coordinates import Coordinates
-from ai.config.ai_config import SPELL_WEIGHT_STAMINA_RECOVERY
 
 
 class TestSpellDecider:
