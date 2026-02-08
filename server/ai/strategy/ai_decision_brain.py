@@ -3,6 +3,7 @@ from ai.strategy.evaluators.board.board_evaluator import BoardEvaluator
 from ai.strategy.decision_makers.spawn_decider import SpawnDecider
 from ai.strategy.decision_makers.attack_decider import AttackDecider
 from ai.strategy.decision_makers.movement_decider import MovementDecider
+from ai.strategy.decision_makers.spell_decider import SpellDecider
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -23,6 +24,7 @@ class AIDecisionBrain:
         self._spawn_decider = SpawnDecider(match, ai_is_player1)
         self._attack_decider = AttackDecider(match, ai_is_player1)
         self._movement_decider = MovementDecider(match, ai_is_player1)
+        self._spell_decider = SpellDecider(match, ai_is_player1)
 
     def decide_next_best_action(self) -> Optional[Any]:
         """
@@ -51,11 +53,14 @@ class AIDecisionBrain:
         if attack_action:
             return attack_action
 
-        # 3. Spawning (Strategic placement)
+        # 3. Spells
+        spell_action = self._spell_decider.decide_spell(evaluation)
+        if spell_action:
+            return spell_action
+
+        # 4. Spawning (Strategic placement)
         spawn_action = self._spawn_decider.decide_spawn(evaluation)
         if spawn_action:
             return spawn_action
-
-        # 4. Spells (TODO)
 
         return None

@@ -3,6 +3,7 @@ from ai.strategy.ai_decision_brain import AIDecisionBrain
 from game_engine.models.actions.cell_spawn import CellSpawn
 from game_engine.models.actions.cell_attack import CellAttack
 from game_engine.models.actions.cell_movement import CellMovement
+from game_engine.models.actions.spell_casting import SpellCasting
 from config.logging import get_configured_logger
 
 from ai.config.ai_config import (
@@ -100,6 +101,15 @@ class AIPlayer:
             self._logger.debug(f"AI executing Spawn at {coords}")
 
             self._match.handle_spawn_button()
+            self._sleep(DELAY_IN_BETWEEN_CLICKS_IN_S)
+            self._match.handle_cell_selection(coords.row_index, coords.column_index)
+
+        elif isinstance(action, SpellCasting):
+            spell_id = action.spell.ID
+            coords = action.metadata.impacted_coords
+            self._logger.debug(f"AI casting {action.spell.NAME} at {coords}")
+
+            self._match.handle_spell_button(spell_id)
             self._sleep(DELAY_IN_BETWEEN_CLICKS_IN_S)
             self._match.handle_cell_selection(coords.row_index, coords.column_index)
 
