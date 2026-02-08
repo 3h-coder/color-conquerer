@@ -28,16 +28,17 @@ class AttackDecider(BaseDecider):
         2. Damage to enemy master
         3. Attacks on high-value enemy cells
         """
+        game_board = self._match_context.game_board
         transient_board = self._get_transient_board()
         turn_state = self._match.turn_state
 
         # 1. Gather all potential attacks
-        ai_cells = self._get_ai_cells()
+        # Must use FRESH cells from the current board state, not stale board_evaluation cells
+        ai_cells = game_board.get_cells_owned_by_player(player1=self._ai_is_player1)
         all_possible_attacks: List[CellAttack] = []
 
         for cell in ai_cells:
-            # Note: We use the real board for availability check since transient_board is a copy
-            # But we pass transient_board to the calculation if it needs it (it shouldn't for attacks)
+            # Use transient board to avoid marking real board cells with transient states
             options = get_possible_movements_and_attacks(
                 self._ai_is_player1, cell, transient_board, turn_state
             )
@@ -62,16 +63,6 @@ class AttackDecider(BaseDecider):
                 best_attack = attack
 
         return best_attack
-
-    def _get_ai_cells(self) -> List["Cell"]:
-        """Returns all cells belonging to the AI from the current match context."""
-        board = self._match_context.game_board
-        all_cells = board.get_all_cells()
-        return [
-            cell
-            for cell in all_cells
-            if cell.belongs_to_player_1() == self._ai_is_player1 and cell.is_owned()
-        ]
 
     def _score_attack(self, attack: CellAttack, evaluation: "BoardEvaluation") -> float:
         """

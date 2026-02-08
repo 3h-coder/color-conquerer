@@ -3,7 +3,7 @@ from game_engine.models.actions.cell_movement import CellMovement
 from game_engine.action_calculation import get_possible_movements_and_attacks
 from ai.strategy.decision_makers.base_decider import BaseDecider
 from utils.perf_utils import with_performance_logging
-from utils.board_utils import manhattan_distance
+from ai.strategy.evaluators.cell_evaluator import CellEvaluator
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -17,6 +17,10 @@ class MovementDecider(BaseDecider):
     Determines if and where units should move.
     """
 
+    def __init__(self, match: "MatchHandlerUnit", ai_is_player1: bool):
+        super().__init__(match, ai_is_player1)
+        self._cell_evaluator = CellEvaluator(match, ai_is_player1)
+
     @with_performance_logging
     def decide_movement(
         self,
@@ -25,13 +29,18 @@ class MovementDecider(BaseDecider):
         """
         Calculates the best movement action available.
         """
+        # 1. Setup board and state
+        game_board = self._match_context.game_board
         transient_board = self._get_transient_board()
         turn_state = self._match.turn_state
 
-        ai_cells = self._get_ai_cells()
+        # 2. Get AI cells from the current board state
+        ai_cells = game_board.get_cells_owned_by_player(player1=self._ai_is_player1)
         all_possible_movements: List[CellMovement] = []
 
+        # 3. Consider all possible movements for each AI cell
         for cell in ai_cells:
+            # Use transient board to avoid marking real board cells with transient states
             options = get_possible_movements_and_attacks(
                 self._ai_is_player1, cell, transient_board, turn_state
             )
@@ -42,8 +51,9 @@ class MovementDecider(BaseDecider):
         if not all_possible_movements:
             return None
 
+        # 4. Evaluate each possible move and pick the best one
         best_move = None
-        max_score = -1
+        max_score = -1.0
 
         for move in all_possible_movements:
             score = self._score_movement(move, board_evaluation)
@@ -53,48 +63,14 @@ class MovementDecider(BaseDecider):
 
         return best_move
 
-    def _get_ai_cells(self) -> List["Cell"]:
-        """Returns all cells belonging to the AI."""
-        board = self._match_context.game_board
-        all_cells = board.get_all_cells()
-        return [
-            cell
-            for cell in all_cells
-            if cell.belongs_to_player_1() == self._ai_is_player1 and cell.is_owned()
-        ]
-
     def _score_movement(
         self, move: CellMovement, evaluation: "BoardEvaluation"
     ) -> float:
         """
-        Scores a movement action.
-        Primary goal: Get closer to the enemy master.
+        Scores a movement action using the CellEvaluator.
+        Primary goal: Get closer to the enemy master or maintain strategic positions.
         """
-        score = 0.0
-        origin = move.metadata.originating_coords
-        target = move.metadata.impacted_coords
-        enemy_master = evaluation.enemy_master_coords
-
-        # Calculate Manhattan distance change
-        dist_before = manhattan_distance(
-            origin.row_index,
-            origin.column_index,
-            enemy_master.row_index,
-            enemy_master.column_index,
+        target_coords = move.metadata.impacted_coords
+        return self._cell_evaluator.evaluate_movement_destination(
+            target_coords, evaluation
         )
-        dist_after = manhattan_distance(
-            target.row_index,
-            target.column_index,
-            enemy_master.row_index,
-            enemy_master.column_index,
-        )
-
-        # Reward moving closer
-        score += (dist_before - dist_after) * 10.0
-
-        # Small bonus for moving towards the center/frontline if already close
-        # (This avoids units just standing still if they can't get closer)
-        if dist_after == dist_before:
-            score += 1.0
-
-        return score

@@ -122,11 +122,11 @@ class ActionManager(TransientTurnStateHolder):
         player1_room, player2_room = self._match.get_individual_player_rooms()
 
         # First, check if there is an error message to send to the client.
-        # If the current player is an AI, we log the error instead.
+        # If the current player is an AI, we log the error but DO NOT clear it,
+        # so the AI's own error-checking mechanism (_has_error) can detect the failure.
         if error_msg := self.get_error_message():
             if current_player.is_ai:
                 self.logger.error(f"Error during AI action processing: {error_msg}")
-                self.set_error_message(None)
             else:
                 self.logger.debug(
                     f"Sending to the client the error message : {error_msg}"

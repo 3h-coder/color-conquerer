@@ -41,20 +41,20 @@ class AIDecisionBrain:
         Decision engine: checks deciders in priority order.
         Returns the action object to be executed, or None if no actions are taken.
         """
-        # 1. Attacks (Critical Defense & Offensive)
+        # 1. Movement (Advancing position)
+        movement_action = self._movement_decider.decide_movement(evaluation)
+        if movement_action:
+            return movement_action
+
+        # 2. Attacks (Critical Defense & Offensive)
         # attack_action = self._attack_decider.decide_attack(evaluation)
         # if attack_action:
         #     return attack_action
 
-        # 2. Spawning (Strategic placement)
+        # 3. Spawning (Strategic placement)
         spawn_action = self._spawn_decider.decide_spawn(evaluation)
         if spawn_action:
             return spawn_action
-
-        # 3. Movement (Advancing position)
-        # movement_action = self._movement_decider.decide_movement(evaluation)
-        # if movement_action:
-        #     return movement_action
 
         # 4. Spells (TODO)
 
