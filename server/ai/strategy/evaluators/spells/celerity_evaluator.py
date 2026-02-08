@@ -11,9 +11,16 @@ if TYPE_CHECKING:
 
 
 class CelerityEvaluator(BaseSpellEvaluator):
+    # Turn thresholds for game-phase awareness
+    EARLY_GAME_TURN_THRESHOLD = 5  # Before this turn, cells aren't in combat range yet
+
     def evaluate_spell(
         self, action: "SpellCasting", board_evaluation: "BoardEvaluation"
     ) -> float:
+        # Early game penalty: cells aren't in combat range for double-action to matter
+        if board_evaluation.current_turn < self.EARLY_GAME_TURN_THRESHOLD:
+            return 2.0  # Very low score - prefer spawning instead
+
         score = SPELL_WEIGHT_CELERITY_BASE
         # Bonus if we are already in a good position to press the advantage
         if board_evaluation.positional_advantage > 0:

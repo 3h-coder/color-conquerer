@@ -14,11 +14,19 @@ if TYPE_CHECKING:
 
 
 class AmbushEvaluator(BaseSpellEvaluator):
+    # Turn thresholds for game-phase awareness
+    EARLY_GAME_TURN_THRESHOLD = 6  # Before this turn, enemies are still on their side
+    EARLY_GAME_BONUS = 20.0  # Bonus when enemies are on their side (3 spawns vs 2)
+
     def evaluate_spell(
         self, action: "SpellCasting", board_evaluation: "BoardEvaluation"
     ) -> float:
         score = SPELL_WEIGHT_AMBUSH_BASE
         target_coords = action.metadata.impacted_coords
+
+        # Early game bonus: enemies are still on their side → 3 spawns instead of 2
+        if board_evaluation.current_turn <= self.EARLY_GAME_TURN_THRESHOLD:
+            score += self.EARLY_GAME_BONUS
 
         # Bonus if target is on opponent's side (provides +1 extra cell)
         if target_coords.is_on_player_side(of_player1=not self._ai_is_player1):

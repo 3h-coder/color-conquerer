@@ -63,6 +63,9 @@ class BoardEvaluation:
     ai_stamina: int
     enemy_stamina: int
 
+    # Game phase context
+    current_turn: int  # Turn number for game-phase awareness
+
     # Attack potential (for lethal calculations)
     ai_cells_that_can_attack_enemy_master: list[
         Cell
@@ -106,6 +109,7 @@ class BoardEvaluation:
         """Returns a human-readable string representation of the evaluation."""
         return (
             f"BoardEvaluation:\n"
+            f"  Turn: {self.current_turn}\n"
             f"  Cell Control: AI={self.ai_cell_count}, Enemy={self.enemy_cell_count}, Advantage={self.cell_control_advantage:+d}\n"
             f"  Resources (ai-player): HP={self.ai_hp}-{self.enemy_hp}, MP={self.ai_mp}-{self.enemy_mp}, Stamina={self.ai_stamina}-{self.enemy_stamina}\n"
             f"  Threats: Master threat={self.master_threat_level}/10, Enemies near master={len(self.enemy_cells_near_ai_master)}\n"

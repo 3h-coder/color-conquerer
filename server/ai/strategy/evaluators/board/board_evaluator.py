@@ -132,6 +132,7 @@ class BoardEvaluator(BaseEvaluator):
             enemy_mp=enemy_player.resources.current_mp,
             ai_stamina=ai_player.resources.current_stamina,
             enemy_stamina=enemy_player.resources.current_stamina,
+            current_turn=self._match_context.current_turn,
             ai_cells_that_can_attack_enemy_master=ai_cells_that_can_attack_enemy_master,
         )
 

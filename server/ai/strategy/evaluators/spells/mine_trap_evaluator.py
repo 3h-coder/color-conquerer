@@ -15,9 +15,16 @@ if TYPE_CHECKING:
 
 
 class MineTrapEvaluator(BaseSpellEvaluator):
+    # Turn thresholds for game-phase awareness
+    EARLY_GAME_TURN_THRESHOLD = 5  # Before this turn, mines are wasteful
+
     def evaluate_spell(
         self, action: "SpellCasting", board_evaluation: "BoardEvaluation"
     ) -> float:
+        # Early game penalty: mines are wasteful when no enemies are nearby
+        if board_evaluation.current_turn < self.EARLY_GAME_TURN_THRESHOLD:
+            return 2.0  # Very low score - prefer spawning instead
+
         score = SPELL_WEIGHT_MINE_TRAP_BASE
         target_coords = action.metadata.impacted_coords
 

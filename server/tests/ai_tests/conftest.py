@@ -65,6 +65,7 @@ def board_evaluation() -> BoardEvaluation:
     eval_obj.ai_stamina = 10
     eval_obj.positional_advantage = 0
     eval_obj.enemy_cell_clusters = []
+    eval_obj.current_turn = 10  # Default to mid-game
     eval_obj.ai_master_in_critical_danger.return_value = False
     eval_obj.ai_is_losing.return_value = False
     return eval_obj

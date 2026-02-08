@@ -71,8 +71,8 @@ When the attacking cell is the AI's master and the target is NOT the enemy maste
 
 - [x] Step 1: ScoredAction + unified brain
 - [x] Step 2: Weight recalibration
-- [ ] Step 3: current_turn in BoardEvaluation
-- [ ] Step 4: Per-spell turn-awareness
+- [x] Step 3: current_turn in BoardEvaluation
+- [x] Step 4: Per-spell turn-awareness
 - [ ] Step 5: Mana bubble bonus
 - [ ] Step 6: Archer creation awareness
 - [ ] Step 7: Master retaliation penalty
