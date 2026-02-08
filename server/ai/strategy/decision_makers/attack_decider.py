@@ -3,6 +3,7 @@ from game_engine.models.actions.cell_attack import CellAttack
 from game_engine.action_calculation import get_possible_movements_and_attacks
 from ai.strategy.decision_makers.base_decider import BaseDecider
 from ai.strategy.evaluators.attack_evaluator import AttackEvaluator
+from ai.strategy.scored_action import ScoredAction
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -23,13 +24,10 @@ class AttackDecider(BaseDecider):
     def decide_attack(
         self,
         board_evaluation: "BoardEvaluation",
-    ) -> Optional[CellAttack]:
+    ) -> Optional[ScoredAction]:
         """
         Calculates the best attack action available.
-        Prioritizes:
-        1. Lethal on enemy master
-        2. Damage to enemy master
-        3. Attacks on high-value enemy cells
+        Returns a ScoredAction so the brain can compare across action types.
         """
         transient_board = self._get_transient_board()
         turn_state = self._match.turn_state

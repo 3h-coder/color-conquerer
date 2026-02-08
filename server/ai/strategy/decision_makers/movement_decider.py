@@ -3,6 +3,7 @@ from game_engine.models.actions.cell_movement import CellMovement
 from game_engine.action_calculation import get_possible_movements_and_attacks
 from ai.strategy.decision_makers.base_decider import BaseDecider
 from ai.strategy.evaluators.movement_evaluator import MovementEvaluator
+from ai.strategy.scored_action import ScoredAction
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -23,9 +24,10 @@ class MovementDecider(BaseDecider):
     def decide_movement(
         self,
         board_evaluation: "BoardEvaluation",
-    ) -> Optional[CellMovement]:
+    ) -> Optional[ScoredAction]:
         """
         Calculates the best movement action available.
+        Returns a ScoredAction so the brain can compare across action types.
         """
         # 1. Setup board and state
         transient_board = self._get_transient_board()

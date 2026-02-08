@@ -4,6 +4,7 @@ from ai.strategy.decision_makers.spawn_decider import SpawnDecider
 from ai.strategy.decision_makers.attack_decider import AttackDecider
 from ai.strategy.decision_makers.movement_decider import MovementDecider
 from ai.strategy.decision_makers.spell_decider import SpellDecider
+from ai.strategy.scored_action import ScoredAction
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -40,27 +41,30 @@ class AIDecisionBrain:
 
     def _decide_action(self, evaluation: "BoardEvaluation") -> Optional[Any]:
         """
-        Decision engine: checks deciders in priority order.
-        Returns the action object to be executed, or None if no actions are taken.
+        Unified decision engine: all deciders compete on the same scoring scale.
+        Each decider returns a ScoredAction (action + score) and the highest score wins.
+        Returns the action object to be executed, or None if no actions are available.
         """
-        # 1. Movement (Advancing position)
-        movement_action = self._movement_decider.decide_movement(evaluation)
-        if movement_action:
-            return movement_action
+        candidates: list[ScoredAction] = []
 
-        # 2. Attacks (Critical Defense & Offensive)
-        attack_action = self._attack_decider.decide_attack(evaluation)
-        if attack_action:
-            return attack_action
+        movement = self._movement_decider.decide_movement(evaluation)
+        if movement:
+            candidates.append(movement)
 
-        # 3. Spells
-        spell_action = self._spell_decider.decide_spell(evaluation)
-        if spell_action:
-            return spell_action
+        attack = self._attack_decider.decide_attack(evaluation)
+        if attack:
+            candidates.append(attack)
 
-        # 4. Spawning (Strategic placement)
-        spawn_action = self._spawn_decider.decide_spawn(evaluation)
-        if spawn_action:
-            return spawn_action
+        spell = self._spell_decider.decide_spell(evaluation)
+        if spell:
+            candidates.append(spell)
 
-        return None
+        spawn = self._spawn_decider.decide_spawn(evaluation)
+        if spawn:
+            candidates.append(spawn)
+
+        if not candidates:
+            return None
+
+        best = max(candidates, key=lambda c: c.score)
+        return best.action

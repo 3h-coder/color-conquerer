@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, List, Optional, TypeVar, Callable
+from ai.strategy.scored_action import ScoredAction
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -34,9 +35,10 @@ class BaseDecider:
         self,
         actions: List[T],
         score_fn: Callable[[T], float],
-    ) -> Optional[T]:
+    ) -> Optional[ScoredAction]:
         """
         Generic helper to pick the action with the highest score.
+        Returns a ScoredAction (action + score) so the brain can compare across deciders.
         Returns None if no actions are provided or all scores are too low.
         """
         if not actions:
@@ -51,4 +53,7 @@ class BaseDecider:
                 max_score = score
                 best_action = action
 
-        return best_action
+        if best_action is None:
+            return None
+
+        return ScoredAction(action=best_action, score=max_score)

@@ -68,7 +68,7 @@ class TestMovementDecider:
         action: Optional[CellMovement] = decider.decide_movement(board_evaluation)
 
         # Assert — move to (6,5) is closer to enemy at (9,5)
-        assert action == move_forward
+        assert action.action == move_forward
 
     @patch(
         "ai.strategy.decision_makers.movement_decider.get_possible_movements_and_attacks"
@@ -140,7 +140,7 @@ class TestMovementDecider:
         action: Optional[CellMovement] = decider.decide_movement(board_evaluation)
 
         # Assert
-        assert action == move
+        assert action.action == move
 
     @patch(
         "ai.strategy.decision_makers.movement_decider.get_possible_movements_and_attacks"
@@ -198,7 +198,7 @@ class TestMovementDecider:
         action: Optional[CellMovement] = decider.decide_movement(board_evaluation)
 
         # Assert — move_b at (8,5) is much closer to enemy (9,5) than move_a at (3,4)
-        assert action == move_b
+        assert action.action == move_b
 
     @patch(
         "ai.strategy.decision_makers.movement_decider.get_possible_movements_and_attacks"
@@ -255,7 +255,7 @@ class TestMovementDecider:
         action: Optional[CellMovement] = decider.decide_movement(board_evaluation)
 
         # Assert
-        assert action == only_move
+        assert action.action == only_move
 
     @patch(
         "ai.strategy.decision_makers.movement_decider.get_possible_movements_and_attacks"
@@ -288,5 +288,5 @@ class TestMovementDecider:
             action: Optional[CellMovement] = decider.decide_movement(board_evaluation)
 
             # Assert
-            assert action == move_b
+            assert action.action == move_b
             assert mock_eval.call_count == 2

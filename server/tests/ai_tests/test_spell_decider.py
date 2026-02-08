@@ -43,7 +43,7 @@ class TestSpellDecider:
         action = decider.decide_spell(board_evaluation)
 
         # Assert
-        assert action == mock_action
+        assert action.action == mock_action
 
     def test_decide_spell_returns_none_if_no_mana(self, mock_match, board_evaluation):
         # Arrange

@@ -125,7 +125,7 @@ class TestSpawnDecider:
             action: Optional[CellSpawn] = decider.decide_spawn(evaluation)
 
             # Assert
-            assert action == spawn2
+            assert action.action == spawn2
 
     @patch("ai.strategy.decision_makers.spawn_decider.get_possible_spawns")
     def test_decide_spawn_returns_none_if_no_options(

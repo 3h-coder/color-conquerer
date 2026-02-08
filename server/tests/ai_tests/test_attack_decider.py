@@ -79,7 +79,7 @@ class TestAttackDecider:
             action: Optional[CellAttack] = decider.decide_attack(evaluation)
 
             # Assert
-            assert action == attack2
+            assert action.action == attack2
 
     @patch(
         "ai.strategy.decision_makers.attack_decider.get_possible_movements_and_attacks"

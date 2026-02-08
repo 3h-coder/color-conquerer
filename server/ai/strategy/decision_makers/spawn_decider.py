@@ -4,6 +4,7 @@ from ai.strategy.evaluators.spawn_evaluator import SpawnEvaluator
 from game_engine.action_calculation import get_possible_spawns
 from utils.perf_utils import with_performance_logging
 from ai.strategy.decision_makers.base_decider import BaseDecider
+from ai.strategy.scored_action import ScoredAction
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -24,9 +25,9 @@ class SpawnDecider(BaseDecider):
     def decide_spawn(
         self,
         board_evaluation: "BoardEvaluation",
-    ) -> Optional[CellSpawn]:
+    ) -> Optional[ScoredAction]:
         """
-        Decides whether to spawn a cell and returns the best CellSpawn action if so.
+        Decides whether to spawn a cell and returns the best ScoredAction if so.
         """
         player = (
             self._match_context.player1

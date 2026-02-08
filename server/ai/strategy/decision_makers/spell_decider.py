@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional, List
-import random
 
 from ai.strategy.decision_makers.base_decider import BaseDecider
+from ai.strategy.scored_action import ScoredAction
 from game_engine.models.actions.spell_casting import SpellCasting
 from game_engine.models.spells.spell_factory import get_spell
 from game_engine.models.spells.spell_id import SpellId
@@ -49,9 +49,9 @@ class SpellDecider(BaseDecider):
     def decide_spell(
         self,
         board_evaluation: "BoardEvaluation",
-    ) -> Optional[SpellCasting]:
+    ) -> Optional[ScoredAction]:
         """
-        Decides whether to cast a spell and returns the best SpellCasting action if so.
+        Decides whether to cast a spell and returns the best ScoredAction if so.
         """
         player = (
             self._match_context.player1
