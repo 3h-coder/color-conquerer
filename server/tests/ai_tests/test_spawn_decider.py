@@ -1,4 +1,5 @@
 import pytest
+from typing import Optional
 from unittest.mock import MagicMock, patch
 from ai.strategy.decision_makers.spawn_decider import SpawnDecider
 from game_engine.models.actions.cell_spawn import CellSpawn
@@ -45,10 +46,10 @@ class TestSpawnDecider:
         mock_match.match_context.player1.resources.current_mp = (
             CellSpawn.DEFAULT_MANA_COST - 1
         )
-        evaluation = MagicMock(spec=BoardEvaluation)
+        evaluation: BoardEvaluation = MagicMock(spec=BoardEvaluation)
 
         # Act
-        action = decider.decide_spawn(evaluation)
+        action: Optional[CellSpawn] = decider.decide_spawn(evaluation)
 
         # Assert
         assert action is None
@@ -56,7 +57,7 @@ class TestSpawnDecider:
     def test_decide_spawn_high_mana_player2(self, mock_match: MagicMock) -> None:
         """Test that AI uses the correct player's mana when acting as Player 2."""
         # Arrange
-        decider_p2 = SpawnDecider(mock_match, ai_is_player1=False)
+        decider_p2: SpawnDecider = SpawnDecider(mock_match, ai_is_player1=False)
         # Player 2 has insufficient mana
         mock_match.match_context.player2.resources.current_mp = (
             CellSpawn.DEFAULT_MANA_COST - 1
@@ -66,10 +67,10 @@ class TestSpawnDecider:
             CellSpawn.DEFAULT_MANA_COST + 10
         )
 
-        evaluation = MagicMock(spec=BoardEvaluation)
+        evaluation: BoardEvaluation = MagicMock(spec=BoardEvaluation)
 
         # Act
-        action = decider_p2.decide_spawn(evaluation)
+        action: Optional[CellSpawn] = decider_p2.decide_spawn(evaluation)
 
         # Assert
         # Should return None because Player 2's mana is checked
@@ -84,12 +85,12 @@ class TestSpawnDecider:
     ) -> None:
         """Test that get_possible_spawns is called with a cloned board."""
         # Arrange
-        transient_board = MagicMock(spec=GameBoard)
+        transient_board: MagicMock = MagicMock(spec=GameBoard)
         mock_match.match_context.game_board.clone_as_transient.return_value = (
             transient_board
         )
         mock_get_possible_spawns.return_value = []
-        evaluation = MagicMock(spec=BoardEvaluation)
+        evaluation: BoardEvaluation = MagicMock(spec=BoardEvaluation)
 
         # Act
         decider.decide_spawn(evaluation)
@@ -103,16 +104,16 @@ class TestSpawnDecider:
     ) -> None:
         """Test that the decider chooses relevant spawn based on evaluator scores."""
         # Arrange
-        spawn1 = MagicMock(spec=CellSpawn)
+        spawn1: MagicMock = MagicMock(spec=CellSpawn)
         spawn1.metadata = MagicMock(spec=ActionMedatata)
         spawn1.metadata.impacted_coords = Coordinates(2, 5)
 
-        spawn2 = MagicMock(spec=CellSpawn)
+        spawn2: MagicMock = MagicMock(spec=CellSpawn)
         spawn2.metadata = MagicMock(spec=ActionMedatata)
         spawn2.metadata.impacted_coords = Coordinates(3, 5)
 
         mock_get_possible_spawns.return_value = [spawn1, spawn2]
-        evaluation = MagicMock(spec=BoardEvaluation)
+        evaluation: BoardEvaluation = MagicMock(spec=BoardEvaluation)
 
         # Mock the evaluator to prefer spawn2
         with patch.object(
@@ -123,7 +124,7 @@ class TestSpawnDecider:
             )
 
             # Act
-            action = decider.decide_spawn(evaluation)
+            action: Optional[CellSpawn] = decider.decide_spawn(evaluation)
 
             # Assert
             assert action == spawn2
@@ -135,10 +136,10 @@ class TestSpawnDecider:
         """Test that None is returned if no spawn locations are available."""
         # Arrange
         mock_get_possible_spawns.return_value = []
-        evaluation = MagicMock(spec=BoardEvaluation)
+        evaluation: BoardEvaluation = MagicMock(spec=BoardEvaluation)
 
         # Act
-        action = decider.decide_spawn(evaluation)
+        action: Optional[CellSpawn] = decider.decide_spawn(evaluation)
 
         # Assert
         assert action is None

@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional, List
 from game_engine.models.actions.cell_attack import CellAttack
 from game_engine.action_calculation import get_possible_movements_and_attacks
 from ai.strategy.decision_makers.base_decider import BaseDecider
-from utils.perf_utils import with_performance_logging
+from ai.strategy.evaluators.cell_evaluator import CellEvaluator
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -16,7 +16,10 @@ class AttackDecider(BaseDecider):
     Determines if any units should attack and which targets.
     """
 
-    @with_performance_logging
+    def __init__(self, match: "MatchHandlerUnit", ai_is_player1: bool):
+        super().__init__(match, ai_is_player1)
+        self._cell_evaluator = CellEvaluator(match, ai_is_player1)
+
     def decide_attack(
         self,
         board_evaluation: "BoardEvaluation",
@@ -66,33 +69,7 @@ class AttackDecider(BaseDecider):
 
     def _score_attack(self, attack: CellAttack, evaluation: "BoardEvaluation") -> float:
         """
-        Calculates a priority score for an attack.
+        Calculates a priority score for an attack using CellEvaluator.
         """
-        score = 0.0
         target_coords = attack.metadata.impacted_coords
-
-        # High Priority: Attack enemy master
-        if target_coords == evaluation.enemy_master_coords:
-            score += 1000.0
-
-            # Additional bonus if it's potentially lethal
-            if evaluation.ai_has_lethal_opportunity():
-                score += 500.0
-
-        # Normal Priority: Attack enemy units
-        else:
-            score += 100.0
-
-            # Simple heuristic: prioritize attacking units near our master
-            # (Future: Use CellEvaluator.evaluate_target_cell)
-            target_cell = self._match_context.game_board.get(
-                target_coords.row_index, target_coords.column_index
-            )
-            if target_cell in evaluation.enemy_cells_near_ai_master:
-                score += 50.0
-
-            # Bonus for targets with low HP (to clear them)
-            if target_cell.resources.current_hp <= 1:
-                score += 30.0
-
-        return score
+        return self._cell_evaluator.evaluate_target_cell(target_coords, evaluation)

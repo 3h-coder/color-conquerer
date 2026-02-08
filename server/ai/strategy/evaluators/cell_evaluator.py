@@ -11,6 +11,11 @@ from ai.config.ai_config import (
     MOVE_WEIGHT_DISTANCE_TO_OWN_MASTER,
     BASE_MOVE_SCORE,
     DEFENSIVE_MOVE_THREAT_THRESHOLD,
+    ATTACK_WEIGHT_BASE_ATTACK,
+    ATTACK_WEIGHT_THREAT_DEFENSE,
+    ATTACK_WEIGHT_LOW_HP_BONUS,
+    ATTACK_WEIGHT_ENEMY_MASTER,
+    ATTACK_WEIGHT_LETHAL_ON_MASTER,
 )
 from ai.strategy.evaluators.base_evaluator import BaseEvaluator
 
@@ -62,13 +67,44 @@ class CellEvaluator(BaseEvaluator):
 
         return score
 
-    def evaluate_target_cell(self, target_coords: Coordinates) -> float:
+    def evaluate_target_cell(
+        self,
+        target_coords: Coordinates,
+        board_evaluation: "BoardEvaluation",
+    ) -> float:
         """
         Calculates a score for an enemy cell as an attack target.
         Used by AttackDecider.
         """
-        # TODO: Implement in later stage
-        return 0.0
+        # 1. High Priority: Attack enemy master
+        if target_coords == board_evaluation.enemy_master_coords:
+            score = ATTACK_WEIGHT_ENEMY_MASTER
+
+            # Additional bonus if it's potentially lethal
+            if board_evaluation.ai_has_lethal_opportunity():
+                score += ATTACK_WEIGHT_LETHAL_ON_MASTER
+
+            return score
+
+        # 2. Normal Priority: Attack enemy units
+        score = ATTACK_WEIGHT_BASE_ATTACK
+
+        target_cell = self._match_context.game_board.get(
+            target_coords.row_index, target_coords.column_index
+        )
+
+        if not target_cell:
+            return 0.0
+
+        # 3. Threat defense: Prioritize targets near our master
+        if target_cell in board_evaluation.enemy_cells_near_ai_master:
+            score += ATTACK_WEIGHT_THREAT_DEFENSE
+
+        # 4. Kill potential: Bonus for non-shielded cells (easier to clear)
+        if not target_cell.is_shielded():
+            score += ATTACK_WEIGHT_LOW_HP_BONUS
+
+        return score
 
     def evaluate_movement_destination(
         self,

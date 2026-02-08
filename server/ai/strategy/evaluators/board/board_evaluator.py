@@ -29,7 +29,6 @@ from ai.strategy.evaluators.board.evaluation_constants import (
     THREAT_INCREASE_CRITICAL_HP,
     THREAT_INCREASE_LOW_HP,
 )
-from utils.perf_utils import with_performance_logging
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -40,7 +39,6 @@ class BoardEvaluator(BaseEvaluator):
     Evaluates the current board state to provide strategic insights for AI decision-making.
     """
 
-    @with_performance_logging
     def evaluate(self) -> BoardEvaluation:
         """
         Performs a comprehensive evaluation of the current board state.

@@ -47,9 +47,9 @@ class AIDecisionBrain:
             return movement_action
 
         # 2. Attacks (Critical Defense & Offensive)
-        # attack_action = self._attack_decider.decide_attack(evaluation)
-        # if attack_action:
-        #     return attack_action
+        attack_action = self._attack_decider.decide_attack(evaluation)
+        if attack_action:
+            return attack_action
 
         # 3. Spawning (Strategic placement)
         spawn_action = self._spawn_decider.decide_spawn(evaluation)

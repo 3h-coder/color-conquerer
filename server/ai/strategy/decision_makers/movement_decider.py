@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Optional, List
 from game_engine.models.actions.cell_movement import CellMovement
 from game_engine.action_calculation import get_possible_movements_and_attacks
 from ai.strategy.decision_makers.base_decider import BaseDecider
-from utils.perf_utils import with_performance_logging
 from ai.strategy.evaluators.cell_evaluator import CellEvaluator
 
 if TYPE_CHECKING:
@@ -21,7 +20,6 @@ class MovementDecider(BaseDecider):
         super().__init__(match, ai_is_player1)
         self._cell_evaluator = CellEvaluator(match, ai_is_player1)
 
-    @with_performance_logging
     def decide_movement(
         self,
         board_evaluation: "BoardEvaluation",
