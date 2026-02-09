@@ -13,11 +13,7 @@ from ai.strategy.evaluators.spells import (
     ArcheryVowEvaluator,
     ShieldFormationEvaluator,
 )
-from ai.config.ai_config import (
-    SPELL_WEIGHT_STAMINA_RECOVERY,
-    SPELL_MP_CONSERVATION_THRESHOLD,
-    SPELL_MP_CONSERVATION_BONUS,
-)
+from ai.config.ai_config import SpellWeights
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -96,7 +92,7 @@ class SpellDecider(BaseDecider):
             return self._pick_best_action(
                 possible_actions,
                 lambda action: self._score_spell_action(action, board_evaluation)
-                + SPELL_WEIGHT_STAMINA_RECOVERY,
+                + SpellWeights.STAMINA_RECOVERY,
             )
 
         # Priority B: Strategic usage
@@ -116,8 +112,8 @@ class SpellDecider(BaseDecider):
         spell_id = action.spell.ID
 
         # 1. General bonus for casting spells when we have plenty of mana
-        if board_evaluation.ai_mp >= SPELL_MP_CONSERVATION_THRESHOLD:
-            score += SPELL_MP_CONSERVATION_BONUS
+        if board_evaluation.ai_mp >= SpellWeights.MP_CONSERVATION_THRESHOLD:
+            score += SpellWeights.MP_CONSERVATION_BONUS
 
         # 2. Delegate to spell-specific evaluator
         evaluator = self._evaluators.get(spell_id)

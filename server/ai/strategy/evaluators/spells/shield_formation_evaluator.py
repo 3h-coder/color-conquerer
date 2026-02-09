@@ -1,11 +1,7 @@
 from typing import TYPE_CHECKING
 from ai.strategy.evaluators.spells.base_spell_evaluator import BaseSpellEvaluator
 from game_engine.models.dtos.coordinates import Coordinates
-from ai.config.ai_config import (
-    SPELL_WEIGHT_SHIELD_FORMATION_BASE,
-    SPELL_WEIGHT_SHIELD_FORMATION_CRITICAL_BONUS,
-    SPELL_WEIGHT_SHIELD_FORMATION_REDUNDANT_PENALTY,
-)
+from ai.config.ai_config import SpellWeights
 
 if TYPE_CHECKING:
     from game_engine.models.actions.spell_casting import SpellCasting
@@ -17,19 +13,19 @@ class ShieldFormationEvaluator(BaseSpellEvaluator):
         self, action: "SpellCasting", board_evaluation: "BoardEvaluation"
     ) -> float:
         # Shield formation targets a square of any size (guaranteed by calculation logic)
-        score = SPELL_WEIGHT_SHIELD_FORMATION_BASE
+        score = SpellWeights.SHIELD_FORMATION_BASE
 
         # Bonus if we are losing or AI master is under threat
         if (
             board_evaluation.ai_master_in_critical_danger()
             or board_evaluation.ai_is_losing()
         ):
-            score += SPELL_WEIGHT_SHIELD_FORMATION_CRITICAL_BONUS
+            score += SpellWeights.SHIELD_FORMATION_CRITICAL_BONUS
 
         # Penalty for already-shielded cells (avoid redundancy)
         square_cells = action.metadata.impacted_coords
         shielded_count = self._count_shielded_cells(square_cells)
-        score -= shielded_count * SPELL_WEIGHT_SHIELD_FORMATION_REDUNDANT_PENALTY
+        score -= shielded_count * SpellWeights.SHIELD_FORMATION_REDUNDANT_PENALTY
 
         return score
 

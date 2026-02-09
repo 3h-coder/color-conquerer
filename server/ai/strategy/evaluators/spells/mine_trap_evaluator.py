@@ -2,11 +2,7 @@ from typing import TYPE_CHECKING, List
 from ai.strategy.evaluators.spells.base_spell_evaluator import BaseSpellEvaluator
 from game_engine.models.cell.cell_owner import CellOwner
 from utils.board_utils import manhattan_distance, get_neighbours
-from ai.config.ai_config import (
-    SPELL_WEIGHT_MINE_TRAP_BASE,
-    SPELL_WEIGHT_MINE_TRAP_OWN_MASTER_PROXIMITY_FACTOR,
-    SPELL_WEIGHT_MINE_TRAP_ENEMY_CLUSTER_BONUS,
-)
+from ai.config.ai_config import SpellWeights
 
 if TYPE_CHECKING:
     from game_engine.models.actions.spell_casting import SpellCasting
@@ -25,7 +21,7 @@ class MineTrapEvaluator(BaseSpellEvaluator):
         if board_evaluation.current_turn < self.EARLY_GAME_TURN_THRESHOLD:
             return 2.0  # Very low score - prefer spawning instead
 
-        score = SPELL_WEIGHT_MINE_TRAP_BASE
+        score = SpellWeights.MINE_TRAP_BASE
         target_coords = action.metadata.impacted_coords
 
         # Better if near our own master (defense)
@@ -36,7 +32,7 @@ class MineTrapEvaluator(BaseSpellEvaluator):
             board_evaluation.ai_master_coords.column_index,
         )
         score += max(
-            0, (5 - dist_to_ai) * SPELL_WEIGHT_MINE_TRAP_OWN_MASTER_PROXIMITY_FACTOR
+            0, (5 - dist_to_ai) * SpellWeights.MINE_TRAP_OWN_MASTER_PROXIMITY_FACTOR
         )
 
         # Nuke potential: bonus if adjacent to many enemy cells or an enemy cluster
@@ -57,7 +53,7 @@ class MineTrapEvaluator(BaseSpellEvaluator):
             # Check if any of these neighbors belong to a large cluster
             for cluster in board_evaluation.enemy_cell_clusters:
                 if len(cluster) >= 3 and any(n in cluster for n in enemy_neighbors):
-                    score += SPELL_WEIGHT_MINE_TRAP_ENEMY_CLUSTER_BONUS
+                    score += SpellWeights.MINE_TRAP_ENEMY_CLUSTER_BONUS
                     break
 
         return score

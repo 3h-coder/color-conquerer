@@ -1,14 +1,10 @@
 import pytest
 from unittest.mock import MagicMock
+from ai.config.ai_config import SpawnWeights, EvaluationConstants
 from ai.strategy.evaluators.spawn_evaluator import SpawnEvaluator
 from ai.strategy.evaluators.board.evaluation_constants import (
     MAX_THREAT_LEVEL,
     MIN_THREAT_LEVEL,
-)
-from ai.config.ai_config import (
-    BASE_SPAWN_SCORE,
-    MAX_BOARD_DISTANCE,
-    SPAWN_WEIGHT_DISTANCE_TO_ENEMY_MASTER,
 )
 from game_engine.models.dtos.coordinates import Coordinates
 
@@ -84,8 +80,9 @@ class TestSpawnEvaluator:
 
         # Assert
         expected_score = (
-            BASE_SPAWN_SCORE
-            + (MAX_BOARD_DISTANCE - 1) * SPAWN_WEIGHT_DISTANCE_TO_ENEMY_MASTER
+            SpawnWeights.BASE_SCORE
+            + (EvaluationConstants.MAX_BOARD_DISTANCE - 1)
+            * SpawnWeights.DISTANCE_TO_ENEMY_MASTER
         )
         assert score == expected_score
 
@@ -102,7 +99,8 @@ class TestSpawnEvaluator:
 
         # Assert
         expected_score = (
-            BASE_SPAWN_SCORE
-            + (MAX_BOARD_DISTANCE - 14) * SPAWN_WEIGHT_DISTANCE_TO_ENEMY_MASTER
+            SpawnWeights.BASE_SCORE
+            + (EvaluationConstants.MAX_BOARD_DISTANCE - 14)
+            * SpawnWeights.DISTANCE_TO_ENEMY_MASTER
         )
         assert score == expected_score

@@ -1,13 +1,7 @@
 from typing import TYPE_CHECKING
 from game_engine.models.dtos.coordinates import Coordinates
 from ai.strategy.evaluators.spells.base_spell_evaluator import BaseSpellEvaluator
-from ai.config.ai_config import (
-    SPELL_WEIGHT_AMBUSH_BASE,
-    SPELL_WEIGHT_AMBUSH_EXTRA_SPAWN_BONUS,
-    SPELL_WEIGHT_AMBUSH_ARCHER_TARGET_BONUS,
-    SPELL_WEIGHT_AMBUSH_MASTER_TARGET_BONUS,
-    SPELL_WEIGHT_AMBUSH_CRITICAL_HEALTH_BONUS,
-)
+from ai.config.ai_config import SpellWeights
 
 if TYPE_CHECKING:
     from game_engine.models.actions.spell_casting import SpellCasting
@@ -22,7 +16,7 @@ class AmbushEvaluator(BaseSpellEvaluator):
     def evaluate_spell(
         self, action: "SpellCasting", board_evaluation: "BoardEvaluation"
     ) -> float:
-        score = SPELL_WEIGHT_AMBUSH_BASE
+        score = SpellWeights.AMBUSH_BASE
         target_coords = action.metadata.impacted_coords
         board = self._match_context.game_board
         target_cell = board.get(target_coords.row_index, target_coords.column_index)
@@ -51,13 +45,13 @@ class AmbushEvaluator(BaseSpellEvaluator):
             self._is_enemy_master(target_coords, board_evaluation)
             and extra_spawn_available
         ):
-            score += SPELL_WEIGHT_AMBUSH_MASTER_TARGET_BONUS
+            score += SpellWeights.AMBUSH_MASTER_TARGET_BONUS
 
         return score
 
     def _evaluate_extra_spawn_bonus(self) -> float:
         """Bonus for ambushing on opponent's side in early game."""
-        return SPELL_WEIGHT_AMBUSH_EXTRA_SPAWN_BONUS
+        return SpellWeights.AMBUSH_EXTRA_SPAWN_BONUS
 
     def _evaluate_archer_threat_bonus(
         self,
@@ -87,10 +81,10 @@ class AmbushEvaluator(BaseSpellEvaluator):
         if friendly_neighbors:
             return 0.0
 
-        score = SPELL_WEIGHT_AMBUSH_ARCHER_TARGET_BONUS
+        score = SpellWeights.AMBUSH_ARCHER_TARGET_BONUS
         # Boost further if master is critical - eliminate threats urgently
         if master_is_critical:
-            score += SPELL_WEIGHT_AMBUSH_CRITICAL_HEALTH_BONUS
+            score += SpellWeights.AMBUSH_CRITICAL_HEALTH_BONUS
 
         return score
 

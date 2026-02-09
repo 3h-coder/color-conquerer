@@ -6,14 +6,7 @@ from game_engine.models.actions.cell_movement import CellMovement
 from game_engine.models.actions.spell_casting import SpellCasting
 from config.logging import get_configured_logger
 
-from ai.config.ai_config import (
-    DELAY_BEFORE_PASSING_TURN_IN_S,
-    DELAY_IN_BETWEEN_CLICKS_IN_S,
-    MAX_ACTIONS_PER_TURN,
-    THINKING_DELAY_MIN_IN_S,
-    THINKING_DELAY_MAX_IN_S,
-    TURN_STARTING_DELAY_IN_S,
-)
+from ai.config.ai_config import TurnManagement
 import random
 
 if TYPE_CHECKING:
@@ -45,7 +38,7 @@ class AIPlayer:
         or no more actions are possible.
         """
         self._logger.info(f"AI ({self.player_id}) starting turn...")
-        self._sleep(TURN_STARTING_DELAY_IN_S)
+        self._sleep(TurnManagement.TURN_STARTING_DELAY_IN_S)
 
         self._perform_action_loop()
 
@@ -53,7 +46,7 @@ class AIPlayer:
             self._logger.info("AI turn completed, passing turn.")
             # Wait a little so the player can see the final action before
             # the turn swap
-            self._sleep(DELAY_BEFORE_PASSING_TURN_IN_S)
+            self._sleep(TurnManagement.DELAY_BEFORE_PASSING_TURN_IN_S)
             self._match.force_turn_swap()
         else:
             self._logger.info("AI turn was terminated externally or completed.")
@@ -63,7 +56,7 @@ class AIPlayer:
         Core action loop: repeatedly decides and executes actions until
         no more are available, one is rejected, or limits are reached.
         """
-        for _ in range(MAX_ACTIONS_PER_TURN):
+        for _ in range(TurnManagement.MAX_ACTIONS_PER_TURN):
             if not self._is_my_turn():
                 return
 
@@ -78,10 +71,15 @@ class AIPlayer:
                 )
                 return
 
-            delay = random.uniform(THINKING_DELAY_MIN_IN_S, THINKING_DELAY_MAX_IN_S)
+            delay = random.uniform(
+                TurnManagement.THINKING_DELAY_MIN_IN_S,
+                TurnManagement.THINKING_DELAY_MAX_IN_S,
+            )
             self._sleep(delay)
 
-        self._logger.warning(f"AI reached max actions limit ({MAX_ACTIONS_PER_TURN})")
+        self._logger.warning(
+            f"AI reached max actions limit ({TurnManagement.MAX_ACTIONS_PER_TURN})"
+        )
 
     def _is_my_turn(self) -> bool:
         """Checks if the match is still ongoing and it is currently the AI's turn."""
@@ -105,7 +103,7 @@ class AIPlayer:
             self._logger.debug(f"AI executing Spawn at {coords}")
 
             self._match.handle_spawn_button()
-            self._sleep(DELAY_IN_BETWEEN_CLICKS_IN_S)
+            self._sleep(TurnManagement.DELAY_IN_BETWEEN_CLICKS_IN_S)
             self._match.handle_cell_selection(coords.row_index, coords.column_index)
 
         elif isinstance(action, SpellCasting):
@@ -114,7 +112,7 @@ class AIPlayer:
             self._logger.debug(f"AI casting {action.spell.NAME} at {coords}")
 
             self._match.handle_spell_button(spell_id)
-            self._sleep(DELAY_IN_BETWEEN_CLICKS_IN_S)
+            self._sleep(TurnManagement.DELAY_IN_BETWEEN_CLICKS_IN_S)
             self._match.handle_cell_selection(coords.row_index, coords.column_index)
 
         elif isinstance(action, (CellAttack, CellMovement)):
@@ -125,7 +123,7 @@ class AIPlayer:
             self._logger.debug(f"AI executing {action_name}: {origin} -> {target}")
 
             self._match.handle_cell_selection(origin.row_index, origin.column_index)
-            self._sleep(DELAY_IN_BETWEEN_CLICKS_IN_S)
+            self._sleep(TurnManagement.DELAY_IN_BETWEEN_CLICKS_IN_S)
             self._match.handle_cell_selection(target.row_index, target.column_index)
 
         else:

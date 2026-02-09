@@ -9,12 +9,7 @@ from ai.strategy.evaluators.spells.archery_vow_evaluator import ArcheryVowEvalua
 from ai.strategy.evaluators.spells.shield_formation_evaluator import (
     ShieldFormationEvaluator,
 )
-from ai.config.ai_config import (
-    SPELL_WEIGHT_AMBUSH_OPPONENT_SIDE_BONUS,
-    SPELL_WEIGHT_MINE_TRAP_ENEMY_CLUSTER_BONUS,
-    SPELL_WEIGHT_CELERITY_ADVANTAGE_BONUS,
-    SPELL_WEIGHT_SHIELD_FORMATION_CRITICAL_BONUS,
-)
+from ai.config.ai_config import SpellWeights
 from constants.game_constants import (
     PLAYER_1_ROWS,
     PLAYER_2_ROWS,
@@ -38,6 +33,7 @@ class TestSpellEvaluators:
     ):
         evaluator = AmbushEvaluator(mock_match, ai_is_player1=True)
         mock_spell_action.spell.ID = SpellId.AMBUSH
+        board_evaluation.current_turn = 1  # Ensure early game for side bonus logic
 
         # Target on P2 side (opponent side for P1)
         mock_spell_action.metadata.impacted_coords = Coordinates(PLAYER_2_ROWS[0], 5)
@@ -54,7 +50,7 @@ class TestSpellEvaluators:
         # So we just check that it increased significantly
         assert (
             score_opponent_side - score_own_side
-        ) >= SPELL_WEIGHT_AMBUSH_OPPONENT_SIDE_BONUS
+        ) >= SpellWeights.AMBUSH_EXTRA_SPAWN_BONUS
 
     def test_mine_trap_evaluator_cluster_bonus(
         self, mock_match, board_evaluation, mock_spell_action
@@ -86,7 +82,7 @@ class TestSpellEvaluators:
 
         assert score_cluster > score_no_cluster
         assert score_cluster - score_no_cluster == pytest.approx(
-            SPELL_WEIGHT_MINE_TRAP_ENEMY_CLUSTER_BONUS
+            SpellWeights.MINE_TRAP_ENEMY_CLUSTER_BONUS
         )
 
     def test_celerity_evaluator_advantage_bonus(
@@ -104,7 +100,7 @@ class TestSpellEvaluators:
 
         assert score_adv > score_disadv
         assert score_adv - score_disadv == pytest.approx(
-            SPELL_WEIGHT_CELERITY_ADVANTAGE_BONUS
+            SpellWeights.CELERITY_ADVANTAGE_BONUS
         )
 
     def test_archery_vow_evaluator_forward_bonus(
@@ -138,5 +134,5 @@ class TestSpellEvaluators:
 
         assert score_critical > score_normal
         assert score_critical - score_normal == pytest.approx(
-            SPELL_WEIGHT_SHIELD_FORMATION_CRITICAL_BONUS
+            SpellWeights.SHIELD_FORMATION_CRITICAL_BONUS
         )

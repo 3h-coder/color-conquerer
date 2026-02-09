@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from ai.config.ai_config import MASTER_CRITICAL_HEALTH_THRESHOLD
+from ai.config.ai_config import HealthThresholds
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -19,11 +19,11 @@ class BaseEvaluator:
     def _is_ai_master_critical_health(self) -> bool:
         """
         Helper method to check if the AI player's master is at critical health.
-        Returns True if master HP <= MASTER_CRITICAL_HEALTH_THRESHOLD.
+        Returns True if master HP <= HealthThresholds.CRITICAL.
         """
         ai_player = (
             self._match_context.player1
             if self._ai_is_player1
             else self._match_context.player2
         )
-        return ai_player.resources.current_hp <= MASTER_CRITICAL_HEALTH_THRESHOLD
+        return ai_player.resources.current_hp <= HealthThresholds.CRITICAL

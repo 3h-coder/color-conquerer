@@ -2,10 +2,8 @@ from typing import TYPE_CHECKING
 from ai.strategy.evaluators.spells.base_spell_evaluator import BaseSpellEvaluator
 from utils.board_utils import manhattan_distance
 from ai.config.ai_config import (
-    SPELL_WEIGHT_ARCHERY_VOW_BASE,
-    SPELL_WEIGHT_ARCHERY_VOW_FORWARD_POSITION_BONUS,
-    SPELL_WEIGHT_ARCHERY_VOW_AVAILABILITY_BONUS,
-    MAX_BOARD_DISTANCE,
+    SpellWeights,
+    EvaluationConstants,
 )
 
 if TYPE_CHECKING:
@@ -26,11 +24,11 @@ class ArcheryVowEvaluator(BaseSpellEvaluator):
         if target_cell.is_archer():
             return 0.0
 
-        score = SPELL_WEIGHT_ARCHERY_VOW_BASE
+        score = SpellWeights.ARCHERY_VOW_BASE
 
         # Significant bonus since the spell is actually castable (has valid targets)
         # This ensures we follow through after moves that create archer opportunities
-        score += SPELL_WEIGHT_ARCHERY_VOW_AVAILABILITY_BONUS
+        score += SpellWeights.ARCHERY_VOW_AVAILABILITY_BONUS
 
         # Bonus if the isolated cell is in a forward position (offensive pressure)
         dist_to_enemy = manhattan_distance(
@@ -40,8 +38,8 @@ class ArcheryVowEvaluator(BaseSpellEvaluator):
             board_evaluation.enemy_master_coords.column_index,
         )
         score += (
-            max(0, (MAX_BOARD_DISTANCE - dist_to_enemy) * 0.5)
-            + SPELL_WEIGHT_ARCHERY_VOW_FORWARD_POSITION_BONUS
+            max(0, (EvaluationConstants.MAX_BOARD_DISTANCE - dist_to_enemy) * 0.5)
+            + SpellWeights.ARCHERY_VOW_FORWARD_POSITION_BONUS
         )
 
         return score

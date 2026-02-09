@@ -1,15 +1,8 @@
 from typing import TYPE_CHECKING
 from game_engine.models.dtos.coordinates import Coordinates
 from ai.config.ai_config import (
-    ATTACK_WEIGHT_BASE_ATTACK,
-    ATTACK_WEIGHT_THREAT_DEFENSE,
-    ATTACK_WEIGHT_LOW_HP_BONUS,
-    ATTACK_WEIGHT_ENEMY_MASTER,
-    ATTACK_WEIGHT_LETHAL_ON_MASTER,
-    ATTACK_WEIGHT_ARCHER_TARGET_BONUS,
-    ATTACK_WEIGHT_MASTER_RETALIATION_PENALTY,
-    ATTACK_WEIGHT_CRITICAL_THREAT_DEFENSE,
-    MASTER_SUICIDAL_HEALTH_THRESHOLD,
+    AttackWeights,
+    HealthThresholds,
 )
 from ai.strategy.evaluators.base_evaluator import BaseEvaluator
 
@@ -43,7 +36,7 @@ class AttackEvaluator(BaseEvaluator):
         # If master is suicidal, mark attack with negative score UNLESS it's lethal on enemy master
         # The master should only attack the enemy master if there's a lethal opportunity,
         # meaning the combined damage from all attacking units (including this master) can kill the enemy master.
-        if ai_player.resources.current_hp == MASTER_SUICIDAL_HEALTH_THRESHOLD:
+        if ai_player.resources.current_hp == HealthThresholds.SUICIDAL:
             if target_coords != board_evaluation.enemy_master_coords:
                 return -1.0  # Suicidal action: don't attack non-master targets
             if not board_evaluation.ai_has_lethal_opportunity():
@@ -65,7 +58,7 @@ class AttackEvaluator(BaseEvaluator):
             return self._evaluate_master_attack(board_evaluation)
 
         # Normal priority: evaluate regular unit attacks
-        score = ATTACK_WEIGHT_BASE_ATTACK
+        score = AttackWeights.BASE_ATTACK
 
         target_cell = self._match_context.game_board.get(
             target_coords.row_index, target_coords.column_index
@@ -86,10 +79,10 @@ class AttackEvaluator(BaseEvaluator):
         Attacking the enemy master is the highest priority.
         Bonus if the attack is potentially lethal.
         """
-        score = ATTACK_WEIGHT_ENEMY_MASTER
+        score = AttackWeights.ENEMY_MASTER
 
         if board_evaluation.ai_has_lethal_opportunity():
-            score += ATTACK_WEIGHT_LETHAL_ON_MASTER
+            score += AttackWeights.LETHAL_ON_MASTER
 
         return score
 
@@ -107,7 +100,7 @@ class AttackEvaluator(BaseEvaluator):
             attacker_coords.row_index, attacker_coords.column_index
         )
         if attacker_cell and attacker_cell.is_master:
-            return ATTACK_WEIGHT_MASTER_RETALIATION_PENALTY
+            return AttackWeights.MASTER_RETALIATION_PENALTY
 
         return 0.0
 
@@ -119,7 +112,7 @@ class AttackEvaluator(BaseEvaluator):
         Significantly boost priority if master health is critical.
         """
         if target_cell in board_evaluation.enemy_cells_near_ai_master:
-            score = ATTACK_WEIGHT_THREAT_DEFENSE
+            score = AttackWeights.THREAT_DEFENSE
 
             # When master is at critical health, massively boost threat defense
             ai_player = (
@@ -127,8 +120,8 @@ class AttackEvaluator(BaseEvaluator):
                 if self._ai_is_player1
                 else self._match_context.player2
             )
-            if ai_player.resources.current_hp <= MASTER_CRITICAL_HEALTH_THRESHOLD:
-                score += ATTACK_WEIGHT_CRITICAL_THREAT_DEFENSE
+            if ai_player.resources.current_hp <= HealthThresholds.CRITICAL:
+                score += AttackWeights.CRITICAL_THREAT_DEFENSE
 
             return score
         return 0.0
@@ -138,7 +131,7 @@ class AttackEvaluator(BaseEvaluator):
         Archers are high-priority threats - eliminate before they establish range dominance.
         """
         if target_cell.is_archer():
-            return ATTACK_WEIGHT_ARCHER_TARGET_BONUS
+            return AttackWeights.ARCHER_TARGET_BONUS
         return 0.0
 
     def _evaluate_kill_potential(self, target_cell: "Cell") -> float:
@@ -146,7 +139,7 @@ class AttackEvaluator(BaseEvaluator):
         Non-shielded cells are easier to kill.
         """
         if not target_cell.is_shielded():
-            return ATTACK_WEIGHT_LOW_HP_BONUS
+            return AttackWeights.LOW_HP_BONUS
         return 0.0
 
     def _attacker_is_master_and_health_critical(

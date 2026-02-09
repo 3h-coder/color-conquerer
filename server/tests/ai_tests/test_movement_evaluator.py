@@ -6,9 +6,8 @@ from ai.strategy.evaluators.board.evaluation_constants import (
     MIN_THREAT_LEVEL,
 )
 from ai.config.ai_config import (
-    BASE_MOVE_SCORE,
-    MOVE_WEIGHT_DISTANCE_TO_ENEMY_MASTER,
-    MAX_BOARD_DISTANCE,
+    MovementWeights,
+    EvaluationConstants,
 )
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.actions.cell_movement import CellMovement
@@ -132,7 +131,8 @@ class TestMovementEvaluator:
 
         # Assert
         expected = (
-            BASE_MOVE_SCORE
-            + (MAX_BOARD_DISTANCE - 1) * MOVE_WEIGHT_DISTANCE_TO_ENEMY_MASTER
+            MovementWeights.BASE_SCORE
+            + (EvaluationConstants.MAX_BOARD_DISTANCE - 1)
+            * MovementWeights.DISTANCE_TO_ENEMY_MASTER
         )
         assert score == expected

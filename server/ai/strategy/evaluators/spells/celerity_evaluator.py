@@ -2,13 +2,7 @@ from typing import TYPE_CHECKING
 from ai.strategy.evaluators.spells.base_spell_evaluator import BaseSpellEvaluator
 from game_engine.models.dtos.coordinates import Coordinates
 from utils.board_utils import get_diagonal_formations
-from ai.config.ai_config import (
-    SPELL_WEIGHT_CELERITY_BASE,
-    SPELL_WEIGHT_CELERITY_ADVANTAGE_BONUS,
-    SPELL_WEIGHT_CELERITY_PER_CELL_BONUS,
-    SPELL_WEIGHT_CELERITY_SPECIAL_CELL_BONUS,
-    SPELL_WEIGHT_CELERITY_REDUNDANT_PENALTY,
-)
+from ai.config.ai_config import SpellWeights
 
 if TYPE_CHECKING:
     from game_engine.models.actions.spell_casting import SpellCasting
@@ -26,25 +20,25 @@ class CelerityEvaluator(BaseSpellEvaluator):
         if board_evaluation.current_turn < self.EARLY_GAME_TURN_THRESHOLD:
             return 2.0  # Very low score - prefer spawning instead
 
-        score = SPELL_WEIGHT_CELERITY_BASE
+        score = SpellWeights.CELERITY_BASE
         # Bonus if we are already in a good position to press the advantage
         if board_evaluation.positional_advantage > 0:
-            score += SPELL_WEIGHT_CELERITY_ADVANTAGE_BONUS
+            score += SpellWeights.CELERITY_ADVANTAGE_BONUS
 
         # Analyze the diagonal formation this target belongs to
         target_coords = action.metadata.impacted_coords
         diagonal_cells = self._get_diagonal_formation(target_coords)
 
         # Bonus based on diagonal size (more cells = more value)
-        score += len(diagonal_cells) * SPELL_WEIGHT_CELERITY_PER_CELL_BONUS
+        score += len(diagonal_cells) * SpellWeights.CELERITY_PER_CELL_BONUS
 
         # Bonus for special cells in the diagonal (archers, master, shielded)
         special_cell_count = self._count_special_cells(diagonal_cells)
-        score += special_cell_count * SPELL_WEIGHT_CELERITY_SPECIAL_CELL_BONUS
+        score += special_cell_count * SpellWeights.CELERITY_SPECIAL_CELL_BONUS
 
         # Penalty for already-accelerated cells (avoid redundancy)
         accelerated_count = self._count_accelerated_cells(diagonal_cells)
-        score -= accelerated_count * SPELL_WEIGHT_CELERITY_REDUNDANT_PENALTY
+        score -= accelerated_count * SpellWeights.CELERITY_REDUNDANT_PENALTY
 
         return score
 

@@ -3,17 +3,8 @@ from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.spells.spell_id import SpellId
 from utils.board_utils import manhattan_distance
 from ai.config.ai_config import (
-    MOVE_WEIGHT_DISTANCE_TO_ENEMY_MASTER,
-    MOVE_WEIGHT_DISTANCE_TO_OWN_MASTER,
-    BASE_MOVE_SCORE,
-    MAX_BOARD_DISTANCE,
-    DEFENSIVE_MOVE_THREAT_THRESHOLD,
-    MOVE_WEIGHT_MANA_BUBBLE_BONUS,
-    MOVE_WEIGHT_MANA_BUBBLE_NEIGHBOR_BONUS,
-    MOVE_WEIGHT_ARCHER_CREATION_BONUS,
-    MOVE_WEIGHT_ARCHER_RETREAT_FROM_ENEMIES,
-    MOVE_WEIGHT_ENEMY_ARCHER_NEIGHBOR_BONUS,
-    MOVE_WEIGHT_DEFENSIVE_POSITIONING,
+    MovementWeights,
+    EvaluationConstants,
 )
 from ai.strategy.evaluators.base_evaluator import BaseEvaluator
 
@@ -42,7 +33,7 @@ class MovementEvaluator(BaseEvaluator):
         board = self._match_context.game_board
         source_cell = board.get(source_coords.row_index, source_coords.column_index)
 
-        score = BASE_MOVE_SCORE
+        score = MovementWeights.BASE_SCORE
 
         # Archers have different positioning priorities than regular cells
         if source_cell.is_archer():
@@ -77,12 +68,13 @@ class MovementEvaluator(BaseEvaluator):
             board_evaluation.enemy_master_coords.column_index,
         )
         score += (
-            MAX_BOARD_DISTANCE - dist_to_enemy_master
-        ) * MOVE_WEIGHT_DISTANCE_TO_ENEMY_MASTER
+            EvaluationConstants.MAX_BOARD_DISTANCE - dist_to_enemy_master
+        ) * MovementWeights.DISTANCE_TO_ENEMY_MASTER
 
         # Defensive positioning when master is threatened or at critical health
         if (
-            board_evaluation.master_threat_level >= DEFENSIVE_MOVE_THREAT_THRESHOLD
+            board_evaluation.master_threat_level
+            >= EvaluationConstants.DEFENSIVE_MOVE_THREAT_THRESHOLD
             or master_is_critical
         ):
             dist_to_own = manhattan_distance(
@@ -92,14 +84,14 @@ class MovementEvaluator(BaseEvaluator):
                 board_evaluation.ai_master_coords.column_index,
             )
             score += (
-                MAX_BOARD_DISTANCE - dist_to_own
-            ) * MOVE_WEIGHT_DISTANCE_TO_OWN_MASTER
+                EvaluationConstants.MAX_BOARD_DISTANCE - dist_to_own
+            ) * MovementWeights.DISTANCE_TO_OWN_MASTER
 
             # Extra boost when master is critical - urgently move toward master
             if master_is_critical:
                 score += (
-                    MAX_BOARD_DISTANCE - dist_to_own
-                ) * MOVE_WEIGHT_DEFENSIVE_POSITIONING
+                    EvaluationConstants.MAX_BOARD_DISTANCE - dist_to_own
+                ) * MovementWeights.DEFENSIVE_POSITIONING
 
         return score
 
@@ -117,7 +109,7 @@ class MovementEvaluator(BaseEvaluator):
         enemy_cells = board.get_cells_owned_by_player(not self._ai_is_player1)
 
         # Calculate distance to nearest enemy cell
-        min_distance_to_enemy = MAX_BOARD_DISTANCE
+        min_distance_to_enemy = EvaluationConstants.MAX_BOARD_DISTANCE
         for cell in enemy_cells:
             dist = manhattan_distance(
                 dest_coords.row_index,
@@ -128,7 +120,7 @@ class MovementEvaluator(BaseEvaluator):
             min_distance_to_enemy = min(min_distance_to_enemy, dist)
 
         # Archers favor being further from enemies (higher distance = higher score)
-        return min_distance_to_enemy * MOVE_WEIGHT_ARCHER_RETREAT_FROM_ENEMIES
+        return min_distance_to_enemy * MovementWeights.ARCHER_RETREAT_FROM_ENEMIES
 
     def _evaluate_mana_bubble_opportunity(self, dest_coords: Coordinates) -> float:
         """
@@ -140,14 +132,14 @@ class MovementEvaluator(BaseEvaluator):
 
         # Direct capture: highest priority
         if dest_cell.is_mana_bubble():
-            return MOVE_WEIGHT_MANA_BUBBLE_BONUS
+            return MovementWeights.MANA_BUBBLE_BONUS
 
         # Adjacent positioning: capture next turn
         dest_neighbors = board.get_idle_neighbours(
             dest_coords.row_index, dest_coords.column_index
         )
         if any(neighbor.is_mana_bubble() for neighbor in dest_neighbors):
-            return MOVE_WEIGHT_MANA_BUBBLE_NEIGHBOR_BONUS
+            return MovementWeights.MANA_BUBBLE_NEIGHBOR_BONUS
 
         return 0.0
 
@@ -165,7 +157,7 @@ class MovementEvaluator(BaseEvaluator):
             if neighbor.is_owned() and neighbor.is_archer():
                 # Check if it's an enemy cell
                 if neighbor.belongs_to_player_1() != self._ai_is_player1:
-                    return MOVE_WEIGHT_ENEMY_ARCHER_NEIGHBOR_BONUS
+                    return MovementWeights.ENEMY_ARCHER_NEIGHBOR_BONUS
 
         return 0.0
 
@@ -205,7 +197,7 @@ class MovementEvaluator(BaseEvaluator):
         )
         if len(dest_owned_neighbors) == 0:
             # Moving to a position with no friendly neighbors = isolated = archer candidate
-            return MOVE_WEIGHT_ARCHER_CREATION_BONUS
+            return MovementWeights.ARCHER_CREATION_BONUS
 
         # Check neighbors at source - would any become isolated after we leave?
         source_neighbors = board.get_owned_neighbours(
@@ -229,6 +221,6 @@ class MovementEvaluator(BaseEvaluator):
             # If it has exactly 1 owned neighbor (which is the cell we're about to move),
             # moving away would isolate it - perfect for Archery Vow
             if len(neighbor_owned_neighbors) == 1:
-                return MOVE_WEIGHT_ARCHER_CREATION_BONUS
+                return MovementWeights.ARCHER_CREATION_BONUS
 
         return 0.0
