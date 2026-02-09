@@ -246,10 +246,15 @@ class BoardEvaluator(BaseEvaluator):
         - Archer cells can attack from anywhere
         - Non-archer cells must be adjacent (within melee range)
         - Master cells can attack but lose HP in the process (decision layer should consider this risk)
+        - Freshly spawned cells cannot attack until next turn
         """
         cells_that_can_attack = []
 
         for cell in cells:
+            # Freshly spawned cells can't attack until next turn
+            if cell.is_freshly_spawned():
+                continue
+
             if cell.is_archer():
                 # Archers can attack from anywhere
                 cells_that_can_attack.append(cell)

@@ -5,12 +5,7 @@ from ai.strategy.decision_makers.attack_decider import AttackDecider
 from ai.strategy.decision_makers.movement_decider import MovementDecider
 from ai.strategy.decision_makers.spell_decider import SpellDecider
 from ai.strategy.scored_action import ScoredAction
-from game_engine.models.actions.cell_attack import CellAttack
 from config.logging import get_configured_logger
-from ai.config.ai_config import (
-    MASTER_SUICIDAL_HEALTH_THRESHOLD,
-    MASTER_CRITICAL_HEALTH_THRESHOLD,
-)
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -52,8 +47,9 @@ class AIDecisionBrain:
         Each decider returns a ScoredAction (action + score) and the highest score wins.
         Returns the action object to be executed, or None if no actions are available.
 
-        Filters out suicidal actions (master at critical health attacking non-lethally)
-        unless doing so would result in a draw (both masters at critical health).
+        Actions with negative scores (marked as suicidal by their respective evaluators)
+        are automatically filtered out and never executed. If all candidates are suicidal,
+        no action is taken.
         """
         candidates: list[ScoredAction] = []
 
@@ -76,19 +72,14 @@ class AIDecisionBrain:
         if not candidates:
             return None
 
-        # Filter out suicidal actions (master attacking when at critical health without lethal)
-        safe_candidates = [c for c in candidates if not self._is_suicidal_action(c)]
+        # Filter out suicidal actions (those with negative scores)
+        safe_candidates = [c for c in candidates if c.score >= 0]
 
-        # If all candidates are suicidal, only allow if it's a draw scenario
         if not safe_candidates:
-            # Check if this is a draw scenario (both masters at critical health)
-            if self._is_draw_scenario():
-                safe_candidates = candidates
-            else:
-                self._logger.warning(
-                    "All actions are suicidal and not a draw scenario. No action taken."
-                )
-                return None
+            self._logger.warning(
+                "All candidate actions are suicidal (negative score). No action taken."
+            )
+            return None
 
         self._logger.info("All candidate actions: %s", safe_candidates)
         best = max(safe_candidates, key=lambda c: c.score)
@@ -96,45 +87,3 @@ class AIDecisionBrain:
             "Selected best action: %s with score %s", best.action, best.score
         )
         return best.action
-
-    def _is_suicidal_action(self, scored_action: ScoredAction) -> bool:
-        """
-        Checks if an action would result in the master dying.
-        A suicidal action is one where our master has suicidal health (would die from any damage).
-        Returns True if the action should be avoided (is suicidal).
-        """
-        action = scored_action.action
-
-        # Only attacks can be suicidal
-        if not isinstance(action, CellAttack):
-            return False
-
-        # Suicidal = master has reached suicidal health threshold (would die from any damage)
-        ai_player = (
-            self._match.match_context.player1
-            if self._ai_is_player1
-            else self._match.match_context.player2
-        )
-        return ai_player.resources.current_hp == MASTER_SUICIDAL_HEALTH_THRESHOLD
-
-    def _is_draw_scenario(self) -> bool:
-        """
-        Checks if this is a draw scenario where both masters are at critical health
-        and the AI attacking would result in mutual destruction.
-        """
-        ai_player = (
-            self._match.match_context.player1
-            if self._ai_is_player1
-            else self._match.match_context.player2
-        )
-        enemy_player = (
-            self._match.match_context.player2
-            if self._ai_is_player1
-            else self._match.match_context.player1
-        )
-
-        # Both masters at critical health = draw scenario
-        return (
-            ai_player.resources.current_hp == 1
-            and enemy_player.resources.current_hp == 1
-        )

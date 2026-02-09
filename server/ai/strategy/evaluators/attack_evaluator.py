@@ -10,6 +10,7 @@ from ai.config.ai_config import (
     ATTACK_WEIGHT_MASTER_RETALIATION_PENALTY,
     ATTACK_WEIGHT_CRITICAL_THREAT_DEFENSE,
     MASTER_CRITICAL_HEALTH_THRESHOLD,
+    MASTER_SUICIDAL_HEALTH_THRESHOLD,
 )
 from ai.strategy.evaluators.base_evaluator import BaseEvaluator
 
@@ -31,7 +32,25 @@ class AttackEvaluator(BaseEvaluator):
     ) -> float:
         """
         Calculates a score for an enemy cell as an attack target.
+        Returns a negative score if the action would be suicidal (master at critical health).
         """
+        # Check if master is at suicidal health level (would die from any damage)
+        ai_player = (
+            self._match_context.player1
+            if self._ai_is_player1
+            else self._match_context.player2
+        )
+
+        # If master is suicidal, mark attack with negative score UNLESS it's lethal on enemy master
+        # The master should only attack the enemy master if there's a lethal opportunity,
+        # meaning the combined damage from all attacking units (including this master) can kill the enemy master.
+        if ai_player.resources.current_hp == MASTER_SUICIDAL_HEALTH_THRESHOLD:
+            if target_coords != board_evaluation.enemy_master_coords:
+                return -1.0  # Suicidal action: don't attack non-master targets
+            if not board_evaluation.ai_has_lethal_opportunity():
+                return -1.0  # Suicidal action: no lethal opportunity for the team
+            # Otherwise: lethal opportunity exists and master is attacking enemy master, proceed with evaluation
+
         # Prevent master from attacking when health is critical (preserve HP)
         # UNLESS it's a guaranteed lethal attack on the enemy master
         if self._attacker_is_master_and_health_critical(attacker_coords):
