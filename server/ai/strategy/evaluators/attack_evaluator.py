@@ -9,7 +9,6 @@ from ai.config.ai_config import (
     ATTACK_WEIGHT_ARCHER_TARGET_BONUS,
     ATTACK_WEIGHT_MASTER_RETALIATION_PENALTY,
     ATTACK_WEIGHT_CRITICAL_THREAT_DEFENSE,
-    MASTER_CRITICAL_HEALTH_THRESHOLD,
     MASTER_SUICIDAL_HEALTH_THRESHOLD,
 )
 from ai.strategy.evaluators.base_evaluator import BaseEvaluator
@@ -165,9 +164,4 @@ class AttackEvaluator(BaseEvaluator):
         if not attacker_cell or not attacker_cell.is_master:
             return False
 
-        ai_player = (
-            self._match_context.player1
-            if self._ai_is_player1
-            else self._match_context.player2
-        )
-        return ai_player.resources.current_hp <= MASTER_CRITICAL_HEALTH_THRESHOLD
+        return self._is_ai_master_critical_health()

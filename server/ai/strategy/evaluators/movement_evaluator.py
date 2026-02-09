@@ -14,7 +14,6 @@ from ai.config.ai_config import (
     MOVE_WEIGHT_ARCHER_RETREAT_FROM_ENEMIES,
     MOVE_WEIGHT_ENEMY_ARCHER_NEIGHBOR_BONUS,
     MOVE_WEIGHT_DEFENSIVE_POSITIONING,
-    MASTER_CRITICAL_HEALTH_THRESHOLD,
 )
 from ai.strategy.evaluators.base_evaluator import BaseEvaluator
 
@@ -68,14 +67,7 @@ class MovementEvaluator(BaseEvaluator):
         score = 0.0
 
         # Check if master is at critical health
-        ai_player = (
-            self._match_context.player1
-            if self._ai_is_player1
-            else self._match_context.player2
-        )
-        master_is_critical = (
-            ai_player.resources.current_hp <= MASTER_CRITICAL_HEALTH_THRESHOLD
-        )
+        master_is_critical = self._is_ai_master_critical_health()
 
         # Offensive pressure: closer to enemy master is better
         dist_to_enemy_master = manhattan_distance(

@@ -7,7 +7,6 @@ from ai.config.ai_config import (
     SPELL_WEIGHT_AMBUSH_ARCHER_TARGET_BONUS,
     SPELL_WEIGHT_AMBUSH_MASTER_TARGET_BONUS,
     SPELL_WEIGHT_AMBUSH_CRITICAL_HEALTH_BONUS,
-    MASTER_CRITICAL_HEALTH_THRESHOLD,
 )
 
 if TYPE_CHECKING:
@@ -33,14 +32,7 @@ class AmbushEvaluator(BaseSpellEvaluator):
         )
 
         # Check if master is at critical health
-        ai_player = (
-            self._match_context.player1
-            if self._ai_is_player1
-            else self._match_context.player2
-        )
-        master_is_critical = (
-            ai_player.resources.current_hp <= MASTER_CRITICAL_HEALTH_THRESHOLD
-        )
+        master_is_critical = self._is_ai_master_critical_health()
 
         # Ambush is only valuable in specific situations:
 

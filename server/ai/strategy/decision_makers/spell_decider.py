@@ -6,11 +6,11 @@ from game_engine.models.actions.spell_casting import SpellCasting
 from game_engine.models.spells.spell_factory import get_spell
 from game_engine.models.spells.spell_id import SpellId
 from utils.perf_utils import with_performance_logging
-from ai.strategy.evaluators.spells.ambush_evaluator import AmbushEvaluator
-from ai.strategy.evaluators.spells.mine_trap_evaluator import MineTrapEvaluator
-from ai.strategy.evaluators.spells.celerity_evaluator import CelerityEvaluator
-from ai.strategy.evaluators.spells.archery_vow_evaluator import ArcheryVowEvaluator
-from ai.strategy.evaluators.spells.shield_formation_evaluator import (
+from ai.strategy.evaluators.spells import (
+    AmbushEvaluator,
+    MineTrapEvaluator,
+    CelerityEvaluator,
+    ArcheryVowEvaluator,
     ShieldFormationEvaluator,
 )
 from ai.config.ai_config import (
@@ -33,16 +33,22 @@ class SpellDecider(BaseDecider):
 
     STAMINA_THRESHOLD = 3
 
+    # Spell evaluator registry - maps each spell to its evaluator class
+    SPELL_EVALUATOR_REGISTRY: dict[SpellId, type["BaseSpellEvaluator"]] = {
+        SpellId.AMBUSH: AmbushEvaluator,
+        SpellId.MINE_TRAP: MineTrapEvaluator,
+        SpellId.CELERITY: CelerityEvaluator,
+        SpellId.ARCHERY_VOW: ArcheryVowEvaluator,
+        SpellId.SHIELD_FORMATION: ShieldFormationEvaluator,
+    }
+
     def __init__(self, match: "MatchHandlerUnit", ai_is_player1: bool):
         super().__init__(match, ai_is_player1)
 
-        # Initialize dictionary of evaluators for each spell
+        # Initialize evaluators for all registered spells
         self._evaluators: dict[SpellId, "BaseSpellEvaluator"] = {
-            SpellId.AMBUSH: AmbushEvaluator(match, ai_is_player1),
-            SpellId.MINE_TRAP: MineTrapEvaluator(match, ai_is_player1),
-            SpellId.CELERITY: CelerityEvaluator(match, ai_is_player1),
-            SpellId.ARCHERY_VOW: ArcheryVowEvaluator(match, ai_is_player1),
-            SpellId.SHIELD_FORMATION: ShieldFormationEvaluator(match, ai_is_player1),
+            spell_id: evaluator_class(match, ai_is_player1)
+            for spell_id, evaluator_class in self.SPELL_EVALUATOR_REGISTRY.items()
         }
 
     @with_performance_logging

@@ -9,7 +9,6 @@ from ai.config.ai_config import (
     DEFENSIVE_SPAWN_THREAT_THRESHOLD,
     SPAWN_WEIGHT_MANA_BUBBLE_BONUS,
     SPAWN_WEIGHT_MASTER_DEFENSE_BONUS,
-    MASTER_CRITICAL_HEALTH_THRESHOLD,
 )
 from ai.strategy.evaluators.base_evaluator import BaseEvaluator
 
@@ -91,12 +90,7 @@ class SpawnEvaluator(BaseEvaluator):
         """
         When master health is critical, strongly prioritize spawning adjacent to master for protection.
         """
-        ai_player = (
-            self._match_context.player1
-            if self._ai_is_player1
-            else self._match_context.player2
-        )
-        if ai_player.resources.current_hp > MASTER_CRITICAL_HEALTH_THRESHOLD:
+        if not self._is_ai_master_critical_health():
             return 0.0
 
         dist_to_own_master = manhattan_distance(
