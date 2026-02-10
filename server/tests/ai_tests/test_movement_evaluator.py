@@ -11,6 +11,7 @@ from ai.config.ai_config import (
 )
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.actions.cell_movement import CellMovement
+from game_engine.models.spells.spell_id import SpellId
 
 
 class TestMovementEvaluator:
@@ -136,3 +137,143 @@ class TestMovementEvaluator:
             * MovementWeights.DISTANCE_TO_ENEMY_MASTER
         )
         assert score == expected
+
+    def test_movement_on_mana_bubble_bonus(
+        self, movement_evaluator: MovementEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test that moving onto a mana bubble gives a critical bonus."""
+        # Arrange
+        move = self._make_movement(Coordinates(4, 5), Coordinates(5, 5))
+
+        # Modify cells in the board directly
+        source_cell = movement_evaluator._match_context.game_board.board[4][5]
+        source_cell.is_archer.return_value = False
+        dest_cell = movement_evaluator._match_context.game_board.board[5][5]
+        dest_cell.is_mana_bubble.return_value = True
+
+        # Act
+        score = movement_evaluator.evaluate(move, board_evaluation)
+
+        # Assert
+        # Should include base + distance + MANA_BUBBLE_BONUS
+        dist_to_enemy = 4  # (5,5) to (9,5)
+        expected_base = (
+            MovementWeights.BASE_SCORE
+            + (EvaluationConstants.MAX_BOARD_DISTANCE - dist_to_enemy)
+            * MovementWeights.DISTANCE_TO_ENEMY_MASTER
+        )
+        assert score >= expected_base + MovementWeights.MANA_BUBBLE_BONUS
+
+    def test_movement_near_mana_bubble_bonus(
+        self, movement_evaluator: MovementEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test that moving next to a mana bubble gives a strong bonus."""
+        # Arrange
+        move = self._make_movement(Coordinates(4, 5), Coordinates(5, 5))
+
+        # Modify source cell
+        source_cell = movement_evaluator._match_context.game_board.board[4][5]
+        source_cell.is_archer.return_value = False
+
+        # Build dest neighbors mock
+        bubble_neighbor = MagicMock()
+        bubble_neighbor.is_mana_bubble.return_value = True
+        movement_evaluator._match_context.game_board.get_idle_neighbours.return_value = [
+            bubble_neighbor
+        ]
+
+        # Act
+        score = movement_evaluator.evaluate(move, board_evaluation)
+
+        # Assert
+        # Should include base + distance + MANA_BUBBLE_NEIGHBOR_BONUS
+        dist_to_enemy = 4
+        expected_base = (
+            MovementWeights.BASE_SCORE
+            + (EvaluationConstants.MAX_BOARD_DISTANCE - dist_to_enemy)
+            * MovementWeights.DISTANCE_TO_ENEMY_MASTER
+        )
+        assert score >= expected_base + MovementWeights.MANA_BUBBLE_NEIGHBOR_BONUS
+
+    def test_movement_near_enemy_archer_bonus(
+        self, movement_evaluator: MovementEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test bonus for positioning next to an enemy archer."""
+        # Arrange
+        move = self._make_movement(Coordinates(4, 5), Coordinates(5, 5))
+
+        # Modify source cell
+        source_cell = movement_evaluator._match_context.game_board.board[4][5]
+        source_cell.is_archer.return_value = False
+
+        # Mock neighbors to contain an enemy archer
+        enemy_archer = MagicMock()
+        enemy_archer.is_owned.return_value = True
+        enemy_archer.is_archer.return_value = True
+        enemy_archer.belongs_to_player_1.return_value = False
+
+        movement_evaluator._match_context.game_board.get_neighbours.return_value = [
+            enemy_archer
+        ]
+
+        # Act
+        score = movement_evaluator.evaluate(move, board_evaluation)
+
+        # Assert
+        assert (
+            score
+            >= MovementWeights.BASE_SCORE + MovementWeights.ENEMY_ARCHER_NEIGHBOR_BONUS
+        )
+
+    def test_movement_archer_creation_opportunity(
+        self, movement_evaluator: MovementEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test bonus for moving into an isolated position if Archery Vow is available."""
+        # Arrange
+        move = self._make_movement(Coordinates(4, 5), Coordinates(5, 5))
+
+        # Setup AI player with Archery Vow and Mana
+        ai_player = movement_evaluator._match_context.player1
+        ai_player.resources.spells = {SpellId.ARCHERY_VOW: 1}
+        ai_player.resources.current_mp = 10
+
+        # Modify source cell
+        source_cell = movement_evaluator._match_context.game_board.board[4][5]
+        source_cell.is_archer.return_value = False
+        source_cell.is_master = False
+
+        # Mock board behavior for isolated check
+        movement_evaluator._match_context.game_board.get_owned_neighbours.return_value = (
+            []
+        )
+
+        # Act
+        score = movement_evaluator.evaluate(move, board_evaluation)
+
+        # Assert
+        assert (
+            score >= MovementWeights.BASE_SCORE + MovementWeights.ARCHER_CREATION_BONUS
+        )
+
+    def test_movement_defensive_positioning_critical(
+        self, movement_evaluator: MovementEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test extra bonus for defensive movement when master is critical."""
+        # Arrange
+        move = self._make_movement(
+            Coordinates(1, 4), Coordinates(1, 5)
+        )  # dist 0 to own master (1,5)
+
+        # Mock player health to critical (2 HP)
+        movement_evaluator._match_context.player1.resources.current_hp = 2
+
+        # Modify source cell
+        source_cell = movement_evaluator._match_context.game_board.board[1][4]
+        source_cell.is_archer.return_value = False
+        source_cell.is_master = False
+
+        # Act
+        score = movement_evaluator.evaluate(move, board_evaluation)
+
+        # Assert
+        assert score > MovementWeights.DEFENSIVE_POSITIONING

@@ -193,3 +193,89 @@ class TestAttackEvaluator:
 
         # Assert
         assert score == 0.0  # Master refuses - too risky!
+
+    def test_evaluate_archer_elimination(
+        self, attack_evaluator: AttackEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test that targeting an enemy archer gets a bonus."""
+        # Arrange
+        coords = Coordinates(5, 5)
+        target_cell = MagicMock(spec=Cell)
+        target_cell.is_shielded.return_value = True
+        target_cell.is_archer.return_value = True
+        board_evaluation.enemy_cells_near_ai_master = []
+
+        attack_evaluator._match_context.game_board = MagicMock()
+        attack_evaluator._match_context.game_board.get.return_value = target_cell
+
+        # Act
+        score = attack_evaluator.evaluate(coords, board_evaluation)
+
+        # Assert
+        assert score == AttackWeights.BASE_ATTACK + AttackWeights.ARCHER_TARGET_BONUS
+
+    def test_evaluate_master_retaliation_penalty(
+        self, attack_evaluator: AttackEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test that master's attack on non-master units is penalized."""
+        # Arrange
+        coords = Coordinates(5, 5)
+        target_cell = MagicMock(spec=Cell)
+        target_cell.is_shielded.return_value = True
+        target_cell.is_archer.return_value = False
+        board_evaluation.enemy_cells_near_ai_master = []
+
+        # Attacker is master
+        master_coords = Coordinates(0, 0)
+        master_cell = MagicMock(spec=Cell)
+        master_cell.is_master = True
+
+        attack_evaluator._match_context.game_board = MagicMock()
+
+        def get_cell(row, col):
+            if row == 0 and col == 0:
+                return master_cell
+            return target_cell
+
+        attack_evaluator._match_context.game_board.get.side_effect = get_cell
+
+        # Act
+        score = attack_evaluator.evaluate(
+            coords, board_evaluation, attacker_coords=master_coords
+        )
+
+        # Assert
+        assert (
+            score
+            == AttackWeights.BASE_ATTACK + AttackWeights.MASTER_RETALIATION_PENALTY
+        )
+
+    def test_evaluate_critical_threat_defense(
+        self, attack_evaluator: AttackEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test that threat defense is significantly boosted when master is critical."""
+        # Arrange
+        target_coords = Coordinates(2, 5)
+        target_cell = MagicMock(spec=Cell)
+        target_cell.is_shielded.return_value = True
+        target_cell.is_archer.return_value = False
+
+        # Target cell is near master
+        board_evaluation.enemy_cells_near_ai_master = [target_cell]
+
+        # Master is critical (but not suicidal)
+        attack_evaluator._match_context.player1.resources.current_hp = 2
+
+        attack_evaluator._match_context.game_board = MagicMock()
+        attack_evaluator._match_context.game_board.get.return_value = target_cell
+
+        # Act
+        score = attack_evaluator.evaluate(target_coords, board_evaluation)
+
+        # Assert
+        expected_score = (
+            AttackWeights.BASE_ATTACK
+            + AttackWeights.THREAT_DEFENSE
+            + AttackWeights.CRITICAL_THREAT_DEFENSE
+        )
+        assert score == expected_score

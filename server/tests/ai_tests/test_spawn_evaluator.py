@@ -104,3 +104,43 @@ class TestSpawnEvaluator:
             * SpawnWeights.DISTANCE_TO_ENEMY_MASTER
         )
         assert score == expected_score
+
+    def test_evaluate_spawn_location_mana_bubble(
+        self, spawn_evaluator: SpawnEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test that spawning on a mana bubble gives a huge bonus."""
+        # Arrange
+        pos = Coordinates(5, 5)
+        # Modify the cell in the board directly since get() is a lambda returning from it
+        target_cell = spawn_evaluator._match_context.game_board.board[5][5]
+        target_cell.is_mana_bubble.return_value = True
+
+        # Act
+        score = spawn_evaluator.evaluate(pos, board_evaluation)
+
+        # Assert
+        # The score should include the bubble bonus.
+        # We calculate the base score components to verify.
+        dist_to_enemy = 4  # (5,5) to (9,5)
+        expected_base_components = (
+            SpawnWeights.BASE_SCORE
+            + (EvaluationConstants.MAX_BOARD_DISTANCE - dist_to_enemy)
+            * SpawnWeights.DISTANCE_TO_ENEMY_MASTER
+        )
+        assert score == expected_base_components + SpawnWeights.MANA_BUBBLE_BONUS
+
+    def test_evaluate_spawn_location_critical_defense(
+        self, spawn_evaluator: SpawnEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test that base defense score increases significantly when master is critical."""
+        # Arrange
+        pos = Coordinates(2, 5)  # dist 1 from own master at (1,5)
+        spawn_evaluator._match_context.player1.resources.current_hp = 2  # Critical
+        board_evaluation.master_threat_level = MAX_THREAT_LEVEL
+
+        # Act
+        score = spawn_evaluator.evaluate(pos, board_evaluation)
+
+        # Assert
+        # The score should include SpawnWeights.MASTER_DEFENSE_BONUS
+        assert score > SpawnWeights.MASTER_DEFENSE_BONUS

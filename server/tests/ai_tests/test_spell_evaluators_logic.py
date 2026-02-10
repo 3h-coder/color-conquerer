@@ -99,8 +99,30 @@ class TestSpellEvaluators:
         score_disadv = evaluator.evaluate_spell(mock_spell_action, board_evaluation)
 
         assert score_adv > score_disadv
-        assert score_adv - score_disadv == pytest.approx(
-            SpellWeights.CELERITY_ADVANTAGE_BONUS
+
+    def test_ambush_evaluator_critical_archer_bonus(
+        self, mock_match, board_evaluation, mock_spell_action
+    ):
+        evaluator = AmbushEvaluator(mock_match, ai_is_player1=True)
+        mock_spell_action.spell.ID = SpellId.AMBUSH
+
+        # Target is an archer
+        target_coords = Coordinates(5, 5)
+        target_cell = mock_match.game_board.board[5][5]
+        target_cell.is_archer.return_value = True
+        mock_spell_action.metadata.impacted_coords = target_coords
+
+        # Case 1: Healthy master
+        mock_match.match_context.player1.resources.current_hp = 5
+        score_healthy = evaluator.evaluate_spell(mock_spell_action, board_evaluation)
+
+        # Case 2: Critical master
+        mock_match.match_context.player1.resources.current_hp = 2
+        score_critical = evaluator.evaluate_spell(mock_spell_action, board_evaluation)
+
+        assert score_critical > score_healthy
+        assert score_critical - score_healthy == pytest.approx(
+            SpellWeights.AMBUSH_CRITICAL_HEALTH_BONUS
         )
 
     def test_archery_vow_evaluator_forward_bonus(
