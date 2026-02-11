@@ -94,7 +94,9 @@ class SpellWeights:
     # Ambush spell
     AMBUSH_BASE = 20.0  # Low base - ambush only valuable in specific situations
     AMBUSH_EXTRA_SPAWN_BONUS = 60.0  # High bonus when we get +1 spawn
-    AMBUSH_ARCHER_TARGET_BONUS = 95.0  # Strong bonus for targeting an archer directly
+    AMBUSH_ARCHER_TARGET_BONUS = (
+        95.0  # Very high bonus for targeting an archer directly
+    )
     AMBUSH_MASTER_TARGET_BONUS = (
         90.0  # Massive bonus when targeting enemy master for pressure
     )

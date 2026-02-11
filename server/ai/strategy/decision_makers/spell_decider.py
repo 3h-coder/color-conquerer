@@ -47,7 +47,6 @@ class SpellDecider(BaseDecider):
             for spell_id, evaluator_class in self.SPELL_EVALUATOR_REGISTRY.items()
         }
 
-    @with_performance_logging
     def decide_spell(
         self,
         board_evaluation: "BoardEvaluation",
@@ -84,19 +83,6 @@ class SpellDecider(BaseDecider):
             return None
 
         # 3. Decision Logic (Simple)
-
-        # Priority A: Low Stamina - Cast regular spells to restore stamina
-        if board_evaluation.ai_stamina < self.STAMINA_THRESHOLD:
-            # We assign a huge artificial score to any spell when stamina is low
-            # but still use _pick_best_action to get the most "useful" one among them
-            return self._pick_best_action(
-                possible_actions,
-                lambda action: self._score_spell_action(action, board_evaluation)
-                + SpellWeights.STAMINA_RECOVERY,
-            )
-
-        # Priority B: Strategic usage
-        # We'll use a scoring system for simple strategic selection
         return self._pick_best_action(
             possible_actions,
             lambda action: self._score_spell_action(action, board_evaluation),
@@ -114,6 +100,10 @@ class SpellDecider(BaseDecider):
         # 1. General bonus for casting spells when we have plenty of mana
         if board_evaluation.ai_mp >= SpellWeights.MP_CONSERVATION_THRESHOLD:
             score += SpellWeights.MP_CONSERVATION_BONUS
+
+        # 2. If low Stamina, assign a huge artificial score to any spell when stamina is low
+        if board_evaluation.ai_stamina < self.STAMINA_THRESHOLD:
+            score += SpellWeights.STAMINA_RECOVERY
 
         # 2. Delegate to spell-specific evaluator
         evaluator = self._evaluators.get(spell_id)
