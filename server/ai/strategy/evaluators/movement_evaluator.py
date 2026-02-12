@@ -1,12 +1,10 @@
 from typing import TYPE_CHECKING
+
+from ai.config.ai_config import EvaluationConstants, MovementWeights
+from ai.strategy.evaluators.base_evaluator import BaseEvaluator
 from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.spells.spell_id import SpellId
 from utils.board_utils import manhattan_distance
-from ai.config.ai_config import (
-    MovementWeights,
-    EvaluationConstants,
-)
-from ai.strategy.evaluators.base_evaluator import BaseEvaluator
 
 if TYPE_CHECKING:
     from ai.strategy.evaluators.board.board_evaluation import BoardEvaluation
@@ -35,8 +33,10 @@ class MovementEvaluator(BaseEvaluator):
 
         score = MovementWeights.BASE_SCORE
 
-        # Archers have different positioning priorities than regular cells
-        if source_cell.is_archer():
+        # Archers and Masters have different positioning priorities than regular cells
+        if source_cell.is_master:
+            score += self._evaluate_master_positioning(dest_coords, board_evaluation)
+        elif source_cell.is_archer():
             score += self._evaluate_archer_positioning(dest_coords)
         else:
             score += self._evaluate_standard_positioning(dest_coords, board_evaluation)
@@ -92,6 +92,37 @@ class MovementEvaluator(BaseEvaluator):
                 score += (
                     EvaluationConstants.MAX_BOARD_DISTANCE - dist_to_own
                 ) * MovementWeights.DEFENSIVE_POSITIONING
+
+        return score
+
+    def _evaluate_master_positioning(
+        self, dest_coords: Coordinates, board_evaluation: "BoardEvaluation"
+    ) -> float:
+        """
+        Master positioning: move away from enemies when at critical health.
+        """
+        score = 0.0
+        master_is_critical = self._is_ai_master_critical_health()
+
+        if master_is_critical:
+            # Escape bonus for moving at all when in danger
+            score += MovementWeights.MASTER_ESCAPE_BONUS
+
+            # Favor distance from nearest enemy cell
+            board = self._match_context.game_board
+            enemy_cells = board.get_cells_owned_by_player(not self._ai_is_player1)
+
+            min_dist_to_enemy = EvaluationConstants.MAX_BOARD_DISTANCE
+            for cell in enemy_cells:
+                dist = manhattan_distance(
+                    dest_coords.row_index,
+                    dest_coords.column_index,
+                    cell.row_index,
+                    cell.column_index,
+                )
+                min_dist_to_enemy = min(min_dist_to_enemy, dist)
+
+            score += min_dist_to_enemy * MovementWeights.DEFENSIVE_POSITIONING
 
         return score
 

@@ -35,6 +35,7 @@ def mock_match() -> MagicMock:
             cell.is_mana_bubble.return_value = False
             cell.is_archer.return_value = False  # Default: cells are not archers
             cell.is_shielded.return_value = False
+            cell.is_master = False
             row.append(cell)
         board_cells.append(row)
     game_board.board = board_cells

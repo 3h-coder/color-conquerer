@@ -1,16 +1,14 @@
-import pytest
 from unittest.mock import MagicMock
-from ai.strategy.evaluators.movement_evaluator import MovementEvaluator
+
+import pytest
+
+from ai.config.ai_config import EvaluationConstants, MovementWeights
 from ai.strategy.evaluators.board.evaluation_constants import (
-    MAX_THREAT_LEVEL,
-    MIN_THREAT_LEVEL,
-)
-from ai.config.ai_config import (
-    MovementWeights,
-    EvaluationConstants,
-)
-from game_engine.models.dtos.coordinates import Coordinates
+    MAX_THREAT_LEVEL, MIN_THREAT_LEVEL)
+from ai.strategy.evaluators.movement_evaluator import MovementEvaluator
 from game_engine.models.actions.cell_movement import CellMovement
+from game_engine.models.cell.cell import Cell
+from game_engine.models.dtos.coordinates import Coordinates
 from game_engine.models.spells.spell_id import SpellId
 
 
@@ -277,3 +275,72 @@ class TestMovementEvaluator:
 
         # Assert
         assert score > MovementWeights.DEFENSIVE_POSITIONING
+
+    def test_master_escape_movement_when_critical_and_not_stuck(
+        self, movement_evaluator: MovementEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test that the master cell prioritizes moving away from enemies when it is critical."""
+        # Arrange
+        # Master is at (1, 5)
+        # Move escape: (1, 5) -> (0, 5)
+        move_escape = self._make_movement(Coordinates(1, 5), Coordinates(0, 5))
+
+        # Mock player health to critical
+        movement_evaluator._match_context.player1.resources.current_hp = 2
+
+        # Master is NOT stuck (implied by board evaluations results or simply by evaluating movement)
+        board_evaluation.is_ai_master_stuck = False
+
+        # Modify source cell to be the master
+        source_cell = movement_evaluator._match_context.game_board.board[1][5]
+        source_cell.is_master = True
+
+        # Need to mock get_cells_owned_by_player for enemies
+        enemy_master = MagicMock(spec=Cell)
+        enemy_master.row_index, enemy_master.column_index = 9, 5
+        movement_evaluator._match_context.game_board.get_cells_owned_by_player.return_value = [
+            enemy_master
+        ]
+
+        # Act
+        score = movement_evaluator.evaluate(move_escape, board_evaluation)
+
+        # Assert
+        assert (
+            score >= MovementWeights.BASE_SCORE + MovementWeights.MASTER_ESCAPE_BONUS
+        )
+
+    def test_master_prioritizes_escape_over_mana_bubble_spawn(
+        self, movement_evaluator: MovementEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test that the master escape score is high enough to beat high-value spawns."""
+        # Arrange
+        # Master at (1, 5) moves to safety (0, 5)
+        move_escape = self._make_movement(Coordinates(1, 5), Coordinates(0, 5))
+
+        # Mock player health to critical
+        movement_evaluator._match_context.player1.resources.current_hp = 2
+        board_evaluation.is_ai_master_stuck = False
+
+        # Master is the source
+        source_cell = movement_evaluator._match_context.game_board.board[1][5]
+        source_cell.is_master = True
+
+        # Enemy at (2, 5)
+        enemy_cell = MagicMock(spec=Cell)
+        enemy_cell.row_index, enemy_cell.column_index = 2, 5
+        movement_evaluator._match_context.game_board.get_cells_owned_by_player.return_value = [
+            enemy_cell
+        ]
+
+        # Act
+        escape_score = movement_evaluator.evaluate(move_escape, board_evaluation)
+
+        # High-value spawn score calculation (for comparison)
+        from ai.config.ai_config import SpawnWeights
+
+        max_spawn_score = SpawnWeights.BASE_SCORE + SpawnWeights.MANA_BUBBLE_BONUS
+
+        # Assert
+        # Escape (Base 5 + Escape 130 + dist) should be > Spawn on bubble (Base 45 + 80 = 125)
+        assert escape_score > max_spawn_score

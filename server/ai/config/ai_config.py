@@ -45,7 +45,7 @@ class SpawnWeights:
     PROXIMITY_TO_FRIENDLY_CELLS = -1.0  # Avoid over-clustering
     THREAT_BLOCKING = 4.0
     MANA_BUBBLE_BONUS = 80.0  # Very high priority - spawn directly on mana bubbles
-    MASTER_DEFENSE_BONUS = 50.0  # Strong priority when master health is critical
+    MASTER_DEFENSE_BONUS = 70.0  # Increased to prioritize barricading after escape
 
 
 class MovementWeights:
@@ -61,6 +61,7 @@ class MovementWeights:
     ARCHER_CREATION_BONUS = 30.0  # Bonus for creating archer opportunities
     ARCHER_RETREAT_FROM_ENEMIES = 2.0  # Archers favor distance from enemies
     ENEMY_ARCHER_NEIGHBOR_BONUS = 120.0  # Very high priority - moving next to enemy archer to kill it next turn beats ambush
+    MASTER_ESCAPE_BONUS = 130.0  # Critical priority - master moves to safety after being freed
     DEFENSIVE_POSITIONING = 3.0  # Boost movement toward own master when critical
 
 
@@ -76,7 +77,7 @@ class AttackWeights:
         65.0  # High priority - kill archers before they establish range dominance
     )
     SAFE_ATTACK_BONUS = 25.0  # Bonus for safe attacks (ranged archer or shielded)
-    MASTER_RESCUE_BONUS = 80.0  # High bonus for freeing a trapped critical master
+    MASTER_RESCUE_BONUS = 140.0  # Critical priority - free a trapped critical master
     MASTER_RETALIATION_PENALTY = (
         -40.0
     )  # Penalty: master should avoid attacking non-masters (loses HP)
