@@ -1,13 +1,15 @@
-import pytest
 from unittest.mock import MagicMock
-from ai.strategy.evaluators.spawn_evaluator import SpawnEvaluator
+
+import pytest
+
 from ai.strategy.evaluators.attack_evaluator import AttackEvaluator
-from ai.strategy.evaluators.movement_evaluator import MovementEvaluator
 from ai.strategy.evaluators.board.board_evaluation import BoardEvaluation
 from ai.strategy.evaluators.board.evaluation_constants import MIN_THREAT_LEVEL
+from ai.strategy.evaluators.movement_evaluator import MovementEvaluator
+from ai.strategy.evaluators.spawn_evaluator import SpawnEvaluator
 from game_engine.models.dtos.coordinates import Coordinates
-from game_engine.models.match.match_context import MatchContext
 from game_engine.models.game_board import GameBoard
+from game_engine.models.match.match_context import MatchContext
 from game_engine.models.player.player import Player
 from game_engine.models.player.player_resources import PlayerResources
 from handlers.match_handler_unit import MatchHandlerUnit
@@ -32,6 +34,7 @@ def mock_match() -> MagicMock:
             cell = MagicMock()
             cell.is_mana_bubble.return_value = False
             cell.is_archer.return_value = False  # Default: cells are not archers
+            cell.is_shielded.return_value = False
             row.append(cell)
         board_cells.append(row)
     game_board.board = board_cells
@@ -84,6 +87,7 @@ def board_evaluation() -> BoardEvaluation:
     eval_obj.ai_master_coords = Coordinates(1, 5)
     eval_obj.enemy_master_coords = Coordinates(9, 5)
     eval_obj.master_threat_level = MIN_THREAT_LEVEL
+    eval_obj.is_ai_master_stuck = False
     eval_obj.ai_mp = 5
     eval_obj.ai_stamina = 10
     eval_obj.positional_advantage = 0

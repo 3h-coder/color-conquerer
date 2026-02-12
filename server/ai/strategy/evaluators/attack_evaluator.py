@@ -1,10 +1,8 @@
 from typing import TYPE_CHECKING
-from game_engine.models.dtos.coordinates import Coordinates
-from ai.config.ai_config import (
-    AttackWeights,
-    HealthThresholds,
-)
+
+from ai.config.ai_config import AttackWeights, HealthThresholds
 from ai.strategy.evaluators.base_evaluator import BaseEvaluator
+from game_engine.models.dtos.coordinates import Coordinates
 
 if TYPE_CHECKING:
     from ai.strategy.evaluators.board.board_evaluation import BoardEvaluation
@@ -68,11 +66,76 @@ class AttackEvaluator(BaseEvaluator):
             return 0.0
 
         score += self._evaluate_master_retaliation_penalty(attacker_coords)
+        score += self._evaluate_safe_attack_bonus(attacker_coords, target_coords)
+        score += self._evaluate_master_rescue_bonus(
+            attacker_coords, target_coords, board_evaluation
+        )
         score += self._evaluate_threat_defense(target_cell, board_evaluation)
         score += self._evaluate_archer_elimination(target_cell)
         score += self._evaluate_kill_potential(target_cell)
 
         return score
+
+    def _evaluate_safe_attack_bonus(
+        self, attacker_coords: Coordinates | None, target_coords: Coordinates
+    ) -> float:
+        """
+        Safe attacks (ranged archer attacks or shielded units) are highly valuable
+        as they don't result in unit loss.
+        """
+        if not attacker_coords:
+            return 0.0
+
+        board = self._match_context.game_board
+        attacker = board.get(attacker_coords.row_index, attacker_coords.column_index)
+        target = board.get(target_coords.row_index, target_coords.column_index)
+
+        if not attacker or not target:
+            return 0.0
+
+        # Shielded units are safe for one hit
+        if attacker.is_shielded():
+            return AttackWeights.SAFE_ATTACK_BONUS
+
+        # Archers attacking from range are safe (unless target is also an archer)
+        if attacker.is_archer():
+            is_ranged = not attacker_coords.is_neighbour(target_coords)
+            if is_ranged and not target.is_archer():
+                return AttackWeights.SAFE_ATTACK_BONUS
+
+        return 0.0
+
+    def _evaluate_master_rescue_bonus(
+        self,
+        attacker_coords: Coordinates | None,
+        target_coords: Coordinates,
+        board_evaluation: "BoardEvaluation",
+    ) -> float:
+        """
+        If the master is stuck and at critical health, give a large bonus to
+        killing a cell that is blocking its movement.
+        """
+        if not attacker_coords:
+            return 0.0
+
+        if not board_evaluation.is_ai_master_stuck:
+            return 0.0
+
+        # Only apply if master health is critical
+        ai_player = (
+            self._match_context.player1
+            if self._ai_is_player1
+            else self._match_context.player2
+        )
+        if ai_player.resources.current_hp > HealthThresholds.CRITICAL:
+            return 0.0
+
+        # Check if the target cell is a neighbor of the master
+        # Killing it will free a spot for the master to move into.
+        if target_coords.is_neighbour(board_evaluation.ai_master_coords):
+            return AttackWeights.MASTER_RESCUE_BONUS
+
+        return 0.0
 
     def _evaluate_master_attack(self, board_evaluation: "BoardEvaluation") -> float:
         """

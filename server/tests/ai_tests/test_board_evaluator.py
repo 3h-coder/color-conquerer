@@ -4,25 +4,23 @@ Unit tests for the BoardEvaluator class.
 These tests construct specific game board scenarios and verify the evaluation results.
 """
 
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 from ai.strategy.evaluators.board.board_evaluator import BoardEvaluator
 from ai.strategy.evaluators.board.evaluation_constants import (
-    CRITICAL_HP_THRESHOLD,
-    WINNING_CELL_ADVANTAGE_THRESHOLD,
-    LOSING_CELL_DISADVANTAGE_THRESHOLD,
-    MIN_THREAT_LEVEL,
-)
-from game_engine.models.match.match_context import MatchContext
-from game_engine.models.game_board import GameBoard
+    CRITICAL_HP_THRESHOLD, LOSING_CELL_DISADVANTAGE_THRESHOLD,
+    MIN_THREAT_LEVEL, WINNING_CELL_ADVANTAGE_THRESHOLD)
+from constants.game_constants import BOARD_SIZE
 from game_engine.models.cell.cell import Cell
 from game_engine.models.cell.cell_owner import CellOwner
 from game_engine.models.cell.cell_state import CellState
+from game_engine.models.game_board import GameBoard
+from game_engine.models.match.match_context import MatchContext
 from game_engine.models.player.player import Player
-from game_engine.models.player.player_resources import PlayerResources
 from game_engine.models.player.player_match_data import PlayerMatchData
-from constants.game_constants import BOARD_SIZE
+from game_engine.models.player.player_resources import PlayerResources
 from handlers.match_handler_unit import MatchHandlerUnit
 
 
@@ -124,6 +122,55 @@ class TestBoardEvaluator:
 
         # But threat level should still be elevated due to archer
         assert evaluation.master_threat_level > 0
+
+    def test_master_stuck_detection(self) -> None:
+        """Test that the evaluator correctly identifies if the AI master is stuck."""
+        # === Arrange ===
+        match_context = create_test_match_context()
+        board = match_context.game_board
+
+        # AI Master is at (1, 5)
+        # Surround AI Master with enemy cells
+        spawn_cell(board, 0, 4, CellOwner.PLAYER_2)
+        spawn_cell(board, 0, 5, CellOwner.PLAYER_2)
+        spawn_cell(board, 0, 6, CellOwner.PLAYER_2)
+        spawn_cell(board, 1, 4, CellOwner.PLAYER_2)
+        spawn_cell(board, 1, 6, CellOwner.PLAYER_2)
+        spawn_cell(board, 2, 4, CellOwner.PLAYER_2)
+        spawn_cell(board, 2, 5, CellOwner.PLAYER_2)
+        spawn_cell(board, 2, 6, CellOwner.PLAYER_2)
+
+        evaluator = self._get_evaluator(match_context)
+
+        # === Act ===
+        evaluation = evaluator.evaluate()
+
+        # === Assert ===
+        assert evaluation.is_ai_master_stuck is True
+
+    def test_master_not_stuck_with_idle_neighbor(self) -> None:
+        """Test that the evaluator correctly identifies the master is NOT stuck if there is an idle spot."""
+        # === Arrange ===
+        match_context = create_test_match_context()
+        board = match_context.game_board
+
+        # AI Master is at (1, 5). Surround with enemy cells EXCEPT (0, 5)
+        spawn_cell(board, 0, 4, CellOwner.PLAYER_2)
+        # (0, 5) remains idle
+        spawn_cell(board, 0, 6, CellOwner.PLAYER_2)
+        spawn_cell(board, 1, 4, CellOwner.PLAYER_2)
+        spawn_cell(board, 1, 6, CellOwner.PLAYER_2)
+        spawn_cell(board, 2, 4, CellOwner.PLAYER_2)
+        spawn_cell(board, 2, 5, CellOwner.PLAYER_2)
+        spawn_cell(board, 2, 6, CellOwner.PLAYER_2)
+
+        evaluator = self._get_evaluator(match_context)
+
+        # === Act ===
+        evaluation = evaluator.evaluate()
+
+        # === Assert ===
+        assert evaluation.is_ai_master_stuck is False
 
     def test_lethal_opportunity_detection(self) -> None:
         """Test detection of lethal opportunities when AI can kill enemy master."""

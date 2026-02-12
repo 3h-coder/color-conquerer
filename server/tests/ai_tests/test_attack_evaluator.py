@@ -1,9 +1,11 @@
-import pytest
 from unittest.mock import MagicMock
-from ai.strategy.evaluators.attack_evaluator import AttackEvaluator
+
+import pytest
+
 from ai.config.ai_config import AttackWeights
-from game_engine.models.dtos.coordinates import Coordinates
+from ai.strategy.evaluators.attack_evaluator import AttackEvaluator
 from game_engine.models.cell.cell import Cell
+from game_engine.models.dtos.coordinates import Coordinates
 
 
 class TestAttackEvaluator:
@@ -229,6 +231,8 @@ class TestAttackEvaluator:
         master_coords = Coordinates(0, 0)
         master_cell = MagicMock(spec=Cell)
         master_cell.is_master = True
+        master_cell.is_shielded.return_value = False
+        master_cell.is_archer.return_value = False
 
         attack_evaluator._match_context.game_board = MagicMock()
 
@@ -279,3 +283,92 @@ class TestAttackEvaluator:
             + AttackWeights.CRITICAL_THREAT_DEFENSE
         )
         assert score == expected_score
+
+    def test_evaluate_archer_safe_attack(
+        self, attack_evaluator: AttackEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test that archers attacking from range get a safe attack bonus."""
+        # Arrange
+        attacker_coords = Coordinates(1, 1)
+        target_coords = Coordinates(3, 3)  # Ranged (not neighbors)
+
+        attacker_cell = MagicMock(spec=Cell)
+        attacker_cell.is_archer.return_value = True
+        attacker_cell.is_shielded.return_value = False
+        attacker_cell.is_master = False
+
+        target_cell = MagicMock(spec=Cell)
+        target_cell.is_archer.return_value = False
+        target_cell.is_shielded.return_value = True  # Avoid low HP bonus
+        target_cell.is_master = False
+
+        board_evaluation.enemy_cells_near_ai_master = []
+        board_evaluation.is_ai_master_stuck = False
+
+        # Setup game board mock
+        game_board = MagicMock()
+
+        def get_cell(row, col):
+            if row == 1 and col == 1:
+                return attacker_cell
+            if row == 3 and col == 3:
+                return target_cell
+            return None
+
+        game_board.get.side_effect = get_cell
+        attack_evaluator._match_context.game_board = game_board
+
+        # Act
+        score = attack_evaluator.evaluate(
+            target_coords, board_evaluation, attacker_coords
+        )
+
+        # Assert (Base + Safe Attack Bonus)
+        assert score == AttackWeights.BASE_ATTACK + AttackWeights.SAFE_ATTACK_BONUS
+
+    def test_evaluate_master_rescue(
+        self, attack_evaluator: AttackEvaluator, board_evaluation: MagicMock
+    ) -> None:
+        """Test that freeing a trapped master is highly prioritized."""
+        # Arrange
+        attacker_coords = Coordinates(1, 1)
+        target_coords = Coordinates(2, 5)  # Neighbor of AI master at (1, 5)
+
+        attacker_cell = MagicMock(spec=Cell)
+        attacker_cell.is_archer.return_value = False
+        attacker_cell.is_shielded.return_value = False
+        attacker_cell.is_master = False
+
+        target_cell = MagicMock(spec=Cell)
+        target_cell.is_archer.return_value = False
+        target_cell.is_shielded.return_value = True  # Avoid low HP bonus
+        target_cell.is_master = False
+
+        board_evaluation.ai_master_coords = Coordinates(1, 5)
+        board_evaluation.is_ai_master_stuck = True
+        board_evaluation.enemy_cells_near_ai_master = []
+
+        # Master at critical health (HP 3)
+        attack_evaluator._match_context.player1.resources.current_hp = 3
+        attack_evaluator._ai_is_player1 = True
+
+        # Setup game board mock
+        game_board = MagicMock()
+
+        def get_cell(row, col):
+            if row == 1 and col == 1:
+                return attacker_cell
+            if row == 2 and col == 5:
+                return target_cell
+            return None
+
+        game_board.get.side_effect = get_cell
+        attack_evaluator._match_context.game_board = game_board
+
+        # Act
+        score = attack_evaluator.evaluate(
+            target_coords, board_evaluation, attacker_coords
+        )
+
+        # Assert (Base + Rescue Bonus)
+        assert score == AttackWeights.BASE_ATTACK + AttackWeights.MASTER_RESCUE_BONUS

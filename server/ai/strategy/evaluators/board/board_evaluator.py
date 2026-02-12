@@ -9,26 +9,19 @@ This evaluator provides comprehensive board analysis including:
 - Positional advantage
 """
 
-from typing import TYPE_CHECKING
 from collections import deque
+from typing import TYPE_CHECKING
 
-from game_engine.models.cell.cell import Cell
-from game_engine.models.game_board import GameBoard
-from game_engine.models.dtos.coordinates import Coordinates
-from ai.strategy.evaluators.board.board_evaluation import BoardEvaluation
-from utils.board_utils import manhattan_distance
 from ai.strategy.evaluators.base_evaluator import BaseEvaluator
+from ai.strategy.evaluators.board.board_evaluation import BoardEvaluation
 from ai.strategy.evaluators.board.evaluation_constants import (
-    THREAT_DETECTION_RANGE,
-    THREAT_PER_ENEMY_CELL,
-    MAX_BASE_THREAT_FROM_CELLS,
-    MAX_THREAT_LEVEL,
-    MIN_THREAT_LEVEL,
-    CRITICAL_HP_THRESHOLD,
-    LOW_HP_THRESHOLD,
-    THREAT_INCREASE_CRITICAL_HP,
-    THREAT_INCREASE_LOW_HP,
-)
+    CRITICAL_HP_THRESHOLD, LOW_HP_THRESHOLD, MAX_BASE_THREAT_FROM_CELLS,
+    MAX_THREAT_LEVEL, MIN_THREAT_LEVEL, THREAT_DETECTION_RANGE,
+    THREAT_INCREASE_CRITICAL_HP, THREAT_INCREASE_LOW_HP, THREAT_PER_ENEMY_CELL)
+from game_engine.models.cell.cell import Cell
+from game_engine.models.dtos.coordinates import Coordinates
+from game_engine.models.game_board import GameBoard
+from utils.board_utils import manhattan_distance
 
 if TYPE_CHECKING:
     from handlers.match_handler_unit import MatchHandlerUnit
@@ -110,6 +103,9 @@ class BoardEvaluator(BaseEvaluator):
         enemy_clusters = self._find_cell_clusters(enemy_cells, game_board)
         largest_cluster = max((len(cluster) for cluster in enemy_clusters), default=0)
 
+        # Stuck analysis
+        is_ai_master_stuck = self._is_cell_stuck(ai_master_cell, game_board)
+
         return BoardEvaluation(
             ai_cell_count=ai_cell_count,
             enemy_cell_count=enemy_cell_count,
@@ -121,6 +117,7 @@ class BoardEvaluator(BaseEvaluator):
             enemy_cells_near_ai_master=enemy_cells_near_ai_master,
             ai_cells_near_enemy_master=ai_cells_near_enemy_master,
             master_threat_level=master_threat_level,
+            is_ai_master_stuck=is_ai_master_stuck,
             avg_ai_cell_distance_to_enemy_master=avg_ai_distance_to_enemy_master,
             avg_enemy_cell_distance_to_ai_master=avg_enemy_distance_to_ai_master,
             positional_advantage=positional_advantage,
@@ -142,6 +139,13 @@ class BoardEvaluator(BaseEvaluator):
             if cell.is_master:
                 return cell
         raise ValueError("No master cell found in the provided list")
+
+    def _is_cell_stuck(self, cell: Cell, board: GameBoard) -> bool:
+        """
+        Check if a cell has no valid movement neighbors (all neighbors are occupied).
+        """
+        neighbours = board.get_neighbours(cell.row_index, cell.column_index)
+        return all(neighbour.is_owned() for neighbour in neighbours)
 
     def _find_cells_near_target(
         self, cells: list[Cell], target: Cell, max_distance: int

@@ -4,19 +4,14 @@ BoardEvaluation - Data class containing the results of board state analysis.
 
 from dataclasses import dataclass
 
+from ai.strategy.evaluators.board.evaluation_constants import (
+    CRITICAL_DANGER_HP_THRESHOLD, CRITICAL_DANGER_MIN_ATTACKERS,
+    CRITICAL_DANGER_THREAT_THRESHOLD, DAMAGE_PER_ATTACK,
+    LOSING_CELL_DISADVANTAGE_THRESHOLD, LOSING_HP_DISADVANTAGE_THRESHOLD,
+    LOSING_THREAT_THRESHOLD, WINNING_CELL_ADVANTAGE_THRESHOLD,
+    WINNING_THREAT_THRESHOLD)
 from game_engine.models.cell.cell import Cell
 from game_engine.models.dtos.coordinates import Coordinates
-from ai.strategy.evaluators.board.evaluation_constants import (
-    WINNING_CELL_ADVANTAGE_THRESHOLD,
-    WINNING_THREAT_THRESHOLD,
-    LOSING_CELL_DISADVANTAGE_THRESHOLD,
-    LOSING_HP_DISADVANTAGE_THRESHOLD,
-    LOSING_THREAT_THRESHOLD,
-    DAMAGE_PER_ATTACK,
-    CRITICAL_DANGER_THREAT_THRESHOLD,
-    CRITICAL_DANGER_MIN_ATTACKERS,
-    CRITICAL_DANGER_HP_THRESHOLD,
-)
 
 
 @dataclass
@@ -43,6 +38,7 @@ class BoardEvaluation:
     enemy_cells_near_ai_master: list[Cell]  # Enemy cells that can threaten AI's master
     ai_cells_near_enemy_master: list[Cell]  # AI cells that can threaten enemy's master
     master_threat_level: int  # 0-10, how threatened is AI's master
+    is_ai_master_stuck: bool  # True if AI master has no valid moves
 
     # Positioning metrics
     avg_ai_cell_distance_to_enemy_master: float

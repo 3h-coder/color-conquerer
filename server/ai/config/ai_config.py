@@ -75,6 +75,8 @@ class AttackWeights:
     ARCHER_TARGET_BONUS = (
         65.0  # High priority - kill archers before they establish range dominance
     )
+    SAFE_ATTACK_BONUS = 25.0  # Bonus for safe attacks (ranged archer or shielded)
+    MASTER_RESCUE_BONUS = 80.0  # High bonus for freeing a trapped critical master
     MASTER_RETALIATION_PENALTY = (
         -40.0
     )  # Penalty: master should avoid attacking non-masters (loses HP)
