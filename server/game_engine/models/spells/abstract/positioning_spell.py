@@ -29,6 +29,15 @@ class PositioningSpell(Spell):
     def get_specific_metadata_dto(self):
         return self._get_positioning_info_dto()
 
+    def get_impacted_cells(self, coordinates: Coordinates) -> list[Coordinates]:
+        """
+        Returns the formation associated with the given coordinates.
+        """
+        formation_idx = self._formation_per_cell.get(coordinates)
+        if formation_idx is not None:
+            return self._cell_formations[formation_idx]
+        return [coordinates]
+
     @staticmethod
     def coordinates_to_key_string(coordinates: Coordinates):
         """⚠️ The key format "row_index,col_index" is being used by the client"""

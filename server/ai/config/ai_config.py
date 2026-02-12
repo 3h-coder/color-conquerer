@@ -107,7 +107,7 @@ class SpellWeights:
     # Mine Trap spell
     MINE_TRAP_BASE = 25.0
     MINE_TRAP_OWN_MASTER_PROXIMITY_FACTOR = 3.0
-    MINE_TRAP_ENEMY_CLUSTER_BONUS = 15.0
+    MINE_TRAP_ENEMY_CLUSTER_BONUS = 45.0
 
     # Archery Vow spell
     ARCHERY_VOW_BASE = (
@@ -117,21 +117,22 @@ class SpellWeights:
     ARCHERY_VOW_AVAILABILITY_BONUS = 20.0  # Bonus when spell is actually castable
 
     # Shield Formation spell
-    SHIELD_FORMATION_BASE = 65.0
+    SHIELD_FORMATION_BASE = 85.0  # High base due to strong defensive potential
     SHIELD_FORMATION_CRITICAL_BONUS = 30.0
+    SHIELD_FORMATION_PER_CELL_BONUS = 10.0  # Bonus per non-shielded cell in square
     SHIELD_FORMATION_REDUNDANT_PENALTY = (
-        40.0  # Penalty per already-shielded cell in 2x2 square
+        10.0  # Penalty per already-shielded cell in square
     )
 
     # Celerity spell
     CELERITY_BASE = 45.0
-    CELERITY_ADVANTAGE_BONUS = 15.0
+    CELERITY_ADVANTAGE_BONUS = 25.0
     CELERITY_PER_CELL_BONUS = 8.0  # Bonus per cell in diagonal formation
     CELERITY_SPECIAL_CELL_BONUS = (
         15.0  # Bonus per special cell (archer/master/shielded)
     )
     CELERITY_REDUNDANT_PENALTY = (
-        50.0  # Penalty per already-accelerated cell in diagonal
+        12.0  # Penalty per already-accelerated cell in diagonal
     )
 
 

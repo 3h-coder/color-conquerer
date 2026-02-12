@@ -31,7 +31,9 @@ class TestCelerityEvaluator:
         """Test that celerity gets a very low score in early game."""
         # Arrange
         board_evaluation.current_turn = 2
-        spell_action.metadata.impacted_coords = Coordinates(5, 5)
+        target_coords = Coordinates(5, 5)
+        spell_action.metadata.impacted_coords = target_coords
+        spell_action.spell.get_impacted_cells.return_value = [target_coords]
 
         # Act
         score = evaluator.evaluate_spell(spell_action, board_evaluation)
@@ -51,6 +53,7 @@ class TestCelerityEvaluator:
         board_evaluation.positional_advantage = 0
         target_coords = Coordinates(5, 5)
         spell_action.metadata.impacted_coords = target_coords
+        spell_action.spell.get_impacted_cells.return_value = [target_coords]
 
         # Mock only target cell as AI owned
         target_cell = evaluator._match_context.game_board.board[5][5]
@@ -85,6 +88,7 @@ class TestCelerityEvaluator:
         board_evaluation.positional_advantage = 10.0
         target_coords = Coordinates(5, 5)
         spell_action.metadata.impacted_coords = target_coords
+        spell_action.spell.get_impacted_cells.return_value = [target_coords]
 
         target_cell = evaluator._match_context.game_board.board[5][5]
         target_cell.row_index = 5
@@ -139,6 +143,11 @@ class TestCelerityEvaluator:
         # Make one cell special (archer)
         cells[1].is_archer.return_value = True  # (4,4) is an archer
 
+        # Mock the spell formation
+        spell_action.spell.get_impacted_cells.return_value = [
+            Coordinates(r, c) for r, c in coords_list
+        ]
+
         evaluator._match_context.game_board.get_cells_owned_by_player.return_value = (
             cells
         )
@@ -182,6 +191,11 @@ class TestCelerityEvaluator:
 
         # Make one cell already accelerated
         cells[1].is_accelerated.return_value = True
+
+        # Mock the spell formation
+        spell_action.spell.get_impacted_cells.return_value = [
+            Coordinates(r, c) for r, c in coords_list
+        ]
 
         evaluator._match_context.game_board.get_cells_owned_by_player.return_value = (
             cells

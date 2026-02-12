@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 from ai.strategy.evaluators.spells.base_spell_evaluator import BaseSpellEvaluator
 from game_engine.models.dtos.coordinates import Coordinates
-from utils.board_utils import get_diagonal_formations
 from ai.config.ai_config import SpellWeights
 
 if TYPE_CHECKING:
@@ -27,7 +26,7 @@ class CelerityEvaluator(BaseSpellEvaluator):
 
         # Analyze the diagonal formation this target belongs to
         target_coords = action.metadata.impacted_coords
-        diagonal_cells = self._get_diagonal_formation(target_coords)
+        diagonal_cells = action.spell.get_impacted_cells(target_coords)
 
         # Bonus based on diagonal size (more cells = more value)
         score += len(diagonal_cells) * SpellWeights.CELERITY_PER_CELL_BONUS
@@ -41,33 +40,6 @@ class CelerityEvaluator(BaseSpellEvaluator):
         score -= accelerated_count * SpellWeights.CELERITY_REDUNDANT_PENALTY
 
         return score
-
-    def _get_diagonal_formation(self, start_coords: Coordinates) -> list[Coordinates]:
-        """Find the diagonal formation that the target cell belongs to."""
-        board = self._match_context.game_board
-        ai_cells = board.get_cells_owned_by_player(player1=self._ai_is_player1)
-
-        # Build set of AI cell coordinates for fast lookup
-        ai_coords_set = {(cell.row_index, cell.column_index) for cell in ai_cells}
-
-        # Use shared utility to get both diagonals
-        diagonal1, diagonal2 = get_diagonal_formations(
-            start_coords.row_index, start_coords.column_index, ai_coords_set
-        )
-
-        # Convert tuples back to Coordinates and return the longer diagonal
-        if len(diagonal1) >= len(diagonal2):
-            return (
-                [Coordinates(r, c) for r, c in diagonal1]
-                if diagonal1
-                else [start_coords]
-            )
-        else:
-            return (
-                [Coordinates(r, c) for r, c in diagonal2]
-                if diagonal2
-                else [start_coords]
-            )
 
     def _count_special_cells(self, diagonal_cells: list[Coordinates]) -> int:
         """Count special cells (archer, master, shielded) in the diagonal."""

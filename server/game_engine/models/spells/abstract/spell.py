@@ -57,6 +57,14 @@ class Spell:
     ) -> list[Coordinates]:
         raise NotImplementedError
 
+    def get_impacted_cells(self, coordinates: Coordinates) -> list[Coordinates]:
+        """
+        Returns the list of coordinates that will be impacted by the spell
+        if casted on the given coordinates.
+        By default, only the target coordinate is impacted.
+        """
+        return [coordinates]
+
     def invoke(
         self,
         coordinates: Coordinates,
