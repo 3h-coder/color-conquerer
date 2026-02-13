@@ -63,6 +63,7 @@ export default function GameRulesHelp() {
                 title="Game Rules"
                 buttonText="Got it"
                 onClose={() => setShowGameRules(false)}
+                style={{ backgroundColor: "var(--deep-blue)" }}
             >
                 <ul id="game-rules-list" ref={gameRulesRef}>
                     {RULES.map((rule, index) => (

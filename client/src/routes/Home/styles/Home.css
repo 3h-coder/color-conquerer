@@ -72,10 +72,15 @@
   width: fit-content;
 }
 
-#home-buttons-container button {
+#play-button, #play-ai-button {
   /* Don't allow the font-size to shrink, even on small screens */
   font-size: 1rem;
   min-width: 200px;
+  height: 2.8rem; /* Fixed height to prevent layout shifts */
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .home-error-container {
@@ -132,4 +137,16 @@
 .play:hover{
   border: 1px solid white;
   color: white;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--primary-purple1) 25%, var(--primary-purple2) 50%, var(--primary-purple1) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  color: transparent !important;
+  pointer-events: none;
+  border: 0.16rem solid transparent !important;
+  padding: 0.4rem 1rem !important;
+  box-shadow: none !important;
+  transition: none !important;
 }

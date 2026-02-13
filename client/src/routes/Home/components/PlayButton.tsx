@@ -25,11 +25,10 @@ export default function PlayButton({ socketManager }: PlayButtonProps) {
     const navigate = useNavigate();
     const { user } = useUser();
     const { homeState, loading: homeStateLoading } = useHomeState();
-    const [mainButtonVisible, setMainButtonVisible] = useState(false);
     const [mainButtonFunction, setMainButtonFunction] = useState<() => void>(
         () => { }
     );
-    const [mainButtonText, setMainButtonText] = useState(EMPTY_STRING);
+    const [mainButtonText, setMainButtonText] = useState("Play vs Player");
     const [opponentSearchText, setOpponentSearchText] = useState("Searching for an opponent...");
     const [modalOpen, setModalOpen] = useState(false);
     const [modalCanBeClosed, setModalCanBeClosed] = useState(true);
@@ -44,7 +43,6 @@ export default function PlayButton({ socketManager }: PlayButtonProps) {
 
         function handleHomeState() {
             if (homeStateLoading) {
-                setMainButtonVisible(false);
                 return;
             }
 
@@ -64,7 +62,6 @@ export default function PlayButton({ socketManager }: PlayButtonProps) {
                 return () => navigate(fullPaths.play);
             });
             setMainButtonText("Rejoin");
-            setMainButtonVisible(true);
         }
 
         function setButtonToPlay() {
@@ -72,7 +69,6 @@ export default function PlayButton({ socketManager }: PlayButtonProps) {
                 return () => requestMultiplayerMatch();
             });
             setMainButtonText("Play vs Player");
-            setMainButtonVisible(true);
         }
     }, [homeState.state, homeStateLoading]);
 
@@ -129,8 +125,9 @@ export default function PlayButton({ socketManager }: PlayButtonProps) {
             <div id="home-buttons-container">
                 <button
                     onClick={mainButtonFunction}
-                    style={{ opacity: mainButtonVisible ? 1 : 0 }}
-                    className={homeState.state === HomeState.JOIN_BACK ? "box-shadow-glow" : EMPTY_STRING}
+                    id="play-button"
+                    className={`${homeState.state === HomeState.JOIN_BACK ? "box-shadow-glow" : EMPTY_STRING} ${homeStateLoading ? "skeleton" : EMPTY_STRING}`}
+                    disabled={homeStateLoading}
                 >
                     {mainButtonText}
                 </button>

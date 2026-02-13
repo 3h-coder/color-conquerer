@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import SingleButtonModal from "../../../components/modals/SingleButtonModal";
+import { useHomeState } from "../../../contexts/HomeStateContext";
 import { useUser } from "../../../contexts/UserContext";
 import { QueuePlayerDto } from "../../../dto/player/QueuePlayerDto";
 import { Events } from "../../../enums/events";
@@ -19,6 +20,7 @@ interface PlayAIButtonProps {
 
 export default function PlayAIButton({ socketManager }: PlayAIButtonProps) {
     const { user } = useUser();
+    const { loading: homeStateLoading } = useHomeState();
     const [modalOpen, setModalOpen] = useState(false);
 
     const queuePlayerDto: QueuePlayerDto = {
@@ -66,7 +68,12 @@ export default function PlayAIButton({ socketManager }: PlayAIButtonProps) {
 
     return (
         <>
-            <button onClick={requestAIMatch} id="play-ai-button">
+            <button
+                onClick={requestAIMatch}
+                id="play-ai-button"
+                className={homeStateLoading ? "skeleton" : EMPTY_STRING}
+                disabled={homeStateLoading}
+            >
                 Play vs AI
             </button>
             <SingleButtonModal
