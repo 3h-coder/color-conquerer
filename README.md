@@ -33,6 +33,7 @@ Currently licensed under the Creative Commons Attribution-NonCommercial 4.0 lice
 - Spells are special actions that players may use directly from their action bar.
 - Spells allow the player to restore their stamina (1 spell casting = 1 stamina point restored).
 - Each spell can only be cast a fixed number of times during the match.
+- Playing against an AI is available for solo practice.
 
 ### Additional information
 
@@ -43,10 +44,12 @@ Currently licensed under the Creative Commons Attribution-NonCommercial 4.0 lice
 # How to play
 
 Go to the official website at [colorconquerer.com](https://colorconquerer.com).
-Press the Play button and wait for an opponent.
+You have two ways to play:
+- **Play vs AI**: Instantly start a match against the computer.
+- **Play**: Enter the matchmaking queue to play against another person.
 
-Note: It is very unlikely that anyone is queuing so you may open up another browser or incognito tab to play against yourself.
+Note: Since it's a portfolio project, the matchmaking queue might be empty. You can still play against yourself by opening another browser tab or an incognito window, or simply enjoy a match against the AI.
 
-![image](https://i.imgur.com/spMHIx4.png)
+![image](https://i.imgur.com/52hYIri.png)
 
-Once an opponent has been found, the match starts. Try to defeat your opponent. Good luck!
+Once a match starts, try to defeat your opponent (or the AI). Good luck!
