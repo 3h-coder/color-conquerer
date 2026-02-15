@@ -9,6 +9,7 @@ import {
     developmentLog,
 } from "../../../utils/loggingUtils";
 import OpponentSearch from "./OpponentSearch";
+import { HomeState } from "../../../enums/homeState";
 
 interface PlayAIButtonProps {
     socketManager: {
@@ -20,7 +21,7 @@ interface PlayAIButtonProps {
 
 export default function PlayAIButton({ socketManager }: PlayAIButtonProps) {
     const { user } = useUser();
-    const { loading: homeStateLoading } = useHomeState();
+    const { homeState, loading: homeStateLoading } = useHomeState();
     const [modalOpen, setModalOpen] = useState(false);
 
     const queuePlayerDto: QueuePlayerDto = {
@@ -64,6 +65,10 @@ export default function PlayAIButton({ socketManager }: PlayAIButtonProps) {
         socketManager.markIntentionalDisconnection();
 
         socket.disconnect();
+    }
+
+    if (homeStateLoading || homeState.state === HomeState.JOIN_BACK) {
+        return null;
     }
 
     return (
